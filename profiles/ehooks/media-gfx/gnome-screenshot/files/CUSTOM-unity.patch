@@ -1,0 +1,106 @@
+From: Robert Ancell <robert.ancell@canonical.com>
+Date: Thu, 4 Dec 2014 14:30:34 +1300
+Subject: [PATCH] Adjust when running under Unity.
+
+Don't use GtkHeaderBar.
+Show the save dialog by default.
+Don't try and use the GNOME Shell D-Bus interface.
+---
+ src/screenshot-application.c |  4 ++--
+ src/screenshot-config.c      | 21 +++++++++++++++++++++
+ src/screenshot-config.h      |  1 +
+ src/screenshot-utils.c       |  9 +++++++++
+ 4 files changed, 33 insertions(+), 2 deletions(-)
+
+diff --git a/src/screenshot-application.c b/src/screenshot-application.c
+index 4cc64c8..2968152 100644
+--- a/src/screenshot-application.c
++++ b/src/screenshot-application.c
+@@ -131,7 +131,7 @@ static void
+ save_pixbuf_handle_error (ScreenshotApplication *self,
+                           GError *error)
+ {
+-  if (screenshot_config->interactive)
++  if (in_desktop ("Unity") || screenshot_config->interactive)
+     {
+       ScreenshotDialog *dialog = self->dialog;
+ 
+@@ -439,7 +439,7 @@ build_filename_ready_cb (GObject *source,
+ 
+   screenshot_play_sound_effect ("screen-capture", _("Screenshot taken"));
+ 
+-  if (screenshot_config->interactive)
++  if (in_desktop ("Unity") || screenshot_config->interactive)
+     {
+       self->dialog = screenshot_dialog_new (GTK_APPLICATION (self),
+                                             self->screenshot,
+diff --git a/src/screenshot-config.c b/src/screenshot-config.c
+index 6abeaa5..e9941c2 100644
+--- a/src/screenshot-config.c
++++ b/src/screenshot-config.c
+@@ -147,3 +147,24 @@ screenshot_config_parse_command_line (gboolean clipboard_arg,
+ 
+   return TRUE;
+ }
++
++gboolean
++in_desktop (const gchar *name)
++{
++  const gchar *desktop_name_list;
++  gchar **names;
++  gboolean in_list = FALSE;
++  gint i;
++
++  desktop_name_list = g_getenv ("XDG_CURRENT_DESKTOP");
++  if (!desktop_name_list)
++    return FALSE;
++
++  names = g_strsplit (desktop_name_list, ":", -1);
++  for (i = 0; names[i] && !in_list; i++)
++    if (strcmp (names[i], name) == 0)
++      in_list = TRUE;
++  g_strfreev (names);
++
++  return in_list;
++}
+diff --git a/src/screenshot-config.h b/src/screenshot-config.h
+index fdf77a9..c9883df 100644
+--- a/src/screenshot-config.h
++++ b/src/screenshot-config.h
+@@ -58,5 +58,6 @@ gboolean    screenshot_config_parse_command_line  (gboolean clipboard_arg,
+                                                    guint delay_arg,
+                                                    gboolean interactive_arg,
+                                                    const gchar *file_arg);
++gboolean in_desktop (const gchar *name);
+ 
+ G_END_DECLS
+diff --git a/src/screenshot-utils.c b/src/screenshot-utils.c
+index 9b87cad..ae4874e 100644
+--- a/src/screenshot-utils.c
++++ b/src/screenshot-utils.c
+@@ -74,6 +74,14 @@ screenshot_get_pixbuf (GdkRectangle *rectangle)
+   g_autoptr (ScreenshotBackend) backend = NULL;
+ 
+ #ifdef HAVE_X11
++  if (in_desktop ("Unity"))
++    {
++      g_clear_object (&backend);
++      backend = screenshot_backend_x11_new ();
++      screenshot = screenshot_backend_get_pixbuf (backend, rectangle);
++    }
++  else
++    {
+   force_fallback = g_getenv ("GNOME_SCREENSHOT_FORCE_FALLBACK") != NULL;
+ #endif
+ 
+@@ -99,6 +107,7 @@ screenshot_get_pixbuf (GdkRectangle *rectangle)
+       backend = screenshot_backend_x11_new ();
+       screenshot = screenshot_backend_get_pixbuf (backend, rectangle);
+     }
++    }
+ #endif
+ 
+   return screenshot;
+-- 
+2.26.2
+

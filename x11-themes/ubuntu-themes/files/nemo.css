@@ -1,0 +1,76 @@
+.nemo-window .nemo-window-pane .view:not(.rubberband):not(:selected):not(:active) {
+    background-color: @theme_bg_color;
+}
+
+.nemo-window .sidebar .nemo-places-sidebar,
+.nemo-window .sidebar .places-treeview,
+.nemo-window .sidebar .frame,
+.nemo-window .sidebar .NemoSidebar {
+    background-color: @places_sidebar_bg;
+}
+
+.nemo-window .sidebar .nemo-places-sidebar:backdrop,
+.nemo-window .sidebar .places-treeview:backdrop,
+.nemo-window .sidebar .frame:backdrop,
+.nemo-window .sidebar .NemoSidebar:backdrop {
+    background-color: @places_sidebar_backdrop_bg;
+}
+
+.nemo-window .places-treeview {
+    -NemoPlacesTreeView-disk-full-fg-color: shade(@places_sidebar_fg_color, 0.9);
+    -NemoPlacesTreeView-disk-full-bottom-padding: -1px;
+}
+
+.nemo-window .sidebar .view {
+    color: shade(@places_sidebar_fg_color, 0.9);
+    text-shadow: none;
+    -gtk-icon-shadow: none;
+}
+
+.nemo-window .sidebar .places-treeview {
+    -GtkTreeView-vertical-separator: 11;
+}
+
+.nemo-window .sidebar .NemoSidebar {
+    -GtkTreeView-vertical-separator: 7;
+}
+
+.nemo-window .sidebar .view:hover {
+    background-color: @theme_selected_bg_color;
+    color: @places_sidebar_fg_color;
+    text-shadow: 0 -1px alpha (shade (@fg_color, 1.55), 0.5);
+}
+
+.nemo-window .sidebar .view:hover:backdrop {
+    background-color: alpha(@backdrop_selected_bg_color, 0.4);
+    color: @backdrop_selected_fg_color;
+    text-shadow: none;
+}
+
+.nemo-window .sidebar .view:selected {
+    background-color: @places_sidebar_bg;
+    color: shade(@places_sidebar_selected_bg_color, 1.03);
+    text-shadow: 0 1px alpha (shade (@places_sidebar_selected_bg_color, 0.3), 0.5);
+}
+
+.nemo-window .sidebar .view:selected:backdrop {
+    background-color: @places_sidebar_backdrop_bg;
+    color: mix(shade(@places_sidebar_selected_bg_color, 1.03), shade(@places_sidebar_fg_color, 0.9), 0.3);
+    text-shadow: 0 1px alpha (shade (@places_sidebar_selected_bg_color, 0.4), 0.4);
+}
+
+.nemo-window .sidebar .view:hover:selected {
+    background-color: @places_sidebar_selected_bg_color;
+    color: @places_sidebar_fg_color;
+    text-shadow: 0 -1px alpha (shade (@fg_color, 1.55), 0.5);
+}
+
+.nemo-window .sidebar .view:hover:selected:backdrop {
+    background-color: alpha(@backdrop_selected_bg_color, 0.4);
+    color: @backdrop_selected_fg_color;
+}
+
+.nemo-window .sidebar .expander:selected,
+.nemo-window .sidebar .expander:selected:backdrop {
+    color: shade(@places_sidebar_fg_color, 0.9);
+}

@@ -1,0 +1,8 @@
+ebuild_hook() {
+	local \
+		blake=269004501f537e100ad4f15d63f2bedfe625f8e32c48830658002105e6e79c8aea38a2799928eed0864c1123f72db44943c708501ae4abfbb2fbc660191b8ccf \
+		uver=gsettings-desktop-schemas_3.38.0-1ubuntu1
+
+	source "${EHOOK_PATH}"/templates/fetch_debian.fnc
+	fetch_debian "${uver}" "${blake}"
+}

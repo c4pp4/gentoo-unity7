@@ -1,0 +1,8 @@
+ebuild_hook() {
+	local \
+		blake=afea24d38af57b484e2dc6f6d987dcbd76ace96efceb48210ea53c11a9f2a0845e5b975f5ba894d098aafc13d1b52d9605751a54fd164d2e3b676fc91700226a \
+		uver=lightdm_1.30.0-0ubuntu4
+
+	source "${EHOOK_PATH}"/templates/fetch_debian.fnc
+	fetch_debian "${uver}" "${blake}"
+}

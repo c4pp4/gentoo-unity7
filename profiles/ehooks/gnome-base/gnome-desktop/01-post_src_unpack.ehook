@@ -1,0 +1,8 @@
+ebuild_hook() {
+	local \
+		blake=5b2e9e00e18395c0eee91c112c1a7e8380b95e84f6734b3f50adf2eb78a379323b1d4e86564a58649fcadb9e00d2ea367dfb1b85f0381a8aa3a892cd0db4381c \
+		uver=gnome-desktop3_40.2-1ubuntu1
+
+	source "${EHOOK_PATH}"/templates/fetch_debian.fnc
+	fetch_debian "${uver}" "${blake}"
+}

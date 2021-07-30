@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="project">
+		<name>gentoo-unity7</name>
+	</maintainer>
+	<use>
+		<flag name="gles2">Use OpenGL ES 2.0</flag>
+		<flag name="hud">Enable the backend for Unity's HUD</flag>
+		<flag name="nemo">Enable desktop icons via <pkg>gnome-extra/nemo</pkg></flag>
+		<flag name="systray">Enable system tray support in the Unity menu bar</flag>
+	</use>
+</pkgmetadata>

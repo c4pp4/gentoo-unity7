@@ -1,0 +1,8 @@
+ebuild_hook() {
+	local \
+		blake=ed304a9379d340a6a74da3c7e25255b4a14224f88a4ce3df3f9672a6ec436d8cc1c103cd27ab3b92c87c9b61ba83eeb48abd0072bc47e597df4955bf4b9eea88 \
+		uver=gnome-menus_3.36.0-1ubuntu1
+
+	source "${EHOOK_PATH}"/templates/fetch_debian.fnc
+	fetch_debian "${uver}" "${blake}"
+}

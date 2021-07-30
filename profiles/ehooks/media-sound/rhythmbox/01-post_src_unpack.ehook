@@ -1,0 +1,8 @@
+ebuild_hook() {
+	local \
+		blake=bee02acb3ccb6f530b92c685365470f93caee9a37a7fca937232074dc68c0713e45d7a6c37c5d10485e00fa642e594e6d26f10fd30f8f7c82fe48cb06f82826b \
+		uver=rhythmbox_3.4.4-1ubuntu4
+
+	source "${EHOOK_PATH}"/templates/fetch_debian.fnc
+	fetch_debian "${uver}" "${blake}"
+}

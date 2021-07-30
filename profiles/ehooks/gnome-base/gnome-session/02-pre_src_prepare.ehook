@@ -1,0 +1,19 @@
+ebuild_hook() {
+	sed -i \
+		-e "s/Update-Latvian-translation/#Update-Latvian-translation/" \
+		-e "s/Update-Dutch-translation/#Update-Dutch-translation/" \
+		-e "s/Update-Hebrew-translation/#Update-Hebrew-translation/" \
+		-e "s/Update-Greek-translation/#Update-Greek-translation/" \
+		-e "s/Update-Bengali-India-translation/#Update-Bengali-India-translation/" \
+		-e "s/Update-Chinese-Taiwan-translation/#Update-Chinese-Taiwan-translation/" \
+		-e "s/Update-Norwegian-Bokm-l-translation/#Update-Norwegian-Bokm-l-translation/" \
+		-e "s/data-Fix-indirect-conflict-with-exit.target-via-app.slice/#data-Fix-indirect-conflict-with-exit.target-via-app.slice/" \
+		-e "s/Stop-dbus-daemon-instead-of-restarting-it/#Stop-dbus-daemon-instead-of-restarting-it/" \
+		-e "s/util-Only-accept-common-space-characters/#util-Only-accept-common-space-characters/" \
+		-e "s/util-Log-variables-excluded-from-environment-upload/#util-Log-variables-excluded-from-environment-upload/" \
+		-e "s/main-Use-already-defined-error-from-main-function/#main-Use-already-defined-error-from-main-function/" \
+		-e "s/main-Warn-about-failures-to-update-the-environment/#main-Warn-about-failures-to-update-the-environment/" \
+		-e "s/util-Never-try-to-autostart-systemd/#util-Never-try-to-autostart-systemd/" \
+		-e "s/util-Disable-capturing-of-subpatterns/#util-Disable-capturing-of-subpatterns/" \
+		"${WORKDIR}/debian/patches/series"
+}

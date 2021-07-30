@@ -1,0 +1,8 @@
+ebuild_hook() {
+	local \
+		blake=09bff0b2e67425f697ab1d57fb74d7a82d04854f7b606df0477c98e088935d2b5295d388a7d71e3bb857f9443156fa9fb96e9e9341b4b8ca95a2c58bb3d2f643 \
+		uver=accountsservice_0.6.55-0ubuntu13.2
+
+	source "${EHOOK_PATH}"/templates/fetch_debian.fnc
+	fetch_debian "${uver}" "${blake}"
+}

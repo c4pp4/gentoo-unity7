@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="project">
+		<name>gentoo-unity7</name>
+	</maintainer>
+	<use>
+		<flag name="gnome">Gnome wallpapers</flag>
+		<flag name="karmic">Karmic Koala wallpapers</flag>
+		<flag name="lucid">Lucid Lynx wallpapers</flag>
+		<flag name="maverick">Maverick Meerkat wallpapers</flag>
+		<flag name="natty">Natty Narwhal wallpapers</flag>
+		<flag name="oneiric">Oneiric Ocelot wallpapers</flag>
+		<flag name="precise">Precise Pangolin wallpapers</flag>
+		<flag name="quantal">Quantal Quetzal wallpapers</flag>
+		<flag name="raring">Raring Ringtail wallpapers</flag>
+		<flag name="saucy">Saucy Salamander wallpapers</flag>
+		<flag name="trusty">Trusty Tahr wallpapers</flag>
+		<flag name="utopic">Utopic Unicorn wallpapers</flag>
+		<flag name="vivid">Vivid Vervet wallpapers</flag>
+		<flag name="wily">Wily Werewolf wallpapers</flag>
+		<flag name="xenial">Xenial Xerus wallpapers</flag>
+		<flag name="yakkety">Yakkety Yak wallpapers</flag>
+		<flag name="zesty">Zesty Zapus wallpapers</flag>
+		<flag name="artful">Artful Aardvark wallpapers</flag>
+		<flag name="bionic">Bionic Beaver wallpapers</flag>
+		<flag name="cosmic">Cosmic Cuttlefish wallpapers</flag>
+		<flag name="disco">Disco Dingo wallpapers</flag>
+		<flag name="eoan">Eoan Ermine wallpapers</flag>
+		<flag name="focal">Focal Fossa wallpapers</flag>
+		<flag name="groovy">Groovy Gorilla wallpapers</flag>
+		<flag name="hirsute">Hirsute Hippo wallpapers</flag>
+		<flag name="impish">Impish Indri wallpapers</flag>
+	</use>
+</pkgmetadata>

@@ -1,0 +1,8 @@
+ebuild_hook() {
+	local \
+		blake=d833d67b40b1b039aaa8f84ffaf014c83917c952a0ba5228a586e8a5a970ae88b45bbff429cf993ae0012764108a589f827b5c0b60fac5170628db7c4d328fae \
+		uver=empathy_3.25.90+really3.12.14-2ubuntu1
+
+	source "${EHOOK_PATH}"/templates/fetch_debian.fnc
+	fetch_debian "${uver}" "${blake}"
+}

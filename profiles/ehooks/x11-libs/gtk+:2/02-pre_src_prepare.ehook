@@ -1,0 +1,5 @@
+ebuild_hook() {
+	sed -i \
+		-e "s/098_multiarch_module_path/#098_multiarch_module_path/" \
+		"${WORKDIR}/debian/patches/series"
+}

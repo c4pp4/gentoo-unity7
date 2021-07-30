@@ -1,0 +1,17 @@
+#!/sbin/openrc-run
+# Copyright 1999-2021 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+
+change() {
+	ebegin "Running cpufreq-set ${*}"
+	/usr/libexec/cpufrequtils-change.sh "${@}" > /dev/null
+	eend $?
+}
+
+start() {
+	change ${START_OPTS} -- ${SYSFS_EXTRA}
+}
+
+stop() {
+	change "${STOP_OPTS}"
+}

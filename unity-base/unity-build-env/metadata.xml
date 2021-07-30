@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="project">
+		<name>gentoo-unity7</name>
+	</maintainer>
+	<use>
+		<flag name="dev">Unmask overlay development packages with missing keyword (experimental)</flag>
+		<flag name="minimal">Install a very minimal build</flag>
+	</use>
+</pkgmetadata>

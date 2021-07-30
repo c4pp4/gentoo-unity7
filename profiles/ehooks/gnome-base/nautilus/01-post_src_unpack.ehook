@@ -1,0 +1,8 @@
+ebuild_hook() {
+	local \
+		blake=483904cdd537a62f5f84871c86715cf9083dc60b127a619ceba0bb5be6a8c58d11112e53944a687af97a23652b208818a4386516303430c975beb44e7c8d3193 \
+		uver=nautilus_3.38.2-1ubuntu2
+
+	source "${EHOOK_PATH}"/templates/fetch_debian.fnc
+	fetch_debian "${uver}" "${blake}"
+}

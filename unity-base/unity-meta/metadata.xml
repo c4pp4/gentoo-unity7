@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="project">
+		<name>gentoo-unity7</name>
+	</maintainer>
+	<use>
+		<flag name="accessibility">Gnome accessibility packages</flag>
+		<flag name="apps">Install Unity core applications</flag>
+		<flag name="chat">Instant messaging desktop integration via the messages indicator, defaults to pidgin</flag>
+		<flag name="extras">Install additional Unity applications</flag>
+		<flag name="fonts">Install Unity fonts</flag>
+		<flag name="games">Install Unity games</flag>
+		<flag name="utils">Install Unity utilities</flag>
+		<flag name="xdm">Use a display manager, defaults to lightdm and unity-greeter</flag>
+	</use>
+</pkgmetadata>

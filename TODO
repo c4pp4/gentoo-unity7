@@ -1,0 +1,2 @@
+* USE="doc debug tests"
+* Audit DEPEND and RDEPEND lists

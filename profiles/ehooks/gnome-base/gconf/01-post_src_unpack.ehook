@@ -1,0 +1,8 @@
+ebuild_hook() {
+	local \
+		blake=e7b8bd1906c0d62bbc9fbec11efc41c9825f662459731313b8b881e3621a9ff5e40a15eebe4bcfd91f543bce374601a397e1bf154b926cd42368a4548a4219e7 \
+		uver=gconf_3.2.6-7ubuntu1
+
+	source "${EHOOK_PATH}"/templates/fetch_debian.fnc
+	fetch_debian "${uver}" "${blake}"
+}
