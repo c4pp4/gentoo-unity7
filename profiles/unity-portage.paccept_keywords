@@ -3,7 +3,7 @@
 */*::gentoo-unity7
 
 # www-client/firefox related #
-~dev-libs/nss-3.67::gentoo
+~dev-libs/nss-3.68::gentoo
 www-client/firefox::gentoo
 
 ## Other packages keyword unmasking ##
