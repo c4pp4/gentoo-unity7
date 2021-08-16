@@ -85,6 +85,9 @@ src_install() {
 	find -L "${ED}" -type l -exec rm {} +
 }
 
-pkg_postinst() { xdg_icon_cache_update; }
+pkg_postinst() {
+	xdg_icon_cache_update
+	ubuntu-versionator_pkg_postinst
+}
 
 pkg_postrm() { xdg_icon_cache_update; }

@@ -6,9 +6,8 @@ emerge -1 `qdepends -CNQ x11-libs/gtk+ 2> /dev/null`
 		dev-libs/libdbusmenu, dev-libs/libindicator and dev-libs/libappindicator all be built with x11-libs/gtk:2 support
 	- Many indicators (bluetooth, weather, etc.) require dev-libs/libappindicator be built with Python GTK+-2.x bindings to function
 	- Gentoo is in the position of dropping GTK+-2.x Ubuntu Ayatana libraries from tree so we must maintain our own versions of
-		dev-libs/libdbusmenu
 		dev-libs/libindicator
-		dev-libs/libappindicator
+		dev-libs/libappindicator (via ehooks)
 
 * Core python deps. for the Dash lens to work
 	dev-libs/dee
@@ -17,35 +16,44 @@ emerge -1 `qdepends -CNQ x11-libs/gtk+ 2> /dev/null`
 	unity-lenses/unity-lens-video
 
 * Reasons for patching/maintaining packages:
-dev-libs/dee				# Portage tree versions can lag and is now being removed, maintained for patches and version control
-dev-libs/libindicator			# See "Using portage tree libindicate packages" above
-gnome-extra/activity-log-manager	# Adds unity-control-center integration
-gnome-extra/zeitgeist			# Removed from main tree, patched to perform VACUUM SQLite database on startups every 10 days and to pre-populate the log with some events so that the dash isn't empty on first run
+dev-libs/libindicator			# See "Using portage tree libindicate packages" above, the latest version in the Gentoo tree is 12.10.1 (2012-09-19)
 media-fonts/fonts-noto-cjk		# Repacked version with reduced size
 media-libs/glewmx			# Needed by unity-base/nux, MX discontinued as of GLEW v2.0.0
+x11-misc/notify-osd::gentoo		# The latest version in the Gentoo tree is 0.9.34 (2012-03-23)
+x11-themes/notify-osd-icons::gentoo	# The latest version in the Gentoo tree is 0.7 (2010-11-15)
+x11-themes/ubuntu-wallpapers::gentoo	# Version in the Gentoo tree doesn't control download size via USE-flags
 
 * Reasons for maintaining ebuild hooks:
 app-accessibility/at-spi2-core		# Start 'accessibility bus' by default (https://wiki.debian.org/accessibility-devel)
 app-admin/system-config-printer		# Fix Unity Control Center icon and About dialog icon
 app-backup/deja-dup			# Enable Unity7 user interface options
-dev-cpp/gtest				# Customised ebuild to install /usr/src/{gmock,gtest}/* source files lacking from main tree ebuild
-dev-libs/glib				# Critical underlying package to function of Unity, maintained for patches and version control
-dev-libs/libappindicator		# See "Using portage tree libindicate packages" item above
-gnome-base/gconf			# Installs 'update-gconf-defaults' script used by compiz to install compizconfig default settings into gconf registry
-gnome-base/gnome-desktop		# Patched to sync user selected background to accountsservice as used by lightdm background screen
+dev-cpp/gtest				# Install /usr/src/{gmock,gtest}/* source files lacking from main tree ebuild
+dev-libs/glib				# Patched to call gettext if .desktop file does not have inline translations
+dev-libs/libappindicator		# Build with GTK2, see "Using portage tree libindicate packages" item above
+gnome-base/gconf			# Install 'update-gconf-defaults' script - Ubuntu's gconf update tool
+					#  Ubuntu patchset:
+					#  05_nodisplay_autostart.patch
+					#  0001-gconf-gconf-value.h-Use-G_GNUC_-BEGIN_END-_DEPRECATI.patch
+					#  0001-Support-s-to-as-migrations-v2.patch
+					#  call-dbus_g_thread_init.patch
+					#  reduce-polling.patch
+gnome-base/gnome-desktop		# Ubuntu patchset:
+					#  04_compute_average_color.patch
+					#  tweak_color_computation.patch
 gnome-base/gnome-menus			# Needed for some menu patches but mostly to set XDG_MENU_PREFIX when running in gnome fallback mode
+gnome-base/gnome-panel			# 
 gnome-base/gnome-session		# Installs session files for launching Unity7 user interface
 gnome-base/gnome-settings-daemon	# unity-settings-daemon relies on files created from patchset
-					# compiz at runtime needs 'terminal' key in 'org.gnome.settings-daemon.plugins.media-keys' schema
-					# unity-greeter at runtime needs 'active' key in 'org.gnome.settings-daemon.plugins.housekeeping' schema
-
+					#  compiz at runtime needs 'terminal' key in 'org.gnome.settings-daemon.plugins.media-keys' schema
+					#  unity-greeter at runtime needs 'active' key in 'org.gnome.settings-daemon.plugins.housekeeping' schema
 gnome-base/gsettings-desktop-schemas	# Includes Unity7 user interface settings patches
 gnome-base/nautilus			# Give progressbar on Dash launcher nautilus icon
 gnome-extra/nemo			# Patches nemo-autostart.desktop to allow starting in Unity7 user interface
 gnome-extra/nm-applet			# Shows nm-applet in indicator panel
 gnome-extra/polkit-gnome		# Patched to have polkit-gnome-authentication-agent-1 xdg-autostart on Unity login
+gnome-extra/yelp			# 
 mail-client/thunderbird			# Add Unity menubar and desktop launcher with quicklist and translations
-mate-base/mate-panel			# Disable not working high dpi scaling and prevent menu-bar being hidden when Global Menus are enabled
+mail-client/thunderbird-bin		# Add desktop launcher with quicklist and translations
 media-fonts/ubuntu-font-family		# Add Ubuntu medium font (e.g. used by unity-indicators/indicator-keyboard)
 media-gfx/shotwell			# Patched for integration with Unity online accounts
 media-sound/rhythmbox			# Patched/compiled for indicator-sound support, menu quicklist, Magnatune and other Ubuntu UI improvements
@@ -56,32 +64,45 @@ sys-apps/accountsservice		# Requires patching for SetInputSources as needed by u
 sys-auth/polkit-pkla-compat		# Fix localstatedir path (/var/lib)
 www-client/chromium			# Required to support Unity Launcher icon effects (no duplicate icons, quicklist menu, progress bar, window title bar fixes etc.)
 www-client/firefox			# Add Unity menubar and desktop launcher with quicklist and translations
+www-client/firefox-bin			# Add desktop launcher with quicklist and translations
 x11-libs/gtk+				# Needed for global appmenu
 x11-misc/lightdm			# Custom fixes for Xsession profile sourcing and multi-monitor display
+x11-misc/x11vnc				# 
+x11-plugins/pidgin-libnotify		# 
 
 * Optional ebuild hooks managed via unity-extra/ehooks USE-flags:
-app-office/libreoffice			# Add Human icon theme and make it the default
-					# Add custom icons (savemodified_{large,small}.png)
-					# https://github.com/LibreOffice/core/tree/3498ed37527b7af795f00dc6a55c11e65a313186/icon-themes/human
-
+app-office/libreoffice			# Add Human icon theme and make it the default, create fontconfig configuration (30-opensymbol.conf) symlink
+					#  Add custom icons (savemodified_{large,small}.png)
+					#  https://github.com/LibreOffice/core/tree/3498ed37527b7af795f00dc6a55c11e65a313186/icon-themes/human
+app-office/libreoffice-bin		# Create fontconfig configuration (30-opensymbol.conf) symlink
 app-text/evince				# Add traditional menu bar (https://bugzilla.gnome.org/show_bug.cgi?id=736419), add menu translations
+app-text/foliate			# 
+gnome-extra/gnome-calculator		# 
+gnome-extra/gnome-calendar		# 
+gnome-extra/gnome-system-monitor	# 
 gnome-extra/nemo			# Remove 'Open as Root' context menu action
+gui-libs/libhandy			# 
 media-gfx/eog				# Add traditional menu bar (https://bugzilla.gnome.org/749976, https://bugs.debian.org/793445), add menu translations
+media-gfx/gnome-font-viewer		# 
 media-gfx/gnome-screenshot		# Use Ubuntu help instead of GNOME help, don't use GtkHeaderBar, show the save dialog by default, don't try and use the GNOME Shell D-Bus interface, add quicklist area-shot option
+media-gfx/simple-scan			# 
+media-libs/fontconfig			# 
 media-sound/audacity			# Fix Exec command to use Unity menubar properly
 media-video/totem			# Add traditional menubar (https://bugzilla.gnome.org/show_bug.cgi?id=749695)
 net-im/pidgin				# Add chat section into messaging menu (Available, Away, Busy, Invisible, Offline)
-net-im/telegram-desktop			# Add ubuntu-mono-dark tray icons and disable tray counter
+net-im/telegram-desktop			# Add ubuntu-mono-dark tray icons
+net-im/telegram-desktop-bin		# Add ubuntu-mono-dark tray icons
+sys-apps/baobab				# 
+sys-apps/gnome-disk-utility		# 
 x11-libs/vte:2.91			# Add the style context provider with FALLBACK priority
-					# NOTE: see x11-terms/gnome-terminal
-
+					#  NOTE: see x11-terms/gnome-terminal
 x11-misc/zim				# Install Ubuntu theme (/usr/share/icons/ubuntu-mono-{dark,light})
 x11-terms/gnome-terminal		# Add style classes and CSS names to some of our widgets, use theme transparency, draw proper background under the scrollbar (https://bugzilla.gnome.org/show_bug.cgi?id=754796, LP #1493964)
 
 * By design, some indicators or their features will not appear until they meet certain criteria
 	- indicator-messages	# Won't appear until a messaging type application is run first (eg. empathy, evolution (via indicator-evolution), pidgin, webapp)
 	- indicator-keyboard	# Won't appear until at least one input source is specified and 'Show current input source in menu bar' is checked in System Settings > Text Entry
-	- indicator-session	# Won't show username until 'Show my login in menu bar' is checked in System Settings > User Accounts
+	- indicator-session	# Won't show username until 'Show my login name in the menu bar' is checked in System Settings > User Accounts
 					and then only if user has been added to /etc/passwd using useradd's '--comment' GECOS field
 
 * Unity user specific settings locations

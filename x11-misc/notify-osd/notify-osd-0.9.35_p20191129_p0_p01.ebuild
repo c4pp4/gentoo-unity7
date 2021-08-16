@@ -4,7 +4,7 @@
 EAPI=6
 
 URELEASE="hirsute"
-inherit autotools gnome2-utils multilib savedconfig ubuntu-versionator
+inherit autotools gnome2-utils multilib savedconfig ubuntu-versionator xdg-utils
 
 UVER_PREFIX="+20.04.${PVR_MICRO}"
 
@@ -74,15 +74,15 @@ src_install() {
 	fi
 }
 
-pkg_preinst() {
-	gnome2_icon_savelist
-	gnome2_schemas_savelist
-}
+pkg_preinst() {	gnome2_schemas_savelist; }
+
 pkg_postinst() {
-	gnome2_icon_cache_update
 	gnome2_schemas_update
+	xdg_icon_cache_update
+	ubuntu-versionator_pkg_postinst
 }
+
 pkg_postrm() {
-	gnome2_icon_cache_update
 	gnome2_schemas_update
+	xdg_icon_cache_update
 }

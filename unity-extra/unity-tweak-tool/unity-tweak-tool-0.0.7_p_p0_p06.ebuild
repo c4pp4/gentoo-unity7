@@ -4,7 +4,7 @@
 EAPI=6
 PYTHON_COMPAT=( python3_{7..9} )
 
-inherit distutils-r1 gnome2-utils ubuntu-versionator xdg-utils
+inherit distutils-r1 ubuntu-versionator xdg-utils
 
 URELEASE="hirsute"
 UVER="+-${PVR_PL_MAJOR}ubuntu${PVR_PL_MINOR}"
@@ -99,19 +99,15 @@ src_install() {
 	mv "${ED%/}/usr/share/doc/${PN}" "${ED%/}/usr/share/doc/${PF}"
 }
 
-pkg_preinst() {
-	gnome2_icon_savelist
-}
-
 pkg_postinst() {
-	gnome2_icon_cache_update
 	xdg_desktop_database_update
+	xdg_icon_cache_update
 	xdg_mimeinfo_database_update
 	ubuntu-versionator_pkg_postinst
 }
 
 pkg_postrm() {
-	gnome2_icon_cache_update
 	xdg_desktop_database_update
+	xdg_icon_cache_update
 	xdg_mimeinfo_database_update
 }

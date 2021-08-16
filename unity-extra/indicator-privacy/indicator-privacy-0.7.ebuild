@@ -4,7 +4,7 @@
 EAPI=6
 PYTHON_COMPAT=( python3_{7..9} )
 
-inherit distutils-r1 gnome2-utils ubuntu-versionator
+inherit distutils-r1 gnome2-utils ubuntu-versionator xdg-utils
 
 DESCRIPTION="Indicator to change user privacy settings"
 HOMEPAGE="http://www.florian-diesch.de/software/indicator-privacy"
@@ -24,17 +24,15 @@ RDEPEND="dev-libs/libappindicator
 DEPEND="${RDEPEND}"
 RESTRICT="mirror"
 
-pkg_preinst() {
-	gnome2_icon_savelist
-	gnome2_schemas_savelist
-}
+pkg_preinst() {	gnome2_schemas_savelist; }
 
 pkg_postinst() {
-	gnome2_icon_cache_update
 	gnome2_schemas_update
+	xdg_icon_cache_update
+	ubuntu-versionator_pkg_postinst
 }
 
 pkg_postrm() {
-	gnome2_icon_cache_update
 	gnome2_schemas_update
+	xdg_icon_cache_update
 }

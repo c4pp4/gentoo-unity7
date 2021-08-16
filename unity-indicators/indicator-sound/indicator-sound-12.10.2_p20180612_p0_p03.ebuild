@@ -4,7 +4,7 @@
 EAPI=6
 
 URELEASE="hirsute"
-inherit cmake-utils gnome2-utils ubuntu-versionator vala
+inherit cmake-utils gnome2-utils ubuntu-versionator vala xdg-utils
 
 UVER_PREFIX="+18.10.${PVR_MICRO}"
 
@@ -75,17 +75,15 @@ src_install() {
 	find "${ED}" -name "*.pkla" -exec chown root:polkitd {} \;
 }
 
-pkg_preinst() {
-	gnome2_schemas_savelist
-	gnome2_icon_savelist
-}
+pkg_preinst() { gnome2_schemas_savelist; }
 
 pkg_postinst() {
 	gnome2_schemas_update
-	gnome2_icon_cache_update
+	xdg_icon_cache_update
+	ubuntu-versionator_pkg_postinst
 }
 
 pkg_postrm() {
 	gnome2_schemas_update
-	gnome2_icon_cache_update
+	xdg_icon_cache_update
 }

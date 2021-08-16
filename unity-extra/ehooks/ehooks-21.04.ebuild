@@ -103,6 +103,8 @@ src_install() {
 }
 
 pkg_postinst() {
+	ubuntu-versionator_pkg_postinst
+
 	local \
 		color_blink=$(tput blink) \
 		color_norm=$(tput sgr0) \

@@ -27,7 +27,6 @@ RDEPEND="app-i18n/ibus[introspection]
 	dev-python/python-xlib
 	dev-python/testtools[${PYTHON_USEDEP}]
 	dev-util/lttng-ust
-	gnome-base/gconf[introspection]
 	gnome-extra/zeitgeist
 	unity-base/compiz
 	x11-libs/gtk+:3[introspection]"

@@ -3,12 +3,11 @@
 */*::gentoo-unity7
 
 # www-client/firefox related #
-~dev-libs/nss-3.68::gentoo
 ~dev-libs/nspr-4.32::gentoo
+~dev-libs/nss-3.68::gentoo
 www-client/firefox::gentoo
 
 ## Other packages keyword unmasking ##
 app-backup/deja-dup::gentoo
-dev-libs/libappindicator::gentoo
 gnome-base/gnome-panel::gentoo
 x11-wm/metacity::gentoo

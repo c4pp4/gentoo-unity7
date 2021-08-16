@@ -1,5 +1,5 @@
 From f9befc2e57772f4b4cfd7896ecd5322c17c778d3 Mon Sep 17 00:00:00 2001
-From: c4pp4 <c4pp4@seznam.cz>
+From: c4pp4
 Date: Thu, 14 Feb 2019 22:57:50 +0100
 Subject: [PATCH 2/2] Fix Unity Messaging Menu
 
@@ -7,7 +7,7 @@ Make possible to close conversation window opened by Unity Messaging
 Menu (debian/patches/messaging_menu.patch).
 
 Bug-Ubuntu: https://launchpad.net/bugs/1339405
-Signed-off-by: c4pp4 <c4pp4@seznam.cz>
+Signed-off-by: c4pp4
 ---
  src/pidgin-libnotify.c | 13 ++-----------
  1 file changed, 2 insertions(+), 11 deletions(-)

@@ -5,7 +5,7 @@ EAPI=6
 GNOME2_LA_PUNT="yes"
 
 URELEASE="hirsute"
-inherit autotools eutils gnome2 ubuntu-versionator
+inherit autotools eutils gnome2 ubuntu-versionator xdg-utils
 
 UVER_PREFIX="+17.10.${PVR_MICRO}"
 
@@ -53,16 +53,13 @@ src_install() {
 		done
 }
 
-pkg_preinst() {
-	gnome2_icon_savelist
-}
-
 pkg_postinst() {
-	gnome2_icon_cache_update
+	xdg_icon_cache_update
+	ubuntu-versionator_pkg_postinst
 	elog "Please note the printer jobs indicator requires the cupsd daemon to be"
 	elog " running so that it can grab printer job status from cups dbus notifier"
 }
 
 pkg_postrm() {
-	gnome2_icon_cache_update
+	xdg_icon_cache_update
 }

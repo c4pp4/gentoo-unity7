@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-inherit gnome2-utils ubuntu-versionator
+inherit gnome2-utils ubuntu-versionator xdg-utils
 
 URELEASE="hirsute"
 UVER=
@@ -29,6 +29,9 @@ src_install() {
 	find -L "${ED}" -type l -delete
 }
 
-pkg_preinst() { gnome2_icon_savelist; }
-pkg_postinst() { gnome2_icon_cache_update; }
-pkg_postrm() { gnome2_icon_cache_update; }
+pkg_postinst() {
+	xdg_icon_cache_update
+	ubuntu-versionator_pkg_postinst
+}
+
+pkg_postrm() { xdg_icon_cache_update; }

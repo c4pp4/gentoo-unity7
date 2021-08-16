@@ -83,6 +83,7 @@ src_install() {
 }
 
 pkg_postinst() {
+	ubuntu-versionator_pkg_postinst
 	if use gnome-online-accounts; then
 		echo
 		ewarn "USE-flag 'gnome-online-accounts' declared:"

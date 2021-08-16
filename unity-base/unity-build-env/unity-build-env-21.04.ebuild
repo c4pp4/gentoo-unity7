@@ -39,6 +39,7 @@ src_install() {
 }
 
 pkg_postinst() {
+	ubuntu-versionator_pkg_postinst
 	use dev && echo \
 		&& ewarn "Overlay missing keyword unmasking has been detected. Continue if you really know how broken development packages could be."
 	echo

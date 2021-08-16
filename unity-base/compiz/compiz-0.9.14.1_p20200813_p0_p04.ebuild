@@ -5,7 +5,7 @@ EAPI=6
 PYTHON_COMPAT=( python3_{7..9} )
 
 URELEASE="hirsute"
-inherit gnome2-utils cmake-utils eutils python-r1 ubuntu-versionator xdummy
+inherit gnome2-utils cmake-utils eutils python-r1 ubuntu-versionator xdg-utils xdummy
 
 UVER_PREFIX="+20.10.${PVR_MICRO}"
 
@@ -33,7 +33,6 @@ COMMONDEPEND="!!x11-wm/compiz
 	dev-libs/protobuf
 	dev-python/cython[${PYTHON_USEDEP}]
 	dev-python/python-distutils-extra[${PYTHON_USEDEP}]
-	gnome-base/gconf
 	>=gnome-base/gsettings-desktop-schemas-3.8
 	>=gnome-base/librsvg-2.14.0:2
 	media-libs/glew:=
@@ -136,12 +135,6 @@ src_test() {
 }
 
 src_compile() {
-	# Disable unitymtgrabhandles plugin #
-#	sed -e "s:unitymtgrabhandles;::g" \
-#		-i "${CMAKE_USE_DIR}"/debian/unity{,-lowgfx}.ini
-#	sed -e "s:'unitymtgrabhandles',::g" \
-#		-i "${CMAKE_USE_DIR}/debian/compiz-gnome.gsettings-override"
-
 	compilation() {
 		cmake-utils_src_compile VERBOSE=1
 	}
@@ -177,22 +170,6 @@ src_install() {
 		dodoc AUTHORS NEWS README
 		doman debian/{ccsm,compiz,gtk-window-decorator}.1
 
-		# X11 startup script #
-#		exeinto /etc/X11/xinit/xinitrc.d/
-#		doexe debian/65compiz_profile-on-session
-
-## PROVIDED BY unity-base/unity ##
-		# Unity Compiz profile configuration file #
-#		insinto /etc/compizconfig
-#		newins debian/compizconfig config
-#		doins debian/unity.ini
-#		doins debian/unity-lowgfx.ini
-
-		# Compiz profile upgrade helper files for ensuring smooth upgrades from older configuration files #
-#		insinto /etc/compizconfig/upgrades/
-#		doins debian/profile_upgrades/*.upgrade
-##################################
-
 		insinto /usr/$(get_libdir)/compiz/migration/
 		doins postinst/convert-files/*.convert
 
@@ -202,18 +179,15 @@ src_install() {
 	popd &> /dev/null
 }
 
-pkg_preinst() {
-	gnome2_gconf_savelist
-	gnome2_schemas_savelist
-	gnome2_icon_savelist
-}
+pkg_preinst() {	gnome2_schemas_savelist; }
 
 pkg_postinst() {
-	gnome2_gconf_install
 	gnome2_schemas_update
-	gnome2_icon_cache_update
+	xdg_icon_cache_update
+	ubuntu-versionator_pkg_postinst
 }
 
 pkg_postrm() {
 	gnome2_schemas_update
+	xdg_icon_cache_update
 }

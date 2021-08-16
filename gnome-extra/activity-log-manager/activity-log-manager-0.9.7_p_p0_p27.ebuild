@@ -4,7 +4,7 @@
 EAPI=6
 
 URELEASE="hirsute"
-inherit autotools eutils gnome2-utils ubuntu-versionator vala
+inherit autotools eutils gnome2-utils ubuntu-versionator vala xdg-utils
 
 DESCRIPTION="Blacklist configuration user interface for Zeitgeist"
 HOMEPAGE="https://launchpad.net/activity-log-manager"
@@ -61,6 +61,9 @@ src_install() {
 	prune_libtool_files --modules
 }
 
-pkg_preinst() { gnome2_icon_savelist; }
-pkg_postinst() { gnome2_icon_cache_update; ubuntu-versionator_pkg_postinst;}
-pkg_postrm() { gnome2_icon_cache_update; }
+pkg_postinst() {
+	xdg_icon_cache_update
+	ubuntu-versionator_pkg_postinst
+}
+
+pkg_postrm() { xdg_icon_cache_update; }

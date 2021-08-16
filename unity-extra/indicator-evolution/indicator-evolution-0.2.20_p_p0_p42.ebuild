@@ -56,4 +56,5 @@ pkg_preinst() {
 
 pkg_postinst() {
 	gnome2_gconf_install
+	ubuntu-versionator_pkg_postinst
 }

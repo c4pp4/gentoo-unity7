@@ -6,7 +6,7 @@ PYTHON_COMPAT=( python3_{7..9} )
 DISTUTILS_SINGLE_IMPL=1
 
 URELEASE="hirsute"
-inherit gnome2-utils distutils-r1 ubuntu-versionator
+inherit gnome2-utils distutils-r1 ubuntu-versionator xdg-utils
 
 UVER="-${PVR_MICRO}build${PVR_PL_MAJOR}"
 
@@ -58,17 +58,15 @@ src_install() {
 	distutils-r1_src_install
 }
 
-pkg_preinst() {
-	gnome2_icon_savelist
-	gnome2_schemas_savelist
-}
+pkg_preinst() {	gnome2_schemas_savelist; }
 
 pkg_postinst() {
-	gnome2_icon_cache_update
 	gnome2_schemas_update
+	xdg_icon_cache_update
+	ubuntu-versionator_pkg_postinst
 }
 
 pkg_postrm() {
-	gnome2_icon_cache_update
 	gnome2_schemas_update
+	xdg_icon_cache_update
 }

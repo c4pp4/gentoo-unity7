@@ -96,14 +96,11 @@ src_install() {
 	prune_libtool_files --modules
 }
 
-pkg_preinst() {
-	gnome2_schemas_savelist
-}
+pkg_preinst() { gnome2_schemas_savelist; }
 
 pkg_postinst() {
 	gnome2_schemas_update
+	ubuntu-versionator_pkg_postinst
 }
 
-pkg_postrm() {
-	gnome2_schemas_update
-}
+pkg_postrm() { gnome2_schemas_update; }

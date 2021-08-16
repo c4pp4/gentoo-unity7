@@ -234,10 +234,9 @@ src_install() {
 	fi
 }
 
-pkg_preinst() { gnome2_icon_savelist; }
-
 pkg_postinst() {
 	xdg_icon_cache_update
+	ubuntu-versionator_pkg_postinst
 	if ! use webkit; then
 		echo
 		elog "Searching in the dash - Legal notice:"

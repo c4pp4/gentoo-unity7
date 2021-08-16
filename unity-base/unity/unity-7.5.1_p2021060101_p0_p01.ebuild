@@ -51,7 +51,6 @@ DEPEND="${RDEPEND}
 	dev-libs/libunity
 	dev-libs/libunity-misc:=
 	dev-libs/xpathselect
-	gnome-base/gconf
 	gnome-base/gnome-desktop:3=
 	gnome-base/gnome-menus:3
 	gnome-base/gnome-session[systemd]
@@ -273,12 +272,11 @@ src_install() {
 	done
 }
 
-pkg_preinst() {
-        gnome2_schemas_savelist
-}
+pkg_preinst() { gnome2_schemas_savelist; }
 
 pkg_postinst() {
 	gnome2_schemas_update
+	ubuntu-versionator_pkg_postinst
 	echo
 	elog "If you use a custom ~/.xinitrc to startx"
 	elog "then you should add the following to the top of your ~/.xinitrc file"
@@ -299,6 +297,4 @@ pkg_postinst() {
 	echo
 }
 
-pkg_postrm() {
-	gnome2_schemas_update
-}
+pkg_postrm() { gnome2_schemas_update; }

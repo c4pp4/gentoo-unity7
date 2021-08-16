@@ -5,7 +5,7 @@ EAPI=6
 PYTHON_COMPAT=( python3_{7..9} )
 
 URELEASE="hirsute"
-inherit distutils-r1 gnome2-utils ubuntu-versionator
+inherit distutils-r1 gnome2-utils ubuntu-versionator xdg-utils
 
 DESCRIPTION="CPU frequency scaling indicator for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/classicmenu-indicator"
@@ -50,14 +50,9 @@ src_install() {
 	doins "${ED}usr/share/applications/indicator-cpufreq.desktop"
 }
 
-pkg_preinst() {
-	gnome2_icon_savelist
-}
-
 pkg_postinst() {
-	gnome2_icon_cache_update
+	xdg_icon_cache_update
+	ubuntu-versionator_pkg_postinst
 }
 
-pkg_postrm() {
-	gnome2_icon_cache_update
-}
+pkg_postrm() { xdg_icon_cache_update; }

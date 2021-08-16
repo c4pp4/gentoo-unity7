@@ -125,6 +125,8 @@ src_install() {
 }
 
 pkg_postinst() {
+	ubuntu-versionator_pkg_postinst
+
 	local ylp dvh rs
 
 	has_version "gnome-extra/yelp" || ylp="to install gnome-extra/yelp package and "
