@@ -1,0 +1,5 @@
+ebuild_hook() {
+	sed -i \
+		-e "s/09_app_install_entry/#09_app_install_entry/" \
+		"${WORKDIR}/debian/patches/series"
+}
