@@ -235,6 +235,16 @@ find_portage_updates() {
 	[[ -z ${pmask[@]} ]] && echo "no pmask" || echo "${result[@]}"
 }
 
+update_firefox_dep() {
+	local old_pkg new_pkg x
+
+	for x in dev-libs/nspr dev-libs/nss; do
+		old_pkg="$(grep -F ${x} $1)"; old_pkg="${old_pkg#~}"; old_pkg="${old_pkg%::gentoo}"
+		new_pkg="$(grep -F ${x} $2)"; new_pkg="${new_pkg#*>=}"
+		[[ ${old_pkg} != ${new_pkg} ]] && sed -i -e "s:${old_pkg}:${new_pkg}:" "$1" && echo " * ${x}: '${1##*/}' entry... [${color_green}updated${color_norm}]"
+	done
+}
+
 portage_updates() {
 	[[ $(type -P equery) != "/usr/bin/equery" ]] && echo && eerror "'equery' tool from 'app-portage/gentoolkit' package not found!" && echo && exit 1
 	[[ ! -w /etc/portage/package.unmask ]] && echo && eerror "Permission denied to perform 'update'!" && echo && exit 1
@@ -274,10 +284,11 @@ portage_updates() {
 			echo " * Update from ${color_bold}${old_pkg}${color_norm} to ${color_yellow}${new_pkg}${color_norm}"
 			printf "%s" " * Test command 'ebuild \$(portageq get_repo_path / gentoo)/${new_pkg%-[0-9]*}/${new_pkg#*/}.ebuild clean prepare'${color_blink}...${color_norm}"
 			if ebuild "${main_repo}/${new_pkg%-[0-9]*}/${new_pkg#*/}".ebuild clean prepare 1>/dev/null && sed -i -e "s:${old_pkg}:${new_pkg}:" "${pmask}" 2>/dev/null; then
-				printf "\b\b\b%s\n" "... [${color_green}passed${color_norm}] and 'unity-portage.pmask' entry... [${color_green}updated${color_norm}]"
+				printf "\b\b\b%s\n" "... [${color_green}passed${color_norm}] and '${pmask##*/}' entry... [${color_green}updated${color_norm}]"
 			else
-				printf "\b\b\b%s\n" "... [${color_red}failed${color_norm}] and unity-portage.pmask entry... [${color_red}not updated${color_norm}]"
+				printf "\b\b\b%s\n" "... [${color_red}failed${color_norm}] and '${pmask##*/}' entry... [${color_red}not updated${color_norm}]"
 			fi
+			[[ ${new_pkg} == "www-client/firefox"* ]] && update_firefox_dep "${pmask/pmask/paccept_keywords}" "${main_repo}/${new_pkg/firefox/firefox\/firefox}.ebuild"
 			echo
 		done
 	fi
