@@ -6,5 +6,5 @@ ebuild_hook() {
 	sed -i \
 		-e "s/multiarch_fallback/#multiarch_fallback/" \
 		-e "s/revert_tracker_update/#revert_tracker_update/" \
-		"${WORKDIR}/debian/patches/series"
+		"${S}/debian/patches/series"
 }

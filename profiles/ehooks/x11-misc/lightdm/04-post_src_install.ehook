@@ -7,10 +7,10 @@ ebuild_hook() {
 
 	insinto /etc/${PN}/${PN}.conf.d
 	doins "${EHOOK_FILESDIR}"/50-display-setup.conf		# Executes lightdm-greeter-display-setup
-	doins "${WORKDIR}"/debian/50-greeter-wrapper.conf	# Executes lightdm-greeter-session
+	doins "${S}"/debian/50-greeter-wrapper.conf		# Executes lightdm-greeter-session
 
 	exeinto /usr/lib/${PN}
-	doexe "${WORKDIR}"/debian/lightdm-greeter-session	# Handle extraneous dbus processes (eliminates 2nd nm-applet icon)
+	doexe "${S}"/debian/lightdm-greeter-session		# Handle extraneous dbus processes (eliminates 2nd nm-applet icon)
 	# script makes lightdm multi monitor sessions aware
 	# and enable first display as primary output
 	# all other monitors are aranged right of it in a row
@@ -31,7 +31,7 @@ ebuild_hook() {
 
 	# install guest-account script
 	exeinto /usr/bin
-	newexe "${WORKDIR}"/debian/guest-account.sh guest-account || die
+	newexe "${S}"/debian/guest-account.sh guest-account || die
 	# to work the script properly
 	exeinto /usr/share/lightdm/guest-session
 	doexe "${EHOOK_FILESDIR}"/setup.sh

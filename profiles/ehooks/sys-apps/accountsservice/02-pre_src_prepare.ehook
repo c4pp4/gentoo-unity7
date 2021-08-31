@@ -4,5 +4,5 @@ ebuild_hook() {
 		-e "s/0006-adduser_instead_of_useradd/#0006-adduser_instead_of_useradd/" \
 		-e "s/0009-language-tools/#0009-language-tools/" \
 		-e "s/0013-add-has-message-support/#0013-add-has-message-support/" \
-		"${WORKDIR}/debian/patches/series"
+		"${S}/debian/patches/series"
 }

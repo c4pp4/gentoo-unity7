@@ -1,5 +1,5 @@
 ebuild_hook() {
 	# Install Ubuntu's gconf update tool #
 	exeinto /usr/bin
-	doexe "${WORKDIR}/debian/update-gconf-defaults"
+	doexe "${S}/debian/update-gconf-defaults"
 }

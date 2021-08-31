@@ -7,5 +7,5 @@ ebuild_hook() {
 		-e "s/25_gconf-path-max-hurd/#25_gconf-path-max-hurd/" \
 		-e "s/26_gtk-doc/#26_gtk-doc/" \
 		-e "s/pytwonisms/#pytwonisms/" \
-		"${WORKDIR}/debian/patches/series"
+		"${S}/debian/patches/series"
 }

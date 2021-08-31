@@ -15,5 +15,5 @@ ebuild_hook() {
 		-e "s/main-Warn-about-failures-to-update-the-environment/#main-Warn-about-failures-to-update-the-environment/" \
 		-e "s/util-Never-try-to-autostart-systemd/#util-Never-try-to-autostart-systemd/" \
 		-e "s/util-Disable-capturing-of-subpatterns/#util-Disable-capturing-of-subpatterns/" \
-		"${WORKDIR}/debian/patches/series"
+		"${S}/debian/patches/series"
 }

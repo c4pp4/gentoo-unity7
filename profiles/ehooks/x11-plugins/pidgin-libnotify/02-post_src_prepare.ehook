@@ -4,5 +4,5 @@ ebuild_hook() {
 	sed -i \
 		-e "s/de_po/#de_po/" \
 		-e "s/it_po/#it_po/" \
-		"${WORKDIR}/debian/patches/series"
+		"${S}/debian/patches/series"
 }
