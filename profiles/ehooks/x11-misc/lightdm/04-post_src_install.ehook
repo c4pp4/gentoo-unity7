@@ -25,7 +25,7 @@ ebuild_hook() {
 	# Add support for settings GSettings/dconf defaults in the guest session. Just
 	# put the files in /etc/guest-session/gsettings/. The file format is the same
 	# as the regular GSettings override files.
-	pushd "${WORKDIR}" 1>/dev/null
+	pushd "${S}" 1>/dev/null
 		eapply "${EHOOK_FILESDIR}"/guest-session-add-default-gsettings-support.patch.debian
 	popd 1>/dev/null
 
