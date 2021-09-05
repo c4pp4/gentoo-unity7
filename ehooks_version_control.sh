@@ -316,7 +316,7 @@ get_uvers() {
 }
 
 get_debian_archive() {
-	wget -q "https://launchpad.net/ubuntu/+archive/primary/+files/$1.debian.tar.$2" -O "/tmp/$1.debian.tar.$2"
+	wget -q "https://launchpad.net/ubuntu/+archive/primary/+files/$1.debian.tar.$2" -O "/tmp/ehooks-debian.tmp" && chmod 666 /tmp/ehooks-debian.tmp
 }
 
 update_checksum() {
@@ -326,11 +326,7 @@ update_checksum() {
 
 	printf "%s" "Looking for BLAKE2 checksums${color_blink}...${color_norm}"
 
-	local suffix sum x
-
 	local -a uvers=( $(get_uvers "$@") )
-
-	printf "\b\b\b%s\n\n" "... done!"
 
 	if [[ -z ${uvers[@]} ]]; then
 		[[ -n $@ ]] && eerror "No checksum found! Package name must be in format: \${CATEGORY}/\${PN}." || eerror "No checksum found."
@@ -338,22 +334,32 @@ update_checksum() {
 		exit 1
 	fi
 
+	local chsed sum x
+
+	local -a result
+
 	for x in "${uvers[@]}"; do
 		## Format: "file|uver".
-		if get_debian_archive "${x#*|}" "xz"; then
-			suffix="xz"
-		elif get_debian_archive "${x#*|}" "gz"; then
-			suffix="gz"
+		if get_debian_archive "${x#*|}" "xz" || get_debian_archive "${x#*|}" "gz"; then
+			sum=$(b2sum "/tmp/ehooks-debian.tmp")
+			chsed=$(b2sum "${x%|*}")
+			sed -i -e "s/blake=.*/blake=${sum%  *} \\\\/" "${x%|*}"
+			[[ ${chsed} != $(b2sum "${x%|*}") ]] && result+=( " ${color_green}*${color_norm} ${x%|*}... ${color_green}checksum updated!${color_norm}" )
 		else
-			eerror "${x#*|}.debian.tar.{xz,gz}: file not found"
-			echo
-			exit 1
+			result+=( " ${color_red}*${color_norm} ${x%|*}... ${color_red}debian file not found!${color_norm}" )
 		fi
-		sum=$(b2sum "/tmp/${x#*|}.debian.tar.${suffix}")
-		sed -i -e "s/blake=.*/blake=${sum%  *} \\\\/" "${x%|*}"
-		einfo "${x%|*}... ${color_green}checksum updated!${color_norm}"
-		echo
 	done
+
+	printf "\b\b\b%s\n\n" "... done!"
+
+	if [[ -n "${result[@]}" ]]; then
+		for x in "${result[@]}"; do
+			echo "${x}"
+		done
+	else
+		einfo "No updates found"
+	fi
+	echo
 }
 
 case $1 in
