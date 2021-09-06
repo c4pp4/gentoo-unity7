@@ -186,7 +186,7 @@ ehooks_changes() {
 	elif [[ ${changes[0]} == "="* ]] && ( [[ -z ${changes[1]} ]] || [[ ${changes[1]} == "="* ]] ); then
 		ewarn "Rebuild the packages affected by ehooks changes:"
 		echo
-		ewarn "emerge -1 ${changes[@]}"
+		ewarn "emerge -av1 ${changes[@]}"
 	else
 		case ${changes[@]} in
 			applied|"applied reset"|"reset applied")
@@ -321,15 +321,15 @@ get_debian_archive() {
 	local -a filenames=( $1.debian.tar.xz $1.debian.tar.gz )
 
 	for x in "${filenames[@]}"; do
-		if wget -q "https://launchpad.net/ubuntu/+archive/primary/+files/${x}" -O "/tmp/${2:-ehooks-${x}}"; then
-			chmod 666 "/tmp/${2:-ehooks-${x}}"
-			return
-		fi
+		[[ -z $2 ]] && [[ -r /tmp/ehooks-${x} ]] && return
+		wget -q -T 60 "https://launchpad.net/ubuntu/+archive/primary/+files/${x}" -O "/tmp/${2:-ehooks-${x}}" && chmod 666 "/tmp/${2:-ehooks-${x}}" && return
 	done
+
 	return 1
 }
 
 debian_changes() {
+	[[ $(type -P equery) != "/usr/bin/equery" ]] && echo && eerror "'equery' tool from 'app-portage/gentoolkit' package not found!" && echo && exit 1
 	[[ -z $1 ]] && [[ ${PWD} == $(get_repo_root) ]] && echo && eerror "Don't run 'check' inside installed repo!" && echo && exit 1
 	[[ -z $1 ]] && ! grep -Fq "gentoo-unity7" "${PWD}"/profiles/repo_name 2>/dev/null && echo && eerror "Run 'check' inside dev repo or set path!" && echo && exit 1
 	[[ -n $1 ]] && ! grep -Fq "gentoo-unity7" "${PWD}"/profiles/repo_name 2>/dev/null && ! grep -Fq "gentoo-unity7" "$1"/profiles/repo_name 2>/dev/null && echo && eerror "Dev repo path not found!" && echo && exit 1
@@ -372,7 +372,7 @@ debian_changes() {
 		echo
 	fi
 
-	printf "%s" "Looking for upstream version changes${color_blink}...${color_norm}"
+	printf "%s" "Looking for available version changes${color_blink}...${color_norm}"
 
 	local \
 		releases="hirsute hirsute-security hirsute-updates impish impish-security impish-updates" \
@@ -381,41 +381,39 @@ debian_changes() {
 
 	for rls in ${releases}; do
 		for src in ${sources}; do
-			wget -q http://archive.ubuntu.com/ubuntu/dists/${rls}/${src}/source/Sources.gz -O /tmp/ehooks-sources-${src}-${rls}.gz && chmod 666 /tmp/ehooks-sources-${src}-${rls}.gz || exit 1
+			wget -q -T 60 http://archive.ubuntu.com/ubuntu/dists/${rls}/${src}/source/Sources.gz -O /tmp/ehooks-sources-${src}-${rls}.gz && chmod 666 /tmp/ehooks-sources-${src}-${rls}.gz || exit 1
 			gunzip -qf /tmp/ehooks-sources-${src}-${rls}.gz || exit 1
 		done
 	done
 
-	local \
-		pn un uv
+	local pn un uv
 
-	local -a upuvers
+	local -a auvers
 
 	result=()
 
 	for x in "${uvers[@]}"; do
-		upuvers=()
+		auvers=()
 		un="${x#*|}"
 		for r in ${releases}; do
 			for s in ${sources}; do
 				uv=$(grep -A6 "Package: ${un%_*}$" /tmp/ehooks-sources-${s}-${r} | sed -n 's/^Version: \(.*\)/\1/p' | sed 's/[0-9]://g')
-				[[ ${un#*_} == ${uv} ]] && upuvers=() && break 2
-				[[ -n ${uv} ]] && upuvers+=( "'${uv}'" )
+				[[ -n ${uv} ]] && [[ ${un#*_} != ${uv} ]] && auvers+=( "'${uv}'" )
 			done
 		done
 
 		pn="${x#*ehooks/}"; pn="${pn%/*}"
-		if [[ -n ${upuvers[@]} ]]; then
-			result+=( " ${color_yellow}*${color_norm} ${pn}... ${color_yellow}${x#*|}${color_norm} changes found: ${upuvers[*]}" )
+		if [[ -n ${auvers[@]} ]]; then
+			result+=( " ${color_yellow}*${color_norm} $(equery -q l -p -F '$cpv|$mask2' "${pn}" | grep "\[32;01m" | tail -1 | sed "s/|.*$//")... local: ${color_green}${x#*|}${color_norm} available: ${auvers[*]}" )
 			get_debian_archive "${x#*|}"
 			tar -xf "/tmp/ehooks-${x#*|}.debian.tar.xz" -C /tmp debian/patches/series --strip-components 2
 			mv /tmp/series /tmp/ehooks-series
-			upuvers=( "${upuvers[@]//\'}" )
-			for uv in "${upuvers[@]}"; do
+			auvers=( "${auvers[@]//\'}" )
+			for uv in "${auvers[@]}"; do
 				get_debian_archive "${un%_*}_${uv}"
 				tar -xf "/tmp/ehooks-${un%_*}_${uv}.debian.tar.xz" -C /tmp debian/patches/series --strip-components 2
-				if [[ -z $(diff /tmp/ehooks-series /tmp/series) ]]; then
-					result=( "${result[@]/${uv}/${color_green}${uv}${color_norm}}" )
+				if [[ -n $(diff /tmp/ehooks-series /tmp/series) ]]; then
+					result[${#result[@]}-1]="${result[${#result[@]}-1]/${uv}/${color_red}${uv}${color_norm}}"
 				fi
 			done
 		fi
@@ -469,7 +467,7 @@ case $1 in
 		echo "		It looks for Gentoo tree updates and refreshes unity-portage.pmask version entries (it needs temporary access to /etc/portage/package.unmask)."
 		echo
 		echo "	${color_blue}-c${color_norm}, ${color_blue}--check${color_norm} [${color_cyan}$(tput smul)repo path$(tput rmul)${color_norm}] [${color_cyan}$(tput smul)packages$(tput rmul)${color_norm}]"
-		echo "		It looks for BLAKE2 checksum changes of debian archive file in {pre,post}_src_unpack.ehook and looks for upstream version changes."
+		echo "		It looks for BLAKE2 checksum changes of debian archive file in {pre,post}_src_unpack.ehook and looks for available version changes."
 		echo
 		exit 1
 esac
