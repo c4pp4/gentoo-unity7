@@ -264,10 +264,10 @@ portage_updates() {
 	printf "\b\b\b%s\n\n" "... done!"
 
 	if [[ ${updates[@]} == "no pmask" ]]; then
-		eerror "'unity-portage.pmask' file not found."
+		eerror "'unity-portage.pmask' file not found"
 		echo
 	elif [[ -z ${updates[@]} ]]; then
-		einfo "No updates found."
+		einfo "No updates found"
 		echo
 	else
 		local pmask="${x}/profiles/unity-portage.pmask"
@@ -316,37 +316,48 @@ get_uvers() {
 }
 
 get_debian_archive() {
-	wget -q "https://launchpad.net/ubuntu/+archive/primary/+files/$1.debian.tar.$2" -O "/tmp/ehooks-debian.tmp" && chmod 666 /tmp/ehooks-debian.tmp
+	local x
+
+	local -a filenames=( $1.debian.tar.xz $1.debian.tar.gz )
+
+	for x in "${filenames[@]}"; do
+		if wget -q "https://launchpad.net/ubuntu/+archive/primary/+files/${x}" -O "/tmp/${2:-ehooks-${x}}"; then
+			chmod 666 "/tmp/${2:-ehooks-${x}}"
+			return
+		fi
+	done
+	return 1
 }
 
-update_checksum() {
-	[[ -z $1 ]] && [[ ${PWD} == $(get_repo_root) ]] && echo && eerror "Don't run 'checksum' inside installed repo!" && echo && exit 1
-	[[ -z $1 ]] && ! grep -Fq "gentoo-unity7" "${PWD}"/profiles/repo_name 2>/dev/null && echo && eerror "Run 'checksum' inside dev repo or set path!" && echo && exit 1
+debian_changes() {
+	[[ -z $1 ]] && [[ ${PWD} == $(get_repo_root) ]] && echo && eerror "Don't run 'check' inside installed repo!" && echo && exit 1
+	[[ -z $1 ]] && ! grep -Fq "gentoo-unity7" "${PWD}"/profiles/repo_name 2>/dev/null && echo && eerror "Run 'check' inside dev repo or set path!" && echo && exit 1
 	[[ -n $1 ]] && ! grep -Fq "gentoo-unity7" "${PWD}"/profiles/repo_name 2>/dev/null && ! grep -Fq "gentoo-unity7" "$1"/profiles/repo_name 2>/dev/null && echo && eerror "Dev repo path not found!" && echo && exit 1
 
-	printf "%s" "Looking for BLAKE2 checksums${color_blink}...${color_norm}"
+	printf "%s" "Looking for BLAKE2 checksum changes${color_blink}...${color_norm}"
 
 	local -a uvers=( $(get_uvers "$@") )
 
 	if [[ -z ${uvers[@]} ]]; then
-		[[ -n $@ ]] && eerror "No checksum found! Package name must be in format: \${CATEGORY}/\${PN}." || eerror "No checksum found."
+		[[ -n $@ ]] && eerror "No package found! Package name must be in format: \${CATEGORY}/\${PN}." || eerror "No package found."
 		echo
 		exit 1
 	fi
 
-	local chsed sum x
+	local chsed pn sum x
 
 	local -a result
 
 	for x in "${uvers[@]}"; do
 		## Format: "file|uver".
-		if get_debian_archive "${x#*|}" "xz" || get_debian_archive "${x#*|}" "gz"; then
+		pn="${x#*ehooks/}"; pn="${pn%/*}"
+		if get_debian_archive "${x#*|}" "ehooks-debian.tmp"; then
 			sum=$(b2sum "/tmp/ehooks-debian.tmp")
 			chsed=$(b2sum "${x%|*}")
 			sed -i -e "s/blake=.*/blake=${sum%  *} \\\\/" "${x%|*}"
-			[[ ${chsed} != $(b2sum "${x%|*}") ]] && result+=( " ${color_green}*${color_norm} ${x%|*}... ${color_green}checksum updated!${color_norm}" )
+			[[ ${chsed} != $(b2sum "${x%|*}") ]] && result+=( " ${color_green}*${color_norm} ${pn}... ${color_green}checksum updated!${color_norm}" )
 		else
-			result+=( " ${color_red}*${color_norm} ${x%|*}... ${color_red}debian file not found!${color_norm}" )
+			result+=( " ${color_red}*${color_norm} ${pn}... ${color_red}debian file not found!${color_norm}" )
 		fi
 	done
 
@@ -354,12 +365,72 @@ update_checksum() {
 
 	if [[ -n "${result[@]}" ]]; then
 		for x in "${result[@]}"; do
-			echo "${x}"
+			printf "%s\n\n" "${x}"
 		done
 	else
-		einfo "No updates found"
+		einfo "No changes found"
+		echo
 	fi
-	echo
+
+	printf "%s" "Looking for upstream version changes${color_blink}...${color_norm}"
+
+	local \
+		releases="hirsute hirsute-security hirsute-updates impish impish-security impish-updates" \
+		sources="main universe" \
+		rls src
+
+	for rls in ${releases}; do
+		for src in ${sources}; do
+			wget -q http://archive.ubuntu.com/ubuntu/dists/${rls}/${src}/source/Sources.gz -O /tmp/ehooks-sources-${src}-${rls}.gz && chmod 666 /tmp/ehooks-sources-${src}-${rls}.gz || exit 1
+			gunzip -qf /tmp/ehooks-sources-${src}-${rls}.gz || exit 1
+		done
+	done
+
+	local \
+		pn un uv
+
+	local -a upuvers
+
+	result=()
+
+	for x in "${uvers[@]}"; do
+		upuvers=()
+		un="${x#*|}"
+		for r in ${releases}; do
+			for s in ${sources}; do
+				uv=$(grep -A6 "Package: ${un%_*}$" /tmp/ehooks-sources-${s}-${r} | sed -n 's/^Version: \(.*\)/\1/p' | sed 's/[0-9]://g')
+				[[ ${un#*_} == ${uv} ]] && upuvers=() && break 2
+				[[ -n ${uv} ]] && upuvers+=( "'${uv}'" )
+			done
+		done
+
+		pn="${x#*ehooks/}"; pn="${pn%/*}"
+		if [[ -n ${upuvers[@]} ]]; then
+			result+=( " ${color_yellow}*${color_norm} ${pn}... ${color_yellow}${x#*|}${color_norm} changes found: ${upuvers[*]}" )
+			get_debian_archive "${x#*|}"
+			tar -xf "/tmp/ehooks-${x#*|}.debian.tar.xz" -C /tmp debian/patches/series --strip-components 2
+			mv /tmp/series /tmp/ehooks-series
+			upuvers=( "${upuvers[@]//\'}" )
+			for uv in "${upuvers[@]}"; do
+				get_debian_archive "${un%_*}_${uv}"
+				tar -xf "/tmp/ehooks-${un%_*}_${uv}.debian.tar.xz" -C /tmp debian/patches/series --strip-components 2
+				if [[ -z $(diff /tmp/ehooks-series /tmp/series) ]]; then
+					result=( "${result[@]/${uv}/${color_green}${uv}${color_norm}}" )
+				fi
+			done
+		fi
+	done
+
+	printf "\b\b\b%s\n\n" "... done!"
+
+	if [[ -n "${result[@]}" ]]; then
+		for x in "${result[@]}"; do
+			printf "%s\n\n" "${x}"
+		done
+	else
+		einfo "No changes found"
+		echo
+	fi
 }
 
 case $1 in
@@ -372,9 +443,9 @@ case $1 in
 	-u|--update)
 		portage_updates "$2"
 		;;
-	-c|--checksum)
+	-c|--check)
 		shift
-		update_checksum "$@"
+		debian_changes "$@"
 		;;
 	*)
 		echo "${color_blue}NAME${color_norm}"
@@ -397,8 +468,8 @@ case $1 in
 		echo "	${color_blue}-u${color_norm}, ${color_blue}--update${color_norm} [${color_cyan}$(tput smul)repo path$(tput rmul)${color_norm}]"
 		echo "		It looks for Gentoo tree updates and refreshes unity-portage.pmask version entries (it needs temporary access to /etc/portage/package.unmask)."
 		echo
-		echo "	${color_blue}-c${color_norm}, ${color_blue}--checksum${color_norm} [${color_cyan}$(tput smul)repo path$(tput rmul)${color_norm}] [${color_cyan}$(tput smul)packages$(tput rmul)${color_norm}]"
-		echo "		It updates BLAKE2 checksum of debian archive file in {pre,post}_src_unpack.ehook."
+		echo "	${color_blue}-c${color_norm}, ${color_blue}--check${color_norm} [${color_cyan}$(tput smul)repo path$(tput rmul)${color_norm}] [${color_cyan}$(tput smul)packages$(tput rmul)${color_norm}]"
+		echo "		It looks for BLAKE2 checksum changes of debian archive file in {pre,post}_src_unpack.ehook and looks for upstream version changes."
 		echo
 		exit 1
 esac

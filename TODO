@@ -1,2 +1,3 @@
 * USE="doc debug tests"
 * Audit DEPEND and RDEPEND lists
+* Use only necessary patches form debian archive files

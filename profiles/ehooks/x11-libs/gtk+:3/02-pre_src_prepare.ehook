@@ -1,9 +1,1 @@
-ebuild_hook() {
-	sed -i \
-		-e "s/updateiconcache-Sort-list-of-entries/#updateiconcache-Sort-list-of-entries/" \
-		-e "s/x11-dnd-Ignore-XErrors-from-the-COW/#x11-dnd-Ignore-XErrors-from-the-COW/" \
-		-e "s/cssshadowvalue-Apply-device-scale-to-the-offset-when/#cssshadowvalue-Apply-device-scale-to-the-offset-when/" \
-		-e "s/git_wayland_fonts/#git_wayland_fonts/" \
-		-e "s/git_imcontext/#git_imcontext/" \
-		"${S}/debian/patches/series"
-}
+../../templates/patches.ehook
