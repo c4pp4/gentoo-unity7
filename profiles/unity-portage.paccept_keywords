@@ -4,7 +4,7 @@
 
 # www-client/firefox related #
 ~dev-libs/nspr-4.32::gentoo
-~dev-libs/nss-3.68::gentoo
+~dev-libs/nss-3.69::gentoo
 www-client/firefox::gentoo
 
 ## Other packages keyword unmasking ##

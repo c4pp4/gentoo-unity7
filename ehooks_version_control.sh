@@ -239,7 +239,7 @@ update_firefox_dep() {
 	local old_pkg new_pkg x
 
 	for x in dev-libs/nspr dev-libs/nss; do
-		old_pkg="$(grep -F ${x} $1)"; old_pkg="${old_pkg#~}"; old_pkg="${old_pkg%::gentoo}"
+		old_pkg="$(grep -F ${x} $1)"; old_pkg="${old_pkg#*~}"; old_pkg="${old_pkg%::gentoo*}"
 		new_pkg="$(grep -F ${x} $2)"; new_pkg="${new_pkg#*>=}"
 		[[ ${old_pkg} != ${new_pkg} ]] && sed -i -e "s:${old_pkg}:${new_pkg}:" "$1" && echo " * ${x}: '${1##*/}' entry... [${color_green}updated${color_norm}]"
 	done
@@ -344,7 +344,7 @@ debian_changes() {
 		exit 1
 	fi
 
-	local chsed pn sum x
+	local presed pn sum x
 
 	local -a result
 
@@ -353,9 +353,9 @@ debian_changes() {
 		pn="${x#*ehooks/}"; pn="${pn%/*}"
 		if get_debian_archive "${x#*|}" "ehooks-debian.tmp"; then
 			sum=$(b2sum "/tmp/ehooks-debian.tmp")
-			chsed=$(b2sum "${x%|*}")
+			presed=$(b2sum "${x%|*}")
 			sed -i -e "s/blake=.*/blake=${sum%  *} \\\\/" "${x%|*}"
-			[[ ${chsed} != $(b2sum "${x%|*}") ]] && result+=( " ${color_green}*${color_norm} ${pn}... ${color_green}checksum updated!${color_norm}" )
+			[[ ${presed} != $(b2sum "${x%|*}") ]] && result+=( " ${color_green}*${color_norm} ${pn}... ${color_green}checksum updated!${color_norm}" )
 		else
 			result+=( " ${color_red}*${color_norm} ${pn}... ${color_red}debian file not found!${color_norm}" )
 		fi
@@ -386,7 +386,7 @@ debian_changes() {
 		done
 	done
 
-	local pn un uv
+	local un uv
 
 	local -a auvers
 
@@ -414,6 +414,7 @@ debian_changes() {
 				tar -xf "/tmp/ehooks-${un%_*}_${uv}.debian.tar.xz" -C /tmp debian/patches/series --strip-components 2
 				if [[ -n $(diff /tmp/ehooks-series /tmp/series) ]]; then
 					result[${#result[@]}-1]="${result[${#result[@]}-1]/${uv}/${color_red}${uv}${color_norm}}"
+					src="anotation"
 				fi
 			done
 		fi
@@ -425,6 +426,7 @@ debian_changes() {
 		for x in "${result[@]}"; do
 			printf "%s\n\n" "${x}"
 		done
+		[[ ${src} == "anotation" ]] && printf "%s\n\n" "${color_red}[ debian/patches/series differ from local ]${color_norm}"
 	else
 		einfo "No changes found"
 		echo
@@ -467,7 +469,7 @@ case $1 in
 		echo "		It looks for Gentoo tree updates and refreshes unity-portage.pmask version entries (it needs temporary access to /etc/portage/package.unmask)."
 		echo
 		echo "	${color_blue}-c${color_norm}, ${color_blue}--check${color_norm} [${color_cyan}$(tput smul)repo path$(tput rmul)${color_norm}] [${color_cyan}$(tput smul)packages$(tput rmul)${color_norm}]"
-		echo "		It looks for BLAKE2 checksum changes of debian archive file in {pre,post}_src_unpack.ehook and looks for available version changes."
+		echo "		It looks for BLAKE2 checksum changes of debian archive file in {pre,post}_src_unpack.ehook and performs the update. It also looks for available version changes."
 		echo
 		exit 1
 esac
