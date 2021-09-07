@@ -239,7 +239,7 @@ update_firefox_dep() {
 	local old_pkg new_pkg x
 
 	for x in dev-libs/nspr dev-libs/nss; do
-		old_pkg="$(grep -F ${x} $1)"; old_pkg="${old_pkg#*~}"; old_pkg="${old_pkg%::gentoo*}"
+		old_pkg="$(grep -F ${x} $1)"; old_pkg="${old_pkg#\~}"; old_pkg="${old_pkg%::gentoo}"
 		new_pkg="$(grep -F ${x} $2)"; new_pkg="${new_pkg#*>=}"
 		[[ ${old_pkg} != ${new_pkg} ]] && sed -i -e "s:${old_pkg}:${new_pkg}:" "$1" && echo " * ${x}: '${1##*/}' entry... [${color_green}updated${color_norm}]"
 	done
