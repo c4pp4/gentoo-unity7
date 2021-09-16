@@ -37,7 +37,7 @@ UURL="https://launchpad.net/ubuntu/+archive/primary/+files"
 
 #---------------------------------------------------------------------------------------------------------------------------------#
 
-[[ ${URELEASE} == focal* ]] && UVER_RELEASE="20.04"	# unity-extra/indicator-evolution-0.2.20_p_p0_p42.ebuild
+[[ ${URELEASE} == focal* ]] && UVER_RELEASE="20.04"	# unity-extra/indicator-evolution-0.2.20_p_p0_p42
 [[ ${URELEASE} == hirsute* ]] && UVER_RELEASE="21.04"
 [[ ${URELEASE} == impish* ]] && UVER_RELEASE="21.10"
 
