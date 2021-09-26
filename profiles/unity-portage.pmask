@@ -10,7 +10,7 @@
 >gnome-base/nautilus-40.2
 >gnome-extra/gnome-calendar-40.2
 >gnome-extra/nemo-4.8.4-r1
->gnome-extra/nm-applet-1.22.0
+>gnome-extra/nm-applet-1.22.0-r1
 >gnome-extra/polkit-gnome-0.105-r2
 >mail-client/thunderbird-78.13.0
 >media-gfx/eog-40.2
@@ -19,7 +19,7 @@
 >media-video/totem-3.38.1
 >net-im/empathy-3.12.14
 >sys-apps/accountsservice-0.6.55-r1
->www-client/firefox-92.0
+>www-client/firefox-92.0.1
 >x11-libs/gtk+-2.24.33:2
 >x11-libs/gtk+-3.24.29:3
 >x11-libs/vte-0.64.2
