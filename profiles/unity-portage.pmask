@@ -1,8 +1,8 @@
 ## These are packages maintained via ehooks that must be checked before bump ##
 >app-text/evince-40.4
->dev-libs/glib-2.68.3-r1
+>dev-libs/glib-2.68.4
 >gnome-base/gconf-3.2.6-r5
->gnome-base/gnome-desktop-40.3
+>gnome-base/gnome-desktop-40.4
 >gnome-base/gnome-menus-3.36.0
 >gnome-base/gnome-session-40.1.1
 >gnome-base/gnome-settings-daemon-40.0.1
@@ -13,13 +13,13 @@
 >gnome-extra/nm-applet-1.22.0-r1
 >gnome-extra/polkit-gnome-0.105-r2
 >mail-client/thunderbird-78.13.0
->media-gfx/eog-40.2
+>media-gfx/eog-40.3
 >media-gfx/gnome-screenshot-40.0-r1
 >media-sound/rhythmbox-3.4.4
 >media-video/totem-3.38.1
 >net-im/empathy-3.12.14
 >sys-apps/accountsservice-0.6.55-r1
->www-client/firefox-92.0.1
+>www-client/firefox-93.0
 >x11-libs/gtk+-2.24.33:2
 >x11-libs/gtk+-3.24.29:3
 >x11-libs/vte-0.64.2
