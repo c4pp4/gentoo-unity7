@@ -3,7 +3,7 @@
 
 EAPI=7
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit ubuntu-versionator
 
 UVER_PREFIX="+15.10.${PVR_MICRO}"

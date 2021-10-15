@@ -17,7 +17,7 @@ LICENSE="GPL-2+"
 SLOT="0"
 IUSE="+bluetooth +branding +colord +cups +fcitx +gnome-online-accounts +i18n +input_devices_wacom +kerberos networkmanager +samba +v4l +webkit"
 REQUIRED_USE="samba? ( cups )"
-#KEYWORDS="~amd64"
+KEYWORDS="~amd64"
 RESTRICT="mirror"
 
 # gnome-session-2.91.6-r1 is needed so that 10-user-dirs-update is run at login
@@ -144,10 +144,10 @@ src_prepare() {
 		panels/sharing/unity-sharing-panel.desktop.in.in
 
 	if use branding; then
-		cp "${FILESDIR}"/branding/GnomeLogoVerticalMedium.svg panels/info/
+		cp "${FILESDIR}"/branding/UnityLogo.svg panels/info/GnomeLogoVerticalMedium.svg
 		sed -i \
 			-e "/gtk_widget_hide (WID (\"version_label\")/d" \
-			-e "s/Version %s/Gentoo Unity⁷ - ${UVER_RELEASE} ${URELEASE^}/" \
+			-e "s/Version %s/Version $(portageq 'unity-base/unity' best_version | tail -1 | sed -e 's:^.*-::' -e 's:_.*$::') (${UVER_RELEASE} ${URELEASE^})/" \
 			panels/info/cc-info-panel.c
 		sed -i \
 			-e "s/UbuntuLogo.png/GnomeLogoVerticalMedium.svg/" \

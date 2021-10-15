@@ -3,7 +3,7 @@
 
 EAPI=6
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit gnome2-utils ubuntu-versionator xdg-utils
 
 MY_PN="psensor"

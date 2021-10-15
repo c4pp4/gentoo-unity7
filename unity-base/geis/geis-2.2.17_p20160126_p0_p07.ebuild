@@ -4,7 +4,7 @@
 EAPI=6
 PYTHON_COMPAT=( python3_{7..9} )
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit autotools eutils python-r1 ubuntu-versionator
 
 UVER_PREFIX="+16.04.${PVR_MICRO}"

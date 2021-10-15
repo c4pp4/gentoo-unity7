@@ -3,7 +3,7 @@
 
 EAPI=7
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit autotools ubuntu-versionator
 
 DESCRIPTION="Client library to interact with zeitgeist"

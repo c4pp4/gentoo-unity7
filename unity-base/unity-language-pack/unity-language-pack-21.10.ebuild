@@ -14,7 +14,7 @@ SRC_URI=""
 
 LICENSE="GPL-3"
 SLOT="0"
-#KEYWORDS="~amd64"
+KEYWORDS="~amd64"
 IUSE=""
 RESTRICT="mirror"
 
@@ -178,7 +178,7 @@ for use_flag in ${IUSE_L10N}; do
 done
 
 REQUIRED_USE="|| ( ${IUSE} )"
-IUSE="${IUSE/l10n_en/+l10n_en}"
+IUSE="+branding ${IUSE/l10n_en/+l10n_en}"
 
 S="${WORKDIR}"
 
@@ -271,7 +271,8 @@ src_install() {
 	)
 
 	local \
-		lng flg pofile msgid gcc_src ls_src ylp_src \
+		pofile msgid gcc_src ls_src x ylp_src \
+		u_po="unity.po" \
 		ucc_po="unity-control-center.po" \
 		gcc_po="gnome-control-center-2.0.po" \
 		ls_po="language-selector.po" \
@@ -300,9 +301,8 @@ src_install() {
 	printf "%s  " "Processing translation files"
 	_progress_indicator
 
-	for lng in "${langs[@]}"; do
-		flg=${lng##*data/}
-		cp "${S}"/po/"${flg}".po "${lng}"/LC_MESSAGES/session-shortcuts.po 2>/dev/null
+	for x in "${langs[@]}"; do
+		cp "${S}"/po/"${x##*data/}".po "${x}"/LC_MESSAGES/session-shortcuts.po 2>/dev/null
 	done
 	rm -r "${S}"/po
 
@@ -344,6 +344,10 @@ src_install() {
 				fi
 			done
 			rm "${gcc_src}" "${ls_src}" 2>/dev/null
+
+			# Add Version
+			x="$(portageq 'unity-base/unity' best_version | tail -1 | sed -e 's:^.*-::' -e 's:_.*$::') (${UVER_RELEASE} ${URELEASE^})"
+			sed -i -e "s/Version %s/Version ${x}/" -e "/${x}/{n;s/%s/${x}/;}" "${pofile}"
 		fi
 
 		# Add translations for Unity help desktop launcher
@@ -351,8 +355,8 @@ src_install() {
 			_progress_indicator
 
 			ylp_src=${pofile/${is_po}/${ylp_po}}
+			sed -i -e "s/GNOME/Unity/g" "${ylp_src}"
 			for msgid in "${is_msgids[@]}"; do
-				sed -i -e "s/GNOME/Unity/g" "${ylp_src}"
 				if ! grep -q "^\(msgid\|msgctxt\)\s\"${msgid}\"$" "${pofile}"; then
 					echo "$(awk "/^(msgid|msgctxt)\s\"${msgid}\"\$/ { p = 1 } p { print } /^\$/ { p = 0 }" "${ylp_src}" 2>/dev/null)" \
 						>> "${pofile}"
@@ -360,6 +364,9 @@ src_install() {
 			done
 			rm "${ylp_src}" 2>/dev/null
 		fi
+
+		# Rename Ubuntu Desktop
+		use branding && [[ ${pofile##*/} == ${u_po} ]] && sed -i -e "s/Ubuntu Desktop/Gentoo Unity⁷ Desktop/" -e "/Unity⁷/{n;s/Ubuntu/Gentoo Unity⁷/;}" "${pofile}"
 
 		msgfmt -o "${pofile%.po}.mo" "${pofile}"
 		rm "${pofile}"

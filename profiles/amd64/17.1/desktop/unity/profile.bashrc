@@ -41,15 +41,15 @@ if [[ ${EBUILD_PHASE} == "setup" ]] ; then
 	## Process EHOOK_SOURCE.
 	if [[ -n ${EHOOK_SOURCE[@]} ]]; then
 
-	## Define function to check if USE-flag is declared.
+	## Define function to check if USE flag is declared.
 	ehook_use() {
 		return $(portageq has_version / unity-extra/ehooks["$1"])
 	}
 
-	## Define function to skip all related ebuild hooks if USE-flag is not declared.
+	## Define function to skip all related ebuild hooks if USE flag is not declared.
 	ehook_require() {
 		if ! portageq has_version / unity-extra/ehooks["$1"]; then
-			echo " * USE-flag '$1' not declared: skipping related ebuild hooks..."
+			echo " * USE flag '$1' not declared: skipping related ebuild hooks..."
 			exit ${SKIP_CODE}
 		fi
 	}

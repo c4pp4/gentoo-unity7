@@ -4,7 +4,7 @@
 EAPI=6
 PYTHON_COMPAT=( python3_{7..9} )
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit autotools eutils python-r1 ubuntu-versionator
 
 UVER_PREFIX="+18.04.${PVR_MICRO}"
@@ -30,7 +30,6 @@ S="${WORKDIR}"
 
 src_prepare() {
 	ubuntu-versionator_src_prepare
-	eapply "${FILESDIR}/unity-gtk-module-0.0.0+14.04-deprecated-api.patch"
 
 	# Fix "SyntaxError: Missing parentheses in call to 'print'" #
 	sed -i \

@@ -3,7 +3,7 @@
 
 EAPI=6
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit autotools eutils gnome2-utils ubuntu-versionator vala xdg-utils
 
 DESCRIPTION="Blacklist configuration user interface for Zeitgeist"

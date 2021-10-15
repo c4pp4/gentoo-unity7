@@ -4,7 +4,7 @@
 EAPI=7
 MY_PV=${PV}
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit qmake-utils ubuntu-versionator
 
 UVER="-${PVR_PL_MINOR}"

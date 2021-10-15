@@ -1,0 +1,14 @@
+# https://launchpad.net/bugs/974480 #
+---
+diff -Nur a/panel/PanelTray.cpp b/panel/PanelTray.cpp
+--- a/panel/PanelTray.cpp	2021-06-01 21:58:04.000000000 +0200
++++ b/panel/PanelTray.cpp	2021-10-05 03:48:28.012356376 +0200
+@@ -158,7 +158,7 @@
+     if (title.find(item) == 0 || res_name.find(item) == 0 || res_class.find(item) == 0)
+       return true;
+ 
+-  return false;
++  return true;
+ }
+ 
+ void PanelTray::OnTrayIconRemoved(NaTrayManager* manager, NaTrayChild* removed)

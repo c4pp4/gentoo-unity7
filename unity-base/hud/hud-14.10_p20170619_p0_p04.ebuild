@@ -5,7 +5,7 @@ EAPI=6
 PYTHON_COMPAT=( python3_{7..9} )
 DISTUTILS_SINGLE_IMPL=1
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit cmake-utils distutils-r1 flag-o-matic gnome2-utils ubuntu-versionator vala
 
 UVER_PREFIX="+17.10.${PVR_MICRO}"

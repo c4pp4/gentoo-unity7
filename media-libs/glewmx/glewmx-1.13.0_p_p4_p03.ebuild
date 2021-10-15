@@ -3,7 +3,7 @@
 
 EAPI=6
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit multilib-minimal toolchain-funcs ubuntu-versionator
 
 DESCRIPTION="OpenGL Extension Wrangler MX"

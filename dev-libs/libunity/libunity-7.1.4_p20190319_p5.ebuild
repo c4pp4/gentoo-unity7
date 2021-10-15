@@ -5,7 +5,7 @@ EAPI=6
 PYTHON_COMPAT=( python3_{7..9} )
 
 MY_PV="${PV}"
-URELEASE="hirsute"
+URELEASE="impish"
 inherit autotools eutils python-r1 ubuntu-versionator vala
 
 UVER_PREFIX="+19.04.${PVR_MICRO}"

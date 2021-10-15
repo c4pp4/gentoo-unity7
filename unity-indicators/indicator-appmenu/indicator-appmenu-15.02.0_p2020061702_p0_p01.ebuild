@@ -3,7 +3,7 @@
 
 EAPI=6
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit autotools eutils flag-o-matic gnome2-utils ubuntu-versionator
 
 UVER_PREFIX="+20.10.${PVR_MICRO}"
@@ -16,7 +16,7 @@ SRC_URI="${UURL}/${MY_P}${UVER_PREFIX}.orig.tar.gz
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="java"
+IUSE=""
 RESTRICT="mirror"
 
 DEPEND="dev-libs/libdbusmenu:=
@@ -24,9 +24,7 @@ DEPEND="dev-libs/libdbusmenu:=
 	unity-base/bamf:=
 	x11-libs/gtk+:3
 	x11-libs/libwnck:1
-	x11-libs/libwnck:3
-
-	java? ( dev-java/jayatana )"
+	x11-libs/libwnck:3"
 
 S="${WORKDIR}"
 

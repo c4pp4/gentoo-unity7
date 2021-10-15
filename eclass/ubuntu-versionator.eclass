@@ -37,9 +37,8 @@ UURL="https://launchpad.net/ubuntu/+archive/primary/+files"
 
 #---------------------------------------------------------------------------------------------------------------------------------#
 
-[[ ${URELEASE} == focal* ]] && UVER_RELEASE="20.04"	# unity-extra/indicator-evolution-0.2.20_p_p0_p42
-[[ ${URELEASE} == hirsute* ]] && UVER_RELEASE="21.04"
-[[ ${URELEASE} == impish* ]] && UVER_RELEASE="21.10"
+[[ ${URELEASE} == "impish"* ]] && UVER_RELEASE="21.10"
+[[ ${URELEASE} == "jammy"* ]] && UVER_RELEASE="22.04"
 
 
 PV="${PV%%[a-z]_p*}"	# For package-3.6.0a_p0_p02
@@ -131,14 +130,6 @@ ubuntu-versionator_pkg_setup() {
 
 	[[ -n ${CURRENT_PROFILE} ]] && [[ ${CURRENT_PROFILE} == *"${REPO_ROOT}"* ]] \
 		|| die "Invalid profile detected, please select gentoo-unity7 profile shown in 'eselect profile list'."
-
-	# Minimum system-wide GCC version required #
-	[[ ${URELEASE} == hirsute* ]] && GCC_MINIMUM="10.3.0"
-	[[ ${URELEASE} == impish* ]] && GCC_MINIMUM="10.3.0"
-	GCC_CURRENT=$(gcc-fullversion)
-
-	[[ ${GCC_CURRENT//./} -lt ${GCC_MINIMUM//./} ]] \
-		&& die "The selected '${PROFILE_RELEASE}' profile requires your system be built using >=sys-devel/gcc:${GCC_MINIMUM}, please consult the output of 'gcc-config -l'."
 }
 
 # @FUNCTION: ubuntu-versionator_src_prepare

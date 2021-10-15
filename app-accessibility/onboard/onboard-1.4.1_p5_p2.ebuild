@@ -5,7 +5,7 @@ EAPI=6
 PYTHON_COMPAT=( python3_{7..9} )
 DISTUTILS_SINGLE_IMPL=1
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit gnome2-utils distutils-r1 ubuntu-versionator xdg-utils
 
 UVER="-${PVR_MICRO}build${PVR_PL_MAJOR}"

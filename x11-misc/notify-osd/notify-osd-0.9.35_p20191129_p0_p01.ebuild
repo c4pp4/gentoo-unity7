@@ -3,7 +3,7 @@
 
 EAPI=6
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit autotools gnome2-utils multilib savedconfig ubuntu-versionator xdg-utils
 
 UVER_PREFIX="+20.04.${PVR_MICRO}"

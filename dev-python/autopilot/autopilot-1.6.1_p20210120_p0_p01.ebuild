@@ -4,10 +4,10 @@
 EAPI=6
 PYTHON_COMPAT=( python3_{7..9} )
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit distutils-r1 ubuntu-versionator
 
-UVER_PREFIX="+${UVER_RELEASE}.${PVR_MICRO}"
+UVER_PREFIX="+21.04.${PVR_MICRO}"
 
 DESCRIPTION="Utility to write and run integration tests easily"
 HOMEPAGE="https://launchpad.net/autopilot"

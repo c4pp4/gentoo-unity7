@@ -16,7 +16,7 @@ SRC_URI="${UURL}/${MY_P}${UVER_PREFIX}.orig.tar.gz
 
 LICENSE="LGPL-3"
 SLOT="0/1.0.0"
-#KEYWORDS="~amd64"
+KEYWORDS="~amd64"
 IUSE="test"
 RESTRICT="mirror"
 
@@ -65,6 +65,7 @@ src_prepare() {
 	vala_src_prepare
 	export VALA_API_GEN=$VAPIGEN
 	python_fix_shebang .
+	eautoreconf
 }
 
 src_configure() {

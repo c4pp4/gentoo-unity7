@@ -3,7 +3,7 @@
 
 EAPI=6
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit autotools eutils ubuntu-versionator
 
 UVER="-${PVR_MICRO}"

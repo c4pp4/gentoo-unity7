@@ -19,9 +19,10 @@ SLOT="0"
 IUSE=""
 RESTRICT="mirror"
 
-BDEPEND=">=net-mail/mailnag-2.0.0
-	unity-indicators/indicator-messages"
+BDEPEND="unity-indicators/indicator-messages"
 
 RDEPEND="${BDEPEND}"
+
+PDEPEND=">=net-mail/mailnag-2.0.0"
 
 S="${WORKDIR}/${PN}-${COMMIT}"

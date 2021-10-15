@@ -6,6 +6,7 @@
 	</maintainer>
 	<use>
 		<flag name="battery">Use power state indicator for login screen</flag>
+		<flag name="branding">Enable Gentoo Unity7 specific branding</flag>
 		<flag name="sound">Use sound indicator for login screen</flag>
 	</use>
 </pkgmetadata>

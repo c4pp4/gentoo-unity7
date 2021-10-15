@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -14,7 +14,7 @@ SRC_URI="${UURL}/${MY_P}.orig.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
-#KEYWORDS="~amd64"
+KEYWORDS="~amd64"
 IUSE="+indicator scope"
 RESTRICT="mirror"
 

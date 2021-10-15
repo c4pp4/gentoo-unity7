@@ -3,7 +3,7 @@
 
 EAPI=6
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit cmake-utils ubuntu-versionator
 
 UVER="-${PVR_MICRO}"

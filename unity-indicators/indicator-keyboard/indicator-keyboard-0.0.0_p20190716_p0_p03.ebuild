@@ -4,7 +4,7 @@
 EAPI=6
 PYTHON_COMPAT=( python3_{7..9} )
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit autotools eutils flag-o-matic gnome2-utils python-r1 ubuntu-versionator vala
 
 UVER_PREFIX="+19.10.${PVR_MICRO}"
@@ -20,8 +20,7 @@ IUSE="+charmap +fcitx"
 RESTRICT="mirror"
 
 RDEPEND="gnome-base/gnome-desktop:3=
-
-	charmap? ( gnome-extra/gucharmap )"
+	charmap? ( gnome-extra/gucharmap:2.90 )"
 DEPEND="${RDEPEND}
 	app-i18n/ibus[vala]
 	>=dev-libs/glib-2.37

@@ -3,10 +3,10 @@
 
 EAPI=6
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit cmake-utils gnome2-utils ubuntu-versionator
 
-UVER_PREFIX="+${UVER_RELEASE}.${PVR_MICRO}"
+UVER_PREFIX="+21.04.${PVR_MICRO}"
 
 DESCRIPTION="Date and Time Indicator used by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/indicator-datetime"

@@ -21,14 +21,14 @@ media-fonts/fonts-noto-cjk		# Repacked version with reduced size
 media-libs/glewmx			# Needed by unity-base/nux, MX discontinued as of GLEW v2.0.0
 x11-misc/notify-osd::gentoo		# The latest version in the Gentoo tree is 0.9.34 (2012-03-23)
 x11-themes/notify-osd-icons::gentoo	# The latest version in the Gentoo tree is 0.7 (2010-11-15)
-x11-themes/ubuntu-wallpapers::gentoo	# Version in the Gentoo tree doesn't control download size via USE-flags
+x11-themes/ubuntu-wallpapers::gentoo	# Version in the Gentoo tree doesn't control download size via USE flags
 
 * Reasons for maintaining ebuild hooks:
 app-accessibility/at-spi2-core		# Start 'accessibility bus' by default (https://wiki.debian.org/accessibility-devel)
 app-admin/system-config-printer		# Fix Unity Control Center icon and About dialog icon
 app-backup/deja-dup			# Enable Unity7 user interface options
 dev-cpp/gtest				# Install /usr/src/{gmock,gtest}/* source files lacking from main tree ebuild
-dev-libs/glib				# Patched to call gettext if .desktop file does not have inline translations
+dev-libs/glib				# Patched to call gettext if .desktop file does not have inline translations, don't try DBusActivatable when in Unity user interface and fallback on Exec=
 dev-libs/libappindicator		# Build with GTK2, see "Using portage tree libindicate packages" item above
 gnome-base/gconf			# Install 'update-gconf-defaults' script - Ubuntu's gconf update tool
 					#  Ubuntu patchset:
@@ -51,9 +51,9 @@ gnome-base/gnome-menus			# Needed for some menu patches but mostly to set XDG_ME
 					#  translate-Debian-directories.patch
 					#  80_file_monitor_delayed.patch
 					#  ubuntu_gcc_translations.patch
-gnome-base/gnome-panel			# Make sure gnome-panel and the applets don't pick up menu proxies
 gnome-base/gnome-session		# Installs session files for launching Unity7 user interface
 					#  Ubuntu patchset:
+					#  data-Install-GNOME-on-Wayland-session-for-X11-preferred-s.patch
 					#  debian/Revert-main-Remove-GNOME_DESKTOP_SESSION_ID-envvar.patch
 					#  debian/Make-sure-to-pass-systemd-when-we-re-managing-the-user-se.patch
 					#  ubuntu/support_autostart_delay.patch
@@ -87,19 +87,12 @@ gnome-base/gnome-settings-daemon	# unity-settings-daemon relies on files created
 					#  ubuntu/git-media-keys-Add-one-second-delay-between-each-rfkill-.patch
 gnome-base/gsettings-desktop-schemas	# Includes Unity7 user interface settings patches
 					#  Ubuntu patchset:
-					#  Restore-peripheral-display-keys.patch
-					#  git_revert_background_key_removal.patch
-					#  git_revert_menu_icon_key_removal.patch
-					#  git_revert_notifications_key_removal.patch
-					#  git_revert_scroll_method_removal.patch
 					#  ubuntu_lock-on-suspend.patch
 gnome-base/nautilus			# Give progressbar on Dash launcher nautilus icon
 					#  Ubuntu patchset:
 					#  04_suppress_umount_in_ltsp.patch
 					#  12_unity_launcher_support.patch
 					#  18_unity_icon_color.patch
-					#  19_unity_open_location_xid.patch
-					#  20_add_timestamp_to_operations.patch
 					#  ubuntu_infobars_color.patch
 					#  ubuntu_backspace_behaviour.patch
 					#  appstream-compulsory.patch
@@ -166,7 +159,9 @@ sys-apps/accountsservice		# Requires patching for SetInputSources as needed by u
 					#  act-user-manager-Watch-for-the-daemon-going-away-and-comi.patch
 sys-auth/polkit-pkla-compat		# Fix localstatedir path (/var/lib)
 www-client/chromium			# Required to support Unity Launcher icon effects (no duplicate icons, quicklist menu, progress bar, window title bar fixes etc.)
-www-client/firefox			# Add Unity menubar and desktop launcher with quicklist and translations
+www-client/firefox			# Latest version, add Unity menubar and desktop launcher with quicklist and translations
+www-client/firefox-78			# ESR version, add Unity menubar and desktop launcher with quicklist and translations
+www-client/firefox-91			# ESR version, add Unity menubar and desktop launcher with quicklist and translations
 www-client/firefox-bin			# Add desktop launcher with quicklist and translations
 x11-libs/gtk+:2				# Needed for global appmenu
 					#  Ubuntu patchset:
@@ -195,7 +190,7 @@ x11-libs/gtk+:2				# Needed for global appmenu
 					#  use-secrets-service-for-cups-auth_info.patch
 					#  Reinstate-marshallers-that-accidentally-became-part-of-th.patch
 					#  d-i/textlayout-Clamp-width-to-the-value-we-asked-for-as-a-hac.patch
-x11-libs/gtk+:3				# Needed for global appmenu
+x11-libs/gtk+:3				# Needed for global appmenu, fix firefox/thunderbird global submenus to be initially populated
 					#  Ubuntu patchset:
 					#  gdk-Don-t-distribute-generated-files-in-tarballs.patch
 					#  gtk-Really-don-t-distribute-built-files.patch
@@ -236,20 +231,25 @@ x11-plugins/pidgin-libnotify		# Fix Unity messaging menu support
 					#  ubuntu_notify_support.patch
 					#  messaging_menu.patch
 
-* Optional ebuild hooks managed via unity-extra/ehooks USE-flags:
+* Optional ebuild hooks managed via unity-extra/ehooks USE flags:
 app-office/libreoffice			# Add Human icon theme and make it the default, create fontconfig configuration (30-opensymbol.conf) symlink
 					#  Add custom icons (savemodified_{large,small}.png)
 					#  https://github.com/LibreOffice/core/tree/3498ed37527b7af795f00dc6a55c11e65a313186/icon-themes/human
 app-office/libreoffice-bin		# Create fontconfig configuration (30-opensymbol.conf) symlink
 app-text/evince				# Add traditional menu bar (https://bugzilla.gnome.org/show_bug.cgi?id=736419), add menu translations
 app-text/foliate			# Fix HeaderBar
+games-board/iagno			# Fix HeaderBar
+games-puzzle/gnome-taquin		# Fix HeaderBar
 gnome-extra/gnome-calculator		# Fix HeaderBar
-gnome-extra/gnome-calendar		# Use unity-control-center as the fallback and fix HeaderBar
+gnome-extra/gnome-calendar		# Use unity-control-center as the fallback, fix HeaderBar
+gnome-extra/gnome-contacts		# Use unity-control-center as the fallback, fix HeaderBar
 gnome-extra/gnome-system-monitor	# Fix HeaderBar
+gnome-extra/gnome-weather		# Fix HeaderBar
 gnome-extra/nemo			# Remove 'Open as Root' context menu action
 gui-libs/libhandy			# Fix HeaderBar
 media-gfx/eog				# Add traditional menu bar (https://bugzilla.gnome.org/749976, https://bugs.debian.org/793445), add menu translations
 media-gfx/gnome-font-viewer		# Fix HeaderBar
+media-gfx/gnome-photos			# Use unity-control-center as the fallback, fix HeaderBar
 media-gfx/gnome-screenshot		# Use Ubuntu help instead of GNOME help, don't use GtkHeaderBar, show the save dialog by default, don't try and use the GNOME Shell D-Bus interface, add quicklist area-shot option
 media-gfx/simple-scan			# Fix HeaderBar
 media-libs/fontconfig			# Adjust fonts configuration according to Ubuntu

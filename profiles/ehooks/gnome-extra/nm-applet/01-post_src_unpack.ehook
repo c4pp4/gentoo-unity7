@@ -3,6 +3,6 @@ ebuild_hook() {
 		blake=0986f055539a16d236485ed99d222403de3bd8551ed3c8a76bc8cf8f9a410735b2bd476e11b0bb1b96d59f49a256142526a14a4a8c426ffa6b4305aaef502c36 \
 		uver=network-manager-applet_1.22.0-0ubuntu1
 
-	source "${EHOOK_PATH}"/templates/fetch_debian.fnc
+	source "${EHOOK_PATH}"/templates/fetch_debian.template
 	fetch_debian "${uver}" "${blake}"
 }

@@ -3,7 +3,7 @@
 
 EAPI=6
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit eutils gnome2-utils ubuntu-versionator xdg-utils
 
 DESCRIPTION="Monochrome icons for the Unity7 user interface (default icon theme)"

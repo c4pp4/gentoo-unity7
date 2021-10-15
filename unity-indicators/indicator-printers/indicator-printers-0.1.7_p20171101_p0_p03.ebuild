@@ -4,7 +4,7 @@
 EAPI=6
 GNOME2_LA_PUNT="yes"
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit autotools eutils gnome2 ubuntu-versionator xdg-utils
 
 UVER_PREFIX="+17.10.${PVR_MICRO}"

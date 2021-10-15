@@ -4,7 +4,6 @@
 EAPI=7
 
 PYTHON_COMPAT=( python{3_8,3_9} )
-DISTUTILS_USE_SETUPTOOLS=no
 
 inherit distutils-r1 xdg
 
@@ -17,7 +16,7 @@ HOMEPAGE="https://github.com/pulb/mailnag"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE=""
+IUSE="+messagingmenu"
 RESTRICT="mirror"
 
 BDEPEND="app-crypt/libsecret
@@ -28,8 +27,8 @@ BDEPEND="app-crypt/libsecret
 	>=net-misc/networkmanager-0.9.4
 	x11-libs/gtk+:3
 	>=x11-libs/libnotify-0.7"
-
-RDEPEND="${BDEPEND}"
+RDEPEND="${BDEPEND}
+	messagingmenu? ( x11-plugins/mailnag-messagingmenu-plugin )"
 
 S="${WORKDIR}/${PN}-${COMMIT}"
 

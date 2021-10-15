@@ -3,6 +3,6 @@ ebuild_hook() {
 		blake=812c843439bdf45282b3da0e1677e621dd3b24f0166b0d6cb16ed5b70b9d922dcab15cdff16312746e6f343f7aecca7d541fa5708c1b4c3a02e6e8883d141746 \
 		uver=gconf_3.2.6-7ubuntu2
 
-	source "${EHOOK_PATH}"/templates/fetch_debian.fnc
+	source "${EHOOK_PATH}"/templates/fetch_debian.template
 	fetch_debian "${uver}" "${blake}"
 }

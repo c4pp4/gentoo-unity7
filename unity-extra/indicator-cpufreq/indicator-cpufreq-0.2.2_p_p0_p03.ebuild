@@ -4,7 +4,7 @@
 EAPI=6
 PYTHON_COMPAT=( python3_{7..9} )
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit distutils-r1 gnome2-utils ubuntu-versionator xdg-utils
 
 DESCRIPTION="CPU frequency scaling indicator for the Unity7 user interface"

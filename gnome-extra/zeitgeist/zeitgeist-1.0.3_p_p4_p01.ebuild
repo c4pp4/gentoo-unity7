@@ -4,7 +4,7 @@
 EAPI=6
 PYTHON_COMPAT=( python3_{7..9} )
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit autotools bash-completion-r1 python-r1 vala ubuntu-versionator xdg
 
 DESCRIPTION="Service to log activities and present to other apps"

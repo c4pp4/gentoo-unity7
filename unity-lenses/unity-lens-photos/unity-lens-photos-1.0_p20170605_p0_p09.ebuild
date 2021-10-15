@@ -6,7 +6,7 @@ EAPI=7
 PYTHON_COMPAT=( python3_{7..9} )
 DISTUTILS_SINGLE_IMPL=1
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit distutils-r1 eutils ubuntu-versionator
 
 UVER_PREFIX="+17.10.${PVR_MICRO}"
@@ -86,7 +86,7 @@ pkg_postinst() {
 	ubuntu-versionator_pkg_postinst
 	if use gnome-online-accounts; then
 		echo
-		ewarn "USE-flag 'gnome-online-accounts' declared:"
+		ewarn "USE flag 'gnome-online-accounts' declared:"
 		ewarn "Facebook, Flickr and Picasa scopes are installed but not maintained and tested anymore."
 		echo
 	fi

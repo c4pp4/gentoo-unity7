@@ -3,7 +3,7 @@
 
 EAPI=6
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit autotools ubuntu-versionator
 
 DESCRIPTION="X.Org dummy testing environment for Google Test"

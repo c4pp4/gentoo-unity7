@@ -3,7 +3,7 @@
 
 EAPI=6
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit cmake-utils ubuntu-versionator
 
 UVER_PREFIX="+bzr42+repack${PVR_PL_MAJOR}"

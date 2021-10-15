@@ -1,8 +1,8 @@
 ebuild_hook() {
 	local \
-		blake=fa5016058c52389501945d9bab8362185a99b5b3309c38f3f5e5aed0ac9571d2f2c4b2a8b2ef3b7dc62a331e6539e33b7fa018857f7dfb3b1c06850fa006a670 \
-		uver=gnome-session_3.38.0-3ubuntu2
+		blake=1294baf1e7d3652c3bdefe3088cfd192e66180e51d1a90e6e00cee172cd6e3ea1b9714564d1f539e21c8767b8008c0ee2332cc60191d3734d44ebdcac0483322 \
+		uver=gnome-session_40.1.1-1ubuntu1
 
-	source "${EHOOK_PATH}"/templates/fetch_debian.fnc
+	source "${EHOOK_PATH}"/templates/fetch_debian.template
 	fetch_debian "${uver}" "${blake}"
 }

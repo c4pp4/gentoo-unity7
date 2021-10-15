@@ -3,7 +3,7 @@
 
 EAPI=6
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit eutils toolchain-funcs multilib systemd ubuntu-versionator
 
 UVER="-${PVR_MICRO}"

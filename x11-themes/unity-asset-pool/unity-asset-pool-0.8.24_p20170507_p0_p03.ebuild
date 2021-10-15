@@ -3,7 +3,7 @@
 
 EAPI=7
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit eutils ubuntu-versionator xdg-utils
 
 UVER_PREFIX="+17.10.${PVR_MICRO}"

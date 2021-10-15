@@ -90,11 +90,11 @@ find_flag_changes() {
 			## Try another package if slots differ.
 			[[ -z ${slot} ]] || grep -Fqsx "${slot}" "${n}/SLOT" || continue
 
-			## Try another package if modification time is newer or equal to ehook USE-flag change time.
+			## Try another package if modification time is newer or equal to ehook USE flag change time.
 			sys_date=$(date -r "${n}" "+%s")
 			[[ ${sys_date} -ge ${ts} ]] && continue
 
-			## Set USE-flag change time equal to package's time when --reset option given.
+			## Set USE flag change time equal to package's time when --reset option given.
 			if [[ -n ${reset} ]]; then
 				if portageq has_version / unity-extra/ehooks["${flag}"]; then
 					sed -i -e "/${x/\//\\/}|${flag}/{s/|[0-9]\{10\}|/|${sys_date}|/}" "${ts_file}" 2>/dev/null && reset="applied" && continue
@@ -369,28 +369,32 @@ debian_changes() {
 			printf "%s" "Looking for available version changes${color_blink}...${color_norm}"
 
 			local \
-				releases="hirsute hirsute-security hirsute-updates impish impish-security impish-updates" \
+				releases="impish jammy" \
 				sources="main universe" \
-				rls src
+				rls frls src
 
 			for rls in ${releases}; do
-				for src in ${sources}; do
-					wget -q -T 60 http://archive.ubuntu.com/ubuntu/dists/${rls}/${src}/source/Sources.gz -O /tmp/ehooks-${USER}-sources-${src}-${rls}.gz || exit 1
-					gunzip -qf /tmp/ehooks-${USER}-sources-${src}-${rls}.gz || exit 1
+				for frls in "${rls}" "${rls}"-security "${rls}"-updates; do
+					for src in ${sources}; do
+						wget -q -T 60 http://archive.ubuntu.com/ubuntu/dists/${frls}/${src}/source/Sources.gz -O /tmp/ehooks-${USER}-sources-${src}-${frls}.gz || exit 1
+						gunzip -qf /tmp/ehooks-${USER}-sources-${src}-${frls}.gz || exit 1
+					done
 				done
 			done
 
-			local pn un uv
+			local an pn un uv
 
 			local -a auvers result
 
 			for x in "${uvers[@]}"; do
 				auvers=()
 				un="${x#*|}"
-				for r in ${releases}; do
-					for s in ${sources}; do
-						uv=$(grep -A6 "Package: ${un%_*}$" /tmp/ehooks-${USER}-sources-${s}-${r} | sed -n 's/^Version: \(.*\)/\1/p' | sed 's/[0-9]://g')
-						[[ -n ${uv} ]] && [[ ${un#*_} != ${uv} ]] && auvers+=( "'${uv}'" )
+				for rls in ${releases}; do
+					for frls in "${rls}" "${rls}"-security "${rls}"-updates; do
+						for src in ${sources}; do
+							uv=$(grep -A6 "Package: ${un%_*}$" /tmp/ehooks-${USER}-sources-${src}-${frls} | sed -n 's/^Version: \(.*\)/\1/p' | sed 's/[0-9]://g')
+							[[ -n ${uv} ]] && [[ ${uv} != ${pn} ]] && [[ ${un#*_} != ${uv} ]] && auvers+=( "'${uv}'" ) && pn="${uv}"
+						done
 					done
 				done
 
@@ -405,12 +409,12 @@ debian_changes() {
 						tar --overwrite -xf "/tmp/ehooks-${USER}-${un%_*}_${uv}.debian.tar.xz" -C /tmp debian/patches/series --strip-components 2 --transform "s/series/ehooks-${USER}-aseries/"
 						if [[ -n $(diff /tmp/ehooks-${USER}-series /tmp/ehooks-${USER}-aseries) ]]; then
 							result[${#result[@]}-1]="${result[${#result[@]}-1]/${uv}/${color_red}${uv}${color_norm}}"
-							src="anotation"
+							an="anotation"
 						fi
 					done
 				fi
 			done
-			[[ ${src} == "anotation" ]] && result+=( "${color_red}[ debian/patches/series differ from local ]${color_norm}" )
+			[[ ${an} == "anotation" ]] && result+=( "${color_red}[ debian/patches/series differ from local ]${color_norm}" )
 			;;
 	esac
 	printf "\b\b\b%s\n\n" "... done!"

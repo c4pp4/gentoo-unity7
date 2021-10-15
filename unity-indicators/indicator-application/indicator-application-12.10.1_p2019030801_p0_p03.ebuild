@@ -3,7 +3,7 @@
 
 EAPI=6
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit autotools eutils flag-o-matic ubuntu-versionator
 
 UVER_PREFIX="+19.04.${PVR_MICRO}"

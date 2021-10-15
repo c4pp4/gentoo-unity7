@@ -1,8 +1,8 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2021 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-URELEASE="hirsute"
+URELEASE="impish"
 inherit font ubuntu-versionator
 
 DESCRIPTION="No Tofu font families with large Unicode coverage"

@@ -15,7 +15,7 @@ EBUILD HOOKS
 * Overlay's ebuild hooks are located
   in /var/lib/layman/gentoo-unity7/profiles/ehooks directory.
 
-* Optional ebuild hooks are managed via unity-extra/ehooks USE-flags.
+* Optional ebuild hooks are managed via unity-extra/ehooks USE flags.
 
 * Updates or changes are managed via unity-extra/ehooks package. It looks
   for ebuild hooks changes and generates emerge command needed to apply
@@ -111,8 +111,8 @@ EBUILD HOOKS
 	- use filename prefix to control apply order
 
 * Query functions:
-	ehook_use [USE-flag]
-	- it returns a true value if unity-extra/ehooks USE-flag is declared
+	ehook_use [USE flag]
+	- it returns a true value if unity-extra/ehooks USE flag is declared
 	- e.g. 'if ehook_use nemo_noroot; then'
 	  see gnome-extra/nemo:
 		02-pre_src_prepare.ehook
@@ -126,8 +126,8 @@ EBUILD HOOKS
 			fi
 		}
 
-	ehook_require [USE-flag]
-	- it skips the rest of the related ebuild hooks if unity-extra/ehooks USE-flag is not declared
+	ehook_require [USE flag]
+	- it skips the rest of the related ebuild hooks if unity-extra/ehooks USE flag is not declared
 	- it should be the first command of ebuild hooks
 	- e.g. 'ehook_require gnome-terminal_theme'
 	  see x11-terms/gnome-terminal:

@@ -17,7 +17,7 @@ SRC_URI="${UURL}/${MY_P}${UVER_PREFIX}-${UVER}.tar.xz"
 
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"
-#KEYWORDS="~amd64"
+KEYWORDS="~amd64"
 IUSE="+branding debug doc gles2 +hud +nemo pch systray test"
 RESTRICT="mirror"
 
@@ -28,7 +28,7 @@ RDEPEND="app-i18n/ibus[gtk,gtk2]
 	sys-auth/polkit-pkla-compat
 	unity-base/gsettings-ubuntu-touch-schemas
 	unity-base/session-shortcuts
-	unity-base/unity-language-pack
+	unity-base/unity-language-pack[branding=]
 	x11-themes/humanity-icon-theme
 	x11-themes/gtk-engines-murrine
 	x11-themes/unity-asset-pool
@@ -90,9 +90,8 @@ src_prepare() {
 
 	ubuntu-versionator_src_prepare
 
-	# Taken from http://ppa.launchpad.net/timekiller/unity-systrayfix/ubuntu/pool/main/u/unity/ #
-	use systray \
-		&& eapply "${FILESDIR}/systray-fix_disco.diff"
+	# https://launchpad.net/bugs/974480 #
+	use systray && eapply "${FILESDIR}/show-all-in-systray.diff"
 
 	# Setup Unity side launcher default applications #
 	sed -i \
@@ -103,8 +102,11 @@ src_prepare() {
 
 	sed -i \
 		-e 's:"Ubuntu":"Gentoo":g' \
-		-e 's:"Ubuntu Desktop":"Gentoo Unity⁷":g' \
-		panel/PanelMenuView.cpp || die
+		panel/PanelMenuView.cpp
+
+	use branding && sed -i \
+			-e 's:"Ubuntu Desktop":"Gentoo Unity⁷ Desktop":g' \
+			panel/PanelMenuView.cpp
 
 	# Remove testsuite cmake installation #
 	sed -i \
@@ -223,15 +225,12 @@ src_install() {
 
 	python_fix_shebang "${ED}"
 
-	# Gentoo dash launcher icon #
 	if use branding; then
 		insinto /usr/share/unity/icons
-		doins "${FILESDIR}/branding/launcher_bfb.png"
-		doins "${FILESDIR}/branding/cof.png"
-
+		# Gentoo dash launcher icon #
+		doins "${FILESDIR}/branding/launcher_bfb.svg"
 		# Gentoo logo on lock-screen on multi head system
-                newins "${FILESDIR}/branding/cof.png" lockscreen_cof.png
-
+		doins "${FILESDIR}/branding/lockscreen_cof.png"
 	fi
 
 	exeinto /etc/X11/xinit/xinitrc.d/

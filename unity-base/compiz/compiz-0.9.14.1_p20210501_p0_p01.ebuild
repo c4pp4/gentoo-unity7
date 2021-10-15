@@ -15,11 +15,11 @@ SRC_URI="${UURL}/${MY_P}${UVER_PREFIX}-${UVER}.tar.xz"
 
 LICENSE="GPL-2 LGPL-2.1 MIT"
 SLOT="0/${PV}"
-#KEYWORDS="~amd64"
+KEYWORDS="~amd64"
 IUSE="+debug gles2 test"
 RESTRICT="mirror"
 
-S="${WORKDIR}/${PN}-${PV}${UVER_PREFIX}"
+S="${WORKDIR}/${PN}"
 
 COMMONDEPEND="!!x11-wm/compiz
 	!!x11-libs/compiz-bcop

@@ -3,7 +3,7 @@
 
 EAPI=6
 
-URELEASE="hirsute"
+URELEASE="impish"
 inherit autotools flag-o-matic gnome2-utils ubuntu-versionator vala
 
 UVER_PREFIX="+20.04.${PVR_MICRO}"
@@ -102,14 +102,13 @@ src_install() {
 	newins "${FILESDIR}"/unity-greeter.gsettings-override \
 		"${gschema}"
 
-	# Branding #
 	insinto /usr/share/unity-greeter
-	newins "${FILESDIR}/branding/gentoo_logo.png" logo.png
 	if use branding; then
+		newins "${FILESDIR}/branding/gentoo_logo.png" logo.png
 		newins "${FILESDIR}/branding/gentoo_cof.png" cof.png # Gentoo logo for multi monitor usage #
-		sed -i \
-			-e "/logo/d" \
-			"${ED}${gschema_dir}/${gschema}"
+	else
+		"${S}"/src/logo-generator --logo "${S}"/data/logo-bare.png --text " ${UVER_RELEASE}" --output logo.png
+		doins "${S}/logo.png"
 	fi
 
 	use sound && sed -i \
