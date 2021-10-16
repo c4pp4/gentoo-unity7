@@ -1,5 +1,0 @@
-ebuild_hook() {
-	sed -i \
-		-e "/StartupNotify/{s/false/true/}" \
-		"${ED}/usr/share/applications/${PN}.desktop" || die
-}

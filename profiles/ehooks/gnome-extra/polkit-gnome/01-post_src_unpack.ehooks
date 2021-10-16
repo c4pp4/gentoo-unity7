@@ -1,0 +1,8 @@
+ehooks() {
+	local \
+		blake=564ac2bc8061ab76251a4eaae85e96c7a9dccc481326543f08828d2c06f3dae09c6cf5dc9cbdec9cdf4dde8665bf98a6dec41a21d83d210c93eda1c3b0b66efd \
+		uver=policykit-1-gnome_0.105-7ubuntu2
+
+	source "${EHOOKS_PATH}"/templates/fetch_debian.template
+	fetch_debian "${uver}" "${blake}"
+}

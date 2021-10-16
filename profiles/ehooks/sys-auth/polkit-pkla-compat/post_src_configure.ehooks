@@ -1,0 +1,5 @@
+ehooks() {
+	sed -i \
+		-e "\:^localstatedir:{s:/var/lib:/var:}" \
+		{,test/}Makefile || die
+}

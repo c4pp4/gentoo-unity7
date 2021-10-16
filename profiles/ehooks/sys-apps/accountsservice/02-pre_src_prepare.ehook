@@ -1,8 +1,0 @@
-ebuild_hook() {
-	sed -i \
-		-e "s/0002-create-and-manage-groups-like-on-a-debian-system/#0002-create-and-manage-groups-like-on-a-debian-system/" \
-		-e "s/0006-adduser_instead_of_useradd/#0006-adduser_instead_of_useradd/" \
-		-e "s/0009-language-tools/#0009-language-tools/" \
-		-e "s/0013-add-has-message-support/#0013-add-has-message-support/" \
-		"${S}/debian/patches/series"
-}

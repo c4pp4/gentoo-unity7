@@ -1,0 +1,5 @@
+ehooks() {
+	sed -i \
+		-e "s/09_app_install_entry/#09_app_install_entry/" \
+		"${S}/debian/patches/series"
+}

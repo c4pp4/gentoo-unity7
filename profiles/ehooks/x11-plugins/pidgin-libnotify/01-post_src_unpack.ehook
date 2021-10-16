@@ -1,8 +1,0 @@
-ebuild_hook() {
-	local \
-		blake=31d29bb0d3b68ef8d70d3aa1a73027d8521b0ee97a741db8a265ee9ae206ea1e58a93aec494841b618139f7d3ea5b3007cce0a6ec47d2e491ce7125509e2892e \
-		uver=pidgin-libnotify_0.14-9ubuntu2
-
-	source <(cat "${EHOOK_PATH}"/templates/fetch_debian.template | sed -e "s/xz/gz/")
-	fetch_debian "${uver}" "${blake}"
-}

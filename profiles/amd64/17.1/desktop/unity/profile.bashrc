@@ -12,10 +12,10 @@ if [[ ${EBUILD_PHASE} == "setup" ]] ; then
 			die
 	fi
 
-## EBUILD HOOKS.
-	local -a EHOOK_SOURCE=()
+## ehooks patching system.
+	local -a EHOOKS_SOURCE=()
 
-	## Define function to look for ebuild hooks in setup phase.
+	## Define function to look for ehooks in setup phase.
 	pre_pkg_setup() {
 
 	local \
@@ -23,39 +23,39 @@ if [[ ${EBUILD_PHASE} == "setup" ]] ; then
 		basedir="${REPO_ROOT}"/profiles/ehooks
 
 	for pkg in ${CATEGORY}/{${P}-${PR},${P},${P%.*},${P%.*.*},${PN}}{:${SLOT%/*},}; do
-		if [[ -d ${EHOOK_PATH:=${basedir}}/${pkg} ]]; then
+		if [[ -d ${EHOOKS_PATH:=${basedir}}/${pkg} ]]; then
 			true
 		elif [[ -d ${basedir}/${pkg} ]]; then
-			EHOOK_PATH="${basedir}"
+			EHOOKS_PATH="${basedir}"
 		else
 			continue
 		fi
 
 		local prev_shopt=$(shopt -p nullglob)
 		shopt -s nullglob
-		EHOOK_SOURCE=( "${EHOOK_PATH}/${pkg}"/*.ehook )
+		EHOOKS_SOURCE=( "${EHOOKS_PATH}/${pkg}"/*.ehooks )
 		${prev_shopt}
 		break
 	done
 
-	## Process EHOOK_SOURCE.
-	if [[ -n ${EHOOK_SOURCE[@]} ]]; then
+	## Process EHOOKS_SOURCE.
+	if [[ -n ${EHOOKS_SOURCE[@]} ]]; then
 
 	## Define function to check if USE flag is declared.
-	ehook_use() {
+	ehooks_use() {
 		return $(portageq has_version / unity-extra/ehooks["$1"])
 	}
 
-	## Define function to skip all related ebuild hooks if USE flag is not declared.
-	ehook_require() {
+	## Define function to skip all related ehooks if USE flag is not declared.
+	ehooks_require() {
 		if ! portageq has_version / unity-extra/ehooks["$1"]; then
-			echo " * USE flag '$1' not declared: skipping related ebuild hooks..."
+			echo " * USE flag '$1' not declared: skipping related ehooks..."
 			exit ${SKIP_CODE}
 		fi
 	}
 
-	## Define function to apply ebuild hook.
-	__ehook_apply() {
+	## Define function to apply ehooks.
+	__ehooks_apply() {
 		local \
 			x \
 			log="${T}/ehook.log" \
@@ -72,44 +72,44 @@ if [[ ${EBUILD_PHASE} == "setup" ]] ; then
 		source <(declare -f die | sed -e "/${bugapnd}/a ${bugmsg}" -e "/${bugapnd}/a ${buglog}")
 		## End of modifying 'die' command
 
-		if [[ ${EHOOK_ACCEPT} != "yes" ]]; then
+		if [[ ${EHOOKS_ACCEPT} != "yes" ]]; then
 			eerror
 			eerror "Warning!"
 			eerror
-			eerror "Patches from gentoo-unity7 overlay will be applied to ${CATEGORY}/${PN} and some other packages from the Gentoo tree via ebuild hooks patching system."
+			eerror "Patches from gentoo-unity7 overlay will be applied to ${CATEGORY}/${PN} and some other packages from the Gentoo tree via ehooks patching system."
 			eerror "For more details see README_ehooks.txt - Chapter I."
-			eerror "Set EHOOK_ACCEPT=\"yes\" in make.conf to confirm you agree with it."
+			eerror "Set EHOOKS_ACCEPT=\"yes\" in make.conf to confirm you agree with it."
 			eerror
 			die "Acceptance needed"
 		fi
 
-		declare -F ebuild_hook 1>"${log}"
+		declare -F ehooks 1>"${log}"
 		[[ -s ${log} ]] \
-			&& die "ebuild_hook: function name collision"
+			&& die "ehooks: function name collision"
 
-		echo "${color_red}${color_bold}>>> Loading gentoo-unity7 ebuild hooks${color_norm} from ${EHOOK_SOURCE[0]%/*} ..."
-		for x in "${EHOOK_SOURCE[@]}"; do
+		echo "${color_red}${color_bold}>>> Loading gentoo-unity7 ehooks${color_norm} from ${EHOOKS_SOURCE[0]%/*} ..."
+		for x in "${EHOOKS_SOURCE[@]}"; do
 
-		## Process current phase ebuild hook.
-		if [[ ${x} == *"${FUNCNAME[1]}.ehook" ]]; then
+		## Process current phase.
+		if [[ ${x} == *"${FUNCNAME[1]}.ehooks" ]]; then
 
-		## Warn when ebuild hook is not readable.
+		## Warn when ehooks file is not readable.
 		[[ ! -r ${x} ]] \
 			&& ewarn "${x##*/}: not readable" && continue
 
 		source "${x}" 2>"${log}"
 		[[ -s ${log} ]] \
 			&& die "$(<${log})"
-		declare -F ebuild_hook 1>/dev/null \
-			|| die "ebuild_hook: function not found"
+		declare -F ehooks 1>/dev/null \
+			|| die "ehooks: function not found"
 		einfo "Processing ${x##*/} ..."
 
-		local EHOOK_FILESDIR=${x%/*}/files
+		local EHOOKS_FILESDIR=${x%/*}/files
 
 		## Check for eautoreconf.
 		if [[ ${EBUILD_PHASE} == prepare ]]; then
 
-		if declare -f ebuild_hook | grep -q "eautoreconf"; then
+		if declare -f ehooks | grep -q "eautoreconf"; then
 			if ! declare -F eautoreconf 1>/dev/null; then
 				local -a fn_source=()
 				local eautoreconf_names="eautoreconf _at_uses_pkg _at_uses_autoheader _at_uses_automake _at_uses_gettext _at_uses_glibgettext _at_uses_intltool _at_uses_gtkdoc _at_uses_gnomedoc _at_uses_libtool _at_uses_libltdl eaclocal_amflags eaclocal _elibtoolize eautoheader eautoconf eautomake autotools_env_setup autotools_run_tool ALL_AUTOTOOLS_MACROS autotools_check_macro autotools_check_macro_val _autotools_m4dir_include autotools_m4dir_include autotools_m4sysdir_include gnuconfig_findnewest elibtoolize tc-getLD tc-getPROG _tc-getPROG"
@@ -142,16 +142,16 @@ if [[ ${EBUILD_PHASE} == "setup" ]] ; then
 			source <(declare -f ${x} | sed "s/\(1>&\)2/\13/")
 		done
 
-		## Define exit code to skip ebuild hooks.
+		## Define exit code to skip ehooks.
 		local SKIP_CODE=99
 
 		## Log errors to screen and logfile via fd 3.
 		exec 3>&1
-		ebuild_hook 2>&1 >&3 | tee "${log}"
+		ehooks 2>&1 >&3 | tee "${log}"
 
 		## Clear source when exit status SKIP_CODE is returned.
-		## Needs to be right after the ebuild_hook call.
-		[[ ${PIPESTATUS[0]} -eq ${SKIP_CODE} ]] && EHOOK_SOURCE=()
+		## Needs to be right after the ehooks call.
+		[[ ${PIPESTATUS[0]} -eq ${SKIP_CODE} ]] && EHOOKS_SOURCE=()
 
 		[[ -s ${log} ]] \
 			&& die "$(<${log})"
@@ -161,7 +161,7 @@ if [[ ${EBUILD_PHASE} == "setup" ]] ; then
 		for x in ${msgfunc_names}; do
 			source <(declare -f ${x} | sed "s/\(1>&\)3/\12/")
 		done
-		unset -f ebuild_hook
+		unset -f ehooks
 		if [[ -n ${eautoreconf_names} ]]; then
 			eautoreconf_names="${eautoreconf_names/ elibtoolize tc-getLD tc-getPROG _tc-getPROG}"
 			for x in ${eautoreconf_names}; do
@@ -170,9 +170,9 @@ if [[ ${EBUILD_PHASE} == "setup" ]] ; then
 		fi
 
 		## Exit the current loop when source is cleared.
-		[[ -z ${EHOOK_SOURCE[@]} ]] && break
+		[[ -z ${EHOOKS_SOURCE[@]} ]] && break
 
-		fi ## End of processing current phase ebuild hook.
+		fi ## End of processing current phase.
 
 		done
 		echo "${color_red}${color_bold}>>> Done.${color_norm}"
@@ -180,94 +180,93 @@ if [[ ${EBUILD_PHASE} == "setup" ]] ; then
 		## Sanitize 'die' command.
 		source <(declare -f die | sed "/ehook/d")
 
-	} ## End of __ehook_apply function.
+	} ## End of __ehooks_apply function.
 
-	## Apply ebuild hook intended for setup phase.
-	[[ ${EHOOK_SOURCE[@]} == *"pre_pkg_setup"* ]] \
-		&& __ehook_apply
-	[[ ${EHOOK_SOURCE[@]} == *"post_pkg_setup"* ]] \
+	## Apply ehooks intended for setup phase.
+	[[ ${EHOOKS_SOURCE[@]} == *"pre_pkg_setup"* ]] \
+		&& __ehooks_apply
+	[[ ${EHOOKS_SOURCE[@]} == *"post_pkg_setup"* ]] \
 		&& post_pkg_setup() {
-			__ehook_apply
+			__ehooks_apply
 		}
 
-	fi ## End of processing EHOOK_SOURCE.
+	fi ## End of processing EHOOKS_SOURCE.
 
 	} ## End of pre_pkg_setup function.
 
 fi ## End of setup phase.
 
-## Define appropriate ebuild function to apply ebuild hook.
+## Define appropriate ebuild function to apply ehooks.
 case ${EBUILD_PHASE} in
 	unpack)
-		[[ ${EHOOK_SOURCE[@]} == *"pre_src_unpack"* ]] \
+		[[ ${EHOOKS_SOURCE[@]} == *"pre_src_unpack"* ]] \
 			&& pre_src_unpack() {
-				__ehook_apply
+				__ehooks_apply
 			}
-		[[ ${EHOOK_SOURCE[@]} == *"post_src_unpack"* ]] \
+		[[ ${EHOOKS_SOURCE[@]} == *"post_src_unpack"* ]] \
 			&& post_src_unpack() {
-				__ehook_apply
+				__ehooks_apply
 			}
 		;;
 	prepare)
-		[[ ${EHOOK_SOURCE[@]} == *"pre_src_prepare"* ]] \
+		[[ ${EHOOKS_SOURCE[@]} == *"pre_src_prepare"* ]] \
 			&& pre_src_prepare() {
-				__ehook_apply
+				__ehooks_apply
 			}
-		[[ ${EHOOK_SOURCE[@]} == *"post_src_prepare"* ]] \
+		[[ ${EHOOKS_SOURCE[@]} == *"post_src_prepare"* ]] \
 			&& post_src_prepare() {
-				__ehook_apply
+				__ehooks_apply
 			}
 		;;
 	configure)
-		[[ ${EHOOK_SOURCE[@]} == *"pre_src_configure"* ]] \
+		[[ ${EHOOKS_SOURCE[@]} == *"pre_src_configure"* ]] \
 			&& pre_src_configure() {
-				__ehook_apply
+				__ehooks_apply
 			}
-		[[ ${EHOOK_SOURCE[@]} == *"post_src_configure"* ]] \
+		[[ ${EHOOKS_SOURCE[@]} == *"post_src_configure"* ]] \
 			&& post_src_configure() {
-				__ehook_apply
+				__ehooks_apply
 			}
 		;;
 	compile)
-		[[ ${EHOOK_SOURCE[@]} == *"pre_src_compile"* ]] \
+		[[ ${EHOOKS_SOURCE[@]} == *"pre_src_compile"* ]] \
 			&& pre_src_compile() {
-				__ehook_apply
+				__ehooks_apply
 			}
-		[[ ${EHOOK_SOURCE[@]} == *"post_src_compile"* ]] \
+		[[ ${EHOOKS_SOURCE[@]} == *"post_src_compile"* ]] \
 			&& post_src_compile() {
-				__ehook_apply
+				__ehooks_apply
 			}
 		;;
 	install)
-		[[ ${EHOOK_SOURCE[@]} == *"pre_src_install"* ]] \
+		[[ ${EHOOKS_SOURCE[@]} == *"pre_src_install"* ]] \
 			&& pre_src_install() {
-				__ehook_apply
+				__ehooks_apply
 			}
-		[[ ${EHOOK_SOURCE[@]} == *"post_src_install"* ]] \
+		[[ ${EHOOKS_SOURCE[@]} == *"post_src_install"* ]] \
 			&& post_src_install() {
-				__ehook_apply
+				__ehooks_apply
 			}
 		;;
 	preinst)
-		[[ ${EHOOK_SOURCE[@]} == *"pre_pkg_preinst"* ]] \
+		[[ ${EHOOKS_SOURCE[@]} == *"pre_pkg_preinst"* ]] \
 			&& pre_pkg_preinst() {
-				__ehook_apply
+				__ehooks_apply
 			}
-		[[ ${EHOOK_SOURCE[@]} == *"post_pkg_preinst"* ]] \
+		[[ ${EHOOKS_SOURCE[@]} == *"post_pkg_preinst"* ]] \
 			&& post_pkg_preinst() {
-				__ehook_apply
+				__ehooks_apply
 			}
 		;;
 	postinst)
-		[[ ${EHOOK_SOURCE[@]} == *"pre_pkg_postinst"* ]] \
+		[[ ${EHOOKS_SOURCE[@]} == *"pre_pkg_postinst"* ]] \
 			&& pre_pkg_postinst() {
-				__ehook_apply
+				__ehooks_apply
 			}
-		[[ ${EHOOK_SOURCE[@]} == *"post_pkg_postinst"* ]] \
+		[[ ${EHOOKS_SOURCE[@]} == *"post_pkg_postinst"* ]] \
 			&& post_pkg_postinst() {
-				__ehook_apply
+				__ehooks_apply
 			}
 		;;
 esac
-
-## End of EBUILD HOOKS.
+## End of ehooks patching system.

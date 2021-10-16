@@ -1,0 +1,8 @@
+ehooks() {
+	local \
+		blake=79dc0186f7e7e83684997e749804524641c65016bc5ed693ba50d15ddbc06045f61b48d7f6659316c807573143295aeb90c4cb86b51937f72551eb1619013b69 \
+		uver=nautilus_40.2-1ubuntu1
+
+	source "${EHOOKS_PATH}"/templates/fetch_debian.template
+	fetch_debian "${uver}" "${blake}"
+}

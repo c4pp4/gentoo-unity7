@@ -1,0 +1,14 @@
+ehooks() {
+	# add --temp-profile
+	local fixlib=$(get_libdir)
+	exeinto "/usr/${fixlib}/chromium-browser"
+	local sedargs=( -e
+		"s:/usr/lib/:/usr/${fixlib}/:g;
+		s:@@OZONE_AUTO_SESSION@@:$(usex wayland true false):g;
+		s:@@FORCE_OZONE_PLATFORM@@:$(usex headless true false):g"
+	)
+	sed "${sedargs[@]}" "${EHOOKS_FILESDIR}/chromium-launcher-r6-with-temp.sh" > chromium-launcher.sh || die
+	doexe chromium-launcher.sh
+
+	domenu "${EHOOKS_FILESDIR}/chromium-browser-chromium.desktop"
+}

@@ -1,4 +1,4 @@
-ebuild_hook() {
+ehooks() {
 	local \
 		x \
 		fname=ubuntu-versionator_pkg_postinst

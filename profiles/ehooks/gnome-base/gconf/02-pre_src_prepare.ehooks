@@ -1,0 +1,11 @@
+ehooks() {
+	sed -i \
+		-e "s/01_defaults_path/#01_defaults_path/" \
+		-e "s/02_fix_wrong_return_value/#02_fix_wrong_return_value/" \
+		-e "s/02_xml-gettext-domain/#02_xml-gettext-domain/" \
+		-e "s/05_readd_gconf_engine_key_is_writable/#05_readd_gconf_engine_key_is_writable/" \
+		-e "s/25_gconf-path-max-hurd/#25_gconf-path-max-hurd/" \
+		-e "s/26_gtk-doc/#26_gtk-doc/" \
+		-e "s/pytwonisms/#pytwonisms/" \
+		"${S}/debian/patches/series"
+}

@@ -1,8 +1,0 @@
-ebuild_hook() {
-	local \
-		blake=0ae3f90ad6b1ced5530a146feeac2271337cde5c236e51af7a2d0b038bcce4af8d68b80cbbdda41a419c6f996a8e1ace5ac4087c50a27661b980064dafe50f82 \
-		uver=gnome-settings-daemon_40.0.1-1ubuntu3
-
-	source "${EHOOK_PATH}"/templates/fetch_debian.template
-	fetch_debian "${uver}" "${blake}"
-}

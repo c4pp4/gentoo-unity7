@@ -1,11 +1,11 @@
-ebuild_hook() {
+ehooks() {
 	local x
 
 	for x in $(grep -v \# "${S}/debian/patches/series" 2>/dev/null); do
 		eapply "${S}/debian/patches/${x}"
 	done
 
-	for x in "${EHOOK_FILESDIR}"/*.{diff,patch}; do
+	for x in "${EHOOKS_FILESDIR}"/*.{diff,patch}; do
 		[[ -r ${x} ]] && eapply "${x}"
 	done
 

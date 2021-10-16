@@ -1,4 +1,0 @@
-ebuild_hook() {
-	insinto /usr/share/icons
-	doins -r "${EHOOK_FILESDIR}"/ubuntu-mono-dark
-}

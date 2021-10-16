@@ -1,0 +1,5 @@
+ehooks() {
+	ehooks_use headerbar_adjust && sed -i \
+		-e "/hdy_header_bar_set_show_close_button/{s/TRUE/FALSE/}" \
+		src/photos-main-toolbar.c
+}

@@ -1,7 +1,7 @@
 # Create fontconfig configuration symlinks #
 
-ebuild_hook() {
-	ehook_require fontconfig_adjust
+ehooks() {
+	ehooks_require fontconfig_adjust
 
 	local \
 		symlink_dir="/etc/fonts/conf.d" \

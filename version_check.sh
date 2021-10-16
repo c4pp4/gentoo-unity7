@@ -4,8 +4,7 @@
 
 local_to_upstream_packnames() {
 	## Overlay package names to upstream package names mapping ##
-	if [ -n "`echo "${packbasename}" | grep 'indicator-evolution'`" ]; then treepackname="${packname}"; packname="evolution-indicator"
-	elif [ -n "`echo "${packbasename}" | grep 'indicator-psensor'`" ]; then treepackname="${packname}"; packname="psensor"
+	if [ -n "`echo "${packbasename}" | grep 'indicator-psensor'`" ]; then treepackname="${packname}"; packname="psensor"
 	elif [ -n "`echo "${packbasename}" | grep 'nm-applet'`" ]; then treepackname="${packname}"; packname="network-manager-applet"
 	elif [ -n "`echo "${packbasename}"`" ]; then treepackname="${packname}"
 	fi

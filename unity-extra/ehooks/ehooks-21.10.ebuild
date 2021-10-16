@@ -6,7 +6,7 @@ EAPI=7
 URELEASE="impish"
 inherit ubuntu-versionator
 
-DESCRIPTION="Ebuild hooks patching system"
+DESCRIPTION="ehooks patching system"
 HOMEPAGE="https://github.com/c4pp4/gentoo-unity7"
 UVER=
 
@@ -54,15 +54,15 @@ src_install() {
 		portageq has_version / unity-extra/ehooks["${x}"] && sys_flag=1 || sys_flag=0
 		[[ ${pkg_flag} -eq ${sys_flag} ]] || change="yes"
 
-		## Get ebuild hooks containing recently changed USE flag.
+		## Get ehooks containing recently changed USE flag.
 		prev_shopt=$(shopt -p nullglob)
 		shopt -s nullglob
-		ehk=( $(grep -Fl "${x}" "${REPO_ROOT}"/profiles/ehooks/*/*/*.ehook) )
+		ehk=( $(grep -Fl "${x}" "${REPO_ROOT}"/profiles/ehooks/*/*/*.ehooks) )
 		${prev_shopt}
 
 		for m in "${ehk[@]}"; do
-			## Get ${CATEGORY}/{${P}-${PR},${P},${P%.*},${P%.*.*},${PN}} from ebuild hook's path.
-			m=${m%/*.ehook}
+			## Get ${CATEGORY}/{${P}-${PR},${P},${P%.*},${P%.*.*},${PN}} from ehooks' path.
+			m=${m%/*.ehooks}
 			m=${m#*/ehooks/}
 
 			grep -Fq "${m}|${x}" timestamps && continue
@@ -74,7 +74,7 @@ src_install() {
 
 			[[ -z ${change} ]] && continue || unset change
 
-			## Get installed packages affected by the ebuild hook.
+			## Get installed packages affected by the ehooks.
 			prev_shopt=$(shopt -p nullglob) ## don't use extglob
 			shopt -s nullglob
 			[[ -d ${sys_db}${m} ]] && pkg=( "${sys_db}${m}" ) || pkg=( "${sys_db}${m}"{-[0-9],.[0-9],-r[0-9]}*/ )

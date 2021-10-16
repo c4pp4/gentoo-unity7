@@ -1,0 +1,8 @@
+ehooks() {
+	local \
+		blake=5d0d501faee0f96ed0b5e264c81e65dc0da51de8180b5ebe35fca4fb717b296c13b84e38d2c5cfb4310df249a19a1ba2b893e8d555e13f272df32bdc108cb55e \
+		uver=gsettings-desktop-schemas_40.0-1ubuntu1
+
+	source "${EHOOKS_PATH}"/templates/fetch_debian.template
+	fetch_debian "${uver}" "${blake}"
+}

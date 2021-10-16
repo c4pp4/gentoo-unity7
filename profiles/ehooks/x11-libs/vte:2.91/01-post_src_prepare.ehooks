@@ -1,0 +1,3 @@
+ehooks() {
+	ehooks_require gnome-terminal_theme
+}

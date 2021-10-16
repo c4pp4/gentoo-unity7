@@ -1,5 +1,0 @@
-ebuild_hook() {
-	pushd "${WORKDIR}"/"${P}-build" >/dev/null || die
-		meson configure -Dunity-support=true
-	popd >/dev/null || die
-}

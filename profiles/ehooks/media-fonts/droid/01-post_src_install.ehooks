@@ -1,0 +1,13 @@
+ehooks() {
+	ehooks_require fontconfig_adjust
+
+	find "${ED}" -type f -name "*.ttf" \
+		! -name "DroidSansFallback.ttf" \
+			-delete
+
+	local template_dir="/etc/fonts/conf.avail"
+
+	rm "${ED%/}${template_dir}"/*
+	insinto "${template_dir}"
+	doins "${EHOOKS_FILESDIR}"/65-droid-sans-fallback.conf
+}

@@ -125,7 +125,7 @@ find_tree_changes() {
 		flag result
 
 	for x in "${subdirs[@]}"; do
-		## Get ${CATEGORY}/{${P}-${PR},${P},${P%.*},${P%.*.*},${PN}} from ebuild hook's path.
+		## Get ${CATEGORY}/{${P}-${PR},${P},${P%.*},${P%.*.*},${PN}} from ehooks' path.
 		m=${x%%/files/*}
 		m=${m%/}
 		m=${m#*/ehooks/}
@@ -141,17 +141,17 @@ find_tree_changes() {
 			sys_date=$(date -r "${n}" "+%s")
 			[[ ${sys_date} -ge $(date -r "${x}" "+%s") ]] && continue
 
-			## Try another package if ehook_{require,use} flag is not declared.
-			flag=( $(grep -Ehos "ehook_(require|use)\s[A-Za-z0-9+_@-]+" "${x%%/files/*}/"*.ehook) )
+			## Try another package if ehooks_{require,use} flag is not declared.
+			flag=( $(grep -Ehos "ehooks_(require|use)\s[A-Za-z0-9+_@-]+" "${x%%/files/*}/"*.ehooks) )
 			if [[ -n ${flag[@]} ]]; then
-				flag=( ${flag[@]/ehook_require} ); flag=( ${flag[@]/ehook_use} )
+				flag=( ${flag[@]/ehooks_require} ); flag=( ${flag[@]/ehooks_use} )
 				for f in "${flag[@]}"; do
 					portageq has_version / unity-extra/ehooks["${f}"] && break
 					[[ ${f} == ${flag[-1]} ]] && continue 2
 				done
 			fi
 
-			## Set ebuild hook's modification time equal to package's time when --reset option given.
+			## Set ehooks' modification time equal to package's time when --reset option given.
 			[[ -n ${reset} ]] && touch -m -t $(date -d @"${sys_date}" +%Y%m%d%H%M.%S) "${x}" 2>/dev/null && reset="applied" && continue
 			## Get ownership of file when 'touch: cannot touch "${x}": Permission denied' and quit.
 			[[ -n ${reset} ]] && reset=$(stat -c "%U:%G" "${x}") && break 2
@@ -173,7 +173,7 @@ ehooks_changes() {
 		exit 1
 	fi
 
-	printf "%s" "Looking for ebuild hooks changes${color_blink}...${color_norm}"
+	printf "%s" "Looking for ehooks changes${color_blink}...${color_norm}"
 
 	local -a changes=( $(find_tree_changes "$1") $(find_flag_changes "$1") )
 	# Remove duplicates.
@@ -302,11 +302,11 @@ get_uvers() {
 	if [[ -n $@ ]]; then
 		grep -Fq "gentoo-unity7" "$1"/profiles/repo_name 2>/dev/null && y="$1/" && shift
 		for x in "$@"; do
-			subdirs+=( $(get_subdirs "${y}" "${x}/*src_unpack.ehook") )
+			subdirs+=( $(get_subdirs "${y}" "${x}/*src_unpack.ehooks") )
 		done
 	fi
 
-	[[ -z $@ ]] && subdirs=( $(get_subdirs "${y}" "*/*/*src_unpack.ehook") )
+	[[ -z $@ ]] && subdirs=( $(get_subdirs "${y}" "*/*/*src_unpack.ehooks") )
 
 	for x in "${subdirs[@]}"; do
 		ver=$(grep -o -m 1 "uver=.*" "${x}")
@@ -450,21 +450,22 @@ case $1 in
 		echo "	${color_blue}ehooks${color_norm} [${color_cyan}OPTION${color_norm}]"
 		echo
 		echo "${color_blue}DESCRIPTION${color_norm}"
-		echo "	Ebuild hooks version control tool."
-		echo "	/usr/bin/${color_blue}ehooks${color_norm} is a symlink to /var/lib/layman/gentoo-unity7/ehooks_version_control.sh script."
+		echo "	ehooks version control tool."
+		echo
+		echo "	/usr/bin/${color_blue}ehooks${color_norm} is a symlink to gentoo-unity7/ehooks_version_control.sh script."
 		echo
 		echo "${color_blue}OPTIONS${color_norm}"
 		echo "	${color_blue}-g${color_norm}, ${color_blue}--generate${color_norm}"
-		echo "		It looks for ebuild hooks changes and generates emerge command needed to apply the changes."
+		echo "		It looks for ehooks changes and generates emerge command needed to apply the changes."
 		echo
 		echo "	${color_blue}-r${color_norm}, ${color_blue}--reset${color_norm}"
-		echo "		It looks for ebuild hooks changes and set them as applied (it resets modification time)."
+		echo "		It looks for ehooks changes and set them as applied (it resets modification time)."
 		echo
 		echo "	${color_blue}-u${color_norm}, ${color_blue}--update${color_norm} [${color_cyan}$(tput smul)repo path$(tput rmul)${color_norm}]"
 		echo "		It looks for Gentoo tree updates and refreshes unity-portage.pmask version entries (it needs temporary access to /etc/portage/package.unmask)."
 		echo
 		echo "	${color_blue}-b${color_norm}, ${color_blue}--blake${color_norm} [${color_cyan}$(tput smul)repo path$(tput rmul)${color_norm}] [${color_cyan}$(tput smul)packages$(tput rmul)${color_norm}]"
-		echo "		It updates BLAKE2 checksum of debian archive file in {pre,post}_src_unpack.ehook."
+		echo "		It updates BLAKE2 checksum of debian archive file in {pre,post}_src_unpack.ehooks."
 		echo
 		echo "	${color_blue}-c${color_norm}, ${color_blue}--changes${color_norm} [${color_cyan}$(tput smul)repo path$(tput rmul)${color_norm}] [${color_cyan}$(tput smul)packages$(tput rmul)${color_norm}]"
 		echo "		It looks for available version changes of debian archive file."

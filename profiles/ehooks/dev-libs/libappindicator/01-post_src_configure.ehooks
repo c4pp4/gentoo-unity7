@@ -1,0 +1,14 @@
+ehooks() {
+	build-gtk2_src_configure() {
+		mkdir -p "${BUILD_DIR}" || die
+		pushd "${BUILD_DIR}" >/dev/null || die
+			ECONF_SOURCE="${S}" \
+			econf \
+				--disable-static \
+				--disable-introspection \
+				--with-gtk=2
+		popd >/dev/null || die
+	}
+
+	BUILD_DIR="build-gtk2" multilib_foreach_abi build-gtk2_src_configure
+}

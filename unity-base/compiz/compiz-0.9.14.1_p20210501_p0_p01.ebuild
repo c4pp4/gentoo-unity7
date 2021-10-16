@@ -19,8 +19,6 @@ KEYWORDS="~amd64"
 IUSE="+debug gles2 test"
 RESTRICT="mirror"
 
-S="${WORKDIR}/${PN}"
-
 COMMONDEPEND="!!x11-wm/compiz
 	!!x11-libs/compiz-bcop
 	!!x11-libs/libcompizconfig
@@ -73,6 +71,9 @@ RDEPEND="${COMMONDEPEND}
 	unity-base/unity-language-pack
 	x11-apps/mesa-progs
 	x11-apps/xvinfo"
+
+S="${WORKDIR}/${PN}"
+MAKEOPTS="${MAKEOPTS} -j1"
 
 src_prepare() {
 	ubuntu-versionator_src_prepare

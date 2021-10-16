@@ -1,0 +1,17 @@
+ehooks() {
+	use qt5 && append-cxxflags -std=c++11
+
+	local myeconfargs=(
+		--localstatedir=/var
+		--disable-static
+		--disable-tests
+		$(use_enable audit libaudit)
+		$(use_enable introspection)
+		$(use_enable qt5 liblightdm-qt5)
+		$(use_enable vala)
+		--with-user-session=""
+		--with-greeter-session=""
+		--with-greeter-user=""
+	)
+	econf "${myeconfargs[@]}"
+}

@@ -1,0 +1,8 @@
+ehooks() {
+	local \
+		blake=1294baf1e7d3652c3bdefe3088cfd192e66180e51d1a90e6e00cee172cd6e3ea1b9714564d1f539e21c8767b8008c0ee2332cc60191d3734d44ebdcac0483322 \
+		uver=gnome-session_40.1.1-1ubuntu1
+
+	source "${EHOOKS_PATH}"/templates/fetch_debian.template
+	fetch_debian "${uver}" "${blake}"
+}

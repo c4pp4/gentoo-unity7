@@ -1,0 +1,5 @@
+ehooks() {
+	sed -i \
+		-e "s/Unity;//" \
+		"${PN}.desktop.in"
+}
