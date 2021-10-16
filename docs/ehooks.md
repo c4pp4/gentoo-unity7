@@ -137,11 +137,11 @@
    - e.g. **/home/ehooks/app-arch/file-roller** overrides or disables **/var/lib/layman/gentoo-unity7/profiles/ehooks/app-arch/file-roller**
 
 [//]: # (LINKS)
-[code]: profiles/amd64/17.1/desktop/unity/profile.bashrc#L15
-[ehooks]: profiles/ehooks
-[nautilus]: profiles/ehooks/gnome-base/nautilus
-[nemo]: profiles/ehooks/gnome-extra/nemo/02-pre_src_prepare.ehooks
-[templates]: profiles/ehooks/templates
-[terminal]: profiles/ehooks/x11-terms/gnome-terminal/01-post_src_prepare.ehooks
-[use flags]: unity-extra/ehooks/metadata.xml
-[vte]: profiles/ehooks/x11-libs/vte:2.91/01-post_src_prepare.ehooks
+[code]: ../profiles/amd64/17.1/desktop/unity/profile.bashrc#L15
+[ehooks]: ../profiles/ehooks
+[nautilus]: ../profiles/ehooks/gnome-base/nautilus
+[nemo]: ../profiles/ehooks/gnome-extra/nemo/02-pre_src_prepare.ehooks
+[templates]: ../profiles/ehooks/templates
+[terminal]: ../profiles/ehooks/x11-terms/gnome-terminal/01-post_src_prepare.ehooks
+[use flags]: ../unity-extra/ehooks/metadata.xml
+[vte]: ../profiles/ehooks/x11-libs/vte:2.91/01-post_src_prepare.ehooks

@@ -31,4 +31,4 @@
    `emerge -av unity-meta`
 
 [//]: # (LINKS)
-[ehooks]: doc/ehooks.md
+[ehooks]: ehooks.md
