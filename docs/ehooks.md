@@ -134,7 +134,7 @@
    - e.g. `EHOOKS_PATH="/home/ehooks"`
    - own directory **overrides** overlay's directory of the same name
    - own empty directory **disables** overlay's directory of the same name
-   - e.g. **/home/ehooks/app-arch/file-roller** overrides or disables **/var/lib/layman/gentoo-unity7/profiles/ehooks/app-arch/file-roller**
+   - e.g. **/home/ehooks/app-arch/file-roller** overrides or disables **gentoo-unity7/profiles/ehooks/app-arch/file-roller**
 
 [//]: # (LINKS)
 [code]: ../profiles/amd64/17.1/desktop/unity/profile.bashrc#L15
