@@ -5,6 +5,7 @@
 		<name>gentoo-unity7</name>
 	</maintainer>
 	<use>
+		<flag name="headerbar_adjust">Adjust headerbar and re-enable original titlebar when running under Unity</flag>
 		<flag name="nemo">Mimic <pkg>gnome-base/nautilus</pkg> theme</flag>
 	</use>
 </pkgmetadata>

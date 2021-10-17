@@ -14,7 +14,7 @@ SRC_URI="${UURL}/${MY_P}${UVER_PREFIX}.orig.tar.gz
 LICENSE="GPL-3 CC-BY-SA-3.0"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="+nemo"
+IUSE="+headerbar_adjust +nemo"
 RESTRICT="mirror"
 
 RDEPEND="!x11-themes/light-themes
@@ -45,8 +45,7 @@ src_prepare() {
 	## fix nautilus properties window background ##
 	echo -e "\n/* nautilus properties window background */window.background.unified:dir(ltr) > deck:dir(ltr) > box.vertical.view:dir(ltr) {\n background-color: transparent;\n}" >> Ambiance/gtk-3.20/gtk-widgets.css
 
-	if portageq has_version / unity-extra/ehooks[headerbar_adjust]; then
-
+	if use headerbar_adjust; then
 		## workaround to avoid unwanted black frame when using HdyHeaderBar ##
 		sed -i \
 			-e "s/^decoration {$/.background.csd decoration {/" \
