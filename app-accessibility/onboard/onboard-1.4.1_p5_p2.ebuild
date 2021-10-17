@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-PYTHON_COMPAT=( python3_{7..9} )
+PYTHON_COMPAT=( python3_{8..10} )
 DISTUTILS_SINGLE_IMPL=1
 
 URELEASE="impish"
@@ -20,8 +20,6 @@ SLOT="0"
 KEYWORDS="~amd64"
 IUSE=""
 
-# Let people emerge this by default, bug #472932
-#IUSE+=" +python_single_target_python3_7 python_single_target_python3_8"
 RESTRICT="mirror"
 
 RDEPEND="app-accessibility/at-spi2-core

@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-PYTHON_COMPAT=( python3_{7..9} )
+PYTHON_COMPAT=( python3_{8..10} )
 
 URELEASE="impish"
 inherit autotools bash-completion-r1 python-r1 vala ubuntu-versionator xdg
