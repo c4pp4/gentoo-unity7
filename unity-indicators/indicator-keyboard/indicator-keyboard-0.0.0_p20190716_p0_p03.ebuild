@@ -17,10 +17,12 @@ LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="+charmap +fcitx"
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="mirror"
 
 RDEPEND="gnome-base/gnome-desktop:3=
-	charmap? ( gnome-extra/gucharmap:2.90 )"
+	charmap? ( gnome-extra/gucharmap:2.90 )
+	${PYTHON_DEPS}"
 DEPEND="${RDEPEND}
 	app-i18n/ibus[vala]
 	>=dev-libs/glib-2.37
@@ -38,8 +40,7 @@ DEPEND="${RDEPEND}
 
 	fcitx? ( >=app-i18n/fcitx-4.2.8.5 )
 
-	$(vala_depend)
-	${PYTHON_DEPS}"
+	$(vala_depend)"
 
 S="${WORKDIR}/${MY_P}"
 

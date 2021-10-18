@@ -18,6 +18,7 @@ LICENSE="LGPL-3"
 SLOT="0/1.0.0"
 KEYWORDS="~amd64"
 IUSE="test"
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="mirror"
 
 DEPEND="dev-libs/gobject-introspection
@@ -34,6 +35,7 @@ DEPEND="dev-libs/gobject-introspection
 		dev-libs/libxml2[${PYTHON_MULTI_USEDEP}]
 		dev-python/lxml[${PYTHON_MULTI_USEDEP}]
 	')
+	${PYTHON_DEPS}
 	$(vala_depend)"
 
 S="${WORKDIR}"

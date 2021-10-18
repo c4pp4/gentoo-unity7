@@ -18,7 +18,8 @@ LICENSE="GPL-2"
 SLOT="0/${PV}"
 KEYWORDS="~amd64"
 IUSE="debug test"
-REQUIRED_USE="test? ( debug )"
+REQUIRED_USE="${PYTHON_REQUIRED_USE}
+	test? ( debug )"
 RESTRICT="mirror"
 
 DEPEND="dev-cpp/sparsehash

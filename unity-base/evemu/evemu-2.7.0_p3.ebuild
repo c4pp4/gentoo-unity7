@@ -18,11 +18,13 @@ LICENSE="GPL-3 LGPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="test"
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="mirror"
 
 DEPEND="app-text/asciidoc
 	app-text/xmlto
-	dev-libs/libevdev"
+	dev-libs/libevdev
+	${PYTHON_DEPS}"
 
 S="${WORKDIR}/${PN}-${PV}${UVER_PREFIX}"
 MAKEOPTS="${MAKEOPTS} -j1"

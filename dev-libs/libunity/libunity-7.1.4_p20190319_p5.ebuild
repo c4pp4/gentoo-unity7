@@ -20,6 +20,7 @@ LICENSE="GPL-3"
 SLOT="0/9.0.2"
 KEYWORDS="~amd64"
 IUSE=""
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="mirror"
 
 DEPEND=">=dev-libs/dee-1.2.5:=

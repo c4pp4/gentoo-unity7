@@ -19,14 +19,15 @@ SLOT="0/4.2.1"
 LICENSE="GPL-3"
 KEYWORDS="~amd64"
 IUSE="doc debug examples +icu static-libs test"
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="mirror"
 
 RDEPEND="dev-libs/glib:2
-	dev-libs/icu:="
+	dev-libs/icu:=
+	${PYTHON_DEPS}"
 DEPEND="${RDEPEND}
 	dev-util/gtk-doc
 	test? ( dev-util/dbus-test-runner )
-	${PYTHON_DEPS}
 	$(vala_depend)"
 
 S="${WORKDIR}"

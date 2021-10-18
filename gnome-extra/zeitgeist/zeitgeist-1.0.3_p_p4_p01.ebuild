@@ -16,10 +16,9 @@ LICENSE="LGPL-2+ LGPL-3+ GPL-2+"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="+datahub +downloads-monitor +fts +icu introspection nls sql-debug telepathy"
-RESTRICT="mirror"
-
 REQUIRED_USE="${PYTHON_REQUIRED_USE}
 	downloads-monitor? ( datahub )"
+RESTRICT="mirror"
 
 RDEPEND="${PYTHON_DEPS}
 	dev-libs/json-glib

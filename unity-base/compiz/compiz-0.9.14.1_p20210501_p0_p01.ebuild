@@ -17,6 +17,7 @@ LICENSE="GPL-2 LGPL-2.1 MIT"
 SLOT="0/${PV}"
 KEYWORDS="~amd64"
 IUSE="+debug gles2 test"
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="mirror"
 
 COMMONDEPEND="!!x11-wm/compiz

@@ -17,6 +17,7 @@ LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE=""
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="mirror"
 
 DEPEND="dev-libs/glib:2
@@ -24,7 +25,8 @@ DEPEND="dev-libs/glib:2
 	x11-libs/libX11
 	x11-libs/gtk+:2
 	x11-libs/gtk+:3
-	!x11-misc/appmenu-gtk"
+	!x11-misc/appmenu-gtk
+	${PYTHON_DEPS}"
 
 S="${WORKDIR}"
 
