@@ -6,7 +6,7 @@
 
    - see [profile.bashrc][code]
 
-- Overlay's ehooks are located in [profiles/ehooks][ehooks] directory.
+- Overlay's ehooks are located in [gentoo-unity7/profiles/ehooks][ehooks] directory.
 
 - **Optional** ehooks are managed via [unity-extra/ehooks USE flags][use flags].
 
@@ -89,7 +89,7 @@
 
   - it's possible to use any [ebuild function](https://devmanual.gentoo.org/function-reference/index.html)
 
-  - **templates** are in [profiles/ehooks/templates][templates] directory
+  - **templates** are in [gentoo-unity7/profiles/ehooks/templates][templates] directory
 
 	 the preferred way of using templates are **symbolic links**:
 
