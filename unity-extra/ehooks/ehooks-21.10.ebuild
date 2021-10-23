@@ -51,12 +51,12 @@ src_install() {
 		printf "\b\b %s" "${indicator[${count}]}"
 		count=$((count + 1))
 
-		## Try another USE flag if there is no change.
+		## Find out if there is USE flag change.
 		use "${x}" && pkg_flag=1 || pkg_flag=0
 		portageq has_version / unity-extra/ehooks["${x}"] && sys_flag=1 || sys_flag=0
 		[[ ${pkg_flag} -eq ${sys_flag} ]] || change="yes"
 
-		## Get ehooks containing recently changed USE flag.
+		## Get ehooks containing USE flag.
 		prev_shopt=$(shopt -p nullglob)
 		shopt -s nullglob
 		ehk=( $(grep -Fl "${x}" "${REPO_ROOT}"/profiles/ehooks/*/*/*.ehooks) )
@@ -67,6 +67,11 @@ src_install() {
 			m=${m%/*.ehooks}
 			m=${m#*/ehooks/}
 
+			## Get ${SLOT}.
+			[[ ${m} == *":"+([0-9.]) ]] && slot=${m#*:} || slot=""
+			m=${m%:*}
+
+			## Skip if timestamp already exists.
 			grep -Fq "${m}|${x}" timestamps && continue
 
 			## Copy timestamp or create a new one.
@@ -74,7 +79,8 @@ src_install() {
 				&& echo "${m}|${x}|$(use ${x} && echo ${timestamp} || echo 0000000000)|0000000000" >> timestamps \
 				&& continue
 
-			[[ -z ${change} ]] && continue || unset change
+			## Skip if there is no USE flag change.
+			[[ -z ${change} ]] && continue
 
 			## Get installed packages affected by the ehooks.
 			prev_shopt=$(shopt -p nullglob) ## don't use extglob
@@ -95,6 +101,7 @@ src_install() {
 				fi
 			done
 		done
+		unset change
 	done
 	printf "\b\b%s\n" "... done!"
 
@@ -110,11 +117,18 @@ pkg_postinst() {
 	local \
 		color_blink=$(tput blink) \
 		color_norm=$(tput sgr0) \
-		x="$(portageq get_repo_path / gentoo-unity7)"/ehooks_version_control.sh \
-		fn="get_subdirs get_repo_root get_ehooks_subdirs get_installed_packages get_slot find_flag_changes find_tree_changes ehooks_changes"
+		fn="get_subdirs get_repo_root get_ehooks_subdirs get_installed_packages get_slot find_flag_changes find_tree_changes ehooks_changes" \
+		prev_shopt=$(shopt -p nullglob) \
+		x="$(portageq get_repo_path / gentoo-unity7)"/ehooks_version_control.sh
+
+	shopt -s nullglob
+	local -a cfg_files=( "${EROOT}"/etc/ehooks/._cfg*timestamps )
+	${prev_shopt}
 
 	## Generate emerge command needed to apply ehooks changes.
 	source <(awk "/^(${fn// /|})(\(\)|=\(\$)/ { p = 1 } p { print } /(^(}|\))|; })\$/ { p = 0 }" ${x} 2>/dev/null)
+	cfg_files=( ${cfg_files[@]##*/} )
+	[[ -n ${cfg_files[@]} ]] && source <(declare -f find_flag_changes | sed -e "/ts_file=/{s/timestamps/${cfg_files[-1]}/}")
 	ehooks_changes
 
 	for x in ${fn}; do

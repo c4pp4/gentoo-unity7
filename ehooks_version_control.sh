@@ -22,10 +22,10 @@ eerror() {
 
 get_subdirs() {
 	local prev_shopt=$(shopt -p nullglob)
-
 	shopt -s nullglob
 	local -a result=( "$1"profiles/ehooks/$2 )
 	${prev_shopt}
+
 	echo "${result[@]}"
 }
 
@@ -122,7 +122,7 @@ find_tree_changes() {
 
 	local -a \
 		subdirs=( $(get_ehooks_subdirs) ) \
-		flag result
+		flags result
 
 	for x in "${subdirs[@]}"; do
 		## Get ${CATEGORY}/{${P}-${PR},${P},${P%.*},${P%.*.*},${PN}} from ehooks' path.
@@ -142,12 +142,12 @@ find_tree_changes() {
 			[[ ${sys_date} -ge $(date -r "${x}" "+%s") ]] && continue
 
 			## Try another package if ehooks_{require,use} flag is not declared.
-			flag=( $(grep -Ehos "ehooks_(require|use)\s[A-Za-z0-9+_@-]+" "${x%%/files/*}/"*.ehooks) )
-			if [[ -n ${flag[@]} ]]; then
-				flag=( ${flag[@]/ehooks_require} ); flag=( ${flag[@]/ehooks_use} )
-				for f in "${flag[@]}"; do
+			flags=( $(grep -Ehos "ehooks_(require|use)\s[A-Za-z0-9+_@-]+" "${x%%/files/*}/"*.ehooks) )
+			if [[ -n ${flags[@]} ]]; then
+				flags=( ${flags[@]/ehooks_require} ); flags=( ${flags[@]/ehooks_use} )
+				for f in "${flags[@]}"; do
 					portageq has_version / unity-extra/ehooks["${f}"] && break
-					[[ ${f} == ${flag[-1]} ]] && continue 2
+					[[ ${f} == ${flags[-1]} ]] && continue 2
 				done
 			fi
 

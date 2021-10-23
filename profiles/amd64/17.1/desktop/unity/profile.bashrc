@@ -77,7 +77,7 @@ if [[ ${EBUILD_PHASE} == "setup" ]] ; then
 			eerror "Warning!"
 			eerror
 			eerror "Patches from gentoo-unity7 overlay will be applied to ${CATEGORY}/${PN} and some other packages from the Gentoo tree via ehooks patching system."
-			eerror "For more details see README_ehooks.txt - Chapter I."
+			eerror "For more details, see gentoo-unity7/docs/ehooks.md - Chapter I."
 			eerror "Set EHOOKS_ACCEPT=\"yes\" in make.conf to confirm you agree with it."
 			eerror
 			die "Acceptance needed"
