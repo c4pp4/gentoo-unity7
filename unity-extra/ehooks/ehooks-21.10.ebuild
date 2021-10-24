@@ -17,10 +17,9 @@ IUSE="+audacity_menu +eog_menu +evince_menu +fontconfig_adjust +gnome-screenshot
 
 DEPEND="unity-base/unity-build-env"
 
-RDEPEND="fontconfig_adjust? ( media-libs/freetype:2[adobe-cff,cleartype-hinting,-infinality] )
-	headerbar_adjust? (
-		x11-misc/gtk3-nocsd
-		x11-themes/ubuntu-themes[headerbar_adjust=] )"
+RDEPEND="x11-themes/ubuntu-themes[headerbar_adjust=]
+	fontconfig_adjust? ( media-libs/freetype:2[adobe-cff,cleartype-hinting,-infinality] )
+	headerbar_adjust? ( x11-misc/gtk3-nocsd )"
 
 S=${WORKDIR}
 
