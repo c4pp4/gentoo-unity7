@@ -113,6 +113,7 @@ src_install() {
 pkg_postinst() {
 	ubuntu-versionator_pkg_postinst
 
+	## Generate emerge command needed to apply ehooks changes.
 	local \
 		color_blink=$(tput blink) \
 		color_norm=$(tput sgr0) \
@@ -124,7 +125,6 @@ pkg_postinst() {
 	local -a cfg_files=( "${EROOT}"/etc/ehooks/._cfg*timestamps )
 	${prev_shopt}
 
-	## Generate emerge command needed to apply ehooks changes.
 	source <(awk "/^(${fn// /|})(\(\)|=\(\$)/ { p = 1 } p { print } /(^(}|\))|; })\$/ { p = 0 }" ${x} 2>/dev/null)
 	cfg_files=( ${cfg_files[@]##*/} )
 	[[ -n ${cfg_files[@]} ]] && source <(declare -f find_flag_changes | sed -e "/ts_file=/{s/timestamps/${cfg_files[-1]}/}")

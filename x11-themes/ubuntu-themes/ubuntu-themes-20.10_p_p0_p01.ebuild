@@ -42,9 +42,6 @@ src_prepare() {
 	## tweak nautilus selection and search bar ##
 	echo $(<"${FILESDIR}"/nautilus.css) >> Ambiance/gtk-3.20/apps/nautilus.css
 
-	## fix nautilus properties window background ##
-	echo -e "\n/* nautilus properties window background */window.background.unified:dir(ltr) > deck:dir(ltr) > box.vertical.view:dir(ltr) {\n background-color: transparent;\n}" >> Ambiance/gtk-3.20/gtk-widgets.css
-
 	if use headerbar_adjust; then
 		## workaround to avoid unwanted black frame when using HdyHeaderBar ##
 		sed -i \
@@ -53,6 +50,9 @@ src_prepare() {
 
 		## remove HdyHeaderBar rounded top corners ##
 		echo -e "\n/* HdyHeaderBar top corners */\n.background:not(.tiled):not(.maximized):not(.solid-csd) headerbar.titlebar {\n border-top-left-radius: 0;\n border-top-right-radius: 0;\n}" >> Ambiance/gtk-3.20/gtk-widgets.css
+
+		## fix nautilus properties window background ##
+		echo -e "\n/* nautilus properties window background */window.background.unified:dir(ltr) > deck:dir(ltr) > box.vertical.view:dir(ltr) {\n background-color: transparent;\n}" >> Ambiance/gtk-3.20/gtk-widgets.css
 	fi
 
 	use nemo && echo $(<"${FILESDIR}"/nemo.css) >> Ambiance/gtk-3.20/apps/nemo.css
