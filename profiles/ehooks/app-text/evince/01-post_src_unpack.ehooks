@@ -1,21 +1,21 @@
 ehooks() {
-	if ehooks_use evince_menu; then
-		unpack "${EHOOKS_FILESDIR}"/global-menu-translations-artful.tar.xz
+	ehooks_require evince_menu
 
-		einfo "  Merging available translations..."
+	unpack "${EHOOKS_FILESDIR}"/global-menu-translations-artful.tar.xz
 
-		local po_ext po_orig
-		local -a po_files=( po/* )
+	einfo "  Merging available translations..."
 
-		for po_ext in "${po_files[@]}"; do
-			po_orig=${po_ext/po/${P%%_*}\/po}
+	local po_ext po_orig
+	local -a po_files=( po/* )
 
-			if [[ -f ${po_orig} ]]; then
-				sed -i -e '/msgid \"\"/,/^$/d' "${po_ext}"
-				cat "${po_ext}" >> "${po_orig}"
-				msguniq --use-first -o "${po_orig}" "${po_orig}" 2>&1	# ignore warning messages
-				msgfmt -o "${po_orig/.po/.gmo}" "${po_orig}" 2>&1	# ignore warning messages
-			fi
-		done
-	fi
+	for po_ext in "${po_files[@]}"; do
+		po_orig=${po_ext/po/${P%%_*}\/po}
+
+		if [[ -f ${po_orig} ]]; then
+			sed -i -e '/msgid \"\"/,/^$/d' "${po_ext}"
+			cat "${po_ext}" >> "${po_orig}"
+			msguniq --use-first -o "${po_orig}" "${po_orig}" 2>&1	# ignore warning messages
+			msgfmt -o "${po_orig/.po/.gmo}" "${po_orig}" 2>&1	# ignore warning messages
+		fi
+	done
 }

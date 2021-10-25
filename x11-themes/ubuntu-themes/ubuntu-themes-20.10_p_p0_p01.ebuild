@@ -14,7 +14,7 @@ SRC_URI="${UURL}/${MY_P}${UVER_PREFIX}.orig.tar.gz
 LICENSE="GPL-3 CC-BY-SA-3.0"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="+headerbar_adjust +nemo"
+IUSE="+nemo"
 RESTRICT="mirror"
 
 RDEPEND="!x11-themes/light-themes
@@ -36,24 +36,22 @@ src_prepare() {
 	## set eog fullscreen toolbar background ##
 	echo -e "\n/* eog fullscreen toolbar background */\noverlay > revealer > box > toolbar {\n background-color: @bg_color;\n}" >> Ambiance/gtk-3.20/gtk-widgets.css
 
-	## tweak transmission-gtk progress bar border when selected ##
+	## adjust transmission-gtk progress bar border when selected ##
 	echo -e "\n/* transmission-gtk progress bar border */\nwindow.background > box.vertical > scrolledwindow.tr-workarea > treeview.view:focus .progressbar:selected:not(:backdrop) {\n border-color: @selected_fg_color;\n}" >> Ambiance/gtk-3.20/gtk-widgets.css
 
-	## tweak nautilus selection and search bar ##
+	## adjust nautilus selection and search bar ##
 	echo $(<"${FILESDIR}"/nautilus.css) >> Ambiance/gtk-3.20/apps/nautilus.css
 
-	if use headerbar_adjust; then
-		## workaround to avoid unwanted black frame when using HdyHeaderBar ##
-		sed -i \
-			-e "s/^decoration {$/.background.csd decoration {/" \
-			Ambiance/gtk-3.20/gtk-widgets.css
+	## fix nautilus properties window background ##
+	echo -e "\n/* nautilus properties window background */window.background.unified:dir(ltr) > deck:dir(ltr) > box.vertical.view:dir(ltr) {\n background-color: transparent;\n}" >> Ambiance/gtk-3.20/gtk-widgets.css
 
-		## remove HdyHeaderBar rounded top corners ##
-		echo -e "\n/* HdyHeaderBar top corners */\n.background:not(.tiled):not(.maximized):not(.solid-csd) headerbar.titlebar {\n border-top-left-radius: 0;\n border-top-right-radius: 0;\n}" >> Ambiance/gtk-3.20/gtk-widgets.css
+	## workaround to avoid unwanted black frame when using HdyHeaderBar ##
+	sed -i \
+		-e "s/^decoration {$/.background.csd decoration {/" \
+		Ambiance/gtk-3.20/gtk-widgets.css
 
-		## fix nautilus properties window background ##
-		echo -e "\n/* nautilus properties window background */window.background.unified:dir(ltr) > deck:dir(ltr) > box.vertical.view:dir(ltr) {\n background-color: transparent;\n}" >> Ambiance/gtk-3.20/gtk-widgets.css
-	fi
+	## remove HdyHeaderBar rounded top corners ##
+	echo -e "\n/* HdyHeaderBar top corners */\n.background:not(.tiled):not(.maximized):not(.solid-csd) headerbar.titlebar {\n border-top-left-radius: 0;\n border-top-right-radius: 0;\n}" >> Ambiance/gtk-3.20/gtk-widgets.css
 
 	use nemo && echo $(<"${FILESDIR}"/nemo.css) >> Ambiance/gtk-3.20/apps/nemo.css
 }

@@ -1,3 +1,1 @@
-ehooks() {
-	ehooks_require zim_theme
-}
+../../templates/patches.template

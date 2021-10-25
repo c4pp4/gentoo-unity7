@@ -1,3 +1,0 @@
-ehooks() {
-	ehooks_require telegram_theme
-}

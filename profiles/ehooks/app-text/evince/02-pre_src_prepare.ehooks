@@ -1,7 +1,1 @@
-ehooks() {
-	ehooks_use headerbar_adjust && sed -i \
-		-e "/hdy_header_bar_set_show_close_button/{s/TRUE/FALSE/}" \
-		shell/ev-window.c
-
-	ehooks_require evince_menu
-}
+../../templates/patches.template

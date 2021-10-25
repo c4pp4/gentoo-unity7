@@ -1,5 +1,0 @@
-ehooks() {
-	ehooks_use headerbar_adjust && sed -i \
-		-e "/show-close-button/{s/True/False/}" \
-		src/ui/libraryWindow.ui
-}

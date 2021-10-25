@@ -1,0 +1,69 @@
+From a852e3bf6018e7f9d7cbd1ad21ee6a9586edba97 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Mon, 25 Oct 2021 19:41:34 +0200
+Subject: [PATCH 1/1] Disable headerbar quit button when not in GNOME
+
+Signed-off-by: c4pp4
+---
+ src/base-headerbar.vala |  5 ++++-
+ src/meson.build         |  1 +
+ src/xdg-desktop.vala    | 12 ++++++++++++
+ 3 files changed, 17 insertions(+), 1 deletion(-)
+ create mode 100644 src/xdg-desktop.vala
+
+diff --git a/src/base-headerbar.vala b/src/base-headerbar.vala
+index 075a3ef..4bfe6a1 100644
+--- a/src/base-headerbar.vala
++++ b/src/base-headerbar.vala
+@@ -46,6 +46,9 @@ private class BaseHeaderBar : NightTimeAwareHeaderBar, AdaptativeWidget
+                                 || AdaptativeWidget.WindowSize.is_extra_flat (new_size);
+         if (disable_action_bar != _disable_action_bar)
+         {
++            if (!in_desktop ("GNOME"))
++                disable_action_bar = false;
++            else
+             disable_action_bar = _disable_action_bar;
+             if (disable_action_bar)
+             {
+@@ -290,7 +293,7 @@ private class BaseHeaderBar : NightTimeAwareHeaderBar, AdaptativeWidget
+                                           false,        /* show ltr_left_separator  */
+                                           false,        /* show info_button         */
+                                           false,        /* show ltr_right_separator */
+-                                          true);        /* show quit_button_stack   */
++                                          in_desktop ("GNOME") ? true : false);        /* show quit_button_stack   */
+     }
+ 
+     /*\
+diff --git a/src/meson.build b/src/meson.build
+index 9925272..88155b3 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -70,6 +70,7 @@ executable(meson.project_name(),
+         'about-list.vala',
+         'adaptative-window.vala',
+         'base-headerbar.vala',
++        'xdg-desktop.vala',
+         'base-view.vala',
+         'base-window.vala',
+         'computer-player.vala',
+diff --git a/src/xdg-desktop.vala b/src/xdg-desktop.vala
+new file mode 100644
+index 0000000..c9d5623
+--- /dev/null
++++ b/src/xdg-desktop.vala
+@@ -0,0 +1,12 @@
++private bool in_desktop (string name)
++{
++    var desktop_name_list = (!) Environment.get_variable ("XDG_CURRENT_DESKTOP");
++    if (desktop_name_list == "")
++        return false;
++
++    foreach (var n in desktop_name_list.split (":"))
++        if (n == name)
++            return true;
++
++    return false;
++}
+-- 
+2.32.0
+

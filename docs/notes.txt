@@ -26,10 +26,13 @@ x11-themes/ubuntu-wallpapers::gentoo	# Version in the Gentoo tree doesn't contro
 * Reasons for maintaining ehooks:
 app-accessibility/at-spi2-core		# Start 'accessibility bus' by default (https://wiki.debian.org/accessibility-devel)
 app-admin/system-config-printer		# Fix Unity Control Center icon and About dialog icon
-app-backup/deja-dup			# Enable Unity7 user interface options
+app-backup/deja-dup			# Make Deja Dup appear in unity-control-center
 dev-cpp/gtest				# Install /usr/src/{gmock,gtest}/* source files lacking from main tree ebuild
 dev-libs/glib				# Patched to call gettext if .desktop file does not have inline translations, don't try DBusActivatable when in Unity user interface and fallback on Exec=
 dev-libs/libappindicator		# Build with GTK2, see "Using portage tree libindicate packages" item above
+games-board/iagno			# Disable headerbar quit button when not in GNOME
+games-puzzle/gnome-taquin		# Disable headerbar quit button when not in GNOME
+gnome-base/dconf-editor			# Disable headerbar quit button when not in GNOME
 gnome-base/gconf			# Install 'update-gconf-defaults' script - Ubuntu's gconf update tool
 					#  Ubuntu patchset:
 					#  05_nodisplay_autostart.patch
@@ -98,7 +101,9 @@ gnome-base/nautilus			# Give progressbar on Dash launcher nautilus icon
 					#  appstream-compulsory.patch
 					#  nautilusgtkplacesview-show-error-if-volume-is-not-mo.patch
 					#  ubuntu/shell-search-provider-implement-XUbuntuCancel-to-request-.patch
-gnome-extra/nemo			# Patches nemo-autostart.desktop to allow starting in Unity7 user interface
+gnome-extra/gnome-calendar		# Use unity-control-center as the fallback
+gnome-extra/gnome-contacts		# Use unity-control-center as the fallback
+gnome-extra/nemo			# Don't use file manager DBus service when in Unity, add Unity Launcher support, enable StartupNotify
 gnome-extra/nm-applet			# Shows nm-applet in indicator panel
 					#  Ubuntu patchset:
 					#  Force-online-state-with-unmanaged-devices.patch
@@ -116,9 +121,12 @@ gnome-extra/polkit-gnome		# Patched to have polkit-gnome-authentication-agent-1 
 					#  04-autorestart.patch
 					#  06-authentication-failure-string.patch
 gnome-extra/yelp			# Only show desktop launcher in Gnome as we have own launcher
+gui-libs/libhandy			# Disable headerbar close button when not in GNOME
 mail-client/thunderbird			# Add Unity menubar and desktop launcher with quicklist and translations
 mail-client/thunderbird-bin		# Add desktop launcher with quicklist and translations
 media-fonts/ubuntu-font-family		# Add Ubuntu medium font (e.g. used by unity-indicators/indicator-keyboard)
+media-gfx/gnome-photos			# Use unity-control-center as the fallback
+media-gfx/gnome-screenshot		# Use Ubuntu help instead of GNOME help, don't use GtkHeaderBar, show the save dialog by default, don't try and use the GNOME Shell D-Bus interface, add quicklist area-shot option
 media-gfx/shotwell			# Patched for integration with Unity online accounts
 media-sound/rhythmbox			# Patched/compiled for indicator-sound support, menu quicklist, Magnatune and other Ubuntu UI improvements
 					#  Ubuntu patchset:
@@ -145,7 +153,8 @@ net-im/empathy				# Integrates with Unity online accounts, associated plugins an
 					#  39_default_to_freenode_for_irc.patch
 					#  42_shell_running.patch
 					#  43_quicklists.patch
-net-irc/quassel				# Fix notification icon not appearing in Unity
+net-im/telegram-desktop			# Add ubuntu-mono-dark tray icons
+net-im/telegram-desktop-bin		# Add ubuntu-mono-dark tray icons
 net-libs/libsoup			# Portage tree version forces '--without-gnome' and has removed net-libs/libsoup-gnome which provided '--with-gnome'
 sys-apps/accountsservice		# Requires patching for SetInputSources as needed by unity-indicators/indicator-keyboard and u-c-c text entry settings
 					#  Ubuntu patchset:
@@ -222,6 +231,7 @@ x11-misc/lightdm			# Custom fixes for Xsession profile sourcing and multi-monito
 					#  Glibc-2.33-fix.patch
 					#  dont-turn-format-warnings-into-errors.patch
 x11-misc/x11vnc				# Correct hard coded local prefix in Xdummy
+x11-misc/zim				# Add ubuntu-mono-{dark,light} tray icons
 x11-plugins/pidgin-libnotify		# Fix Unity messaging menu support
 					#  Ubuntu patchset:
 					#  force-load.patch
@@ -237,31 +247,19 @@ app-office/libreoffice			# Add Human icon theme and make it the default, create 
 					#  https://github.com/LibreOffice/core/tree/3498ed37527b7af795f00dc6a55c11e65a313186/icon-themes/human
 app-office/libreoffice-bin		# Create fontconfig configuration (30-opensymbol.conf) symlink
 app-text/evince				# Add traditional menu bar (https://bugzilla.gnome.org/show_bug.cgi?id=736419), add menu translations
-app-text/foliate			# Fix HeaderBar
-games-board/iagno			# Fix HeaderBar
-games-puzzle/gnome-taquin		# Fix HeaderBar
-gnome-extra/gnome-calculator		# Fix HeaderBar
-gnome-extra/gnome-calendar		# Use unity-control-center as the fallback, fix HeaderBar
-gnome-extra/gnome-contacts		# Use unity-control-center as the fallback, fix HeaderBar
-gnome-extra/gnome-system-monitor	# Fix HeaderBar
-gnome-extra/gnome-weather		# Fix HeaderBar
 gnome-extra/nemo			# Remove 'Open as Root' context menu action
-gui-libs/libhandy			# Fix HeaderBar
+media-fonts/freefont			# Reduce fonts according to Ubuntu
+media-fonts/noto-emoji			# Reduce fonts according to Ubuntu
+media-fonts/droid			# Reduce fonts according to Ubuntu
+media-fonts/takao-fonts			# Reduce fonts according to Ubuntu
+media-fonts/nanum			# Reduce fonts according to Ubuntu
+media-fonts/khmer			# Reduce fonts according to Ubuntu
 media-gfx/eog				# Add traditional menu bar (https://bugzilla.gnome.org/749976, https://bugs.debian.org/793445), add menu translations
-media-gfx/gnome-font-viewer		# Fix HeaderBar
-media-gfx/gnome-photos			# Use unity-control-center as the fallback, fix HeaderBar
-media-gfx/gnome-screenshot		# Use Ubuntu help instead of GNOME help, don't use GtkHeaderBar, show the save dialog by default, don't try and use the GNOME Shell D-Bus interface, add quicklist area-shot option
-media-gfx/simple-scan			# Fix HeaderBar
 media-libs/fontconfig			# Adjust fonts configuration according to Ubuntu
 media-sound/audacity			# Fix Exec command to use Unity menubar properly
 media-video/totem			# Add traditional menubar (https://bugzilla.gnome.org/show_bug.cgi?id=749695)
 net-im/pidgin				# Add chat section into messaging menu (Available, Away, Busy, Invisible, Offline)
-net-im/telegram-desktop			# Add ubuntu-mono-dark tray icons
-net-im/telegram-desktop-bin		# Add ubuntu-mono-dark tray icons
-sys-apps/baobab				# Fix HeaderBar
-sys-apps/gnome-disk-utility		# Fix HeaderBar
 x11-libs/vte:2.91			# Add the style context provider with FALLBACK priority; see x11-terms/gnome-terminal
-x11-misc/zim				# Install Ubuntu theme (/usr/share/icons/ubuntu-mono-{dark,light})
 x11-terms/gnome-terminal		# Add style classes and CSS names to some of our widgets, use theme transparency, draw proper background under the scrollbar (https://bugzilla.gnome.org/show_bug.cgi?id=754796, LP #1493964)
 
 * By design, some indicators or their features will not appear until they meet certain criteria

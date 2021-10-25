@@ -13,13 +13,12 @@ UVER=
 LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="+audacity_menu +eog_menu +evince_menu +fontconfig_adjust +gnome-screenshot_adjust +gnome-terminal_theme +headerbar_adjust +libreoffice_theme +nemo_noroot +pidgin_chat +telegram_theme +totem_menu +zim_theme"
+IUSE="+audacity_menu +eog_menu +evince_menu +fontconfig_adjust +gnome-screenshot_adjust +gnome-terminal_theme +libreoffice_theme +nemo_noroot +pidgin_menu +totem_menu"
 
 DEPEND="unity-base/unity-build-env"
 
-RDEPEND="x11-themes/ubuntu-themes[headerbar_adjust=]
-	fontconfig_adjust? ( media-libs/freetype:2[adobe-cff,cleartype-hinting,-infinality] )
-	headerbar_adjust? ( x11-misc/gtk3-nocsd )"
+RDEPEND="x11-misc/gtk3-nocsd
+	fontconfig_adjust? ( media-libs/freetype:2[adobe-cff,cleartype-hinting,-infinality] )"
 
 S=${WORKDIR}
 

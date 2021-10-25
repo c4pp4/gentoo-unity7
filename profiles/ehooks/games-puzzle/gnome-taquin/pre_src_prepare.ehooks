@@ -1,8 +1,1 @@
-ehooks() {
-	ehooks_require headerbar_adjust
-
-	sed -i \
-		-e "s/disable_action_bar = _disable_action_bar/disable_action_bar = false/" \
-		-e "/show quit_button_stack/{s/true/false/}" \
-		src/base-headerbar.vala
-}
+../../templates/patches.template

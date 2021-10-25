@@ -22,7 +22,7 @@ index b1adaf4..77d3952 100644
  
        proxy.call_sync ("Activate", param, DBusCallFlags.NONE, -1);
      } catch (Error e) {
-+      if (is_desktop ("Unity")) {
++      if (in_desktop ("Unity")) {
 +        try {
 +          Process.spawn_command_line_async ("unity-control-center online-accounts");
 +        } catch (SpawnError ex) {
@@ -49,24 +49,14 @@ index d977638..08e5d31 100644
  contacts_c_sources = [
 diff --git a/src/xdg-desktop.vala b/src/xdg-desktop.vala
 new file mode 100644
-index 0000000..cbcbbed
+index 0000000..ecaaa18
 --- /dev/null
 +++ b/src/xdg-desktop.vala
-@@ -0,0 +1,22 @@
-+/*
-+ * Copyright (C) 2014 Robert Ancell.
-+ *
-+ * This program is free software: you can redistribute it and/or modify it under
-+ * the terms of the GNU General Public License as published by the Free Software
-+ * Foundation, either version 2 of the License, or (at your option) any later
-+ * version. See http://www.gnu.org/copyleft/gpl.html the full text of the
-+ * license.
-+ */
-+
-+private bool is_desktop (string name)
+@@ -0,0 +1,12 @@
++private bool in_desktop (string name)
 +{
-+    var desktop_name_list = Environment.get_variable ("XDG_CURRENT_DESKTOP");
-+    if (desktop_name_list == null)
++    var desktop_name_list = (!) Environment.get_variable ("XDG_CURRENT_DESKTOP");
++    if (desktop_name_list == "")
 +        return false;
 +
 +    foreach (var n in desktop_name_list.split (":"))
