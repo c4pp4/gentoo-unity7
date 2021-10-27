@@ -36,8 +36,8 @@ src_prepare() {
 	## set eog fullscreen toolbar background ##
 	echo -e "\n/* eog fullscreen toolbar background */\noverlay > revealer > box > toolbar {\n background-color: @bg_color;\n}" >> Ambiance/gtk-3.20/gtk-widgets.css
 
-	## adjust transmission-gtk progress bar border when selected ##
-	echo -e "\n/* transmission-gtk progress bar border */\nwindow.background > box.vertical > scrolledwindow.tr-workarea > treeview.view:focus .progressbar:selected:not(:backdrop) {\n border-color: @selected_fg_color;\n}" >> Ambiance/gtk-3.20/gtk-widgets.css
+	## adjust progress bar border when selected ##
+	echo -e "\n/* transmission-gtk progress bar border */\nwindow.background box.vertical > scrolledwindow > treeview.view:focus .progressbar:selected:not(:backdrop) {\n border-color: @selected_fg_color;\n}" >> Ambiance/gtk-3.20/gtk-widgets.css
 
 	## adjust nautilus selection and search bar ##
 	echo $(<"${FILESDIR}"/nautilus.css) >> Ambiance/gtk-3.20/apps/nautilus.css
@@ -53,6 +53,9 @@ src_prepare() {
 	## remove HdyHeaderBar rounded top corners ##
 	echo -e "\n/* HdyHeaderBar top corners */\n.background:not(.tiled):not(.maximized):not(.solid-csd) headerbar.titlebar {\n border-top-left-radius: 0;\n border-top-right-radius: 0;\n}" >> Ambiance/gtk-3.20/gtk-widgets.css
 
+	## adjust headerbar horizontal radio buttons ##
+	echo -e "\n/* headerbar horizontal radio buttons */\nviewswitcher button > stack > box.wide {\n padding: 8px 12px;\n}\nheaderbar button.horizontal.radio {\n padding: 0;\n}" >> Ambiance/gtk-3.20/gtk-widgets.css
+	
 	use nemo && echo $(<"${FILESDIR}"/nemo.css) >> Ambiance/gtk-3.20/apps/nemo.css
 }
 

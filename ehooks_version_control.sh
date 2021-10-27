@@ -382,39 +382,40 @@ debian_changes() {
 				done
 			done
 
-			local an pn un uv
+			local pn un utd uv
 
-			local -a auvers result
+			local -a an auvers result
 
 			for x in "${uvers[@]}"; do
 				auvers=()
 				un="${x#*|}"
+				utd="${color_yellow}${un}${color_norm}"
 				for rls in ${releases}; do
 					for frls in "${rls}" "${rls}"-security "${rls}"-updates; do
 						for src in ${sources}; do
 							uv=$(grep -A6 "Package: ${un%_*}$" /tmp/ehooks-${USER}-sources-${src}-${frls} | sed -n 's/^Version: \(.*\)/\1/p' | sed 's/[0-9]://g')
-							[[ -n ${uv} ]] && [[ ${uv} != ${pn} ]] && [[ ${un#*_} != ${uv} ]] && auvers+=( "'${uv}'" ) && pn="${uv}"
+							[[ -n ${uv} ]] && [[ ${uv} != ${pn} ]] && [[ ${uv} != ${un#*_} ]] && auvers+=( "'${uv}'" ) && pn="${uv}"
+							[[ ${uv} == ${un#*_} ]] && utd="${color_green}${un}${color_norm}" || an[1]="${color_yellow}[ local package is outdated ]${color_norm}"
 						done
 					done
 				done
 
 				pn="${x#*ehooks/}"; pn="${pn%/*}"
 				if [[ -n ${auvers[@]} ]]; then
-					result+=( " ${color_yellow}*${color_norm} $(equery -q l -p -F '$cpv|$mask2' "${pn}" | grep "\[32;01m" | tail -1 | sed "s/|.*$//")... local: ${color_green}${x#*|}${color_norm} available: ${auvers[*]}" )
-					get_debian_archive "${x#*|}"
-					tar --overwrite -xf "/tmp/ehooks-${USER}-${x#*|}.debian.tar.xz" -C /tmp debian/patches/series --strip-components 2 --transform "s/series/ehooks-${USER}-series/"
+					result+=( " * $(equery -q l -p -F '$cpv|$mask2' "${pn}" | grep "\[32;01m" | tail -1 | sed "s/|.*$//")... local: ${utd} available: ${auvers[*]}" )
+					get_debian_archive "${un}"
+					tar --overwrite -xf "/tmp/ehooks-${USER}-${un}.debian.tar.xz" -C /tmp debian/patches/series --strip-components 2 --transform "s/series/ehooks-${USER}-series/"
 					auvers=( "${auvers[@]//\'}" )
 					for uv in "${auvers[@]}"; do
 						get_debian_archive "${un%_*}_${uv}"
 						tar --overwrite -xf "/tmp/ehooks-${USER}-${un%_*}_${uv}.debian.tar.xz" -C /tmp debian/patches/series --strip-components 2 --transform "s/series/ehooks-${USER}-aseries/"
 						if [[ -n $(diff /tmp/ehooks-${USER}-series /tmp/ehooks-${USER}-aseries) ]]; then
 							result[${#result[@]}-1]="${result[${#result[@]}-1]/${uv}/${color_red}${uv}${color_norm}}"
-							an="anotation"
+							an[2]="${color_red}[ debian/patches/series file differs from local ]${color_norm}"
 						fi
 					done
 				fi
 			done
-			[[ ${an} == "anotation" ]] && result+=( "${color_red}[ debian/patches/series differ from local ]${color_norm}" )
 			;;
 	esac
 	printf "\b\b\b%s\n\n" "... done!"
@@ -423,6 +424,10 @@ debian_changes() {
 		for x in "${result[@]}"; do
 			printf "%s\n\n" "${x}"
 		done
+		for x in "${an[@]}"; do
+			printf "%s\n" "${x}"
+		done
+		[[ -n ${an[@]} ]] && echo
 	else
 		einfo "No changes found"
 		echo
