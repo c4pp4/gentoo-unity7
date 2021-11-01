@@ -64,11 +64,19 @@ src_prepare() {
 		tools/hudkeywords/hudkeywords/cli.py
 
 	# Stop cmake doing the job of distutils #
-	sed -e '/add_subdirectory(hudkeywords)/d' \
-		-i tools/CMakeLists.txt
+	sed -i \
+		-e '/add_subdirectory(hudkeywords)/d' \
+		tools/CMakeLists.txt
 
-	# disable build of tests
-	sed -i '/add_subdirectory(tests)/d' "${S}/CMakeLists.txt" || die
+	# Disable build of tests #
+	sed -i \
+		-e '/add_subdirectory(tests)/d' \
+		CMakeLists.txt
+
+	# Fix "attribute 'visible' invalid for element 'column'" #
+	sed -i \
+		-e 's/visible="0"//' \
+		tools-vala/hud-gtk.ui
 
 	cmake-utils_src_prepare
 }

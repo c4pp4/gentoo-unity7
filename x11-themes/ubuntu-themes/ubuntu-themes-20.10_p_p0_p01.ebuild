@@ -33,16 +33,16 @@ src_prepare() {
 	eapply "${WORKDIR}/${MY_P}${UVER_PREFIX}-${UVER}.diff"	# This needs to be applied for the debian/ directory to be present #
 	ubuntu-versionator_src_prepare
 
-	## set eog fullscreen toolbar background ##
+	## eog fullscreen toolbar background ##
 	echo -e "\n/* eog fullscreen toolbar background */\noverlay > revealer > box > toolbar {\n background-color: @bg_color;\n}" >> Ambiance/gtk-3.20/gtk-widgets.css
 
-	## adjust progress bar border when selected ##
-	echo -e "\n/* transmission-gtk progress bar border */\nwindow.background box.vertical > scrolledwindow > treeview.view:focus .progressbar:selected:not(:backdrop) {\n border-color: @selected_fg_color;\n}" >> Ambiance/gtk-3.20/gtk-widgets.css
+	## progress bar border when selected ##
+	echo -e "\n/* progress bar border when selected */\nwindow.background box.vertical > scrolledwindow > treeview.view:focus .progressbar:selected:not(:backdrop) {\n border-color: @selected_fg_color;\n}" >> Ambiance/gtk-3.20/gtk-widgets.css
 
-	## adjust nautilus selection and search bar ##
+	## nautilus selection and search bar ##
 	echo $(<"${FILESDIR}"/nautilus.css) >> Ambiance/gtk-3.20/apps/nautilus.css
 
-	## fix nautilus properties window background ##
+	## nautilus properties window background ##
 	echo -e "\n/* nautilus properties window background */window.background.unified:dir(ltr) > deck:dir(ltr) > box.vertical.view:dir(ltr) {\n background-color: transparent;\n}" >> Ambiance/gtk-3.20/gtk-widgets.css
 
 	## workaround to avoid unwanted black frame when using HdyHeaderBar ##
@@ -51,10 +51,13 @@ src_prepare() {
 		Ambiance/gtk-3.20/gtk-widgets.css
 
 	## remove HdyHeaderBar rounded top corners ##
-	echo -e "\n/* HdyHeaderBar top corners */\n.background:not(.tiled):not(.maximized):not(.solid-csd) headerbar.titlebar {\n border-top-left-radius: 0;\n border-top-right-radius: 0;\n}" >> Ambiance/gtk-3.20/gtk-widgets.css
+	echo -e "\n/* remove HdyHeaderBar rounded top corners */\n.background:not(.tiled):not(.maximized):not(.solid-csd) headerbar.titlebar {\n border-top-left-radius: 0;\n border-top-right-radius: 0;\n}" >> Ambiance/gtk-3.20/gtk-widgets.css
 
-	## adjust headerbar horizontal radio buttons ##
+	## headerbar horizontal radio buttons ##
 	echo -e "\n/* headerbar horizontal radio buttons */\nviewswitcher button > stack > box.wide {\n padding: 8px 12px;\n}\nheaderbar button.horizontal.radio {\n padding: 0;\n}" >> Ambiance/gtk-3.20/gtk-widgets.css
+
+	## baobab pathbar background ##
+	echo -e "\n/* baobab pathbar background */\n@define-color theme_bg_color @dark_bg_color;\nheaderbar.windowhandle.titlebar .horizontal.pathbar button {\n border-image-source: none;\n border: 1px solid @fg_color;\n}" >> Ambiance/gtk-3.20/gtk-widgets.css
 	
 	use nemo && echo $(<"${FILESDIR}"/nemo.css) >> Ambiance/gtk-3.20/apps/nemo.css
 }

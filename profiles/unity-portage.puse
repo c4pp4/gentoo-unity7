@@ -1,6 +1,7 @@
 */* vala
 
 app-accessibility/brltty python				# app-accessibility/orca[braille]
+app-i18n/fcitx -autostart				# don't launch systray tool by default
 dev-cpp/gtest test					# build gmock and gtest tests
 dev-libs/boost python					# dev-libs/libcolumbus
 dev-libs/libdbusmenu gtk3 test				# dev-libs/libappindicator, dev-libs/libindicate, x11-libs/xapps
