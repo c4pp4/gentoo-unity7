@@ -114,8 +114,10 @@ RDEPEND="gnome-base/gnome-core-libs
 		games-arcade/gnome-nibbles
 		games-arcade/gnome-robots
 		games-board/four-in-a-row
+		games-board/gnome-chess
 		games-board/gnome-mahjongg
 		games-board/gnome-mines
+		games-board/gnuchess
 		games-board/iagno
 		games-board/tali
 		games-puzzle/five-or-more

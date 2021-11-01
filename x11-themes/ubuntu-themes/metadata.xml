@@ -6,5 +6,6 @@
 	</maintainer>
 	<use>
 		<flag name="nemo">Mimic <pkg>gnome-base/nautilus</pkg> theme</flag>
+		<flag name="yaru">Add Yaru gtk4 theme</flag>
 	</use>
 </pkgmetadata>

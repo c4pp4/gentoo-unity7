@@ -9,12 +9,13 @@ inherit eutils gnome2-utils ubuntu-versionator xdg-utils
 DESCRIPTION="Monochrome icons for the Unity7 user interface (default icon theme)"
 HOMEPAGE="https://launchpad.net/ubuntu-themes"
 SRC_URI="${UURL}/${MY_P}${UVER_PREFIX}.orig.tar.gz
-	${UURL}/${MY_P}${UVER_PREFIX}-${UVER}.diff.gz"
+	${UURL}/${MY_P}${UVER_PREFIX}-${UVER}.diff.gz
+	yaru? ( ${UURL}/yaru-theme-gtk_${UVER_RELEASE}.2_all.deb )"
 
 LICENSE="GPL-3 CC-BY-SA-3.0"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="+nemo"
+IUSE="+nemo +yaru"
 RESTRICT="mirror"
 
 RDEPEND="!x11-themes/light-themes
@@ -28,6 +29,11 @@ DEPEND="${RDEPEND}
 	virtual/pkgconfig"
 
 PDEPEND="nemo? ( gnome-extra/nemo )"
+
+src_unpack() {
+	default
+	use yaru && tar -I zstd -xf ${PWD}/data.tar.zst
+}
 
 src_prepare() {
 	eapply "${WORKDIR}/${MY_P}${UVER_PREFIX}-${UVER}.diff"	# This needs to be applied for the debian/ directory to be present #
@@ -61,7 +67,7 @@ src_prepare() {
 	sed -i \
 		-e "s/theme_bg_color/bg_color/" \
 		Ambiance/gtk-3.20/apps/{nautilus,gnome-applications}.css
-	
+
 	use nemo && echo $(<"${FILESDIR}"/nemo.css) >> Ambiance/gtk-3.20/apps/nemo.css
 }
 
@@ -86,6 +92,14 @@ src_install() {
 	## Install themes ##
 	insinto /usr/share/themes
 	doins -r Ambiance Radiance ubuntu-mobile
+
+	if use yaru; then
+		## Add Yaru gtk4 theme ##
+		insinto /usr/share/themes/Ambiance
+		doins -r "${WORKDIR}"/usr/share/themes/Yaru-dark/gtk-4.0
+		insinto /usr/share/themes/Radiance
+		doins -r "${WORKDIR}"/usr/share/themes/Yaru/gtk-4.0
+	fi
 
 	## Remove broken symlinks ##
 	find -L "${ED}" -type l -exec rm {} +
