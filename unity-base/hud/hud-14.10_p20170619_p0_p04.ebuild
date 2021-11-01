@@ -54,7 +54,6 @@ pkg_setup() {
 }
 
 src_prepare() {
-	eapply "${WORKDIR}/${MY_P}${UVER_PREFIX}-${UVER}.diff"
 	ubuntu-versionator_src_prepare
 	vala_src_prepare
 

@@ -138,30 +138,42 @@ ubuntu-versionator_pkg_setup() {
 ubuntu-versionator_src_prepare() {
 	local \
 		color_norm=$(tput sgr0) \
-		color_bold=$(tput bold)
+		color_bold=$(tput bold) \
+		diff_file="${WORKDIR}/${MY_P}${UVER_PREFIX}-${UVER}.diff" \
+		upatch_dir x
+
+	local -a upatches
 
 	debug-print-function ${FUNCNAME} "$@"
 
-	# Apply Ubuntu patchset if one is present #
-	[[ -f "${WORKDIR}/debian/patches/series" ]] && UPATCH_DIR="${WORKDIR}/debian/patches"
-	[[ -f "debian/patches/series" ]] && UPATCH_DIR="debian/patches"
-	if [ -d "${UPATCH_DIR}" ]; then
-		for patch in $(grep -v \# "${UPATCH_DIR}/series"); do
-			UBUNTU_PATCHES+=( "${UPATCH_DIR}/${patch}" )
-		done
-	fi
-	# Many eclasses (cmake-utils,distutils-r1,qt5-build,xdg) apply their own 'default' command for EAPI=6 or 'epatch ${PATCHES[@]}' command for EAPI <6 so let them #
-	#	'declare' checks to see if any of those functions are set/inherited and only apply 'default' if they are not
-	if [[ -n ${UBUNTU_PATCHES[@]} ]]; then
-		echo "${color_bold}>>> Processing Ubuntu patchset${color_norm} ..."
-		eapply "${UBUNTU_PATCHES[@]}"
+	# Apply Ubuntu diff file if present #
+	if [[ -f ${diff_file} ]]; then
+		echo "${color_bold}>>> Processing Ubuntu diff file${color_norm} ..."
+		eapply "${diff_file}"
 		echo "${color_bold}>>> Done.${color_norm}"
 	fi
+
+	# Apply Ubuntu patchset if one is present #
+	[[ -f ${WORKDIR}/debian/patches/series ]] && upatch_dir="${WORKDIR}/debian/patches"
+	[[ -f debian/patches/series ]] && upatch_dir="debian/patches"
+	if [[ -d ${upatch_dir} ]]; then
+		for x in $(grep -v \# "${upatch_dir}/series"); do
+			upatches+=( "${upatch_dir}/${x}" )
+		done
+	fi
+	if [[ -n ${upatches[@]} ]]; then
+		echo "${color_bold}>>> Processing Ubuntu patchset${color_norm} ..."
+		eapply "${upatches[@]}"
+		echo "${color_bold}>>> Done.${color_norm}"
+	fi
+
+	# Many eclasses (cmake-utils,distutils-r1,qt5-build,xdg) apply their own 'default' command for EAPI=6 or 'epatch ${PATCHES[@]}' command for EAPI <6 so let them #
+	#	'declare' checks to see if any of those functions are set/inherited and only apply 'default' if they are not
 	[[ $(declare -Ff cmake-utils_src_prepare) ]] || \
 	[[ $(declare -Ff distutils-r1_src_prepare) ]] || \
 	[[ $(declare -Ff qt5-build_src_prepare) ]] || \
-	[[ $(declare -Ff xdg_src_prepare) ]] \
-		|| default
+	[[ $(declare -Ff xdg_src_prepare) ]] || \
+	default
 }
 
 # @FUNCTION: ubuntu-versionator_pkg_postinst

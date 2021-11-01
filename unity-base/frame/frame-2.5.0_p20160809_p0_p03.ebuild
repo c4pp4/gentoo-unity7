@@ -30,7 +30,6 @@ DEPEND="app-text/asciidoc
 S="${WORKDIR}"
 
 src_prepare() {
-	eapply "${WORKDIR}/${MY_P}${UVER_PREFIX}-${UVER}.diff"
 	ubuntu-versionator_src_prepare
 	eautoreconf
 }

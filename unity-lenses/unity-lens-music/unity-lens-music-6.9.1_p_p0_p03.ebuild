@@ -41,7 +41,6 @@ S="${WORKDIR}/${PN}-${PV}${UVER_PREFIX}"
 PATCHES=( "${FILESDIR}/${PN}-fix-build-against-vala-0.48.patch" )
 
 src_prepare() {
-	PATCHES+=( "${WORKDIR}/${MY_P}${UVER_PREFIX}-${UVER}.diff" )
 	ubuntu-versionator_src_prepare
 	vala_src_prepare
 	export VALA_API_GEN="$VAPIGEN"

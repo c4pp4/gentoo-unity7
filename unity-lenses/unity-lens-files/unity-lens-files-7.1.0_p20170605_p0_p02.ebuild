@@ -32,7 +32,6 @@ DEPEND="${RDEPEND}
 S="${WORKDIR}"
 
 src_prepare() {
-	epatch -p1 "${WORKDIR}/${MY_P}${UVER_PREFIX}-${UVER}.diff" || die
 	ubuntu-versionator_src_prepare
 
 	# Disable all language files as they can be incomplete #

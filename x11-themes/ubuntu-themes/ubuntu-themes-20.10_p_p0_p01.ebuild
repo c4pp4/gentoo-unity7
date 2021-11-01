@@ -36,7 +36,6 @@ src_unpack() {
 }
 
 src_prepare() {
-	eapply "${WORKDIR}/${MY_P}${UVER_PREFIX}-${UVER}.diff"	# This needs to be applied for the debian/ directory to be present #
 	ubuntu-versionator_src_prepare
 
 	## eog fullscreen toolbar background ##

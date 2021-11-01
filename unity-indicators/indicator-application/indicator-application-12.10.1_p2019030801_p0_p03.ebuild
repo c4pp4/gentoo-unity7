@@ -25,7 +25,6 @@ DEPEND="dev-libs/libappindicator:=
 S="${WORKDIR}"
 
 src_prepare() {
-	eapply "${WORKDIR}/${MY_P}${UVER_PREFIX}-${UVER}.diff"
 	ubuntu-versionator_src_prepare
 	# Fix desktop file installation location #
 	sed 's:$(pkgdatadir)/upstart/xdg/autostart:$(datadir)/upstart/xdg/autostart:g' \

@@ -43,7 +43,6 @@ DEPEND="app-i18n/ibus
 S="${WORKDIR}"
 
 src_prepare() {
-	epatch -p1 "${WORKDIR}/${MY_P}${UVER_PREFIX}-${UVER}.diff" # This needs to be applied for the debian/ directory to be present #
 	ubuntu-versionator_src_prepare
 
 	# Use headers from media-libs/glewmx package #

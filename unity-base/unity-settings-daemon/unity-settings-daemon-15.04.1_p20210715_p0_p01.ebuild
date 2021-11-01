@@ -76,8 +76,7 @@ BDEPEND="dev-libs/libxml2:2
 S="${WORKDIR}"
 
 src_prepare() {
-	# Ubuntu patchset #
-	eapply "${WORKDIR}/${MY_P}${UVER_PREFIX}-${UVER}.diff"  # This needs to be applied for the debian/ directory to be present #
+	ubuntu-versionator_src_prepare
 
 	# https://bugzilla.gnome.org/show_bug.cgi?id=621836
 	# Apparently this change severely affects touchpad usability for some

@@ -34,7 +34,6 @@ DEPEND="app-admin/system-config-printer
 S="${WORKDIR}/${PN}-${PV}${UVER_PREFIX}"
 
 src_prepare() {
-	eapply "${WORKDIR}/${MY_P}${UVER_PREFIX}-${UVER}.diff"        # This needs to be applied for the debian/ directory to be present #
 	ubuntu-versionator_src_prepare
 
 	sed -e 's/SESSION=ubuntu/SESSION=unity/g' \

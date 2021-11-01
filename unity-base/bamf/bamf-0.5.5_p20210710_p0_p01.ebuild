@@ -46,7 +46,6 @@ pkg_setup() {
 }
 
 src_prepare() {
-	eapply "${WORKDIR}/${MY_P}${UVER_PREFIX}-${UVER}.diff"	# This needs to be applied for the debian/ directory to be present #
 	ubuntu-versionator_src_prepare
 
 	#  'After=graphical-session-pre.target' must be explicitly set in the unit files that require it #

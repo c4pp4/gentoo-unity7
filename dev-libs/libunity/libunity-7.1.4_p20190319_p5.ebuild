@@ -40,7 +40,9 @@ src_unpack() {
 
 src_prepare() {
 	ubuntu-versionator_src_prepare
-	eapply "${S}/${MY_P}${UVER_PREFIX}${UVER}.diff"
+	echo "$(tput bold)>>> Processing Ubuntu diff file$(tput sgr0) ..."
+	eapply "${MY_P}${UVER_PREFIX}${UVER}.diff"
+	echo "$(tput bold)>>> Done.$(tput sgr0)"
 	eapply "${FILESDIR}/${PN}-fix-build-against-vala-0.52.patch"
 	vala_src_prepare
 	export VALA_API_GEN="$VAPIGEN"

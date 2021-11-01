@@ -35,7 +35,6 @@ S="${WORKDIR}"
 MAKEOPTS="${MAKEOPTS} -j1"
 
 src_prepare() {
-	epatch -p1 "${WORKDIR}/${MY_P}${UVER_PREFIX}-${UVER}.diff" || die
 	ubuntu-versionator_src_prepare
 
 	# Make configure.ac compatible with >=pkgconfig-0.29 (fix bad spacing) #

@@ -26,12 +26,9 @@ DEPEND=">=dev-libs/glib-2.37
 S="${WORKDIR}"
 
 src_prepare() {
-	epatch -p1 "${WORKDIR}/${MY_P}${UVER_PREFIX}-${UVER}.diff" || die
 	ubuntu-versionator_src_prepare
 	vala_src_prepare
 	export VALA_API_GEN="$VAPIGEN"
-
-	append-cflags -Wno-error
 	eautoreconf
 }
 
