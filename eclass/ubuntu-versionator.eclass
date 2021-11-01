@@ -139,7 +139,7 @@ ubuntu-versionator_src_prepare() {
 	local \
 		color_norm=$(tput sgr0) \
 		color_bold=$(tput bold) \
-		diff_file="${WORKDIR}/${MY_P}${UVER_PREFIX}-${UVER}.diff" \
+		diff_file="${WORKDIR}/${MY_P}${UVER_PREFIX}-${UVER#-}.diff" \
 		upatch_dir x
 
 	local -a upatches

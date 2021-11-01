@@ -35,13 +35,11 @@ src_unpack() {
 	mkdir "${MY_P}"
 	pushd "${MY_P}" 1>/dev/null
 		unpack ${A}
+		mv "${MY_P}${UVER_PREFIX}${UVER}.diff" "${WORKDIR}"
 	popd 1>/dev/null
 }
 
 src_prepare() {
-	echo "$(tput bold)>>> Processing Ubuntu diff file$(tput sgr0) ..."
-	eapply "${MY_P}${UVER_PREFIX}${UVER}.diff"
-	echo "$(tput bold)>>> Done.$(tput sgr0)"
 	ubuntu-versionator_src_prepare
 	vala_src_prepare
 	export VALA_API_GEN="$VAPIGEN"
