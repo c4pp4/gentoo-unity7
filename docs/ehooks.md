@@ -12,13 +12,15 @@
 
 - **Changes** are managed via **unity-extra/ehooks** package. It looks for ehooks changes and generates emerge command needed to apply the changes.
 
+- Some [special ehooks][penv] are downloading debian archive file to apply ubuntu patchset. Downloading is allowed through [network-sandbox-proxy][env]. The archive file is checked via b2sum tool (it checks BLAKE2 512-bit checksum of downloaded file).
+
 - You have to set **EHOOKS_ACCEPT="yes"** in make.conf to confirm you agree with this patching system.
 
 #
 
 ### Chapter II.
 
-- Version control is managed via **/usr/bin/ehooks**. It's not intended for end users. It looks for gentoo tree updates of package versions masked via **unity-portage.pmask** and refreshes version entries. It looks for available version changes of debian archive file in {pre,post}_src_unpack.ehooks and updates BLAKE2 checksum. It's a symlink to **ehooks_version_control.sh** script.
+- Version control is managed via **/usr/bin/ehooks**. It's not intended for end users. It looks for ehooks changes and generates emerge command needed to apply the changes. It looks for gentoo tree updates of package versions masked via **unity-portage.pmask** and refreshes version entries. It looks for available version changes of debian archive file in {pre,post}\_src_unpack.ehooks and updates BLAKE2 checksum. It's a symlink to **ehooks_version_control.sh** script.
 
    - run **ehooks** for options
 
@@ -136,11 +138,33 @@
    - own empty directory **disables** overlay's directory of the same name
    - e.g. **/home/ehooks/app-arch/file-roller** overrides or disables **gentoo-unity7/profiles/ehooks/app-arch/file-roller**
 
+- **Using debian archive file:**
+   - e.g. we need to process `nautilus_40.2-1ubuntu1.debian.tar.xz` debian archive file
+   - create `01-post_src_unpack.ehooks` file to download debian archive file:
+
+     ```
+     ehooks() {
+       local \
+         blake= \
+         uver=nautilus_40.2-1ubuntu1
+
+       source "${EHOOKS_PATH}"/templates/fetch_debian.template
+       fetch_debian "${uver}" "${blake}"
+     }
+     ```
+
+   - update BLAKE2 512-bit checksum via `ehooks -b` command
+   - create **02-pre_src_prepare.ehooks** file to apply debian archive file patchset:
+
+     `ln -s ../../templates/patches.template 02-pre_src_prepare.ehooks`
+
 [//]: # (LINKS)
 [code]: ../profiles/amd64/17.1/desktop/unity/profile.bashrc#L15
 [ehooks]: ../profiles/ehooks
+[env]: ../profiles/env/ehooks-network
 [nautilus]: ../profiles/ehooks/gnome-base/nautilus
 [nemo]: ../profiles/ehooks/gnome-extra/nemo/02-pre_src_prepare.ehooks
+[penv]: ../profiles/unity-portage.penv
 [templates]: ../profiles/ehooks/templates
 [terminal]: ../profiles/ehooks/x11-terms/gnome-terminal/01-post_src_prepare.ehooks
 [use flags]: ../unity-extra/ehooks/metadata.xml
