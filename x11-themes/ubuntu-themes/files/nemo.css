@@ -1,5 +1,5 @@
 .nemo-window .nemo-window-pane .view:not(.rubberband):not(:selected):not(:active) {
-    background-color: @theme_bg_color;
+    background-color: @bg_color;
 }
 
 .nemo-window .sidebar .nemo-places-sidebar,

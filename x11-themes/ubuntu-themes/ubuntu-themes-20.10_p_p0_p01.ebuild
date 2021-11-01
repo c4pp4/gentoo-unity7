@@ -58,6 +58,9 @@ src_prepare() {
 
 	## baobab pathbar background ##
 	echo -e "\n/* baobab pathbar background */\n@define-color theme_bg_color @dark_bg_color;\nheaderbar.windowhandle.titlebar .horizontal.pathbar button {\n border-image-source: none;\n border: 1px solid @fg_color;\n}" >> Ambiance/gtk-3.20/gtk-widgets.css
+	sed -i \
+		-e "s/theme_bg_color/bg_color/" \
+		Ambiance/gtk-3.20/apps/{nautilus,gnome-applications}.css
 	
 	use nemo && echo $(<"${FILESDIR}"/nemo.css) >> Ambiance/gtk-3.20/apps/nemo.css
 }
