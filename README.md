@@ -2,15 +2,20 @@
 
 A Gentoo overlay to build the Unity7 user interface.
 
+- [Take a look][yt] (YouTube link)
 - [Build instructions][build]
 - [USE flag tips][tips]
-- [Telegram group](https://t.me/gentoo_unity7)
+- [Join the Telegram group][tg] (Telegram link)
 
 #
 
-- [Forked from unity-gentoo](https://github.com/shiznix/unity-gentoo)
-- [About the Unity7](https://en.wikipedia.org/wiki/Unity_(user_interface))
+- [Forked from unity-gentoo][fork]
+- [About the Unity7][wiki] (Wikipedia link)
 
 [//]: # (LINKS)
 [build]: docs/build_instructions.md
+[fork]: https://github.com/shiznix/unity-gentoo
+[tg]: https://t.me/gentoo_unity7
 [tips]: docs/use_flag_tips.md
+[wiki]: https://en.wikipedia.org/wiki/Unity_(user_interface)
+[yt]: https://youtu.be/MVXhgwiOZrc
