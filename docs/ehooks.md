@@ -2,7 +2,7 @@
 
 ### Chapter I.
 
-- It's a patching system that looks for existence of **{pre,post}\_${EBUILD_PHASE_FUNC}.ehooks** file and source it to perform hooks. It provides a way to patch packages we don't need to maintain. It's loosly based on **eapply_user** function from /usr/lib/portage/python3.\*/phase-helpers.sh script and **pre_src_prepare** function from the Gentoo wiki ([archived version](https://web.archive.org/web/20191226202345/https://wiki.gentoo.org/wiki//etc/portage/patches#Enabling_.2Fetc.2Fportage.2Fpatches_for_all_ebuilds) from web.archive.org).
+- It's a patching system that looks for existence of **{pre,post}\_${EBUILD_PHASE_FUNC}.ehooks** file and source it to perform hooks. It provides a way to patch packages not needed to maintain. It's loosly based on **eapply_user** function from /usr/lib/portage/python3.\*/phase-helpers.sh script and **pre_src_prepare** function from the Gentoo wiki ([archived version](https://web.archive.org/web/20191226202345/https://wiki.gentoo.org/wiki//etc/portage/patches#Enabling_.2Fetc.2Fportage.2Fpatches_for_all_ebuilds) from web.archive.org).
 
    - see [profile.bashrc][code]
 
