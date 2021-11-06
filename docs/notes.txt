@@ -122,7 +122,8 @@ gnome-extra/polkit-gnome		# Patched to have polkit-gnome-authentication-agent-1 
 					#  06-authentication-failure-string.patch
 gnome-extra/yelp			# Only show desktop launcher in Gnome as we have own launcher
 gui-libs/libhandy			# Disable headerbar close button when not in GNOME
-mail-client/thunderbird			# Add Unity menubar and desktop launcher with quicklist and translations
+mail-client/thunderbird			# Add desktop launcher with quicklist and translations
+mail-client/thunderbird-78		# Add Unity menubar and desktop launcher with quicklist and translations
 mail-client/thunderbird-bin		# Add desktop launcher with quicklist and translations
 media-fonts/ubuntu-font-family		# Add Ubuntu medium font (e.g. used by unity-indicators/indicator-keyboard)
 media-gfx/gnome-photos			# Use unity-control-center as the fallback
