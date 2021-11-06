@@ -4,5 +4,5 @@ ehooks() {
 		uver=lightdm_1.30.0-0ubuntu4
 
 	source "${EHOOKS_PATH}"/templates/fetch_debian.template
-	fetch_debian "${uver}" "${blake}"
+	fetch_debian "${blake}" "${uver}"
 }

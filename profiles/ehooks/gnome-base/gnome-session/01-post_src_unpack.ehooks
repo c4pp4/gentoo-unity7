@@ -4,5 +4,5 @@ ehooks() {
 		uver=gnome-session_40.1.1-1ubuntu1
 
 	source "${EHOOKS_PATH}"/templates/fetch_debian.template
-	fetch_debian "${uver}" "${blake}"
+	fetch_debian "${blake}" "${uver}"
 }

@@ -4,5 +4,5 @@ ehooks() {
 		uver=pidgin-libnotify_0.14-9ubuntu2
 
 	source <(cat "${EHOOKS_PATH}"/templates/fetch_debian.template | sed -e "s/xz/gz/")
-	fetch_debian "${uver}" "${blake}"
+	fetch_debian "${blake}" "${uver}"
 }

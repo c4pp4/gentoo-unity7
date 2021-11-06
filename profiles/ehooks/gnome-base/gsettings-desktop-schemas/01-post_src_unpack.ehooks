@@ -4,5 +4,5 @@ ehooks() {
 		uver=gsettings-desktop-schemas_40.0-1ubuntu1
 
 	source "${EHOOKS_PATH}"/templates/fetch_debian.template
-	fetch_debian "${uver}" "${blake}"
+	fetch_debian "${blake}" "${uver}"
 }

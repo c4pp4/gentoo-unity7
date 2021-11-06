@@ -4,5 +4,5 @@ ehooks() {
 		uver=accountsservice_0.6.55-0ubuntu14
 
 	source "${EHOOKS_PATH}"/templates/fetch_debian.template
-	fetch_debian "${uver}" "${blake}"
+	fetch_debian "${blake}" "${uver}"
 }

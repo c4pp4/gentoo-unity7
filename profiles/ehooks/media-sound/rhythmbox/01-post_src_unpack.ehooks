@@ -4,5 +4,5 @@ ehooks() {
 		uver=rhythmbox_3.4.4-1ubuntu5
 
 	source "${EHOOKS_PATH}"/templates/fetch_debian.template
-	fetch_debian "${uver}" "${blake}"
+	fetch_debian "${blake}" "${uver}"
 }

@@ -4,5 +4,5 @@ ehooks() {
 		uver=empathy_3.25.90+really3.12.14-2ubuntu1
 
 	source "${EHOOKS_PATH}"/templates/fetch_debian.template
-	fetch_debian "${uver}" "${blake}"
+	fetch_debian "${blake}" "${uver}"
 }

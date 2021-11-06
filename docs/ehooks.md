@@ -149,7 +149,7 @@
          uver=nautilus_40.2-1ubuntu1
 
        source "${EHOOKS_PATH}"/templates/fetch_debian.template
-       fetch_debian "${uver}" "${blake}"
+       fetch_debian "${blake}" "${uver}"
      }
      ```
 

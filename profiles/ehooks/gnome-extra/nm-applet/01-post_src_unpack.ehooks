@@ -4,5 +4,5 @@ ehooks() {
 		uver=network-manager-applet_1.22.0-0ubuntu1
 
 	source "${EHOOKS_PATH}"/templates/fetch_debian.template
-	fetch_debian "${uver}" "${blake}"
+	fetch_debian "${blake}" "${uver}"
 }

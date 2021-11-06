@@ -4,5 +4,5 @@ ehooks() {
 		uver=gconf_3.2.6-7ubuntu2
 
 	source "${EHOOKS_PATH}"/templates/fetch_debian.template
-	fetch_debian "${uver}" "${blake}"
+	fetch_debian "${blake}" "${uver}"
 }

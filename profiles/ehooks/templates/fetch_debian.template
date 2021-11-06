@@ -1,7 +1,7 @@
 fetch_debian() {
 	local \
-		archive=$1.debian.tar.xz \
-		blake=$2
+		archive=$2.debian.tar.xz \
+		blake=$1
 
 	pushd "${S}" 1>/dev/null
 		ebegin "Downloading ${color_bold}${archive}${color_norm}"

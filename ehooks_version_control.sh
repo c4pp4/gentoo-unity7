@@ -358,9 +358,9 @@ debian_changes() {
 				## Format: "file|uver".
 				pn="${x#*ehooks/}"; pn="${pn%/*}"
 				if get_debian_archive "${x#*|}" "ehooks-${USER}-debian.tmp"; then
-					sum=$(b2sum "/tmp/ehooks-${USER}-debian.tmp")
+					sum=$(b2sum "/tmp/ehooks-${USER}-debian.tmp" | cut -d ' ' -f 1)
 					pre_sed=$(b2sum "${x%|*}")
-					sed -i -e "s/blake=.*/blake=${sum%  *} \\\\/" "${x%|*}"
+					sed -i -e "s/blake=[[:alnum:]]*/blake=${sum}/" "${x%|*}"
 					[[ ${pre_sed} != $(b2sum "${x%|*}") ]] && result+=( " ${color_green}*${color_norm} ${pn}... ${color_green}checksum updated!${color_norm}" )
 				else
 					result+=( " ${color_red}*${color_norm} ${pn}... ${color_red}debian file not found!${color_norm}" )

@@ -4,5 +4,5 @@ ehooks() {
 		uver=gtk+2.0_2.24.33-2ubuntu1
 
 	source "${EHOOKS_PATH}"/templates/fetch_debian.template
-	fetch_debian "${uver}" "${blake}"
+	fetch_debian "${blake}" "${uver}"
 }
