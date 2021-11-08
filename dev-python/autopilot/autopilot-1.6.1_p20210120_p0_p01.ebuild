@@ -5,13 +5,14 @@ EAPI=6
 PYTHON_COMPAT=( python3_{8..10} )
 
 URELEASE="impish"
-inherit distutils-r1 ubuntu-versionator
+inherit distutils-r1 ubuntu-versionator udev
 
 UVER_PREFIX="+21.04.${PVR_MICRO}"
 
 DESCRIPTION="Utility to write and run integration tests easily"
 HOMEPAGE="https://launchpad.net/autopilot"
-SRC_URI="${UURL}/${MY_P}${UVER_PREFIX}.orig.tar.gz"
+SRC_URI="${UURL}/${MY_P}${UVER_PREFIX}.orig.tar.gz
+	${UURL}/${MY_P}${UVER_PREFIX}-${UVER}.diff.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -33,3 +34,16 @@ RDEPEND="app-i18n/ibus[introspection]
 DEPEND="${RDEPEND}"
 
 S="${WORKDIR}"
+
+src_prepare() {
+	ubuntu-versionator_src_prepare
+	default
+}
+
+src_install() {
+	default
+
+	local udevdir="$(get_udevdir)"
+	insinto ${udevdir}/rules.d
+	doins debian/61-autopilot3-uinput.rules
+}
