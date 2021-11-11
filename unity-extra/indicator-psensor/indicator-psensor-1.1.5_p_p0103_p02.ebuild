@@ -46,7 +46,7 @@ src_prepare() {
 
 	# Fix error: this ‘if’ clause does not guard... [-Werror=misleading-indentation] #
 	sed -i \
-		-e "/data->last_smart_update = t;/{s/^\t//}" \
+		-e "/data->last_smart_update = t;/{s/^\t\t/\t/}" \
 		src/lib/pudisks2.c
 }
 
