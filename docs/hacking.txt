@@ -1,4 +1,20 @@
-# This file contains guidelines on ebuild masking and Ubuntu releases #
+# This file contains guidelines on ebuild creating, masking and Ubuntu releases #
+
+* Naming convention
+- ubuntu package:
+	package_name-upstream_version[ubuntu_version][-debian_revision[ubuntu_revision]]
+	unity-7.5.1[+21.10.20210601.1][-0[ubuntu1]]
+- overlay package:
+	package_name-upstream_version-overlay_revision
+	unity-7.5.1-r211001.ebuild
+- overlay revision:
+	-r[release_number][revision_number]
+	release number, e.g. 2110
+	revision number 01-99
+- releated ebuild variables declared before inherit command:
+	UVER="+21.10.20210601.1"   # ubuntu version
+	UREV="0ubuntu1"		   # ubuntu revision
+	inherit ubuntu-versionator
 
 * Current Ubuntu release versions of ebuilds are always masked by ~arch package.keywords
 * Development Ubuntu release versions of ebuilds are always masked by missing keywords

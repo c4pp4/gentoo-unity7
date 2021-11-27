@@ -6,10 +6,14 @@
 	</maintainer>
 	<use>
 		<flag name="accessibility">Install accessibility packages</flag>
+		<flag name="apps">Install web browser, email client and office suite,
+			defaults to <pkg>www-client/firefox</pkg>, 
+			<pkg>mail-client/thunderbird</pkg>
+			and <pkg>app-office/libreoffice</pkg></flag>
 		<flag name="chat">Install instant messenger, defaults to
 			<pkg>net-im/pidgin</pkg></flag>
-		<flag name="core">Install core applications</flag>
-		<flag name="extras">Install extra applications</flag>
+		<flag name="core">Install Unity core applications</flag>
+		<flag name="extra">Install Unity extra applications</flag>
 		<flag name="fonts">Install additional fonts</flag>
 		<flag name="games">Install games</flag>
 		<flag name="xdm">Use a display manager, defaults to
