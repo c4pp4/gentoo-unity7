@@ -1,7 +1,7 @@
 <repositories version="1.1" encoding="unicode">
   <repo quality="experimental" priority="50">
     <name>gentoo-unity7</name>
-    <description>A Gentoo overlay to install the Unity7 user interface</description>
+    <description>A Gentoo overlay to build the Unity7 user interface</description>
     <owner>
       <name>c4pp4</name>
     </owner>

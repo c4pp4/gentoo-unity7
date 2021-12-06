@@ -58,7 +58,7 @@ if [[ ${EBUILD_PHASE} == "setup" ]] ; then
 	__ehooks_apply() {
 		local \
 			x \
-			log="${T}/ehook.log" \
+			log="${T}/ehooks.log" \
 			color_norm=$(tput sgr0) \
 			color_bold=$(tput bold) \
 			color_red=$(tput setaf 1)
@@ -66,8 +66,8 @@ if [[ ${EBUILD_PHASE} == "setup" ]] ; then
 		## Append bug information to 'die' command.
 		local \
 			bugapnd="eerror \"S: '\${S}'\"" \
-			bugmsg="eerror \"${color_bold}Please submit ehook bug at ${color_norm}'https://github.com/c4pp4/gentoo-unity7/issues'.\"" \
-			buglog="eerror \"${color_bold}The ehook log is located at ${color_norm}'${log}'.\""
+			bugmsg="eerror \"${color_bold}Please submit ehooks bug at ${color_norm}'https://github.com/c4pp4/gentoo-unity7/issues'.\"" \
+			buglog="eerror \"${color_bold}The ehooks log is located at ${color_norm}'${log}'.\""
 
 		source <(declare -f die | sed -e "/${bugapnd}/a ${bugmsg}" -e "/${bugapnd}/a ${buglog}")
 		## End of modifying 'die' command
@@ -178,7 +178,7 @@ if [[ ${EBUILD_PHASE} == "setup" ]] ; then
 		echo "${color_red}${color_bold}>>> Done.${color_norm}"
 
 		## Sanitize 'die' command.
-		source <(declare -f die | sed "/ehook/d")
+		source <(declare -f die | sed "/ehooks/d")
 
 	} ## End of __ehooks_apply function.
 

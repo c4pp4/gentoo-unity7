@@ -90,7 +90,7 @@ find_flag_changes() {
 			## Try another package if slots differ.
 			[[ -z ${slot} ]] || grep -Fqsx "${slot}" "${n}/SLOT" || continue
 
-			## Try another package if modification time is newer or equal to ehook USE flag change time.
+			## Try another package if modification time is newer or equal to ehooks USE flag change time.
 			sys_date=$(date -r "${n}" "+%s")
 			[[ ${sys_date} -ge ${ts} ]] && continue
 
