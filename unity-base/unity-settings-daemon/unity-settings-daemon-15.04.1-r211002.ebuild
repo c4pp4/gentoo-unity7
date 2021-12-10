@@ -32,6 +32,7 @@ DEPEND="dev-libs/glib:2
 	media-libs/libcanberra[gtk3]
 	media-sound/pulseaudio
 	sys-apps/accountsservice
+	sys-apps/hwdata
 	>=sys-apps/systemd-232
 	>=sys-power/upower-0.99:=
 	unity-base/gsettings-ubuntu-touch-schemas
@@ -56,7 +57,6 @@ DEPEND="dev-libs/glib:2
 		x11-drivers/xf86-input-wacom )
 	smartcard? ( dev-libs/nss )
 	udev? (
-		sys-apps/hwids
 		dev-libs/libgudev:=
 		virtual/libudev:= )"
 RDEPEND="${DEPEND}
