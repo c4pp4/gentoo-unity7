@@ -17,6 +17,7 @@
 >gnome-extra/nm-applet-1.22.0-r1
 >gnome-extra/polkit-gnome-0.105-r2
 >gui-libs/libhandy-1.2.3
+>mail-client/thunderbird-92
 >media-gfx/eog-40.3
 >media-gfx/gnome-photos-40.0
 >media-gfx/gnome-screenshot-40.0-r1
@@ -24,7 +25,7 @@
 >media-video/totem-3.38.1
 >net-im/empathy-3.12.14
 >sys-apps/accountsservice-0.6.55-r1
->www-client/firefox-95.0
+>www-client/firefox-95.0-r1
 >x11-libs/gtk+-2.24.33:2
 >x11-libs/gtk+-3.24.29:3
 >x11-libs/vte-0.64.2
