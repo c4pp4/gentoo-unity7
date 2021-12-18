@@ -4,6 +4,24 @@ stable="impish"
 dev="jammy"
 sources="main universe"
 
+remove=(
+	app-eselect/eselect-lightdm
+	dev-java/jayatana
+	net-mail/mailnag
+	unity-base/ubuntu-docs
+	unity-base/unity-build-env
+	unity-base/unity-language-pack
+	unity-base/unity-meta
+	unity-base/unity-settings
+	unity-extra/ehooks
+	unity-extra/indicator-netspeed
+	unity-extra/indicator-privacy
+	unity-indicators/unity-indicators-meta
+	unity-lenses/unity-lens-meta
+	unity-scopes/smart-scopes
+	x11-plugins/mailnag-messagingmenu-plugin
+)
+
 color_blink=$(tput blink)
 color_blue=$(tput bold; tput setaf 4)
 color_cyan=$(tput setaf 6)
@@ -20,7 +38,7 @@ download_sources() {
 		for frls in "${rls}" "${rls}"-security "${rls}"-updates; do
 			for src in ${sources}; do
 				filename="/tmp/gentoo-unity7-${USER}-sources-${src}-${frls}"
-				[[ -f ${filename} ]] && [[ $(($(date -r "${filename}" "+%s") + 86400)) -gt $(date "+%s") ]] && continue
+				[[ -f ${filename} ]] && [[ $(($(date -r "${filename}" "+%s") + 72000)) -gt $(date "+%s") ]] && continue
 				printf "%s" "Downloading ${frls}/${src} sources${color_blink}...${color_norm}"
 				wget -q -T 60 http://archive.ubuntu.com/ubuntu/dists/${frls}/${src}/source/Sources.gz -O "${filename}.gz" \
 					&& printf "\b\b\b%s\n" "... done!" \
@@ -31,7 +49,7 @@ download_sources() {
 			done
 		done
 	done
-	[[ -n ${ctl} ]] && echo
+	[[ -n ${ctl} ]] && echo && unset ctl
 }
 
 check_sources() {
@@ -49,24 +67,6 @@ check_sources() {
 }
 
 update_packages() {
-	remove=(
-		app-eselect/eselect-lightdm
-		dev-java/jayatana
-		net-mail/mailnag
-		unity-base/ubuntu-docs
-		unity-base/unity-build-env
-		unity-base/unity-language-pack
-		unity-base/unity-meta
-		unity-base/unity-settings
-		unity-extra/ehooks
-		unity-extra/indicator-netspeed
-		unity-extra/indicator-privacy
-		unity-indicators/unity-indicators-meta
-		unity-lenses/unity-lens-meta
-		unity-scopes/smart-scopes
-		x11-plugins/mailnag-messagingmenu-plugin
-	)
-
 	tput sc
 	printf "%s" "Looking for packages updates ${indicator[0]}"
 
