@@ -2,7 +2,10 @@
 
 stable="impish"
 dev="jammy"
-sources="main universe"
+repos=(
+	main
+	universe
+)
 
 remove=(
 	app-eselect/eselect-lightdm
@@ -36,11 +39,11 @@ indicator=( "|" "/" "-" "\\" )
 download_sources() {
 	for rls in ${stable} ${dev}; do
 		for frls in "${rls}" "${rls}"-security "${rls}"-updates; do
-			for src in ${sources}; do
-				filename="/tmp/gentoo-unity7-${USER}-sources-${src}-${frls}"
+			for rp in "${repos[@]}"; do
+				filename="/tmp/gentoo-unity7-${USER}-sources-${rp}-${frls}"
 				[[ -f ${filename} ]] && [[ $(($(date -r "${filename}" "+%s") + 72000)) -gt $(date "+%s") ]] && continue
-				printf "%s" "Downloading ${frls}/${src} sources${color_blink}...${color_norm}"
-				wget -q -T 60 http://archive.ubuntu.com/ubuntu/dists/${frls}/${src}/source/Sources.gz -O "${filename}.gz" \
+				printf "%s" "Downloading ${frls}/${rp} sources${color_blink}...${color_norm}"
+				wget -q -T 60 http://archive.ubuntu.com/ubuntu/dists/${frls}/${rp}/source/Sources.gz -O "${filename}.gz" \
 					&& printf "\b\b\b%s\n" "... done!" \
 					|| printf "\b\b\b%s\n" "... ${color_red}failed!${color_norm}"
 				gunzip -qf "${filename}.gz" 2>/dev/null
@@ -55,9 +58,9 @@ download_sources() {
 check_sources() {
 	for rls in ${stable} ${dev}; do
 		for frls in "${rls}" "${rls}"-security "${rls}"-updates; do
-			for src in ${sources}; do
-				if [[ ! -f /tmp/gentoo-unity7-${USER}-sources-${src}-${frls} ]]; then
-					echo "/tmp/gentoo-unity7-${USER}-sources-${src}-${frls}... ${color_red}file not found!${color_norm}"
+			for rp in "${repos[@]}"; do
+				if [[ ! -f /tmp/gentoo-unity7-${USER}-sources-${rp}-${frls} ]]; then
+					echo "/tmp/gentoo-unity7-${USER}-sources-${rp}-${frls}... ${color_red}file not found!${color_norm}"
 					ctl=1
 				fi
 			done
@@ -84,7 +87,7 @@ update_packages() {
 		name=${pkg#*/}
 		for rls in ${stable} ${dev}; do
 			for frls in "${rls}" "${rls}"-security "${rls}"-updates; do
-				for src in ${sources}; do
+				for rp in "${repos[@]}"; do
 					case ${name} in
 						indicator-evolution)
 							fixname="evolution-indicator"
@@ -99,7 +102,7 @@ update_packages() {
 							fixname=${name}
 							;;
 					esac
-					upstr_ver=$(grep -A 4 -- "^Package: ${fixname}$" /tmp/gentoo-unity7-${USER}-sources-${src}-${frls} | grep "Version: " | cut -d " " -f 2)
+					upstr_ver=$(grep -A 4 -- "^Package: ${fixname}$" /tmp/gentoo-unity7-${USER}-sources-${rp}-${frls} | grep "Version: " | cut -d " " -f 2)
 					if [[ -n ${upstr_ver} ]]; then
 						[[ ${rls} == ${stable} ]] && pattern="^KEYWORDS=" || pattern="^#KEYWORDS="
 						filename=$(grep -H -- "${pattern}" ${pkg}/*.ebuild | cut -d ":" -f 1)
@@ -155,8 +158,8 @@ update_scopes() {
 		urev="${pkg##*|}"
 		for rls in ${stable} ${dev}; do
 			for frls in "${rls}" "${rls}"-security "${rls}"-updates; do
-				for src in ${sources}; do
-					upstr_ver=$(grep -A 4 "^Package: ${name}$" /tmp/gentoo-unity7-${USER}-sources-${src}-${frls} | grep "Version: " | cut -d " " -f 2)
+				for rp in ${repos[1]}; do
+					upstr_ver=$(grep -A 4 "^Package: ${name}$" /tmp/gentoo-unity7-${USER}-sources-${rp}-${frls} | grep "Version: " | cut -d " " -f 2)
 					upstr_ver="${upstr_ver#*:}"
 					if [[ -n ${upstr_ver} ]]; then
 						[[ ${rls} == ${stable} ]] && pattern="^KEYWORDS=" || pattern="^#KEYWORDS="
@@ -218,11 +221,11 @@ update_languages() {
 		gver=$(echo "${pkg}" | cut -d "|" -f 3)
 		for rls in ${stable} ${dev}; do
 			for frls in "${rls}" "${rls}"-security "${rls}"-updates; do
-				for src in ${sources}; do
-					upstr_ver=$(grep -A 4 "^Package: ${name/-gnome}$" /tmp/gentoo-unity7-${USER}-sources-${src}-${frls} | grep "Version: " | cut -d " " -f 2)
-					upstr_gver=$(grep -A 4 "^Package: ${name}$" /tmp/gentoo-unity7-${USER}-sources-${src}-${frls} | grep "Version: " | cut -d " " -f 2)
+				for rp in ${repos[0]}; do
+					upstr_ver=$(grep -A 4 "^Package: ${name/-gnome}$" /tmp/gentoo-unity7-${USER}-sources-${rp}-${frls} | grep "Version: " | cut -d " " -f 2)
+					upstr_gver=$(grep -A 4 "^Package: ${name}$" /tmp/gentoo-unity7-${USER}-sources-${rp}-${frls} | grep "Version: " | cut -d " " -f 2)
 					upstr_ver="${upstr_ver#*:}"; upstr_gver="${upstr_gver#*:}"
-					if [[ -n ${upstr_ver} ]]; then
+					if [[ -n ${upstr_ver} || -n ${upstr_gver} ]]; then
 						[[ ${rls} == ${stable} ]] && pattern="^KEYWORDS=" || pattern="^#KEYWORDS="
 						filename=$(grep -H -- "${pattern}" "${ebuilds[@]}" | cut -d ":" -f 1)
 						if [[ ${filename} == *".ebuild"*".ebuild"* ]]; then
