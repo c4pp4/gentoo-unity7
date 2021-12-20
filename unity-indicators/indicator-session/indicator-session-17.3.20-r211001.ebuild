@@ -21,6 +21,7 @@ DEPEND="${RDEPEND}
 	dev-libs/glib:2
 	dev-libs/libappindicator:=
 	dev-libs/libdbusmenu:=
+	dev-util/cmake-extras
 	dev-util/gdbus-codegen
 	unity-base/unity-settings-daemon
 	help? ( gnome-extra/yelp
