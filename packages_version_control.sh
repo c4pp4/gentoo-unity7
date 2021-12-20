@@ -95,9 +95,6 @@ update_packages() {
 						indicator-psensor)
 							fixname="psensor"
 							;;
-						nm-applet)
-							fixname="network-manager-applet"
-							;;
 						*)
 							fixname=${name}
 							;;
@@ -106,6 +103,13 @@ update_packages() {
 					if [[ -n ${upstr_ver} ]]; then
 						[[ ${rls} == ${stable} ]] && pattern="^KEYWORDS=" || pattern="^#KEYWORDS="
 						filename=$(grep -H -- "${pattern}" ${pkg}/*.ebuild | cut -d ":" -f 1)
+						if [[ ${filename} == *".ebuild"*".ebuild"* ]]; then
+							printf "\b\b%s\n\n" "... error!"
+							[[ ${rls} == ${stable} ]] \
+								&& printf "%s\n\n" " ${color_red}*${color_norm} ${pkg}: multiple files with KEYWORDS" \
+								|| printf "%s\n\n" " ${color_red}*${color_norm} ${pkg}: multiple files with missing KEYWORDS"
+							exit 1
+						fi
 						if [[ -n ${filename} ]]; then
 							[[ -z $(grep -- "^UVER=" "${filename}") ]] && break 3
 							lcl_ver="${filename#${pkg}/${name}-}"
@@ -167,8 +171,8 @@ update_scopes() {
 						if [[ ${filename} == *".ebuild"*".ebuild"* ]]; then
 							printf "\b\b%s\n\n" "... error!"
 							[[ ${rls} == ${stable} ]] \
-								&& printf "%s\n\n" " ${color_red}*${color_norm} Multiple files with KEYWORDS" \
-								|| printf "%s\n\n" " ${color_red}*${color_norm} Multiple files with missing KEYWORDS"
+								&& printf "%s\n\n" " ${color_red}*${color_norm} $(echo ${ebuilds[0]} | cut -d "/" -f 2,3): multiple files with KEYWORDS" \
+								|| printf "%s\n\n" " ${color_red}*${color_norm} $(echo ${ebuilds[0]} | cut -d "/" -f 2,3): multiple files with missing KEYWORDS"
 							exit 1
 						fi
 						if [[ -n ${filename} ]] && [[ $(grep -- "^setvar ${pkg%%|*}" "${filename}") == *"${uver}"*"${urev}"* ]]; then
@@ -184,12 +188,18 @@ update_scopes() {
 						ctl=1
 						tput rc; tput el
 						echo "Overlay:  ${name}-${color_yellow}${lcl_ver:-none}${color_norm} (${rls})"
-						echo "Upstream: ${name}-${color_green}${upstr_ver}${color_norm} (${rls})"
+						printf "%s" "Upstream: ${name}-${color_green}${upstr_ver}${color_norm} (${rls})"
+						if [[ -n ${lcl_ver} ]]; then
+							sed -i \
+								-e "/^setvar ${pkg%%|*}/{s/${uver}/${upstr_ver%-*}/}" \
+								-e "/^setvar ${pkg%%|*}/{s/${urev}/${upstr_ver#*-}/}" \
+								"${filename}" 2>/dev/null \
+								&& printf "%s\n" "... ${color_blue}[ ${color_green}updated ${color_blue}]${color_norm}" \
+								|| printf "%s\n" "... ${color_blue}[ ${color_red}not updated ${color_blue}]${color_norm}"
+						else
+							printf "\n"
+						fi
 						echo
-						[[ -n ${lcl_ver} ]] && sed -i \
-							-e "/^setvar ${pkg%%|*}/{s/${uver}/${upstr_ver%-*}/}" \
-							-e "/^setvar ${pkg%%|*}/{s/${urev}/${upstr_ver#*-}/}" \
-							"${filename}"
 						tput sc
 						printf "%s" "Looking for updates ${indicator[${count}]}"
 					fi
@@ -231,8 +241,8 @@ update_languages() {
 						if [[ ${filename} == *".ebuild"*".ebuild"* ]]; then
 							printf "\b\b%s\n\n" "... error!"
 							[[ ${rls} == ${stable} ]] \
-								&& printf "%s\n\n" " ${color_red}*${color_norm} Multiple files with KEYWORDS" \
-								|| printf "%s\n\n" " ${color_red}*${color_norm} Multiple files with missing KEYWORDS"
+								&& printf "%s\n\n" " ${color_red}*${color_norm} $(echo ${ebuilds[0]} | cut -d "/" -f 2,3): multiple files with KEYWORDS" \
+								|| printf "%s\n\n" " ${color_red}*${color_norm} $(echo ${ebuilds[0]} | cut -d "/" -f 2,3): multiple files with missing KEYWORDS"
 							exit 1
 						fi
 						if [[ -n ${filename} ]] && [[ $(grep -P -- "^setvar ${pkg%%|*}\t" "${filename}") == *"${ver} ${gver}"* ]]; then
@@ -253,13 +263,25 @@ update_languages() {
 						tput rc; tput el
 						if [[ ${lcl_ver} != ${upstr_ver} ]]; then
 							echo "Overlay:  ${name/-gnome}-${color_yellow}${lcl_ver:-none}${color_norm} (${rls})"
-							echo "Upstream: ${name/-gnome}-${color_green}${upstr_ver}${color_norm} (${rls})"
-							[[ -n ${lcl_ver} ]] && sed -i "/^setvar ${pkg%%|*}\t/{s/${lcl_ver}/${upstr_ver}/}" "${filename}"
+							printf "%s" "Upstream: ${name/-gnome}-${color_green}${upstr_ver}${color_norm} (${rls})"
+							if [[ -n ${lcl_ver} ]]; then
+								sed -i "/^setvar ${pkg%%|*}\t/{s/${lcl_ver}/${upstr_ver}/}" "${filename}" 2>/dev/null \
+									&& printf "%s\n" "... ${color_blue}[ ${color_green}updated ${color_blue}]${color_norm}" \
+									|| printf "%s\n" "... ${color_blue}[ ${color_red}not updated ${color_blue}]${color_norm}"
+							else
+								printf "\n"
+							fi
 						fi
 						if [[ ${lcl_gver} != ${upstr_gver} ]]; then
 							echo "Overlay:  ${name}-${color_yellow}${lcl_gver:-none}${color_norm} (${rls})"
-							echo "Upstream: ${name}-${color_green}${upstr_gver}${color_norm} (${rls})"
-							[[ -n ${lcl_gver} ]] && sed -i "/^setvar ${pkg%%|*}\t/{s/${lcl_gver}/${upstr_gver}/}" "${filename}"
+							printf "%s" "Upstream: ${name}-${color_green}${upstr_gver}${color_norm} (${rls})"
+							if [[ -n ${lcl_gver} ]]; then
+								sed -i "/^setvar ${pkg%%|*}\t/{s/${lcl_gver}/${upstr_gver}/}" "${filename}" 2>/dev/null \
+									&& printf "%s\n" "... ${color_blue}[ ${color_green}updated ${color_blue}]${color_norm}" \
+									|| printf "%s\n" "... ${color_blue}[ ${color_red}not updated ${color_blue}]${color_norm}"
+							else
+								printf "\n"
+							fi
 						fi
 						echo
 						tput sc

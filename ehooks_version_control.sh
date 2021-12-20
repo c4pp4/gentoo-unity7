@@ -230,7 +230,8 @@ find_portage_updates() {
 	done
 
 	## Remove temporary unmask file.
-	rm /etc/portage/package.unmask/0000_"${tmp_file}"
+	rm /etc/portage/package.unmask/0000_"${tmp_file}" || exit 1
+	rm /tmp/"${tmp_file}" || exit 1
 
 	[[ -z ${pmask[@]} ]] && echo "no pmask" || echo "${result[@]}"
 }
@@ -241,7 +242,7 @@ update_firefox_dep() {
 	for x in dev-libs/nspr dev-libs/nss; do
 		old_pkg="$(grep -F ${x} $1)"; old_pkg="${old_pkg#\~}"; old_pkg="${old_pkg%::gentoo}"
 		new_pkg="$(grep -F ${x} $2)"; new_pkg="${new_pkg#*>=}"
-		[[ ${old_pkg} != ${new_pkg} ]] && sed -i -e "s:${old_pkg}:${new_pkg}:" "$1" && echo " * ${x}: '${1##*/}' entry... [${color_green}updated${color_norm}]"
+		[[ ${old_pkg} != ${new_pkg} ]] && sed -i -e "s:${old_pkg}:${new_pkg}:" "$1" && echo " * ${x}: '${1##*/}' entry... ${color_blue}[ ${color_green}updated ${color_blue}]${color_norm}"
 	done
 }
 
@@ -284,11 +285,11 @@ portage_updates() {
 			echo " * Update from ${color_bold}${old_pkg}${color_norm} to ${color_yellow}${new_pkg}${color_norm}"
 			printf "%s" " * Test command 'EHOOKS_PATH=${pmask%/*}/ehooks ebuild \$(portageq get_repo_path / gentoo)/${new_pkg%-[0-9]*}/${new_pkg#*/}.ebuild clean prepare'${color_blink}...${color_norm}"
 			if EHOOKS_PATH="${pmask%/*}/ehooks" ebuild "${main_repo}/${new_pkg%-[0-9]*}/${new_pkg#*/}".ebuild clean prepare 1>/dev/null && sed -i -e "s:${old_pkg}:${new_pkg}:" "${pmask}" 2>/dev/null; then
-				printf "\b\b\b%s\n" "... [${color_green}passed${color_norm}]"
-				echo " * ${new_pkg%-[0-9]*}: '${pmask##*/}' entry... [${color_green}updated${color_norm}]"
+				printf "\b\b\b%s\n" "... ${color_blue}[ ${color_green}passed ${color_blue}]${color_norm}"
+				echo " ${color_green}*${color_norm} ${new_pkg%-[0-9]*}: '${pmask##*/}' entry... ${color_blue}[ ${color_green}updated ${color_blue}]${color_norm}"
 			else
-				printf "\b\b\b%s\n" "... [${color_red}failed${color_norm}]"
-				echo " * ${new_pkg%-[0-9]*}: '${pmask##*/}' entry... [${color_red}not updated${color_norm}]"
+				printf "\b\b\b%s\n" "... ${color_blue}[ ${color_red}failed ${color_blue}]${color_norm}"
+				echo " ${color_red}*${color_norm} ${new_pkg%-[0-9]*}: '${pmask##*/}' entry... ${color_blue}[ ${color_red}not updated ${color_blue}]${color_norm}"
 			fi
 			[[ ${new_pkg} == "www-client/firefox"* ]] && update_firefox_dep "${pmask/pmask/paccept_keywords}" "${main_repo}/${new_pkg/firefox/firefox\/firefox}.ebuild"
 			echo
@@ -361,9 +362,9 @@ debian_changes() {
 					sum=$(b2sum "/tmp/ehooks-${USER}-debian.tmp" | cut -d ' ' -f 1)
 					pre_sed=$(b2sum "${x%|*}")
 					sed -i -e "s/blake=[[:alnum:]]*/blake=${sum}/" "${x%|*}"
-					[[ ${pre_sed} != $(b2sum "${x%|*}") ]] && result+=( " ${color_green}*${color_norm} ${pn}... ${color_green}checksum updated!${color_norm}" )
+					[[ ${pre_sed} != $(b2sum "${x%|*}") ]] && result+=( " ${color_green}*${color_norm} ${pn}... ${color_blue}[ ${color_green}updated ${color_blue}]${color_norm}" )
 				else
-					result+=( " ${color_red}*${color_norm} ${pn}... ${color_red}debian file not found!${color_norm}" )
+					result+=( " ${color_red}*${color_norm} ${pn}... ${color_blue}[ ${color_red}debian file not found${color_blue} ]${color_norm}" )
 				fi
 			done
 			;;
