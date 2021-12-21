@@ -63,4 +63,7 @@ ehooks() {
 	rm "${ED}"/usr/share/wayland-sessions/ubuntu*.desktop
 	rm "${ED}"/usr/share/xsessions/ubuntu*.desktop
 	rm "${ED}"/usr/share/gnome-session/sessions/ubuntu.session
+
+	# Unity default mimeapps #
+	newmenu "${EHOOKS_FILESDIR}/defaults.list" unity-mimeapps.list
 }
