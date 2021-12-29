@@ -14,6 +14,10 @@ show-desktop-icons = true
 [org.nemo.icon-view:Unity]
 default-zoom-level = 'small'
 
+[org.nemo.preferences.menu-config:Unity]
+background-menu-open-as-root = false
+selection-menu-open-as-root = false
+
 [org.gnome.desktop.interface:Unity]
 gtk-theme = 'Ambiance'
 icon-theme = 'ubuntu-mono-dark'

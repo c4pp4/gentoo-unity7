@@ -15,7 +15,7 @@ SRC_URI=""
 LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="+audacity_menu +eog_menu +evince_menu +fontconfig_adjust +gnome-screenshot_adjust +gnome-terminal_theme +libreoffice_theme +nemo_noroot +pidgin_menu +totem_menu"
+IUSE="+audacity_menu +eog_menu +evince_menu +fontconfig_adjust +gnome-screenshot_adjust +gnome-terminal_theme +libreoffice_theme +pidgin_menu +totem_menu"
 
 DEPEND="unity-base/unity-build-env"
 
