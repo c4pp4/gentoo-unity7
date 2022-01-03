@@ -33,7 +33,6 @@ src_prepare() {
 			-e "s/Ubuntu desktop/Gentoo Unity⁷ Desktop/" \
 			-e "s/Welcome to Ubuntu/Welcome to Gentoo Unity⁷/" \
 			-e "s/Ubuntu features/Gentoo Unity⁷ features/" \
-			-e "s/d2369e87106064d4c4ff65a0e65dca11/0afc24559ae1018b9433d2ef48e35a14/" \
 			-e "s/Ubuntu Button/Gentoo Button/" \
 			-e "s/the Ubuntu logo/the Gentoo logo/" \
 			"${files[@]}"
@@ -59,6 +58,13 @@ src_prepare() {
 		cp "${FILESDIR}"/unity-launcher.png ubuntu-help/C/figures
 		cp "${FILESDIR}"/unity-launcher-intro.png ubuntu-help/C/figures
 		cp "${FILESDIR}"/unity-overview.png ubuntu-help/C/figures
+
+		rm ubuntu-help/it/figures/unity.png
+		rm ubuntu-help/{de,it}/figures/unity-dash.png
+		rm ubuntu-help/it/figures/unity-dash-intro.png
+		rm ubuntu-help/{de,it}/figures/unity-dash-sample.png
+		rm ubuntu-help/{de,it}/figures/unity-launcher-intro.png
+		rm ubuntu-help/{de,it}/figures/unity-overview.png
 	fi
 
 	ubuntu-versionator_src_prepare
