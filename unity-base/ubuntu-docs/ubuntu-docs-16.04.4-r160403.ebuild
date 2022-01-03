@@ -39,11 +39,9 @@ src_prepare() {
 			"${files[@]}"
 
 		files=( $(find ubuntu-help -maxdepth 2 -type f -name "*.po") )
-		sed -i \
-			-e ":bgn;/Unity⁷/{:loop;n;/^#/b bgn;s/Ubuntu/Gentoo Unity⁷/g;b loop;}" \
-			-e ":bgn;/Gentoo Button/{:loop;n;/^#/b bgn;s/Ubuntu/Gentoo/g;b loop;}" \
-			-e ":bgn;/the Gentoo logo/{:loop;n;/^#/b bgn;s/Ubuntu/Gentoo/g;b loop;}" \
-			"${files[@]}"
+		sed -i ":bgn;/Unity⁷/{:loop;n;/^#/b bgn;s/Ubuntu/Gentoo Unity⁷/g;b loop;}" "${files[@]}"
+		sed -i ":bgn;/Gentoo Button/{:loop;n;/^#/b bgn;s/Ubuntu/Gentoo/g;b loop;}" "${files[@]}"
+		sed -i ":bgn;/the Gentoo logo/{:loop;n;/^#/b bgn;s/Ubuntu/Gentoo/g;b loop;}" "${files[@]}"
 
 		sed -i "s/ addremove//" ubuntu-help/C/index.page
 		sed -i "/Install languages/d" ubuntu-help/C/prefs-language.page
