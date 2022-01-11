@@ -2,11 +2,12 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
+UBUNTU_EAUTORECONF="yes"
 
 UVER="+16.04"
 UREV="0ubuntu3"
 
-inherit autotools ubuntu-versionator vala
+inherit vala ubuntu-versionator
 
 DESCRIPTION="Music lens for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/unity-lens-music"
@@ -37,8 +38,3 @@ PDEPEND="|| ( media-sound/rhythmbox
 S="${S}${UVER}"
 
 PATCHES=( "${FILESDIR}/${PN}-fix-build-against-vala-0.48.patch" )
-
-src_prepare() {
-	ubuntu-versionator_src_prepare
-	eautoreconf
-}

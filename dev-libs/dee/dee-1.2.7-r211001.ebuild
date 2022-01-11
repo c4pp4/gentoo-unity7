@@ -2,13 +2,13 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-AUTOTOOLS_AUTORECONF=y
 PYTHON_COMPAT=( python3_{8..10} )
+UBUNTU_EAUTORECONF="yes"
 
 UVER="+17.10.20170616"
 UREV="6ubuntu2"
 
-inherit autotools python-r1 ubuntu-versionator vala
+inherit python-r1 vala ubuntu-versionator
 
 DESCRIPTION="Provide objects allowing to create Model-View-Controller type programs across DBus"
 HOMEPAGE="https://launchpad.net/dee/"
@@ -29,11 +29,6 @@ DEPEND="${RDEPEND}
 	$(vala_depend)"
 
 S="${WORKDIR}"
-
-src_prepare() {
-	ubuntu-versionator_src_prepare
-	eautoreconf
-}
 
 src_configure() {
 	local myeconfargs=(

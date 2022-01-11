@@ -2,11 +2,12 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
+UBUNTU_EAUTORECONF="yes"
 
 UVER="+18.04.20180321.1"
 UREV="0ubuntu4"
 
-inherit autotools ubuntu-versionator
+inherit ubuntu-versionator
 
 DESCRIPTION="A set of symbols and convenience functions that all indicators would like to use"
 HOMEPAGE="https://launchpad.net/libindicator"
@@ -28,11 +29,6 @@ DEPEND="${RDEPEND}
 
 S="${WORKDIR}"
 MAKEOPTS="${MAKEOPTS} -j1"
-
-src_prepare() {
-	ubuntu-versionator_src_prepare
-	eautoreconf
-}
 
 src_configure() {
 	# Build GTK2 support #

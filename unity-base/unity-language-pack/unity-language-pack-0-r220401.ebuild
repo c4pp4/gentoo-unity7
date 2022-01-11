@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 UVER=""
 UREV=""
@@ -17,7 +17,7 @@ SLOT="0"
 #KEYWORDS="~amd64"
 IUSE=""
 
-DEPEND="sys-devel/gettext"
+BDEPEND="sys-devel/gettext"
 
 setvar() {
 	eval "${1//-/_}=( ${2} ${3} ${4} )"
@@ -308,7 +308,7 @@ src_install() {
 	done
 	rm -r "${S}"/po
 
-	printf "%s  " "Processing translation files"
+	printf "%s  " "Processing translations files"
 	_progress_indicator
 
 	for pofile in $( \

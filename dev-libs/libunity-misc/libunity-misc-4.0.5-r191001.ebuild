@@ -2,11 +2,12 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
+UBUNTU_EAUTORECONF="yes"
 
 UVER="+14.04.20140115"
 UREV="0ubuntu3"
 
-inherit autotools ubuntu-versionator
+inherit ubuntu-versionator
 
 DESCRIPTION="Miscellaneous modules for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/libunity-misc"
@@ -25,14 +26,12 @@ DEPEND="x11-libs/gtk+:3
 S="${S}${UVER}"
 
 src_prepare() {
-	ubuntu-versionator_src_prepare
-
 	# Make docs optional #
 	use doc || sed -i \
 		-e 's:unity-misc doc:unity-misc:' \
 		Makefile.am
 
-	eautoreconf
+	ubuntu-versionator_src_prepare
 }
 
 src_install() {

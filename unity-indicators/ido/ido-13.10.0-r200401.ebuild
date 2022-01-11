@@ -2,11 +2,12 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
+UBUNTU_EAUTORECONF="yes"
 
 UVER="+17.04.20161028"
 UREV="0ubuntu2"
 
-inherit autotools ubuntu-versionator vala
+inherit vala ubuntu-versionator
 
 DESCRIPTION="Widgets and other objects used for indicators by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/ido"
@@ -22,11 +23,6 @@ DEPEND=">=dev-libs/glib-2.37
 	$(vala_depend)"
 
 S="${WORKDIR}"
-
-src_prepare() {
-	ubuntu-versionator_src_prepare
-	eautoreconf
-}
 
 src_install() {
 	default

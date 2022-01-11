@@ -2,11 +2,12 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
+UBUNTU_EAUTORECONF="yes"
 
 UVER=""
 UREV="5ubuntu1"
 
-inherit autotools ubuntu-versionator
+inherit ubuntu-versionator
 
 DESCRIPTION="X.Org dummy testing environment for Google Test"
 HOMEPAGE="https://launchpad.net/xorg-gtest"
@@ -25,11 +26,6 @@ DEPEND="dev-util/valgrind
 	x11-libs/libX11
 	x11-libs/libXi
 	doc? ( app-doc/doxygen )"
-
-src_prepare() {
-	ubuntu-versionator_src_prepare
-	eautoreconf
-}
 
 src_configure() {
 	econf --with-doxygen=$(usex doc yes no)

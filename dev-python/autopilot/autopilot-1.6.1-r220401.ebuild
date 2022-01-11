@@ -34,9 +34,8 @@ DEPEND="${RDEPEND}"
 S="${WORKDIR}"
 
 src_install() {
-	default
+	distutils-r1_src_install
 
-	local udevdir="$(get_udevdir)"
-	insinto ${udevdir}/rules.d
+	insinto "$(get_udevdir)"/rules.d
 	doins debian/61-autopilot3-uinput.rules
 }

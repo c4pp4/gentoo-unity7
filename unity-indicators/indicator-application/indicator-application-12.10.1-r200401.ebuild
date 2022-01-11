@@ -2,11 +2,12 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
+UBUNTU_EAUTORECONF="yes"
 
 UVER="+19.04.20190308.1"
 UREV="0ubuntu3"
 
-inherit autotools ubuntu-versionator
+inherit ubuntu-versionator
 
 DESCRIPTION="Application indicators used by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/indicator-application"
@@ -23,11 +24,9 @@ DEPEND="dev-libs/libappindicator:=
 S="${WORKDIR}"
 
 src_prepare() {
-	ubuntu-versionator_src_prepare
 	# Fix desktop file installation location #
 	sed 's:$(pkgdatadir)/upstart/xdg/autostart:$(datadir)/upstart/xdg/autostart:g' \
 		-i data/upstart/Makefile.am
-	eautoreconf
 
 	# src/application-service-appstore.c uses 'app->status = APP_INDICATOR_STATUS_PASSIVE' to remove the app from panel #
 	#	However some SNI tray icons always report their status as 'Passive' and so never show up, or get removed when they shouldn't be
@@ -36,6 +35,8 @@ src_prepare() {
 	#	Quassel (disappears when disconnected from it's core)
 	#	  Quassel also requires patching to have a complete base set of SNI items (profiles/ehooks/net-irc/quassel/files/SNI-systray_fix.patch)
 	eapply "${FILESDIR}/sni-systray_show-passive_v2.diff"
+
+	ubuntu-versionator_src_prepare
 }
 
 src_install() {

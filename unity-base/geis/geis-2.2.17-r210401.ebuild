@@ -3,11 +3,12 @@
 
 EAPI=6
 PYTHON_COMPAT=( python3_{8..10} )
+UBUNTU_EAUTORECONF="yes"
 
 UVER="+16.04.20160126"
 UREV="0ubuntu7"
 
-inherit autotools python-r1 ubuntu-versionator
+inherit python-r1 ubuntu-versionator
 
 DESCRIPTION="An implementation of the GEIS (Gesture Engine Interface and Support) interface"
 HOMEPAGE="https://launchpad.net/geis"
@@ -24,17 +25,9 @@ DEPEND="unity-base/grail
 
 S="${S}${UVER}"
 
-src_prepare() {
-	ubuntu-versionator_src_prepare
-	eautoreconf
-}
-
 src_configure() {
 	python_copy_sources
-	configuration() {
-		default
-	}
-	python_foreach_impl run_in_build_dir configuration
+	python_foreach_impl run_in_build_dir default
 }
 
 src_compile() {
@@ -46,10 +39,7 @@ src_compile() {
 }
 
 src_install() {
-	installation() {
-		default
-	}
-	python_foreach_impl run_in_build_dir installation
+	python_foreach_impl run_in_build_dir default
 
 	find "${ED}" \( -name "*.a" -o -name "*.la" \) -delete || die
 }

@@ -6,7 +6,7 @@ EAPI=6
 UVER=""
 UREV="1ubuntu1"
 
-inherit autotools ubuntu-versionator
+inherit ubuntu-versionator
 
 DESCRIPTION="Disable Gtk+ 3 client side decorations (CSD)"
 HOMEPAGE="https://github.com/PCMan/gtk3-nocsd"
@@ -17,9 +17,10 @@ SLOT="0"
 KEYWORDS="~amd64"
 IUSE=""
 
-DEPEND="dev-libs/gobject-introspection
+DEPEND="
 	dev-libs/glib:2
-	x11-libs/gtk+:3"
+	x11-libs/gtk+:3[introspection]
+"
 
 src_prepare() {
 	# Version 4 #

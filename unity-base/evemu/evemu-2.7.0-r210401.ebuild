@@ -3,11 +3,12 @@
 
 EAPI=6
 PYTHON_COMPAT=( python3_{8..10} )
+UBUNTU_EAUTORECONF="yes"
 
 UVER=""
 UREV="3"
 
-inherit autotools python-single-r1 ubuntu-versionator
+inherit python-single-r1 ubuntu-versionator
 
 DESCRIPTION="Event Emulation for the uTouch Stack"
 HOMEPAGE="https://launchpad.net/evemu"
@@ -27,11 +28,6 @@ DEPEND="app-text/asciidoc
 
 S="${S}${UVER}"
 MAKEOPTS="${MAKEOPTS} -j1"
-
-src_prepare() {
-	ubuntu-versionator_src_prepare
-	eautoreconf
-}
 
 src_configure() {
 	econf --enable-static=no \

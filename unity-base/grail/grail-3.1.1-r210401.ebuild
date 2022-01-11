@@ -2,11 +2,12 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
+UBUNTU_EAUTORECONF="yes"
 
 UVER=""
 UREV="3"
 
-inherit autotools ubuntu-versionator
+inherit ubuntu-versionator
 
 DESCRIPTION="An implementation of the GRAIL (Gesture Recognition And Instantiation Library) interface"
 HOMEPAGE="https://launchpad.net/grail"
@@ -25,11 +26,6 @@ DEPEND=">=sys-devel/gcc-4.6
 	test? ( sys-apps/xorg-gtest )"
 
 S="${S}${UVER}"
-
-src_prepare() {
-	ubuntu-versionator_src_prepare
-	eautoreconf
-}
 
 src_configure() {
 	econf --enable-static=no \

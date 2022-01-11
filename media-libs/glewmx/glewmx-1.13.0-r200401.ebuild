@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 UVER=""
 UREV="4ubuntu3"
@@ -29,8 +29,6 @@ RDEPEND="${DEPEND}"
 S="${WORKDIR}/${PN%mx}-${PV}"
 
 src_prepare() {
-	ubuntu-versionator_src_prepare
-
 	sed -i \
 		-e '/INSTALL/s:-s::' \
 		-e '/$(CC) $(CFLAGS) -o/s:$(CFLAGS):$(CFLAGS) $(LDFLAGS):' \
@@ -42,7 +40,8 @@ src_prepare() {
 			-e '/INSTALL.*LIB.STATIC/d' \
 			Makefile || die
 
-	default
+	ubuntu-versionator_src_prepare
+
 	multilib_copy_sources
 }
 
@@ -84,10 +83,9 @@ multilib_src_install() {
 	fi
 
 	# Prevent file collision with media-libs/glew #
-	local mxver="${PV%%_*}"
 	pushd "${ED}"/usr/include/GL 1>/dev/null || die
-		mv glew.h glew-"${mxver}".h
-		mv glxew.h glxew-"${mxver}".h
-		mv wglew.h wglew-"${mxver}".h
+		mv glew.h glew-"${PV}".h
+		mv glxew.h glxew-"${PV}".h
+		mv wglew.h wglew-"${PV}".h
 	popd 1>/dev/null
 }

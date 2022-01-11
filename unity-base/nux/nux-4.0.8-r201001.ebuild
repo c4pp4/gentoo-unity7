@@ -2,11 +2,12 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
+UBUNTU_EAUTORECONF="yes"
 
 UVER="+18.10.20180623"
 UREV="0ubuntu3"
 
-inherit autotools ubuntu-versionator xdummy
+inherit ubuntu-versionator xdummy
 
 DESCRIPTION="Visual rendering toolkit for the Unity7 user interface"
 HOMEPAGE="http://launchpad.net/nux"
@@ -43,24 +44,20 @@ PDEPEND="unity-base/unity[gles2=]"
 S="${WORKDIR}"
 
 src_prepare() {
-	ubuntu-versionator_src_prepare
-
 	# Use headers from media-libs/glewmx package #
 	local mxver="$(portageq best_version / media-libs/glewmx | cut -d "-" -f 3)"
-	mxver="${mxver%%_*}"
 	[[ -n mxver ]] && sed -i \
 		-e "s:GL/glew.h:GL/glew-${mxver}.h:" \
 		-e "s:GL/glxew.h:GL/glxew-${mxver}.h:" \
 		-e "s:GL/wglew.h:GL/wglew-${mxver}.h:" \
 		$(grep -lr -- "GL/.*gl.*ew.h" "${WORKDIR}")
 
-	# Keep warnings as warnings, not failures #
 	# Fix typo #
 	sed -i \
-		-e 's:-Werror ::g' \
 		-e 's:AM_CXXFLAGS-:AM_CXXFLAGS=:' \
 		configure.ac
-	eautoreconf
+
+	ubuntu-versionator_src_prepare
 }
 
 src_configure() {

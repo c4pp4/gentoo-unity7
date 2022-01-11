@@ -2,11 +2,12 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
+UBUNTU_EAUTORECONF="yes"
 
 UVER="+16.04.20160212.1"
 UREV="0ubuntu3"
 
-inherit autotools ubuntu-versionator vala
+inherit vala ubuntu-versionator
 
 DESCRIPTION="Video lens for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/unity-lens-video"
@@ -30,8 +31,3 @@ DEPEND="dev-libs/dee
 	$(vala_depend)"
 
 S="${S}${UVER}"
-
-src_prepare() {
-	ubuntu-versionator_src_prepare
-	eautoreconf
-}

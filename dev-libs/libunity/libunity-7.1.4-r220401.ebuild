@@ -3,11 +3,12 @@
 
 EAPI=6
 PYTHON_COMPAT=( python3_{8..10} )
+UBUNTU_EAUTORECONF="yes"
 
 UVER="+19.04.20190319"
 UREV="6"
 
-inherit autotools python-r1 ubuntu-versionator vala
+inherit python-r1 vala ubuntu-versionator
 
 DESCRIPTION="Library for instrumenting and integrating with all aspects of the Unity shell"
 HOMEPAGE="https://launchpad.net/libunity"
@@ -33,31 +34,15 @@ src_unpack() {
 	popd 1>/dev/null
 }
 
-src_prepare() {
-	ubuntu-versionator_src_prepare
-	eautoreconf
-}
-
 src_configure() {
 	python_copy_sources
-	configuration() {
-		default
-	}
-	python_foreach_impl run_in_build_dir configuration
+	python_foreach_impl run_in_build_dir default
 }
 
-src_compile() {
-	compilation() {
-		default
-	}
-	python_foreach_impl run_in_build_dir compilation
-}
+src_compile() { python_foreach_impl run_in_build_dir default; }
 
 src_install() {
-	installation() {
-		default
-	}
-	python_foreach_impl run_in_build_dir installation
+	python_foreach_impl run_in_build_dir default
 
 	find "${ED}" \( -name "*.a" -o -name "*.la" \) -delete || die
 }

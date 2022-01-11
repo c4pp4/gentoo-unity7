@@ -207,14 +207,15 @@ ehooks_changes() {
 find_portage_updates() {
 	local \
 		pmask="$1/profiles/unity-portage.pmask" \
-		tmp_file=ehooks-unmask.tmp \
+		tmp_um=ehooks-punmask.tmp \
+		tmp_ak=ehooks-paccept_keywords.tmp \
 		line start_reading update x
 
 	local -a result
 
-	## Temporarily Unmask packages maintained via ehooks.
-	install -m 666 /dev/null /tmp/"${tmp_file}" || exit 1
-	ln -fs /tmp/"${tmp_file}" /etc/portage/package.unmask/0000_"${tmp_file}" || exit 1
+	## Temporarily unmask packages maintained via ehooks.
+	install -m 666 /dev/null /tmp/"${tmp_um}" || exit 1
+	ln -fs /tmp/"${tmp_um}" /etc/portage/package.unmask/zzzz_"${tmp_um}" || exit 1
 
 	for x in "${pmask[@]}"; do
 		while read -r line; do
@@ -222,28 +223,32 @@ find_portage_updates() {
 			[[ -z ${start_reading} ]] && continue
 			[[ -n ${start_reading} ]] && [[ -z ${line} ]] && continue
 			[[ -n ${start_reading} ]] && [[ ${line} == "#"* ]] && break
-			echo "${line}" > /tmp/"${tmp_file}"
+			echo "${line}" > /tmp/"${tmp_um}"
+
+			if [[ ${line} == ">www-client/firefox"* ]]; then
+				## Temporarily accept_keywords www-client/firefox.
+				install -m 666 /dev/null /tmp/"${tmp_ak}" || exit 1
+				ln -fs /tmp/"${tmp_ak}" /etc/portage/package.accept_keywords/zzzz_"${tmp_ak}" || exit 1
+				echo "www-client/firefox::gentoo ~amd64" > /tmp/"${tmp_ak}"
+			fi
+
 			update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "\[32;01m" | tail -1 | sed "s/|.*$//")
 			[[ -n ${update} ]] && result+=( "${line}|${update}" )
+
+			if [[ ${line} == ">www-client/firefox"* ]]; then
+				## Remove temporary www-client/firefox accept_keywords file.
+				rm /etc/portage/package.accept_keywords/zzzz_"${tmp_ak}" || exit 1
+				rm /tmp/"${tmp_ak}" || exit 1
+			fi
 		done < "${x}"
 		start_reading=""
 	done
 
 	## Remove temporary unmask file.
-	rm /etc/portage/package.unmask/0000_"${tmp_file}" || exit 1
-	rm /tmp/"${tmp_file}" || exit 1
+	rm /etc/portage/package.unmask/zzzz_"${tmp_um}" || exit 1
+	rm /tmp/"${tmp_um}" || exit 1
 
 	[[ -z ${pmask[@]} ]] && echo "no pmask" || echo "${result[@]}"
-}
-
-update_firefox_dep() {
-	local old_pkg new_pkg x
-
-	for x in dev-libs/nspr dev-libs/nss; do
-		old_pkg="$(grep -F ${x} $1)"; old_pkg="${old_pkg#\~}"; old_pkg="${old_pkg%::gentoo}"
-		new_pkg="$(grep -F ${x} $2)"; new_pkg="${new_pkg#*>=}"
-		[[ ${old_pkg} != ${new_pkg} ]] && sed -i -e "s:${old_pkg}:${new_pkg}:" "$1" && echo " * ${x}: '${1##*/}' entry... ${color_blue}[ ${color_green}updated ${color_blue}]${color_norm}"
-	done
 }
 
 portage_updates() {
@@ -291,7 +296,6 @@ portage_updates() {
 				printf "\b\b\b%s\n" "... ${color_blue}[ ${color_red}failed ${color_blue}]${color_norm}"
 				echo " ${color_red}*${color_norm} ${new_pkg%-[0-9]*}: '${pmask##*/}' entry... ${color_blue}[ ${color_red}not updated ${color_blue}]${color_norm}"
 			fi
-			[[ ${new_pkg} == "www-client/firefox"* ]] && update_firefox_dep "${pmask/pmask/paccept_keywords}" "${main_repo}/${new_pkg/firefox/firefox\/firefox}.ebuild"
 			echo
 		done
 	fi

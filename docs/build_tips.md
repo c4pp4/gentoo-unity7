@@ -1,4 +1,12 @@
-# USE flag tips
+# Build tips
+
+- to install stable version of **www-client/firefox** (Extended Support Release), create an appropriate file in `/etc/portage/package.accept_keywords` directory with the following content:
+
+  ```
+  dev-libs/nspr::gentoo -~*
+  dev-libs/nss::gentoo -~*
+  www-client/firefox::gentoo -~*
+  ```
 
 - enable **OpenGL ES 2.0** support:
 

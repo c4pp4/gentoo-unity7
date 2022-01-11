@@ -2,11 +2,12 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
+UBUNTU_EAUTORECONF="yes"
 
 UVER=""
 UREV="1ubuntu3"
 
-inherit autotools ubuntu-versionator
+inherit ubuntu-versionator
 
 DESCRIPTION="Client library to interact with zeitgeist"
 HOMEPAGE="https://launchpad.net/libzeitgeist/"
@@ -25,11 +26,9 @@ DEPEND="${CDEPEND}
 	virtual/pkgconfig"
 
 src_prepare() {
-	ubuntu-versionator_src_prepare
-
-	sed \
+	sed -i \
 		-e "s:doc/libzeitgeist:doc/${PF}:" \
-		-i Makefile.am || die
+		Makefile.am || die
 
-	eautoreconf
+	ubuntu-versionator_src_prepare
 }

@@ -3,11 +3,12 @@
 
 EAPI=6
 PYTHON_COMPAT=( python3_{8..10} )
+UBUNTU_EAUTORECONF="yes"
 
 UVER="+18.04.20171202"
 UREV="0ubuntu2"
 
-inherit autotools python-r1 ubuntu-versionator
+inherit python-r1 ubuntu-versionator
 
 DESCRIPTION="GTK+ module for exporting old-style menus as GMenuModels"
 HOMEPAGE="https://launchpad.net/unity-gtk-module"
@@ -29,14 +30,12 @@ DEPEND="dev-libs/glib:2
 S="${WORKDIR}"
 
 src_prepare() {
-	ubuntu-versionator_src_prepare
-
 	# Fix "SyntaxError: Missing parentheses in call to 'print'" #
 	sed -i \
 		-e "s/print level \* ' ', root/print (level \* ' ', root)/" \
 		tests/autopilot/tests/test_gedit.py
 
-	eautoreconf
+	ubuntu-versionator_src_prepare
 }
 
 src_configure() {

@@ -73,18 +73,10 @@ src_configure() {
 	python_foreach_impl run_in_build_dir configuration
 }
 
-src_compile() {
-	compilation() {
-		default
-	}
-	python_foreach_impl run_in_build_dir compilation
-}
+src_compile() { python_foreach_impl run_in_build_dir default; }
 
 src_install() {
-	installation() {
-		default
-	}
-	python_foreach_impl run_in_build_dir installation
+	python_foreach_impl run_in_build_dir default
 	python_foreach_impl python_optimize
 
 	find "${ED}" -name '*.la' -delete || die

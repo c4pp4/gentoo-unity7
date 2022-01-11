@@ -3,11 +3,12 @@
 
 EAPI=6
 PYTHON_COMPAT=( python3_{8..10} )
+UBUNTU_EAUTORECONF="yes"
 
 UVER="+21.10.20210710"
 UREV="0ubuntu1"
 
-inherit autotools python-single-r1 ubuntu-versionator vala xdummy
+inherit python-single-r1 ubuntu-versionator vala xdummy
 
 DESCRIPTION="BAMF Application Matching Framework"
 HOMEPAGE="https://launchpad.net/bamf"
@@ -39,8 +40,6 @@ DEPEND="dev-libs/gobject-introspection
 S="${WORKDIR}"
 
 src_prepare() {
-	ubuntu-versionator_src_prepare
-
 	#  'After=graphical-session-pre.target' must be explicitly set in the unit files that require it #
 	#  Relying on the upstart job /usr/share/upstart/systemd-session/upstart/systemd-graphical-session.conf #
 	#       to create "$XDG_RUNTIME_DIR/systemd/user/${unit}.d/graphical-session-pre.conf" drop-in units #
@@ -57,7 +56,8 @@ src_prepare() {
 		data/bamfdaemon.service.in || die "Sed failed for data/bamfdaemon.service.in"
 
 	python_fix_shebang .
-	eautoreconf
+
+	ubuntu-versionator_src_prepare
 }
 
 src_configure() {

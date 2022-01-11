@@ -10,6 +10,14 @@
 # Exports portage base functions used by ebuilds written for packages using
 # the gentoo-unity7 framework.
 
+# @ECLASS-VARIABLE: GNOME2_EAUTORECONF
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# Run eautoreconf
+UBUNTU_EAUTORECONF=${UBUNTU_EAUTORECONF:-""}
+
+[[ ${UBUNTU_EAUTORECONF} == "yes" ]] && inherit autotools
+
 case "${EAPI:-0}" in
 	6|7) EXPORT_FUNCTIONS pkg_setup src_prepare pkg_postinst ;;
 	*) die "EAPI=${EAPI:-0} is not supported" ;;
@@ -128,6 +136,8 @@ ubuntu-versionator_src_prepare() {
 		x="1"
 	fi
 	[[ -z ${x} ]] && default
+
+	[[ ${UBUNTU_EAUTORECONF} == 'yes' ]] && eautoreconf
 }
 
 # @FUNCTION: ubuntu-versionator_pkg_postinst

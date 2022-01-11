@@ -3,11 +3,12 @@
 
 EAPI=6
 PYTHON_COMPAT=( python3_{8..10} )
+UBUNTU_EAUTORECONF="yes"
 
 UVER=""
 UREV="4ubuntu1"
 
-inherit autotools bash-completion-r1 python-r1 vala xdg ubuntu-versionator
+inherit bash-completion-r1 python-r1 vala xdg ubuntu-versionator
 
 DESCRIPTION="Service to log activities and present to other apps"
 HOMEPAGE="https://launchpad.net/zeitgeist/"
@@ -60,7 +61,6 @@ src_prepare() {
 		-i Makefile.am || die
 
 	ubuntu-versionator_src_prepare
-	eautoreconf
 
 	# XDG autostart only in Unity
 	echo "OnlyShowIn=Unity;" >> data/zeitgeist-datahub.desktop.in
