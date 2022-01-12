@@ -1,8 +1,0 @@
-ehooks() {
-	mv src/pidgin-libnotify.c.bak src/pidgin-libnotify.c
-
-	sed -i \
-		-e "s/de_po/#de_po/" \
-		-e "s/it_po/#it_po/" \
-		"${S}/debian/patches/series"
-}

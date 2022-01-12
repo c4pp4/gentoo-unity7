@@ -32,7 +32,7 @@
   unity-indicators/unity-indicators-meta mail
   ```
 
-- **dev-java/jayatana** - Global Menu for Java applications
+- **dev-java/jayatana** - enable Global menu for Java applications
 
   ```
   unity-indicators/unity-indicators-meta java

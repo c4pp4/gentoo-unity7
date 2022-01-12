@@ -1,16 +1,6 @@
 ehooks() {
-	local \
-		x \
-		fname=ubuntu-versionator_pkg_postinst
-
-	if ! declare -F ${fname} 1>/dev/null; then
-		x="${REPO_ROOT}"/eclass/ubuntu-versionator.eclass
-		[[ -f ${x} ]] \
-			|| die "${x}: file not found"
-		source <(awk "/^${fname}\() {\$/ { p = 1 } p { print } /^}\$/ { p = 0 }" ${x} 2>/dev/null)
-		declare -F ${fname} 1>/dev/null \
-			|| die "${fname}: function not found"
+	if [[ -x /usr/bin/bamf-index-create ]]; then
+		einfo "Checking bamf-2.index"
+		/usr/bin/bamf-index-create triggered
 	fi
-
-	${fname}
 }

@@ -10,7 +10,7 @@
 # Exports portage base functions used by ebuilds written for packages using
 # the gentoo-unity7 framework.
 
-# @ECLASS-VARIABLE: GNOME2_EAUTORECONF
+# @ECLASS-VARIABLE: UBUNTU_EAUTORECONF
 # @DEFAULT_UNSET
 # @DESCRIPTION:
 # Run eautoreconf

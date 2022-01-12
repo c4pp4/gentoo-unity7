@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 UBUNTU_EAUTORECONF="yes"
 
 UVER="+18.04.20180321.1"
@@ -18,16 +18,22 @@ SLOT="3/7.0.0"
 KEYWORDS="~amd64"
 IUSE=""
 
-RDEPEND=">=x11-libs/gtk+-2.18:2
-	>=x11-libs/gtk+-3.2:3
-	x11-libs/libXfixes"
+RDEPEND="
+	>=dev-libs/glib-2.37.3
+	>=sys-libs/glibc-2.4
+	>=x11-libs/gdk-pixbuf-2.22.0
+	>=x11-libs/gtk+-2.18:2
+	>=x11-libs/gtk+-3.5.18:3
+"
 DEPEND="${RDEPEND}
-	>=dev-libs/glib-2.37
 	>=unity-indicators/ido-13.10.0
+"
+BDEPEND="
 	virtual/pkgconfig
-	!<${CATEGORY}/${PN}-0.4.1-r201"
+"
 
 S="${WORKDIR}"
+
 MAKEOPTS="${MAKEOPTS} -j1"
 
 src_configure() {
@@ -72,8 +78,8 @@ src_install() {
 
 	# Install GTK3 support #
 	pushd build-gtk3
-		emake -C libindicator DESTDIR="${D}" install || die
-		emake -C tools DESTDIR="${D}" install || die
+		emake -C libindicator DESTDIR="${ED}" install || die
+		emake -C tools DESTDIR="${ED}" install || die
 	popd
 
 	einstalldocs
