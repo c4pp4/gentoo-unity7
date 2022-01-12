@@ -105,10 +105,11 @@ find_flag_changes() {
 			## Get ownership of file when 'touch: cannot touch "${x}": Permission denied' and quit.
 			[[ -n ${reset} ]] && reset=$(stat -c "%U:%G" "${ts_file}") && break 2
 
-			## Get =${CATEGORY}/${PF} from package's ${sys_db} path.
-			n="${n%/}"
+			## Get ${CATEGORY}/${PN}[:${slot}].
+			n="${n%-[0-9]*}"
 			n="${n#${sys_db}}"
-			result+=( "=${n}" )
+			[[ -n ${slot} ]] && n="${n}:${slot}"
+			result+=( "${n}" )
 		done
 	done < "${ts_file}"
 	[[ -n ${reset} ]] && echo "${reset}" || echo "${result[@]}"
@@ -156,39 +157,46 @@ find_tree_changes() {
 			## Get ownership of file when 'touch: cannot touch "${x}": Permission denied' and quit.
 			[[ -n ${reset} ]] && reset=$(stat -c "%U:%G" "${x}") && break 2
 
-			## Get =${CATEGORY}/${PF} from package's ${sys_db} path.
-			n="${n%/}"
+			## Get ${CATEGORY}/${PN}[:${slot}].
+			n="${n%-[0-9]*}"
 			n="${n#${sys_db}}"
-			result+=( "=${n}" )
+			[[ -n ${slot} ]] && n="${n}:${slot}"
+			result+=( "${n}" )
 		done
 	done
 	[[ -n ${reset} ]] && echo "${reset}" || echo "${result[@]}"
 }
 
 ehooks_changes() {
+	local -a result
+
 	if [[ -n $1 ]] && ( [[ ! -w $(get_repo_root)/profiles/ehooks ]] || [[ ! -w /etc/ehooks/timestamps ]] ); then
+		## Get ownership when write permission denied.
+		result=( $(stat -c '%U:%G' $(get_repo_root)/profiles/ehooks) $(stat -c '%U:%G' /etc/ehooks/timestamps) )
+		# Remove duplicates.
+		result=( $(printf "%s\n" "${result[@]}" | sort -u) )
 		echo
-		eerror "Permission denied to apply 'reset'!"
+		eerror "Permission denied to apply reset (ownership ${result[@]})"
 		echo
 		exit 1
 	fi
 
 	printf "%s" "Looking for ehooks changes${color_blink}...${color_norm}"
 
-	local -a changes=( $(find_tree_changes "$1") $(find_flag_changes "$1") )
+	result=( $(find_tree_changes "$1") $(find_flag_changes "$1") )
 	# Remove duplicates.
-	changes=( $(printf "%s\n" "${changes[@]}" | sort -u) )
+	result=( $(printf "%s\n" "${result[@]}" | sort -u) )
 
 	printf "\b\b\b%s\n\n" "... done!"
 
-	if [[ -z ${changes[@]} ]]; then
+	if [[ -z ${result[@]} ]]; then
 		einfo "No rebuild needed"
-	elif [[ ${changes[0]} == "="* ]] && ( [[ -z ${changes[1]} ]] || [[ ${changes[1]} == "="* ]] ); then
+	elif [[ ${result[0]} == *"/"* ]] && ( [[ -z ${result[1]} ]] || [[ ${result[1]} == *"/"* ]] ); then
 		ewarn "Rebuild the packages affected by ehooks changes:"
 		echo
-		ewarn "emerge -av1 ${changes[@]}"
+		ewarn "emerge -av1 ${result[@]}"
 	else
-		case ${changes[@]} in
+		case ${result[@]} in
 			applied|"applied reset"|"reset applied")
 				einfo "Reset applied"
 				;;
@@ -196,8 +204,9 @@ ehooks_changes() {
 				einfo "Reset not needed"
 				;;
 			*)
-				${changes[@]/applied}; ${changes[@]/reset}
-				eerror "Permission denied to apply reset (ownership ${changes[@]})"
+				result=( ${result[@]/applied} ); result=( ${result[@]/reset} )
+				result=( ${result[@]# } ); result=( ${result[@]% } )
+				eerror "Permission denied to apply reset (ownership ${result[@]})"
 				;;
 		esac
 	fi
