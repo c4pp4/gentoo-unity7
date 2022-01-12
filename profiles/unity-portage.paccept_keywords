@@ -3,8 +3,3 @@
 
 app-backup/deja-dup::gentoo
 x11-wm/metacity::gentoo
-
-## www-client/firefox related ##
-dev-libs/nspr::gentoo
-dev-libs/nss::gentoo
-www-client/firefox::gentoo
