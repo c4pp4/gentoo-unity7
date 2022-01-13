@@ -18,11 +18,15 @@ ehooks() {
 		## Make Human icon theme the default.
 		sed -i \
 			-e "/r = /{s/elementary/human/}" \
+			-e "/mate/{s/||/) \{\n        r = \"elementary\";\n    \}/}" \
+			-e "/unity/{s/     desktop/else if \( desktop/}" \
 			vcl/source/app/IconThemeSelector.cxx || die
 
 		## Use Tango icon theme as the fallback for Human icon theme.
+		## Expression #1 < libreoffice-7.2 >= expression #2.
 		sed -i \
-			-e "s/\(sResult = \"\";\)/\1\nelse if (rsStyle == \"human\")\nsResult = \"tango\";/" \
+			-e "/rsStyle == \"sifr\"/{s/else/else if (rsStyle == \"human\" )\n        sResult = \"tango\";\n    else/}" \
+			-e "/rsStyle == u\"sifr\"/{s/else/else if (rsStyle == u\"human\" )\n        sResult = \"tango\";\n    else/}" \
 			vcl/source/image/ImplImageTree.cxx || die
 	fi
 }
