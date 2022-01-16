@@ -5,7 +5,7 @@ fetch_debian() {
 
 	pushd "${S}" 1>/dev/null
 		ebegin "Downloading ${color_bold}${archive}${color_norm}"
-			wget -q "https://launchpad.net/ubuntu/+archive/primary/+files/${archive}" -O "${archive}"
+			wget -q "https://launchpad.net/ubuntu/+archive/primary/+files/${archive}" -O "${archive}" 2>/dev/null
 		eend $?
 		ebegin "Checking BLAKE2 checksum"
 			b2sum --status -c <(echo "${blake} ${archive}") || die "b2sum: checksum did not match"
