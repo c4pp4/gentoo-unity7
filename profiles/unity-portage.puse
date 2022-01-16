@@ -21,7 +21,7 @@ net-libs/gnome-online-accounts -gnome
 net-p2p/transmission appindicator
 sys-libs/zlib minizip					# net-im/telegram-desktop
 virtual/notification-daemon -gnome			# Needed to avoid blocks because of 'x11-misc/notify-osd' if 'gnome-base/gnome-shell' is not installed
-x11-base/xorg-server dmx xvfb				# unity-base/compiz, x11-misc/xvfb-run
+x11-base/xorg-server xvfb				# unity-extra/diodon, x11-misc/xvfb-run
 x11-misc/lightdm -gtk
 x11-terms/gnome-terminal -gnome-shell
 x11-themes/ubuntu-wallpapers -gnome

@@ -36,6 +36,7 @@ DEPEND="dev-libs/glib:2
 	>=sys-apps/systemd-232
 	>=sys-power/upower-0.99:=
 	unity-base/gsettings-ubuntu-touch-schemas
+	unity-base/session-migration
 	x11-apps/xinput
 	x11-libs/cairo
 	x11-libs/gdk-pixbuf:2

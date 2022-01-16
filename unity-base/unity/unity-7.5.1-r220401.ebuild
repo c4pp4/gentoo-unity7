@@ -1,14 +1,13 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-DISTUTILS_SINGLE_IMPL=1
+EAPI=7
 PYTHON_COMPAT=( python3_{8..10} )
 
 UVER="+22.04.20211026.2"
 UREV="0ubuntu1"
 
-inherit cmake-utils distutils-r1 gnome2 pam systemd ubuntu-versionator xdummy
+inherit gnome2 cmake-utils pam python-single-r1 systemd ubuntu-versionator
 
 DESCRIPTION="The Ubuntu Unity Desktop"
 HOMEPAGE="https://launchpad.net/unity"
@@ -17,7 +16,8 @@ SRC_URI="${UURL}-${UREV}.tar.xz"
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"
 #KEYWORDS="~amd64"
-IUSE="+branding debug doc gles2 +hud +nemo pch systray test"
+IUSE="+branding debug doc gles2 +hud +nemo pch systray"
+RESTRICT="${RESTRICT} test"
 
 S="${WORKDIR}/${PN}"
 
@@ -25,13 +25,19 @@ RDEPEND="app-i18n/ibus[gtk,gtk2]
 	>=sys-apps/systemd-232
 	sys-auth/polkit-pkla-compat
 	unity-base/gsettings-ubuntu-touch-schemas
+	unity-base/session-migration
 	unity-base/session-shortcuts
 	unity-base/unity-language-pack[branding=]
 	x11-themes/humanity-icon-theme
 	x11-themes/gtk-engines-murrine
 	x11-themes/unity-asset-pool
-	hud? ( unity-base/hud )
-	nemo? ( gnome-extra/nemo )"
+	hud? (
+		unity-base/hud
+	)
+	nemo? (
+		gnome-extra/nemo
+	)
+"
 DEPEND="${RDEPEND}
 	!sys-apps/upstart
 	!unity-base/dconf-qt
@@ -64,25 +70,32 @@ DEPEND="${RDEPEND}
 	unity-base/overlay-scrollbar
 	unity-base/unity-control-center
 	unity-base/unity-settings-daemon
-	x11-base/xorg-server[dmx]
+	x11-base/xorg-server
 	>=x11-libs/cairo-1.13.1
 	x11-libs/libXfixes
 	x11-libs/startup-notification
 	unity-base/unity-gtk-module
-	doc? ( app-doc/doxygen )
-	test? ( >=dev-cpp/gtest-1.8.1
-		dev-python/autopilot
-		dev-util/dbus-test-runner
-		sys-apps/xorg-gtest )"
+"
+BDEPEND="
+	doc? (
+		app-doc/doxygen
+	)
+"
 
 src_prepare() {
-	## Disable source trying to run it's own dummy-xorg-test-runner.sh script ##
-	use test && sed -i \
-		-e 's:set (DUMMY_XORG_TEST_RUNNER.*:set (DUMMY_XORG_TEST_RUNNER /bin/true):g' \
-		tests/CMakeLists.txt
+	use branding && sed -i \
+			-e 's:"Ubuntu Desktop":"Gentoo Unity⁷ Desktop":g' \
+			panel/PanelMenuView.cpp || die
 
-	# https://launchpad.net/bugs/974480 #
-	use systray && eapply "${FILESDIR}/show-all-in-systray.diff"
+	# Preprocessor fixes #
+	if ! use pch; then
+		sed -i '/#include "GLibWrapper.h"/a #include <iostream>/' UnityCore/GLibWrapper.cpp || die
+		sed -i '/#include <functional>/a #include <string>' UnityCore/GLibSource.h || die
+		sed -i '/#include "GLibWrapper.h"/a #include <vector>' UnityCore/ScopeData.h || die
+		sed -i '/#include <NuxCore\/Property.h>/a #include <vector>' unity-shared/ThemeSettings.h || die
+	fi
+
+	use systray && eapply "${FILESDIR}/show-all-in-systray.diff" # see https://launchpad.net/bugs/974480 #
 
 	# Setup Unity side launcher default applications #
 	sed -i \
@@ -91,42 +104,30 @@ src_prepare() {
 		-e '/org.gnome.Software/d' \
 		data/com.canonical.Unity.gschema.xml || die
 
+	# Change ubuntu to unity #
 	sed -i \
-		-e 's:"Ubuntu":"Gentoo":g' \
-		panel/PanelMenuView.cpp
+		-e 's:SESSION=ubuntu:SESSION=unity:g' \
+		{data/unity7.conf.in,services/unity-panel-service.conf.in} || die
 
-	use branding && sed -i \
-			-e 's:"Ubuntu Desktop":"Gentoo Unity⁷ Desktop":g' \
-			panel/PanelMenuView.cpp
-
-	# Remove testsuite cmake installation #
 	sed -i \
-		-e '/setup.py install/d' \
-		tests/CMakeLists.txt || die "Sed failed for tests/CMakeLists.txt"
+		-e 's:ubuntu.session:unity.session:g' \
+		tools/{systemd,upstart}-prestart-check || die
 
-	# Unset CMAKE_BUILD_TYPE env variable so that cmake-utils.eclass doesn't try to 'append-cppflags -DNDEBUG' #
-	#       resulting in build failure with 'fatal error: unitycore_pch.hh: No such file or directory' #
-	export CMAKE_BUILD_TYPE=none
+	# Related to /etc/os-release NAME check #
+	sed -i \
+		-e 's:"Ubuntu":"Gentoo":' \
+		panel/PanelMenuView.cpp || die
 
 	# Don't kill -9 unity-panel-service when launched using PANEL_USE_LOCAL_SERVICE env variable #
 	#  It slows down the launch of unity-panel-service in lockscreen mode #
 	sed -i \
-		-e '/killall -9 unity-panel-service/,+1d' \
-		UnityCore/DBusIndicators.cpp || die "Sed failed for UnityCore/DBusIndicators.cpp"
+		-e '/killall -9 unity-panel-service/,+1 d' \
+		UnityCore/DBusIndicators.cpp || die
 
 	# New stable dev-libs/boost-1.71 compatibility changes #
 	sed -i \
 		-e 's:boost/utility.hpp:boost/next_prior.hpp:g' \
 		launcher/FavoriteStorePrivate.cpp || die
-
-	# DESKTOP_SESSION and SESSION is 'unity' not 'ubuntu' #
-	sed -i \
-		-e 's:SESSION=ubuntu:SESSION=unity:g' \
-		-e 's:ubuntu-session:unity-session:g' \
-		{data/unity7.conf.in,data/unity7.service.in,services/unity-panel-service.conf.in} || die "Sed failed for {data/unity7.conf.in,services/unity-panel-service.conf.in}"
-	sed -i \
-		-e 's:ubuntu.session:unity.session:g' \
-		tools/{systemd,upstart}-prestart-check || die "Sed failed for tools/{systemd,upstart}-prestart-check"
 
 	# 'After=graphical-session-pre.target' must be explicitly set in the unit files that require it #
 	# Relying on the upstart job /usr/share/upstart/systemd-session/upstart/systemd-graphical-session.conf #
@@ -135,28 +136,41 @@ src_prepare() {
 	#	stop in a different jumbled order each time #
 	sed -i \
 		-e 's:After=\(unity-settings-daemon.service\):After=graphical-session-pre.target gnome-session.service bamfdaemon.service \1:' \
-		data/unity7.service.in || die "Sed failed for data/unity7.service.in"
+		data/unity7.service.in || die
 
 	# Apps launched from u-c-c need GTK_MODULES environment variable with unity-gtk-module value #
-	#	to use unity global/titlebar menu. Disable unity-gtk-module.service as it sets only #
+	#	to use unity global/titlebar menu. Disable unity-gtk-module.service as it only sets #
 	#	dbus/systemd environment variable. We are providing xinit.d script to set GTK_MODULES #
 	#	environment variable to load unity-gtk-module (see unity-base/unity-gtk-module package) #
 	sed -i \
 		-e 's:unity-gtk-module.service ::' \
-		data/unity7.service.in
+		data/unity7.service.in || die
 
 	# Don't use drop-down menu icon from Adwaita theme as it's too dark since v3.30 #
 	sed -i \
 		-e "s/go-down-symbolic/drop-down-symbolic/" \
-		decorations/DecorationsMenuDropdown.cpp
+		decorations/DecorationsMenuDropdown.cpp || die
 
-	# Include directly iostream needed for std::ostream #
-	sed -i 's/.*GLibWrapper.h.*/#include <iostream>\n&/' UnityCore/GLibWrapper.cpp
+	# Fix build.ninja: lexing error #
+	sed -i \
+		-e '/echo "/{s/"/\\"/g}' \
+		-e '/bzr log/{s/"/\\"/g}' \
+		-e 's/\\n/\\\\n/' \
+		CMakeLists.txt || die
 
-	# Fix building with GCC 10 #
-	sed -i '/#include <functional>/a #include <string>' UnityCore/GLibSource.h
-	sed -i '/#include "GLibWrapper.h"/a #include <vector>' UnityCore/ScopeData.h
-	sed -i '/#include <NuxCore\/Property.h>/a #include <vector>' unity-shared/ThemeSettings.h
+	# Exp #1: Clean up pam file installation as used in lockscreen (LP# 1305440), provide own pam, see src_install #
+	# Exp #2: Disable recompiling GSettings schemas inside sandbox #
+	sed -i \
+		-e "/(pam)/d" \
+		-e "/Compiling GSettings schemas/,+1 d" \
+		data/CMakeLists.txt || die
+
+	# Fix libdir #
+	sed -i \
+		-e "s:/usr/lib/:/usr/$(get_libdir)/:" \
+		tools/compiz-profile-selector.in || die
+
+	python_fix_shebang tools
 
 	ubuntu-versionator_src_prepare
 }
@@ -164,57 +178,23 @@ src_prepare() {
 src_configure() {
 	local mycmakeargs=(
 		-DBUILD_GLES=$(usex gles2 ON OFF)
-		-DBUILD_XORG_GTEST=$(usex test ON OFF)
-		-DCMAKE_INSTALL_SYSCONFDIR=/etc
-		-DCMAKE_INSTALL_LOCALSTATEDIR=/var
-		-DCOMPIZ_BUILD_TESTING=$(usex test ON OFF)
-		-DCOMPIZ_BUILD_WITH_RPATH=FALSE
-		-DCOMPIZ_DISABLE_PLUGIN_UNITYMTGRABHANDLES=OFF
-		-DCOMPIZ_DISABLE_PLUGIN_UNITYSHELL=OFF
-		-DCOMPIZ_PACKAGING_ENABLED=TRUE
+		-DCMAKE_INSTALL_LOCALSTATEDIR="${EPREFIX}/var"
+		-DCMAKE_INSTALL_LIBDIR=$(get_libdir)
+		-DCMAKE_INSTALL_PREFIX="${EPREFIX}/usr"
+		-DCMAKE_INSTALL_SYSCONFDIR="${EPREFIX}/etc"
+		-DCOMPIZ_BUILD_WITH_RPATH=OF
+		-DCOMPIZ_PACKAGING_ENABLED=ON
 		-DCOMPIZ_PLUGIN_INSTALL_TYPE=package
-		-DENABLE_UNIT_TESTS=$(usex test ON OFF)
+		-DENABLE_UNIT_TESTS=OFF
 		-DI18N_SUPPORT=OFF
 		-Duse_pch=$(usex pch ON OFF)
+		-Wno-dev
 	)
-	cmake-utils_src_configure || die
-}
-
-src_compile() {
-	if use test; then
-		pushd tests/autopilot
-			distutils-r1_src_compile
-		popd
-	fi
-
-	cmake-utils_src_compile || die
-}
-
-src_test() {
-	pushd ${CMAKE_BUILD_DIR}
-		local XDUMMY_COMMAND="make check-headless"
-		xdummymake
-	popd
+	CMAKE_BUILD_TYPE="None" cmake-utils_src_configure
 }
 
 src_install() {
-	pushd ${CMAKE_BUILD_DIR}
-		addpredict /usr/share/glib-2.0/schemas/	# FIXME
-		default
-	popd
-
-	if use debug; then
-		exeinto /etc/X11/xinit/xinitrc.d/
-		doexe "${FILESDIR}/99unity-debug"
-	fi
-
-	if use test; then
-		pushd tests/autopilot
-			distutils-r1_src_install
-		popd
-	fi
-
-	python_fix_shebang "${ED}"
+	cmake-utils_src_install
 
 	if use branding; then
 		insinto /usr/share/unity/icons
@@ -224,19 +204,16 @@ src_install() {
 		doins "${FILESDIR}/branding/lockscreen_cof.png"
 	fi
 
+	if use debug; then
+		exeinto /etc/X11/xinit/xinitrc.d/
+		doexe "${FILESDIR}/99unity-debug"
+	fi
+
 	exeinto /etc/X11/xinit/xinitrc.d/
 	doexe "${FILESDIR}/70im-config"			# Configure input method (xim/ibus)
 	doexe "${FILESDIR}/99unity-session_systemd"	# Unity session environment setup and 'startx' launcher
 
-	# Some newer multilib profiles have different /usr/lib(32,64)/ paths so insert the correct one
-	local fixlib=$(get_libdir)
-	sed -e "s:/usr/lib/:/usr/${fixlib}/:g" \
-		-i "${ED}/etc/X11/xinit/xinitrc.d/70im-config" || die
-	sed -e "/nux\/unity_support_test/{s/lib/${fixlib}/}" \
-		-i "${ED}/usr/${fixlib}/unity/compiz-profile-selector" || die
-
-	# Clean up pam file installation as used in lockscreen (LP# 1305440) #
-	rm -rf "${ED}etc/pam.d"
+	# Create /etc/pam.d/unity #
 	pamd_mimic system-local-login ${PN} auth account session
 
 	# Set base desktop user privileges #
@@ -246,22 +223,28 @@ src_install() {
 
 	# Make 'unity-session.target' systemd user unit auto-start 'unity7.service' #
 	dosym $(systemd_get_userunitdir)/unity7.service $(systemd_get_userunitdir)/unity-session.target.requires/unity7.service
-	# Disable service, see unity-gtk-module.service in src_prepare phase
-	#dosym $(systemd_get_userunitdir)/unity-gtk-module.service $(systemd_get_userunitdir)/unity-session.target.wants/unity-gtk-module.service
 	dosym $(systemd_get_userunitdir)/unity-settings-daemon.service $(systemd_get_userunitdir)/unity-session.target.wants/unity-settings-daemon.service
 	dosym $(systemd_get_userunitdir)/window-stack-bridge.service $(systemd_get_userunitdir)/unity-session.target.wants/window-stack-bridge.service
 
+	unity-panel-service_dosym() {
+		local x
+		for x in $2; do
+			dosym $(systemd_get_userunitdir)/indicator-${x}.service $(systemd_get_userunitdir)/$1.service.wants/indicator-${x}.service
+		done
+	}
 	# Top panel systemd indicator services required for unity-panel-service #
-	for each in {application,bluetooth,datetime,keyboard,messages,power,printers,session,sound}; do
-		dosym $(systemd_get_userunitdir)/indicator-${each}.service $(systemd_get_userunitdir)/unity-panel-service.service.wants/indicator-${each}.service
-	done
-
+	unity-panel-service_dosym "unity-panel-service" "application bluetooth datetime keyboard messages power printers session sound"
 	# Top panel systemd indicator services required for unity-panel-service-lockscreen #
-	for each in {datetime,keyboard,power,session,sound}; do
-		dosym $(systemd_get_userunitdir)/indicator-${each}.service $(systemd_get_userunitdir)/unity-panel-service-lockscreen.service.wants/indicator-${each}.service
-	done
+	unity-panel-service_dosym "unity-panel-service-lockscreen" "datetime keyboard power session sound"
 
-	einstalldocs
+	exeinto /usr/share/session-migration/scripts
+	doexe tools/migration-scripts/*
+
+	insinto /usr/lib/compiz/migration
+	doins tools/convert-files/*.convert
+
+	dosym ../../gnome-control-center/keybindings/50-unity-launchers.xml \
+		/usr/share/unity-control-center/keybindings/50-unity-launchers.xml
 }
 
 pkg_postinst() {
@@ -278,11 +261,5 @@ pkg_postinst() {
 	elog '   done'
 	elog ' unset f'
 	elog ' fi'
-	if use test; then
-		elog
-		elog "To run autopilot tests, do the following:"
-		elog "cd /usr/$(get_libdir)/${EPYTHON}/site-packages/unity/tests"
-		elog "and run 'autopilot run unity'"
-	fi
 	echo
 }

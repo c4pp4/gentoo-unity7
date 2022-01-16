@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 UBUNTU_EAUTORECONF="yes"
 
 UVER=""
@@ -18,21 +18,26 @@ SLOT="0"
 KEYWORDS="~amd64"
 IUSE="test"
 
-DEPEND=">=sys-devel/gcc-4.6
+DEPEND="
+	>=sys-devel/gcc-4.6
 	sys-libs/mtdev
 	unity-base/evemu
 	unity-base/frame
 	x11-libs/libXi
-	test? ( sys-apps/xorg-gtest )"
-
-S="${S}${UVER}"
+	test? (
+		dev-cpp/gtest
+	)
+"
 
 src_configure() {
-	econf --enable-static=no \
-		$(use_enable test integration-tests)
+	econf \
+		--enable-static=no \
+		--enable-integration-tests=no \
+		$(use_with test gtest-source-path)
 }
 
 src_install() {
 	default
+
 	find "${ED}" -name '*.la' -delete || die
 }

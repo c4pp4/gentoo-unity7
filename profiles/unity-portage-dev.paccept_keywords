@@ -1,8 +1,6 @@
 ## Overlay missing keyword unmasking ##
 app-accessibility/onboard **
 dev-libs/libunity **
-dev-python/autopilot **
-dev-python/pyjunitxml **
 dev-util/cmake-extras **
 unity-base/compiz **
 unity-base/unity **

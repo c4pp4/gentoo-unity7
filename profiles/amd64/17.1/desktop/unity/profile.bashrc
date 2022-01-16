@@ -111,15 +111,15 @@ if [[ ${EBUILD_PHASE} == "setup" ]] ; then
 
 		if declare -f ehooks | grep -q "eautoreconf"; then
 			if ! declare -F eautoreconf 1>/dev/null; then
-				local -a fn_source=()
 				local eautoreconf_names="eautoreconf _at_uses_pkg _at_uses_autoheader _at_uses_automake _at_uses_gettext _at_uses_glibgettext _at_uses_intltool _at_uses_gtkdoc _at_uses_gnomedoc _at_uses_libtool _at_uses_libltdl eaclocal_amflags eaclocal _elibtoolize eautoheader eautoconf eautomake autotools_env_setup autotools_run_tool ALL_AUTOTOOLS_MACROS autotools_check_macro autotools_check_macro_val _autotools_m4dir_include autotools_m4dir_include autotools_m4sysdir_include gnuconfig_findnewest elibtoolize tc-getLD tc-getPROG _tc-getPROG"
 
 				x="$(portageq get_repo_path / gentoo)/eclass"
-				fn_source=(
+				local -a fn_source=(
 					"${x}/autotools.eclass"
 					"${x}/libtool.eclass"
 					"${x}/gnuconfig.eclass"
-					"${x}/toolchain-funcs.eclass")
+					"${x}/toolchain-funcs.eclass"
+				)
 
 				for x in "${fn_source[@]}"; do
 					[[ -f ${x} ]] \

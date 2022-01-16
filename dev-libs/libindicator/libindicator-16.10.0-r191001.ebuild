@@ -78,8 +78,8 @@ src_install() {
 
 	# Install GTK3 support #
 	pushd build-gtk3
-		emake -C libindicator DESTDIR="${ED}" install || die
-		emake -C tools DESTDIR="${ED}" install || die
+		emake -C libindicator DESTDIR="${D}" install || die
+		emake -C tools DESTDIR="${D}" install || die
 	popd
 
 	einstalldocs

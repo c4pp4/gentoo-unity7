@@ -22,7 +22,6 @@ DEPEND=">=dev-libs/glib-2.46:2[dbus]
 	dev-util/desktop-file-utils
 	>=gnome-extra/zeitgeist-0.9.14[introspection]
 	x11-apps/xauth
-	x11-base/xorg-server[xvfb]
 	>=x11-libs/gtk+-3.22:3
 	>=x11-libs/libXtst-1.2.0
 	x11-misc/xvfb-run

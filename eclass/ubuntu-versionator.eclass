@@ -48,10 +48,17 @@ RESTRICT="mirror"
 einstalldocs() {
 	debug-print-function ${FUNCNAME} "${@}"
 
+	if mv -n "${WORKDIR}"/debian/changelog changelog.debian 2>/dev/null; then
+		mv -n "${WORKDIR}"/debian/copyright copyright.debian 2>/dev/null
+	elif mv -n debian/changelog changelog.debian 2>/dev/null; then
+		mv -n debian/copyright copyright.debian 2>/dev/null
+	fi
+
 	local x
 	local -aI DOCS
 	for x in README* ChangeLog AUTHORS NEWS TODO CHANGES \
-		THANKS BUGS FAQ CREDITS CHANGELOG COPYING*; do
+		THANKS BUGS FAQ CREDITS CHANGELOG \
+		COPYING* changelog.debian copyright.debian; do
 		if [[ -s ${x} ]] ; then
 			DOCS+=( "${x}" )
 		fi

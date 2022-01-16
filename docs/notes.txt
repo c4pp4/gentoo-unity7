@@ -122,8 +122,6 @@ gnome-extra/polkit-gnome		# Patched to have polkit-gnome-authentication-agent-1 
 					#  06-authentication-failure-string.patch
 gnome-extra/yelp			# Only show desktop launcher in Gnome as we have own launcher
 gui-libs/libhandy			# Disable headerbar close button when not in GNOME
-mail-client/thunderbird			# Add desktop launcher with quicklist and translations
-mail-client/thunderbird-78		# Add Unity menubar and desktop launcher with quicklist and translations
 mail-client/thunderbird-91		# Add Unity menubar and desktop launcher with quicklist and translations
 mail-client/thunderbird-bin		# Add desktop launcher with quicklist and translations
 media-fonts/ubuntu-font-family		# Add Ubuntu medium font (e.g. used by unity-indicators/indicator-keyboard)
@@ -171,7 +169,6 @@ sys-apps/accountsservice		# Requires patching for SetInputSources as needed by u
 sys-auth/polkit-pkla-compat		# Fix localstatedir path (/var/lib)
 www-client/chromium			# Required to support Unity Launcher icon effects (no duplicate icons, quicklist menu, progress bar, window title bar fixes etc.)
 www-client/firefox			# Latest version, add Unity menubar and desktop launcher with quicklist and translations
-www-client/firefox-78			# ESR version, add Unity menubar and desktop launcher with quicklist and translations
 www-client/firefox-91			# ESR version, add Unity menubar and desktop launcher with quicklist and translations
 www-client/firefox-bin			# Add desktop launcher with quicklist and translations
 x11-libs/gtk+:2				# Needed for global appmenu
@@ -283,11 +280,6 @@ x11-terms/gnome-terminal		# Add style classes and CSS names to some of our widge
 		rm -rfv ~/.config/Empathy
 		rm -rfv ~/.cache/folks
 		rm -rfv ~/.local/share/folks
-	- To debug signond, edit /etc/signond.conf and change 'LoggingLevel=...'
-	- To debug signon-ui:
-		killall signon-ui
-		export SSOUI_LOGGING_LEVEL=2
-		signon-ui
 	- To debug telepathy packages:
 		G_MESSAGES_DEBUG=all FOO_PERSIST=1 FOO_DEBUG=all /path/to/telepathy-foo 2>&1 | tee foo.log
 
@@ -302,9 +294,6 @@ x11-terms/gnome-terminal		# Add style classes and CSS names to some of our widge
 	- Get list of currently running indicators with the following command:
 		dbus-send --type=method_call --print-reply --dest=com.canonical.indicator.application \
 			/com/canonical/indicator/application/service com.canonical.indicator.application.service.GetApplications
-
-* Ubuntu Single Signon
-	- Check ~/.cache/sso/sso-client*.log
 
 ## Systemd Session Launch ##
 * Unity session is launched as follows:
