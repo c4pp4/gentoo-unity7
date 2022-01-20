@@ -6,7 +6,7 @@ PYTHON_COMPAT=( python3_{8..10} )
 UBUNTU_EAUTORECONF="yes"
 
 UVER="+17.10.20170616"
-UREV="6ubuntu2"
+UREV="6ubuntu3"
 
 inherit python-single-r1 vala ubuntu-versionator
 
@@ -16,7 +16,7 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
 
 SLOT="0/4.2.1"
 LICENSE="GPL-3"
-KEYWORDS="~amd64"
+#KEYWORDS="~amd64"
 IUSE="debug doc examples +icu test"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
