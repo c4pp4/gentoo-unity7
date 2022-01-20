@@ -21,8 +21,8 @@ IUSE="gnome-online-accounts"
 
 RDEPEND="
 	$(python_gen_cond_dep '
-		dev-libs/libunity[${PYTHON_MULTI_USEDEP}]
-		dev-python/pygobject[${PYTHON_MULTI_USEDEP}]
+		dev-libs/libunity[${PYTHON_USEDEP}]
+		dev-python/pygobject[${PYTHON_USEDEP}]
 	')
 	media-gfx/shotwell
 	unity-base/unity
@@ -30,13 +30,12 @@ RDEPEND="
 
 	gnome-online-accounts? (
 		dev-libs/libgdata[gnome-online-accounts]
+		dev-libs/dee[${PYTHON_SINGLE_USEDEP}]
 		$(python_gen_cond_dep '
-			dev-libs/dee[${PYTHON_MULTI_USEDEP}]
-			dev-libs/libunity[${PYTHON_MULTI_USEDEP}]
-			dev-python/httplib2[${PYTHON_MULTI_USEDEP}]
-			dev-python/oauthlib[${PYTHON_MULTI_USEDEP}]
-			net-libs/libaccounts-glib[${PYTHON_MULTI_USEDEP}]
-			net-libs/libsignon-glib[${PYTHON_MULTI_USEDEP}]
+			dev-python/httplib2[${PYTHON_USEDEP}]
+			dev-python/oauthlib[${PYTHON_USEDEP}]
+			net-libs/libaccounts-glib[${PYTHON_USEDEP}]
+			net-libs/libsignon-glib[${PYTHON_USEDEP}]
 		')
 		net-libs/libsoup )
 
