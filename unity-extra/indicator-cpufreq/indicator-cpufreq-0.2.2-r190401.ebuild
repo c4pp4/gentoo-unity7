@@ -55,5 +55,5 @@ src_install() {
 	doman "${WORKDIR}/debian/${PN}-selector.1"
 
 	insinto /etc/xdg/autostart
-	doins "${ED}usr/share/applications/${PN}.desktop"
+	doins "${ED}/usr/share/applications/${PN}.desktop"
 }
