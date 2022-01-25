@@ -298,7 +298,7 @@ portage_updates() {
 			new_pkg="${x#*|}"
 			echo " * Update from ${color_bold}${old_pkg}${color_norm} to ${color_yellow}${new_pkg}${color_norm}"
 			printf "%s" " * Test command 'EHOOKS_PATH=${pmask%/*}/ehooks ebuild \$(portageq get_repo_path / gentoo)/${new_pkg%-[0-9]*}/${new_pkg#*/}.ebuild clean prepare'${color_blink}...${color_norm}"
-			if EHOOKS_PATH="${pmask%/*}/ehooks" ebuild "${main_repo}/${new_pkg%-[0-9]*}/${new_pkg#*/}".ebuild clean prepare 1>/dev/null && sed -i -e "s:${old_pkg}:${new_pkg}:" "${pmask}" 2>/dev/null; then
+			if EHOOKS_PATH="${pmask%/*}/ehooks" ebuild "${main_repo}/${new_pkg%-[0-9]*}/${new_pkg#*/}".ebuild clean configure 1>/dev/null && sed -i -e "s:${old_pkg}:${new_pkg}:" "${pmask}" 2>/dev/null; then
 				printf "\b\b\b%s\n" "... ${color_blue}[ ${color_green}passed ${color_blue}]${color_norm}"
 				echo " ${color_green}*${color_norm} ${new_pkg%-[0-9]*}: '${pmask##*/}' entry... ${color_blue}[ ${color_green}updated ${color_blue}]${color_norm}"
 			else
@@ -398,7 +398,7 @@ debian_changes() {
 				done
 			done
 
-			local pn un utd uv
+			local ipn pn un utd uv
 
 			local -a an auvers result
 
@@ -411,14 +411,22 @@ debian_changes() {
 						for src in ${sources}; do
 							uv=$(grep -A6 "Package: ${un%_*}$" /tmp/ehooks-${USER}-sources-${src}-${frls} | sed -n 's/^Version: \(.*\)/\1/p' | sed 's/[0-9]://g')
 							[[ -n ${uv} ]] && [[ ${uv} != ${pn} ]] && [[ ${uv} != ${un#*_} ]] && auvers+=( "'${uv}'" ) && pn="${uv}"
-							[[ ${uv} == ${un#*_} ]] && utd="${color_green}${un}${color_norm}" || an[1]="${color_yellow}[ local package is outdated ]${color_norm}"
+							[[ ${uv} == ${un#*_} ]] && utd="${color_green}${un}${color_norm}" || an[1]="${color_yellow}[ package is outdated ]${color_norm}"
 						done
 					done
 				done
 
 				pn="${x#*ehooks/}"; pn="${pn%/*}"
 				if [[ -n ${auvers[@]} ]]; then
-					result+=( " * $(equery -q l -p -F '$cpv|$mask2' "${pn}" | grep "\[32;01m" | tail -1 | sed "s/|.*$//")... local: ${utd} available: ${auvers[*]}" )
+					ipn=$(equery -q l -p -F '$cpv|$mask2' "${pn}" | grep "\[32;01m" | tail -1 | sed "s/|.*$//")
+					if [[ -z ${ipn} ]]; then
+						ipn=$(qlist -Iv "${pn}")
+						[[ -z ${ipn} ]] \
+							&& ipn="$(tput bold)${color_cyan}${pn}${color_norm}" \
+							|| ipn="$(tput bold)${color_cyan}${ipn}${color_norm}"
+						an[0]="$(tput bold)${color_cyan}[ package is masked ]${color_norm}"
+					fi
+					result+=( " * ${ipn}... local: ${utd} available: ${auvers[*]}" )
 					get_debian_archive "${un}"
 					tar --overwrite -xf "/tmp/ehooks-${USER}-${un}.debian.tar.xz" -C /tmp debian/patches/series --strip-components 2 --transform "s/series/ehooks-${USER}-series/"
 					auvers=( "${auvers[@]//\'}" )
