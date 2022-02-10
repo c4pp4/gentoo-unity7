@@ -25,7 +25,7 @@
 >media-video/totem-3.38.2
 >net-im/empathy-3.12.14
 >sys-apps/accountsservice-0.6.55-r1
->www-client/firefox-96.0.3
+>www-client/firefox-98
 >x11-libs/gtk+-2.24.33:2
 >x11-libs/gtk+-3.24.30:3
 >x11-libs/vte-0.64.2
