@@ -17,39 +17,49 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
 LICENSE="GPL-3+ BSD"
 SLOT="0"
 #KEYWORDS="~amd64"
-IUSE="wayland"
+IUSE="+accessibility wayland"
 
-BDEPEND="
-	>=dev-libs/glib-2.31.8:2
+COMMON_DEPEND="
+	>=app-text/hunspell-1.7
+	>=gnome-base/dconf-0.14.0
+	>=media-libs/libcanberra-0.2
+	>=sys-apps/systemd-183
+	>=x11-libs/gtk+-3.9.10:3[introspection]
+	>=x11-libs/libxkbfile-1.1.0
+	x11-libs/libXtst
+
+	${PYTHON_DEPS}
 	$(python_gen_cond_dep '
 		dev-python/dbus-python[${PYTHON_USEDEP}]
 		dev-python/pycairo[${PYTHON_USEDEP}]
-		dev-python/pygobject[${PYTHON_USEDEP}]
-		>=dev-python/python-distutils-extra-2.10[${PYTHON_USEDEP}]
 	')
-	virtual/udev
 "
-DEPEND="
-	app-text/hunspell:=
+RDEPEND="${COMMON_DEPEND}
 	app-text/iso-codes
-	>=gnome-base/dconf-0.14.0
+	>=dev-libs/glib-2.31.8:2
+	dev-libs/libappindicator:3
 	gnome-base/librsvg
-	>=media-libs/libcanberra-0.2
+	>=sys-devel/gcc-5.2
 	>=sys-libs/glibc-2.29
 	>=x11-libs/cairo-1.10.0[svg]
-	x11-libs/gdk-pixbuf
-	>=x11-libs/gtk+-3.9.10:3[introspection]
+	x11-libs/gdk-pixbuf:2[introspection]
 	x11-libs/libX11
 	>=x11-libs/libXi-1.2.99.4
-	>=x11-libs/libxkbfile-1.1.0
-	x11-libs/libXtst
-	>=x11-libs/pango-1.29.3
+	>=x11-libs/pango-1.29.3[introspection]
 
-	wayland? ( dev-libs/wayland )
+	accessibility? (
+		app-accessibility/at-spi2-core:2
+		gnome-extra/mousetweaks
+	)
+
+	$(python_gen_cond_dep '
+		dev-python/dbus-python[${PYTHON_USEDEP}]
+	')
 "
-RDEPEND="
-	app-accessibility/at-spi2-core
-	dev-libs/libappindicator:3
-	>=gnome-extra/mousetweaks-3.3.90
-	x11-misc/xdg-utils
+DEPEND="${COMMON_DEPEND}
+	wayland? ( dev-libs/wayland )
+
+	$(python_gen_cond_dep '
+		>=dev-python/python-distutils-extra-2.10[${PYTHON_USEDEP}]
+	')
 "
