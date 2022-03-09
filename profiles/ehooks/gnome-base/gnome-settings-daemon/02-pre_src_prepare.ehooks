@@ -1,1 +1,5 @@
-../../templates/patches.template
+ehooks() {
+	sed -i \
+		-e "s/meson-drop-unused-argument-for-i18n.merge_file/#meson-drop-unused-argument-for-i18n.merge_file/" \
+		"${S}/debian/patches/series"
+}

@@ -1,1 +1,5 @@
-../../templates/patches.template
+ehooks() {
+	sed -i \
+		-e "s/gitlab_new_meson/#gitlab_new_meson/" \
+		"${S}/debian/patches/series"
+}
