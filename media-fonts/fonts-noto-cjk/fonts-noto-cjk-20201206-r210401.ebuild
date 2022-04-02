@@ -44,6 +44,8 @@ FONT_CONF=(
 )
 
 src_install() {
+	default
+
 	use extra || find "${WORKDIR}" -type f -name "*.ttc" \
 		! -name "*CJK-Regular.ttc" \
 		! -name "*CJK-Bold.ttc" \
@@ -63,6 +65,4 @@ src_install() {
 		echo " * ${f}"
 		dosym "../conf.avail/${f}" "${symlink_dir}/${f}"
 	done
-
-	dodoc debian/copyright
 }
