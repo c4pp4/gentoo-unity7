@@ -1,15 +1,14 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-
-inherit cmake-utils java-utils-2
-
-DESCRIPTION="Global Menu for Java applications"
-HOMEPAGE="https://gitlab.com/vala-panel-project/vala-panel-appmenu/tree/master/subprojects/jayatana
-	https://gitlab.com/vala-panel-project/vala-panel-appmenu/-/releases"
+EAPI=7
 
 COMMIT="6a09b01b13637454c268a4e1c050a266"
+
+inherit cmake-utils
+
+DESCRIPTION="Global menu for Java applications"
+HOMEPAGE="https://gitlab.com/vala-panel-project/vala-panel-appmenu/tree/master/subprojects/jayatana"
 SRC_URI="https://gitlab.com/vala-panel-project/vala-panel-appmenu/uploads/${COMMIT}/${P}.tar.xz"
 
 LICENSE="MIT"
@@ -18,21 +17,28 @@ KEYWORDS="~amd64"
 IUSE="+system-wide"
 RESTRICT="mirror"
 
-DEPEND=">=dev-libs/glib-2.40.0
+RDEPEND="
+	>=dev-libs/glib-2.40.0
 	>=dev-libs/libdbusmenu-16.04.0
-	>=virtual/jdk-1.8
-	>=x11-libs/libxkbcommon-0.5.0"
-RDEPEND="${DEPEND}"
+	>=virtual/jdk-1.7.0
+	>=x11-libs/libxkbcommon-0.5.0
+"
+DEPEND="${RDEPEND}"
+
+src_prepare() {
+	# Fix .jar dir #
+	sed -i "/JAVADIR/{s/java/${PN}\/lib/}" lib/config.h.in || die
+	sed -i "s:/java):/${PN}/lib):" java/CMakeLists.txt || die
+
+	# Remove JDK 9+ related option #
+	local active_vm=$(java-config -f)
+	[[ ${active_vm##*-} == "8" ]] && ( sed -i \
+		"/--add-exports/d" java/CMakeLists.txt || die )
+
+	cmake-utils_src_prepare
+}
 
 src_configure() {
-	sed -i \
-		-e "/JAVADIR/{s/java/${PN}\/lib/}" \
-		lib/config.h.in
-
-	sed -i \
-		-e "/--add-exports/d" \
-		java/CMakeLists.txt
-
 	local mycmakeargs=(
 		-DENABLE_JAYATANA=ON
 		-DSTANDALONE=OFF
@@ -41,17 +47,16 @@ src_configure() {
 }
 
 src_install() {
+	DOCS=(
+		AUTHORS
+		LICENSE
+		README.md
+	)
 	cmake-utils_src_install
-
-	rm -rf "${ED%/}"/usr/share/java || die
-	java-pkg_dojar "${BUILD_DIR}"/java/"${PN}".jar "${BUILD_DIR}"/java/"${PN}"ag.jar
 
 	if use system-wide; then
 		exeinto /etc/X11/xinit/xinitrc.d
 		doexe "${FILESDIR}"/90jayatana
-		sed -i \
-			-e "s:JAVA_AGENT:${JAVA_PKG_JARDEST}/${PN}ag.jar:" \
-			"${ED%/}"/etc/X11/xinit/xinitrc.d/90jayatana
 	fi
 }
 

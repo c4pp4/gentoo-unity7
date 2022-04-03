@@ -4,6 +4,6 @@
 # This file is sourced by Xsession(5), not executed.
 
 if [ "x$DESKTOP_SESSION" = "xunity" ]; then
-	JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:+$JAVA_TOOL_OPTIONS }-javaagent:JAVA_AGENT"
+	JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:+$JAVA_TOOL_OPTIONS }-javaagent:/usr/share/jayatana/lib/jayatanaag.jar"
 	export JAVA_TOOL_OPTIONS
 fi
