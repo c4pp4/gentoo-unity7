@@ -60,7 +60,6 @@ RDEPEND="gnome-base/gnome-core-libs
 		media-video/totem
 		x11-terms/gnome-terminal )
 	extra? (
-		app-admin/gnome-system-log
 		app-backup/deja-dup
 		app-crypt/seahorse
 		app-dicts/gnome-dictionary
@@ -72,8 +71,7 @@ RDEPEND="gnome-base/gnome-core-libs
 		media-gfx/gnome-font-viewer
 		media-gfx/simple-scan
 		media-video/cheese
-		|| ( net-misc/remmina net-misc/vinagre )
-		net-misc/vino
+		net-misc/remmina
 		net-p2p/transmission[appindicator]
 		sys-apps/baobab
 		sys-apps/gnome-disk-utility
