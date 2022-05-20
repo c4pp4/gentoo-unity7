@@ -48,9 +48,7 @@ gnome-base/gnome-menus			# Needed for some menu patches but mostly to set XDG_ME
 					#  ubuntu_gcc_translations.patch
 gnome-base/gnome-session		# Installs session files for launching Unity7 user interface
 					#  Ubuntu patchset:
-					#  data-Install-GNOME-on-Wayland-session-for-X11-preferred-s.patch
 					#  debian/Revert-main-Remove-GNOME_DESKTOP_SESSION_ID-envvar.patch
-					#  debian/Make-sure-to-pass-systemd-when-we-re-managing-the-user-se.patch
 					#  ubuntu/support_autostart_delay.patch
 					#  ubuntu/ubuntu-sessions.patch
 					#  ubuntu/remove_session_saving_from_gui.patch
@@ -79,7 +77,6 @@ gnome-base/gnome-settings-daemon	# unity-settings-daemon relies on files created
 					#  ubuntu/lid-close-suspend-support.patch
 					#  ubuntu/keyboard-Use-ibus-sources-from-locale.patch
 					#  ubuntu/teach-gsd-about-the-gnome-calculator-snap-.desktop-name.patch
-					#  ubuntu/git-media-keys-Add-one-second-delay-between-each-rfkill-.patch
 gnome-base/gsettings-desktop-schemas	# Includes Unity7 user interface settings patches
 					#  Ubuntu patchset:
 					#  ubuntu_lock-on-suspend.patch
@@ -104,6 +101,7 @@ gnome-extra/nm-applet			# Shows nm-applet in indicator panel
 					#  Have-the-appindicator-enabled-by-default.patch
 					#  Make-policykit-restricted-actions-insensitive.patch
 					#  Support-hiding-rather-than-desensitizing-disallowed-items.patch
+					#  git_owe_activation.patch
 gnome-extra/polkit-gnome		# Patched to have polkit-gnome-authentication-agent-1 xdg-autostart on Unity login
 					#  Ubuntu patchset:
 					#  0001-Select-the-current-user-to-authenticate-with-by-defa.patch
@@ -157,7 +155,8 @@ sys-apps/accountsservice		# Requires patching for SetInputSources as needed by u
 					#  0012-add-keyboard-layout-support.patch
 					#  0016-add-input-sources-support.patch
 					#  0021-support-extrausers.patch
-					#  act-user-manager-Watch-for-the-daemon-going-away-and-comi.patch
+					#  gitlab_change_types.patch
+					#  gitlab_shared_tmp.patch
 sys-auth/polkit-pkla-compat		# Fix localstatedir path (/var/lib)
 www-client/chromium			# Required to support Unity Launcher icon effects (no duplicate icons, quicklist menu, progress bar, window title bar fixes etc.)
 www-client/firefox			# Latest version, add Unity menubar and desktop launcher with quicklist and translations
