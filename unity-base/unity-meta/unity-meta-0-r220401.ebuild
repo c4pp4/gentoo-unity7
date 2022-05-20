@@ -23,6 +23,7 @@ RDEPEND="${COMMON_DEPEND}
 	gnome-extra/nm-applet
 	media-fonts/dejavu
 	unity-base/overlay-scrollbar
+	unity-base/unity
 	unity-lenses/unity-lens-meta
 	x11-misc/notify-osd
 
