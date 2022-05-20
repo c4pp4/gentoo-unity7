@@ -17,14 +17,17 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
+IUSE="tools"
 RESTRICT="${RESTRICT} test"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.41.1:2
-	>=dev-libs/libdbusmenu-0.5.90:=[gtk3,test]
+	>=dev-libs/libdbusmenu-0.5.90[gtk3]
 	>=dev-libs/libindicator-0.4.90:3
 	>=unity-base/bamf-0.5.2:=
 	>=x11-libs/gtk+-3.5.12:3
+
+	tools? ( >=dev-libs/libdbusmenu-0.5.90[test] )
 "
 RDEPEND="${COMMON_DEPEND}
 	gnome-base/dconf

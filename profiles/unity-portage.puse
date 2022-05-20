@@ -3,7 +3,7 @@
 app-accessibility/brltty python				# app-accessibility/orca[braille]
 app-i18n/fcitx -autostart				# don't launch systray tool by default
 dev-libs/boost python					# dev-libs/libcolumbus
-dev-libs/libdbusmenu gtk3 test				# dev-libs/libappindicator, dev-libs/libindicate, unity-indicators/indicator-appmenu
+dev-libs/libdbusmenu gtk3				# dev-libs/libappindicator, dev-libs/libindicate, unity-indicators/indicator-appmenu
 dev-libs/liblouis python				# app-accessibility/orca[braille]
 dev-libs/libpcre2 pcre32				# app-accessibility/brltty
 dev-libs/xapian-bindings python				# REQUIRED_USE flag
