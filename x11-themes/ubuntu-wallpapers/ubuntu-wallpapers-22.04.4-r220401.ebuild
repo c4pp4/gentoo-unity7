@@ -22,7 +22,7 @@ done
 
 LICENSE="CC-BY-SA-3.0"
 KEYWORDS="~amd64"
-SLOT="0"
+SLOT="0/${PV}"
 IUSE="gnome ${CODENAME}"
 RESTRICT="${RESTRICT} binchecks strip test"
 
