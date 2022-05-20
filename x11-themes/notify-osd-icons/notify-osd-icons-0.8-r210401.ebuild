@@ -3,20 +3,19 @@
 
 EAPI=7
 
-UVER="+15.10.20151016.2"
-UREV="0ubuntu3"
+UVER=+15.10.20151016.2
+UREV=0ubuntu3
 
 inherit ubuntu-versionator
 
 DESCRIPTION="Icons for on-screen-display notification agent"
-HOMEPAGE="http://launchpad.net/notify-osd"
+HOMEPAGE="https://launchpad.net/notify-osd"
 
 LICENSE="CC-BY-SA-3.0"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE=""
+RESTRICT="${RESTRICT} binchecks strip test"
 
-RDEPEND="x11-misc/notify-osd"
 DEPEND="media-gfx/scour"
 
 S="${S}${UVER}"
@@ -24,13 +23,16 @@ S="${S}${UVER}"
 src_install() {
 	default
 
-	# Source: debian/notify-osd-icons.links
-	local path=/usr/share/notify-osd/icons/Humanity/scalable/status
+	# Source: debian/notify-osd-icons.links #
+	local \
+		path=/usr/share/notify-osd/icons/Humanity/scalable/status \
+		x
+
 	dosym notification-battery-000.svg ${path}/notification-battery-empty.svg
 	dosym notification-battery-020.svg ${path}/notification-battery-low.svg
 
-	# Optimize SVG files
-	for f in "${ED}${path}"/*.svg; do
-		[[ -f ${f} ]] && scour -i "${f}" -o "${f}.tmp" && mv "${f}.tmp" "${f}" || rm "${f}.tmp"
+	# Optimize SVG files #
+	for x in "${ED}${path}"/*.svg; do
+		[[ -f ${x} ]] && ( scour -i "${x}" -o "${x}.tmp" && mv "${x}.tmp" "${x}" || rm "${x}.tmp" )
 	done
 }

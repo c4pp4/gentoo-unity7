@@ -3,7 +3,7 @@ ehooks() {
 	# translations, fall back to calling gettext
 	local file newfile
 	for file in "${S}"/debian/desktop-files/*.directory.desktop.in; do
-		newfile="${file##*/}"; newfile="${ED%/}/usr/share/desktop-directories/${newfile%.desktop.in}"
+		newfile="${file##*/}"; newfile="${ED}/usr/share/desktop-directories/${newfile%.desktop.in}"
 		cp "${file}" "${newfile}"
 		echo "X-GNOME-Gettext-Domain=${PN}-3.0" >> "${newfile}"
 	done

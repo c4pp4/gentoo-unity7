@@ -80,12 +80,12 @@ if [[ ${EBUILD_PHASE} == "setup" ]] ; then
 			eerror "For more details, see gentoo-unity7/docs/ehooks.md - Chapter I."
 			eerror "Set EHOOKS_ACCEPT=\"yes\" in make.conf to confirm you agree with it."
 			eerror
-			die "Acceptance needed"
+			echo "Acceptance needed" > "${log}"
+			die "$(<${log})"
 		fi
 
-		declare -F ehooks 1>"${log}"
-		[[ -s ${log} ]] \
-			&& die "ehooks: function name collision"
+		declare -F ehooks 1>/dev/null \
+			&& ( echo "ehooks: function name collision" > "${log}" && die "$(<${log})" )
 
 		echo "${color_red}${color_bold}>>> Loading gentoo-unity7 ehooks${color_norm} from ${EHOOKS_SOURCE[0]%/*} ..."
 		for x in "${EHOOKS_SOURCE[@]}"; do
@@ -93,15 +93,16 @@ if [[ ${EBUILD_PHASE} == "setup" ]] ; then
 		## Process current phase.
 		if [[ ${x} == *"${FUNCNAME[1]}.ehooks" ]]; then
 
-		## Warn when ehooks file is not readable.
-		[[ ! -r ${x} ]] \
-			&& ewarn "${x##*/}: not readable" && continue
+		[[ -r ${x} ]] \
+			|| ( echo "${x##*/}: file not readable" > "${log}" && die "$(<${log})" )
 
 		source "${x}" 2>"${log}"
 		[[ -s ${log} ]] \
 			&& die "$(<${log})"
+
 		declare -F ehooks 1>/dev/null \
-			|| die "ehooks: function not found"
+			|| ( echo "ehooks: function not found" > "${log}" && die "$(<${log})" )
+
 		einfo "Processing ${x##*/} ..."
 
 		local EHOOKS_FILESDIR=${x%/*}/files
@@ -123,13 +124,13 @@ if [[ ${EBUILD_PHASE} == "setup" ]] ; then
 
 				for x in "${fn_source[@]}"; do
 					[[ -f ${x} ]] \
-						|| die "${x}: file not found"
+						|| ( echo "${x}: file not found" > "${log}" && die "$(<${log})" )
 
 					source <(awk "/^(${eautoreconf_names// /|})(\(\)|=\(\$)/ { p = 1 } p { print } /(^(}|\))|; })\$/ { p = 0 }" ${x} 2>/dev/null)
 				done
 
 				declare -F eautoreconf 1>/dev/null \
-					|| die "eautoreconf: function not found"
+					|| ( echo "eautoreconf: function not found" > "${log}" && die "$(<${log})" )
 			fi
 		fi
 

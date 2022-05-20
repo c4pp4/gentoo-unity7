@@ -3,7 +3,7 @@ fetch_debian() {
 		archive=$2.debian.tar.xz \
 		blake=$1
 
-	pushd "${S}" 1>/dev/null
+	pushd "${S}" >/dev/null || die
 		ebegin "Downloading ${color_bold}${archive}${color_norm}"
 			wget -q "https://launchpad.net/ubuntu/+archive/primary/+files/${archive}" -O "${archive}" 2>/dev/null
 		eend $?
@@ -11,5 +11,5 @@ fetch_debian() {
 			b2sum --status -c <(echo "${blake} ${archive}") || die "b2sum: checksum did not match"
 		eend $?
 		unpack "${S}/${archive}"
-	popd 1>/dev/null
+	popd >/dev/null || die
 }

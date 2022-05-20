@@ -1,14 +1,6 @@
 * To rebuild all packages against new GTK libs using qdepends (part of app-portage/portage-utils):
 emerge -1 `qdepends -CNQ x11-libs/gtk+ 2> /dev/null`
 
-* Using portage tree libindicate packages
-	- unity-indicators/indicator-appmenu requires
-		dev-libs/libdbusmenu, dev-libs/libindicator and dev-libs/libappindicator all be built with x11-libs/gtk:2 support
-	- Many indicators (bluetooth, weather, etc.) require dev-libs/libappindicator be built with Python GTK+-2.x bindings to function
-	- Gentoo is in the position of dropping GTK+-2.x Ubuntu Ayatana libraries from tree so we must maintain our own versions of
-		dev-libs/libindicator
-		dev-libs/libappindicator (via ehooks)
-
 * Core python deps. for the Dash lens to work
 	dev-libs/dee
 	dev-libs/libappindicator
@@ -229,7 +221,6 @@ x11-misc/lightdm			# Custom fixes for Xsession profile sourcing and multi-monito
 					#  fix-guest-session-ICEauthority-error.patch
 					#  Glibc-2.33-fix.patch
 					#  dont-turn-format-warnings-into-errors.patch
-x11-misc/x11vnc				# Correct hard coded local prefix in Xdummy
 x11-misc/zim				# Add ubuntu-mono-{dark,light} tray icons
 x11-plugins/pidgin-libnotify		# Fix Unity messaging menu support
 					#  Ubuntu patchset:

@@ -6,5 +6,6 @@
 	</maintainer>
 	<use>
 		<flag name="gles2">Use OpenGL ES 2.0</flag>
+		<flag name="mate">Install MATE integration</flag>
 	</use>
 </pkgmetadata>

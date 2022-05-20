@@ -3,21 +3,22 @@
 
 EAPI=7
 
-UVER=""
-UREV=""
+UVER=
+UREV=
 
 inherit ubuntu-versionator
 
 DESCRIPTION="Unity Desktop - merge this to pull in all Unity indicators"
-HOMEPAGE="http://unity.ubuntu.com/"
+HOMEPAGE="https://wiki.ubuntu.com/Unity"
 SRC_URI=""
 
 LICENSE="metapackage"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="+battery bluetooth +cups +datetime java +keyboard mail paste sensors +session +sound weather"
+RESTRICT="${RESTRICT} binchecks strip test"
 
-RDEPEND="unity-indicators/indicator-application
+RDEPEND="
 	unity-indicators/indicator-appmenu
 	unity-indicators/indicator-datetime
 
@@ -31,6 +32,7 @@ RDEPEND="unity-indicators/indicator-application
 	sensors? ( unity-extra/indicator-psensor )
 	session? ( unity-indicators/indicator-session )
 	sound? ( unity-indicators/indicator-sound )
-	weather? ( unity-extra/meteo-qt )"
+	weather? ( unity-extra/meteo-qt )
+"
 
 S="${WORKDIR}"

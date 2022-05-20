@@ -1,11 +1,11 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 GNOME2_EAUTORECONF="yes"
 
-UVER="+17.10.20170605"
-UREV="0ubuntu3"
+UVER=+17.10.20170605
+UREV=0ubuntu3
 
 inherit gnome2 ubuntu-versionator vala
 
@@ -16,20 +16,24 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE=""
+RESTRICT="${RESTRICT} test"
 
-RDEPEND=">=net-wireless/bluez-5
-	media-sound/pulseaudio[bluetooth]"
-DEPEND="${RDEPEND}
-	dev-libs/glib:2
-	dev-libs/libappindicator:=
-	dev-libs/libdbusmenu:=
-	dev-libs/libindicator:3=
+RDEPEND="
+	>=dev-libs/glib-2.37.3:2
+	dev-libs/libindicator:3
 	gnome-base/dconf
+	>=net-wireless/bluez-5
+	net-wireless/gnome-bluetooth
+	>=sys-libs/glibc-2.4
 	unity-base/unity-control-center
-	unity-indicators/ido:=
-	x11-libs/gtk+:3
-	$(vala_depend)"
+"
+DEPEND="
+	dev-libs/glib:2
+	gnome-base/gnome-common
+	sys-apps/systemd
+
+	$(vala_depend)
+"
 
 S="${WORKDIR}"
 

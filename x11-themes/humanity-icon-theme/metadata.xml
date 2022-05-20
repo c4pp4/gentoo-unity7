@@ -6,5 +6,6 @@
 	</maintainer>
 	<use>
 		<flag name="extra">Install Tangerine icon theme from Ubuntu Art Team</flag>
+		<flag name="optimize">Enable icons optimization</flag>
 	</use>
 </pkgmetadata>

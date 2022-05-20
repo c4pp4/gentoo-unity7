@@ -1,11 +1,11 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 GNOME2_EAUTORECONF="yes"
 
-UVER="+17.10.20170605"
-UREV="0ubuntu2"
+UVER=+17.10.20170605
+UREV=0ubuntu2
 
 inherit gnome2 ubuntu-versionator vala
 
@@ -16,17 +16,25 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE=""
+RESTRICT="${RESTRICT} test"
 
-RDEPEND="dev-libs/dee:=
-	dev-libs/libunity:="
-DEPEND="${RDEPEND}
-	dev-libs/libgee
-	dev-libs/libzeitgeist
-	>=gnome-extra/zeitgeist-0.9.14[datahub,fts]
-	unity-base/unity
-	unity-lenses/unity-lens-applications
-	$(vala_depend)"
+COMMON_DEPEND="
+	>=dev-libs/dee-1.0.0:=
+	>=dev-libs/glib-2.37.3:2
+	>=dev-libs/libgee-0.8.3:0.8
+	>=dev-libs/libunity-7.0.0:=
+	>=gnome-extra/zeitgeist-0.9.12[datahub,fts]
+"
+RDEPEND="${COMMON_DEPEND}
+	gnome-base/dconf
+	>=sys-libs/glibc-2.4
+"
+DEPEND="${COMMON_DEPEND}
+	gnome-base/gnome-common
+
+	$(vala_depend)
+"
+BDEPEND="virtual/pkgconfig"
 
 S="${WORKDIR}"
 

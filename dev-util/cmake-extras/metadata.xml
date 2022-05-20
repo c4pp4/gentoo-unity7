@@ -4,4 +4,8 @@
 	<maintainer type="project">
 		<name>gentoo-unity7</name>
 	</maintainer>
+	<use>
+		<flag name="test">Install Google C++ Testing Framework
+			<pkg>dev-cpp/gtets</pkg></flag>
+	</use>
 </pkgmetadata>

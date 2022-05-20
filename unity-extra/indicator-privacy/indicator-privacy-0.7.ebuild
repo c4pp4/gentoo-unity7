@@ -1,28 +1,40 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
+DISTUTILS_SINGLE_IMPL=1
 PYTHON_COMPAT=( python3_{8..10} )
 
-inherit gnome2 distutils-r1
+inherit desktop gnome2 distutils-r1
 
 DESCRIPTION="Indicator to change user privacy settings"
-HOMEPAGE="http://www.florian-diesch.de/software/indicator-privacy"
-SRC_URI="http://www.florian-diesch.de/software/indicator-privacy/dist/${P}.tar.gz"
+HOMEPAGE="https://www.florian-diesch.de/software/indicator-privacy"
+SRC_URI="https://www.florian-diesch.de/software/indicator-privacy/dist/${P}.tar.gz"
 
-LICENSE="GPL-3"
+LICENSE="GPL-3+"
 SLOT="0"
 KEYWORDS="~amd64"
+RESTRICT="mirror test"
 
-RDEPEND="dev-libs/libappindicator
-	dev-libs/glib:2
-	dev-python/pygobject:3
-	dev-python/pyxdg
-	gnome-extra/zeitgeist
+COMMON_DEPEND="
+	${PYTHON_DEPS}
+	$(python_gen_cond_dep 'dev-python/pygobject:3[${PYTHON_USEDEP}]')
+"
+RDEPEND="${COMMON_DEPEND}
 	dev-libs/geoip
-	x11-libs/gtk+:3[introspection]"
-DEPEND="${RDEPEND}"
-RESTRICT="mirror"
+	dev-libs/glib:2
+	dev-libs/libappindicator:3[introspection]
+	gnome-base/dconf
+	gnome-extra/zeitgeist[${PYTHON_SINGLE_USEDEP}]
+	x11-libs/gtk+:3[introspection]
+
+	$(python_gen_cond_dep '
+		dev-python/pyxdg[${PYTHON_USEDEP}]
+		>=unity-base/unity-7.0[${PYTHON_SINGLE_USEDEP}]
+	')
+"
+DEPEND="${COMMON_DEPEND}"
+BDEPEND="dev-util/intltool"
 
 src_install() {
 	distutils-r1_src_install

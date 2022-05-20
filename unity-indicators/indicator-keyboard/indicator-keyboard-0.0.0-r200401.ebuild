@@ -1,14 +1,13 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 GNOME2_EAUTORECONF="yes"
-PYTHON_COMPAT=( python3_{8..10} )
 
-UVER="+19.10.20190716"
-UREV="0ubuntu3"
+UVER=+19.10.20190716
+UREV=0ubuntu3
 
-inherit gnome2 python-r1 ubuntu-versionator vala
+inherit gnome2 ubuntu-versionator vala
 
 DESCRIPTION="Keyboard indicator used by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/indicator-keyboard"
@@ -17,67 +16,64 @@ LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="+charmap +fcitx"
-REQUIRED_USE="${PYTHON_REQUIRED_USE}"
+RESTRICT="${RESTRICT} test"
 
-RDEPEND="gnome-base/gnome-desktop:3=
-	charmap? ( gnome-extra/gucharmap:2.90 )
-	${PYTHON_DEPS}"
-DEPEND="${RDEPEND}
-	app-i18n/ibus[vala]
-	>=dev-libs/glib-2.37
-	dev-libs/libappindicator
-	dev-libs/libgee:0.8
-	dev-libs/libdbusmenu
-	gnome-base/dconf
+COMMON_DEPEND="
+	>=app-i18n/ibus-1.5.1[vala]
+	>=dev-libs/libgee-0.8.3:0.8
+	>=gnome-base/gnome-desktop-3.17.92:3=
 	gnome-base/libgnomekbd
-	sys-apps/accountsservice
-	unity-base/bamf
-	x11-libs/gtk+:3
-	x11-libs/libxklavier
-	x11-libs/pango
-	x11-misc/lightdm
+	>=sys-apps/accountsservice-0.6.40
+	>=x11-libs/gtk+-3.1.6:3
+	>=x11-misc/lightdm-1.1.3
 
-	fcitx? ( >=app-i18n/fcitx-4.2.8.5 )
+	fcitx? ( >=app-i18n/fcitx-4.2.9.5[introspection] )
+"
+RDEPEND="${COMMON_DEPEND}
+	>=dev-libs/glib-2.37.5:2
+	dev-libs/libindicator:3
+	gnome-base/dconf
+	>=sys-libs/glibc-2.4
+	>=x11-libs/cairo-1.2.4
+	>=x11-libs/libxklavier-5.1
+	>=x11-libs/pango-1.18.0
 
-	$(vala_depend)"
+	charmap? ( gnome-extra/gucharmap:2.90 )
+"
+DEPEND="${COMMON_DEPEND}
+	dev-libs/gobject-introspection
+	sys-apps/dbus
+	sys-apps/systemd
+	x11-apps/xauth
 
-src_unpack() {
-	mkdir "${P}"
-	pushd "${P}" 1>/dev/null
-		unpack ${A}
-	popd 1>/dev/null
-}
+	$(vala_depend)
+"
+
+S="${WORKDIR}"
+
+PATCHES=(
+	"${FILESDIR}"/"${PN}"-fix-build-against-vala-0.52.patch
+	"${FILESDIR}"/"${PN}"-optional-fcitx.patch
+)
 
 src_prepare() {
-	eapply "${FILESDIR}/${PN}-fix-build-against-vala-0.52.patch"
-	eapply "${FILESDIR}/${PN}-optional-fcitx.patch"
-
-	use charmap || sed -i \
+	use charmap || ( sed -i \
 		-e "/Character Map/d" \
-		lib/indicator-menu.vala
+		lib/indicator-menu.vala || die )
 
-	# Fix "SyntaxError: Missing parentheses in call to 'print'" #
+	# Disable tests #
 	sed -i \
-		-e "s/print level \* ' ', root/print (level \* ' ', root)/" \
-		tests/autopilot/tests/test_indicator_keyboard.py
+		-e "s/ tests//" \
+		Makefile.am || die
 
 	ubuntu-versionator_src_prepare
 }
 
 src_configure() {
-	python_copy_sources
-	configuration() {
-		econf \
-			$(use_enable fcitx)
-	}
-	python_foreach_impl run_in_build_dir configuration
+	econf $(use_enable fcitx)
 }
 
-src_compile() { python_foreach_impl run_in_build_dir default; }
-
 src_install() {
-	python_foreach_impl run_in_build_dir default
-	python_foreach_impl python_optimize
-
+	default
 	find "${ED}" -name '*.la' -delete || die
 }

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-stable="impish"
-dev="jammy"
+stable="jammy"
+dev="kinetic"
 repos=(
 	main
 	universe
@@ -10,7 +10,6 @@ repos=(
 remove=(
 	app-eselect/eselect-lightdm
 	dev-java/jayatana
-	net-mail/mailnag
 	unity-base/ubuntu-docs
 	unity-base/unity-build-env
 	unity-base/unity-language-pack
@@ -115,9 +114,9 @@ update_packages() {
 							lcl_ver="${filename#${pkg}/${name}-}"
 							[[ ${lcl_ver} == *"-r"* ]] || continue
 							lcl_ver="${lcl_ver%-r*}"
-							x=$(grep -- "^UVER=" "${filename}" | cut -d '"' -f 2)
+							x=$(grep -- "^UVER=" "${filename}" | cut -d '=' -f 2)
 							lcl_ver+=${x}
-							x=$(grep -- "^UREV=" "${filename}" | cut -d '"' -f 2)
+							x=$(grep -- "^UREV=" "${filename}" | cut -d '=' -f 2)
 							[[ -n ${x} ]] && lcl_ver+="-"
 							lcl_ver+=${x}
 							upstr_ver_prev="${upstr_ver#*:}"

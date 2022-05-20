@@ -3,28 +3,31 @@
 
 EAPI=7
 
-UVER=""
-UREV=""
+UVER=
+UREV=
 
 inherit ubuntu-versionator
 
 DESCRIPTION="Unity Desktop - merge this to pull in all Unity lenses"
-HOMEPAGE="http://unity.ubuntu.com/"
+HOMEPAGE="https://wiki.ubuntu.com/Unity"
 SRC_URI=""
 
 LICENSE="metapackage"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="+files +music +photos plugins +video"
+RESTRICT="${RESTRICT} binchecks strip test"
 
-RDEPEND="unity-lenses/unity-lens-applications
+RDEPEND="
+	unity-lenses/unity-lens-applications
 	unity-scopes/unity-scope-home
 
 	files? ( unity-lenses/unity-lens-files )
 	music? ( unity-lenses/unity-lens-music )
 	photos? ( unity-lenses/unity-lens-photos )
 	plugins? ( unity-scopes/smart-scopes )
-	video? ( unity-lenses/unity-lens-video )"
+	video? ( unity-lenses/unity-lens-video )
+"
 
 PDEPEND="unity-base/unity-settings[files=,music=,photos=,video=]"
 

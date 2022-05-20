@@ -2,27 +2,33 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
+DISTUTILS_SINGLE_IMPL=1
 PYTHON_COMPAT=( python3_{8..10} )
 
-UVER=""
-UREV=""
+UVER=
+UREV=
 
 inherit distutils-r1 ubuntu-versionator
 
 DESCRIPTION="Online scopes for the Unity Dash"
 HOMEPAGE="https://launchpad.net/onehundredscopes"
-SRC_URI=""
 
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="test"
+RESTRICT="${RESTRICT} !test? ( test )"
 
-RDEPEND="dev-libs/dee:=
+RDEPEND="
+	dev-libs/dee:=
 	dev-libs/gobject-introspection
 	dev-libs/libunity:=
-	dev-python/pygobject:3[${PYTHON_USEDEP}]
-	unity-scopes/unity-scope-home"
+	unity-scopes/unity-scope-home
+
+	${PYTHON_DEPS}
+	$(python_gen_cond_dep '
+		dev-python/pygobject:3[${PYTHON_USEDEP}]
+	')
+"
 
 ## Neat and efficient way of bundling and tracking all available scopes into one ebuild ##
 ## Borrowed from chenxiaolong's Unity-for-Arch overlay at https://github.com/chenxiaolong/Unity-for-Arch ##
@@ -33,37 +39,38 @@ setvar() {
 	eval "_dep_${1//-/_}=\"${5}\""
 	packages+=( ${1} )
 }
-setvar audacious		0.1+13.10.20130927.1	0ubuntu1 + "dev-python/dbus-python[${PYTHON_USEDEP}] unity-lenses/unity-lens-meta[music]"	## works with audacious 3.9
-setvar calculator		0.1+14.04.20140328	0ubuntu5 + ""											## works with gnome-calculator 3.32
-setvar chromiumbookmarks	0.1+13.10.20130723	0ubuntu1 + ""											## works with chromium 79 (fixed by patch)
-setvar clementine		0.1+13.10.20130723	0ubuntu1 - "dev-python/dbus-python[${PYTHON_USEDEP}]"						## not tested
-setvar colourlovers		0.1+13.10.20130723	0ubuntu1 + ""											## works
-setvar devhelp			0.1+14.04.20140328	0ubuntu4 + "dev-python/lxml[${PYTHON_USEDEP}]"							## works
-setvar deviantart		0.1+13.10.20130723	0ubuntu1 + "dev-python/feedparser[${PYTHON_USEDEP}]"						## works (fixed by patch)
-setvar firefoxbookmarks		0.1+13.10.20130809.1	0ubuntu1 + ""											## works with firefox 72 (fixed by patch)
-setvar gallica			0.1+13.10.20130816.2	0ubuntu1 + "dev-python/lxml[${PYTHON_USEDEP}]"							## works (fixed by patch)
-#setvar gdrive			0.9+13.10.20130723	0ubuntu1 - ""											## doesn't work (account-plugins package not available)
-setvar github			0.1+13.10.20130723	0ubuntu1 + ""											## works
-setvar gmusicbrowser		0.1+13.10.20130723	0ubuntu1 - "dev-python/dbus-python[${PYTHON_USEDEP}]"						## not tested
-setvar gnote			0.1+13.10.20130723	0ubuntu3 - ""											## not tested
-#setvar googlenews		0.1+13.10.20130723	0ubuntu1 - "dev-python/feedparser[${PYTHON_USEDEP}]"						## doesn't work
-#setvar gourmet			0.1+13.10.20130723	0ubuntu1 - ""											## doesn't work (gourmet package not available)
-setvar guayadeque		0.1+13.10.20130927.1	0ubuntu1 - "dev-python/dbus-python[${PYTHON_USEDEP}]"						## not tested
-#setvar launchpad		0.1daily13.06.05	0ubuntu1 - ""											## doesn't work (python-launchpadlib package not available)
-setvar manpages			3.0+14.04.20140324	0ubuntu4 + "sys-apps/man-db x11-libs/gtk+:3"							## works
-setvar musique			0.1+13.10.20130723	0ubuntu1 - "dev-python/dbus-python[${PYTHON_USEDEP}]"						## not tested
-#setvar openclipart		0.1+13.10.20130723	0ubuntu1 - "dev-python/feedparser[${PYTHON_USEDEP}]"						## doesn't work (https://en.wikipedia.org/wiki/Openclipart#Lockdown_and_attempts_at_mirroring_the_library)
-#setvar openweathermap		0.1+13.10.20130828	0ubuntu1 - ""											## doesn't work (needs API key)
-setvar soundcloud		0.1+13.10.20130723	0ubuntu3 + "unity-lenses/unity-lens-meta[music]"						## works
-setvar sshsearch		0.1daily13.06.05	0ubuntu1 - "dev-python/paramiko[${PYTHON_USEDEP}]"						## not tested
-setvar texdoc			0.1+14.04.20140328	0ubuntu1 + ""											## works
-#setvar tomboy			0.1+13.10.20130723	0ubuntu1 - ""											## doesn't work (tomboy package not available)
-setvar virtualbox		0.1+13.10.20130723	0ubuntu3 + ""											## works
-#setvar yahoostock		0.1+13.10.20130723	0ubuntu1 - ""											## doesn't work
-setvar yelp			0.1+13.10.20130723	0ubuntu1 + ""											## works
-setvar zotero			0.1+13.10.20130723	0ubuntu3 - ""											## not tested (Zotero 4.0 for Firefox is being replaced by a Zotero Connector for Firefox)
+setvar audacious		0.1+13.10.20130927.1	0ubuntu1 + "$(python_gen_cond_dep 'dev-python/dbus-python[${PYTHON_USEDEP}]') unity-lenses/unity-lens-meta[music]"	## works with audacious 3.9
+setvar calculator		0.1+14.04.20140328	0ubuntu5 + ""														## works with gnome-calculator 3.32
+setvar chromiumbookmarks	0.1+13.10.20130723	0ubuntu1 + ""														## works with chromium 79 (fixed by patch)
+setvar clementine		0.1+13.10.20130723	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/dbus-python[${PYTHON_USEDEP}]')"						## not tested
+setvar colourlovers		0.1+13.10.20130723	0ubuntu1 + ""														## works
+setvar devhelp			0.1+14.04.20140328	0ubuntu4 + "$(python_gen_cond_dep 'dev-python/lxml[${PYTHON_USEDEP}]')"							## works
+setvar deviantart		0.1+13.10.20130723	0ubuntu1 + "$(python_gen_cond_dep 'dev-python/feedparser[${PYTHON_USEDEP}]')"						## works (fixed by patch)
+setvar firefoxbookmarks		0.1+13.10.20130809.1	0ubuntu1 + ""														## works with firefox 72 (fixed by patch)
+setvar gallica			0.1+13.10.20130816.2	0ubuntu1 + "$(python_gen_cond_dep 'dev-python/lxml[${PYTHON_USEDEP}]')"							## works (fixed by patch)
+#setvar gdrive			0.9+13.10.20130723	0ubuntu1 - ""														## doesn't work (account-plugins package not available)
+setvar github			0.1+13.10.20130723	0ubuntu1 + ""														## works
+setvar gmusicbrowser		0.1+13.10.20130723	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/dbus-python[${PYTHON_USEDEP}]')"						## not tested
+setvar gnote			0.1+13.10.20130723	0ubuntu3 - ""														## not tested
+#setvar googlenews		0.1+13.10.20130723	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/feedparser[${PYTHON_USEDEP}]')"						## doesn't work
+#setvar gourmet			0.1+13.10.20130723	0ubuntu1 - ""														## doesn't work (gourmet package not available)
+setvar guayadeque		0.1+13.10.20130927.1	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/dbus-python[${PYTHON_USEDEP}]')"						## not tested
+#setvar launchpad		0.1daily13.06.05	0ubuntu1 - ""														## doesn't work (python-launchpadlib package not available)
+setvar manpages			3.0+14.04.20140324	0ubuntu4 + "sys-apps/man-db x11-libs/gtk+:3"										## works
+setvar musique			0.1+13.10.20130723	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/dbus-python[${PYTHON_USEDEP}]')"						## not tested
+#setvar openclipart		0.1+13.10.20130723	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/feedparser[${PYTHON_USEDEP}]')"						## doesn't work (https://en.wikipedia.org/wiki/Openclipart#Lockdown_and_attempts_at_mirroring_the_library)
+#setvar openweathermap		0.1+13.10.20130828	0ubuntu1 - ""														## doesn't work (needs API key)
+setvar soundcloud		0.1+13.10.20130723	0ubuntu3 + "unity-lenses/unity-lens-meta[music]"									## works
+setvar sshsearch		0.1daily13.06.05	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/paramiko[${PYTHON_USEDEP}]')"						## not tested
+setvar texdoc			0.1+14.04.20140328	0ubuntu1 + ""														## works
+#setvar tomboy			0.1+13.10.20130723	0ubuntu1 - ""														## doesn't work (tomboy package not available)
+setvar virtualbox		0.1+13.10.20130723	0ubuntu3 + ""														## works
+#setvar yahoostock		0.1+13.10.20130723	0ubuntu1 - ""														## doesn't work
+setvar yelp			0.1+13.10.20130723	0ubuntu1 + ""														## works
+setvar zotero			0.1+13.10.20130723	0ubuntu3 - ""														## not tested (Zotero 4.0 for Firefox is being replaced by a Zotero Connector for Firefox)
 
 UURL="http://archive.ubuntu.com/ubuntu/pool/universe/u"	# Mirrors can be unpredictable #
+
 for i in ${packages[@]}; do
 	unset _rel
 	eval "_name=${i}; _ver=\${_ver_${i//-/_}}; _rel=\${_rel_${i//-/_}}; _use=\${_use_${i//-/_}}; _dep=\${_dep_${i//-/_}}"
@@ -72,10 +79,12 @@ for i in ${packages[@]}; do
 	SRC_URI_array+=("${_name}? ( ${UURL}/unity-scope-${_name}/unity-scope-${_name}_${_ver}.orig.tar.gz"
 	"${UURL}/unity-scope-${_name}/unity-scope-${_name}_${_ver}-${_rel}.diff.gz )")
 done
+
 SRC_URI="${SRC_URI_array[@]}"
 
-BDEPEND="test? ( dev-python/nose )
-	${PYTHON_DEPS}"
+DEPEND="${RDEPEND}"
+
+distutils_enable_tests nose
 
 S="${WORKDIR}"
 
@@ -85,14 +94,14 @@ src_prepare() {
 	for i in ${packages[@]}; do
 		use ${i} || continue
 		eval "_name=${i}; _ver=\${_ver_${i//-/_}}; _rel=\${_rel_${i//-/_}}"
-		pushd "${S}/unity-scope-${_name}-${_ver}"
+		pushd "${S}/unity-scope-${_name}-${_ver}" >/dev/null || die
 			echo "$(tput bold)>>> Processing Ubuntu diff file$(tput sgr0) ..."
 			eapply "${S}/unity-scope-${_name}_${_ver}-${_rel}.diff"
 			echo "$(tput bold)>>> Done.$(tput sgr0)"
 			[[ -f ${FILESDIR}/${i}.patch ]] && eapply "${FILESDIR}/${i}.patch"
 			distutils-r1_src_prepare
 			grep -Fqsx "RemoteContent=true" "data/${i}.scope.in" && RSCOPES+=( ${i} )
-		popd
+		popd >/dev/null || die
 	done
 }
 
@@ -100,9 +109,9 @@ src_compile() {
 	for i in ${packages[@]}; do
 		use ${i} || continue
 		eval "_name=${i}; _ver=\${_ver_${i//-/_}}; _rel=\${_rel_${i//-/_}}"
-		pushd "${S}/unity-scope-${_name}-${_ver}"
+		pushd "${S}/unity-scope-${_name}-${_ver}" >/dev/null || die
 			distutils-r1_src_compile
-		popd
+		popd >/dev/null || die
 	done
 }
 
@@ -110,11 +119,11 @@ src_test() {
 	for i in ${packages[@]}; do
 		use ${i} || continue
 		eval "_name=${i}; _ver=\${_ver_${i//-/_}}; _rel=\${_rel_${i//-/_}}"
-		pushd "${S}/unity-scope-${_name}-${_ver}"
+		pushd "${S}/unity-scope-${_name}-${_ver}" >/dev/null || die
 			if grep -q python3-nose debian/control; then
 				nosetests || :
 			fi
-		popd
+		popd >/dev/null || die
 	done
 }
 
@@ -122,9 +131,9 @@ src_install() {
 	for i in ${packages[@]}; do
 		use ${i} || continue
 		eval "_name=${i}; _ver=\${_ver_${i//-/_}}; _rel=\${_rel_${i//-/_}}"
-		pushd "${S}/unity-scope-${_name}-${_ver}"
+		pushd "${S}/unity-scope-${_name}-${_ver}" >/dev/null || die
 			distutils-r1_src_install
-		popd
+		popd >/dev/null || die
 	done
 }
 

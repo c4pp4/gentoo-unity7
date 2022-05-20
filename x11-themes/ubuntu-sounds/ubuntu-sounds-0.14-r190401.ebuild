@@ -1,10 +1,10 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-UVER=""
-UREV=""
+UVER=
+UREV=
 
 inherit ubuntu-versionator
 
@@ -12,13 +12,14 @@ DESCRIPTION="Default audio theme for the Unity"
 HOMEPAGE="https://launchpad.net/ubuntu-sounds"
 SRC_URI="${UURL}.tar.xz"
 
-LICENSE="CC-BY-NC-SA-2.0"
+LICENSE="CC-BY-SA-2.0 GPL-2+"
 KEYWORDS="~amd64"
 SLOT="0"
-IUSE=""
-RESTRICT="${RESTRICT} binchecks strip"
+RESTRICT="${RESTRICT} binchecks strip test"
 
 src_install() {
+	default
+
 	insinto /usr/share/sounds
 	doins -r ubuntu
 }

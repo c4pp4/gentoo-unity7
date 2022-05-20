@@ -1,0 +1,25 @@
+From 3ad0edb80c06b32633f74d7fdbf2056a0848c6bf Mon Sep 17 00:00:00 2001
+From: Patrick Ulbrich <zulu99@gmx.net>
+Date: Sun, 11 Apr 2021 18:22:20 +0200
+Subject: [PATCH] Handle glib execption in conntest. Fixes #220
+
+---
+ Mailnag/daemon/conntest.py | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/Mailnag/daemon/conntest.py b/Mailnag/daemon/conntest.py
+index 86fc75d..344a99d 100644
+--- a/Mailnag/daemon/conntest.py
++++ b/Mailnag/daemon/conntest.py
+@@ -44,7 +44,10 @@ def is_offline(self):
+ 			if self._monitor.get_connectivity() == Gio.NetworkConnectivity.FULL:
+ 				return False
+ 			else:
+-				return (not self._monitor.can_reach(Gio.NetworkAddress.new(TEST_HOST, 8080)))
++				try:
++					return (not self._monitor.can_reach(Gio.NetworkAddress.new(TEST_HOST, 8080)))
++				except:
++					return True
+ 		else:
+ 			return (os.system('ping -c1 -W2 %s > /dev/null 2>&1' % TEST_HOST) != 0)
+ 

@@ -1,10 +1,10 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-UVER="+21.04.20210304"
-UREV="0ubuntu1"
+UVER=+21.04.20210304
+UREV=0ubuntu1
 
 inherit gnome2 cmake-utils ubuntu-versionator
 
@@ -14,51 +14,79 @@ HOMEPAGE="https://launchpad.net/indicator-datetime"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="+eds test"
+IUSE="coverage +eds test"
+REQUIRED_USE="coverage? ( test )"
+RESTRICT="${RESTRICT} !test? ( test )"
 
 COMMON_DEPEND="
-	dev-libs/libdbusmenu:=
-	dev-libs/libtimezonemap:=
-	net-libs/libaccounts-glib:=
-	media-libs/gstreamer:1.0
-	sys-apps/util-linux
-	unity-indicators/ido:=
-	unity-indicators/indicator-messages
+	>=dev-libs/glib-2.43.2:2
+	>=dev-libs/libical-3.0.0:=
+	>=media-libs/gstreamer-1.0.0:1.0
+	>=net-libs/libaccounts-glib-1.0:=
+	sys-apps/systemd
+	>=sys-apps/util-linux-2.16
+	>=sys-libs/glibc-2.14
+	>=unity-base/gsettings-ubuntu-touch-schemas-0.0.7
+	>=unity-indicators/indicator-messages-12.10.6
 	>=x11-libs/libnotify-0.7.6
 
-	eds? ( >=gnome-extra/evolution-data-server-3.34:= )
-	test? ( >=dev-cpp/gtest-1.8.1 )"
-
+	eds? ( >=gnome-extra/evolution-data-server-3.17 )
+"
 RDEPEND="${COMMON_DEPEND}
-	unity-base/unity-language-pack"
+	dev-libs/libindicator:3
+	gnome-base/dconf
+	>=sys-devel/gcc-5.2
+"
 DEPEND="${COMMON_DEPEND}
-	dev-libs/properties-cpp"
-# PDEPEND to avoid circular dependency
-PDEPEND="unity-base/unity-control-center"
+	dev-libs/properties-cpp
+	>=dev-util/cmake-extras-1.1
+	gnome-base/gvfs
+	unity-base/unity-language-pack
+	sys-apps/dbus
+	x11-themes/ubuntu-touch-sounds
+
+	test? (
+		dev-cpp/gtest
+		dev-python/python-dbusmock
+		dev-util/dbus-test-runner
+
+		coverage? (
+			dev-util/gcovr
+			dev-util/lcov
+		)
+	)
+"
+BDEPEND="dev-util/intltool"
 
 S="${S}${UVER}"
+
 MAKEOPTS="${MAKEOPTS} -j1"
 
+PATCHES=( "${FILESDIR}"/"${PN}"-optional-eds_19.10.patch )
+	
 src_prepare() {
-	eapply "${FILESDIR}/${PN}-optional-eds_19.10.patch"
+	if use test; then
+		sed -i "s/return/exit/" tests/run-eds-ics-test.sh || die
+
+		use eds || sed -i \
+			-e "/^add_eds_ics_test_by_name/d" \
+			tests/CMakeLists.txt || die
+	else
+		sed -i \
+			-e "/enable_testing()/d" \
+			-e "/add_subdirectory(tests)/d" \
+			CMakeLists.txt || die
+	fi
 
 	# Fix schema errors and sandbox violations #
 	sed -i \
 		-e 's:SEND_ERROR:WARNING:g' \
 		-e '/Compiling GSettings schemas/,+1 d' \
-		cmake/UseGSettings.cmake
+		cmake/UseGSettings.cmake || die
 
 	# Disable all language files as they can be incomplete #
 	#  due to being provided by Ubuntu's language-pack packages #
-	sed -i \
-		-e "/add_subdirectory(po)/d" \
-		CMakeLists.txt
-
-	# Disable tests #
-	use test || sed -i \
-		-e "/enable_testing()/d" \
-		-e "/add_subdirectory(tests)/d" \
-		CMakeLists.txt
+	sed -i "/add_subdirectory(po)/d" CMakeLists.txt || die
 
 	ubuntu-versionator_src_prepare
 }
@@ -67,6 +95,7 @@ src_configure() {
 	local mycmakeargs=(
 		-DCMAKE_INSTALL_FULL_LOCALEDIR=/usr/share/locale
 		-DWITH_EDS="$(usex eds)"
+		-Wno-dev
 	)
 	cmake-utils_src_configure
 }

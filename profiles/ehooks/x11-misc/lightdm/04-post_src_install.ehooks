@@ -1,7 +1,7 @@
 ehooks() {
-	pushd "${ED}"/etc/${PN} 1>/dev/null
+	pushd "${ED}"/etc/${PN} >/dev/null || die
 		mv ${PN}.conf ${PN}.conf_example
-	popd 1>/dev/null
+	popd >/dev/null || die
 	insinto /etc/${PN}
 	doins "${EHOOKS_FILESDIR}"/${PN}.conf
 
@@ -25,9 +25,9 @@ ehooks() {
 	# Add support for settings GSettings/dconf defaults in the guest session. Just
 	# put the files in /etc/guest-session/gsettings/. The file format is the same
 	# as the regular GSettings override files.
-	pushd "${S}" 1>/dev/null
+	pushd "${S}" >/dev/null || die
 		eapply "${EHOOKS_FILESDIR}"/guest-session-add-default-gsettings-support.patch.debian
-	popd 1>/dev/null
+	popd >/dev/null || die
 
 	# install guest-account script
 	exeinto /usr/bin

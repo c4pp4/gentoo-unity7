@@ -1,37 +1,49 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 PYTHON_COMPAT=( python3_{8..10} )
 UBUNTU_EAUTORECONF="yes"
 
-UVER=""
-UREV="3"
+UVER=
+UREV=3
 
 inherit python-single-r1 ubuntu-versionator
 
-DESCRIPTION="Event Emulation for the uTouch Stack"
-HOMEPAGE="https://launchpad.net/evemu"
+DESCRIPTION="Linux Input Event Device Emulation Library"
+HOMEPAGE="https://www.freedesktop.org/wiki/Evemu"
 SRC_URI="${UURL}.orig.tar.xz
 	${UURL}-${UREV}.debian.tar.xz"
 
-LICENSE="GPL-3 LGPL-3"
+LICENSE="LGPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="test"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
+RESTRICT="${RESTRICT} !test? ( test )"
 
-DEPEND="app-text/asciidoc
+COMMON_DEPEND=">=dev-libs/libevdev-1.2.99.902"
+RDEPEND="${COMMON_DEPEND}
+	>=sys-libs/glibc-2.8
+"
+DEPEND="${COMMON_DEPEND}
+	app-text/asciidoc[${PYTHON_SINGLE_USEDEP}]
 	app-text/xmlto
-	dev-libs/libevdev
-	${PYTHON_DEPS}"
+
+	${PYTHON_DEPS}
+"
+BDEPEND="virtual/pkgconfig"
 
 S="${S}${UVER}"
+
 MAKEOPTS="${MAKEOPTS} -j1"
 
 src_configure() {
-	econf --enable-static=no \
+	local myeconfargs=(
+		--enable-static=no
 		$(use_enable test tests)
+	)
+	econf "${myeconfargs[@]}"
 }
 
 src_install() {

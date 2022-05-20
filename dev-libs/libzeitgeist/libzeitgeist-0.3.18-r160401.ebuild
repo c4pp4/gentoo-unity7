@@ -4,8 +4,8 @@
 EAPI=7
 UBUNTU_EAUTORECONF="yes"
 
-UVER=""
-UREV="1ubuntu3"
+UVER=
+UREV=1ubuntu3
 
 inherit ubuntu-versionator
 
@@ -13,22 +13,41 @@ DESCRIPTION="Client library to interact with zeitgeist"
 HOMEPAGE="https://launchpad.net/libzeitgeist/"
 SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
 
-LICENSE="GPL-3"
+LICENSE="GPL-3 LGPL-2.1"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="static-libs"
+IUSE="doc"
 
-CDEPEND="dev-libs/glib:2"
-RDEPEND="${CDEPEND}
-	gnome-extra/zeitgeist"
-DEPEND="${CDEPEND}
-	dev-util/gtk-doc
-	virtual/pkgconfig"
+COMMON_DEPEND="
+	>=dev-libs/glib-2.37.3:2
+"
+RDEPEND="${COMMON_DEPEND}
+	gnome-extra/zeitgeist
+	>=sys-libs/glibc-2.4
+
+	doc? ( dev-util/devhelp )
+"
+DEPEND="${COMMON_DEPEND}
+	>=sys-apps/dbus-1.0
+
+	doc? ( dev-util/gtk-doc )
+"
 
 src_prepare() {
-	sed -i \
-		-e "s:doc/libzeitgeist:doc/${PF}:" \
-		Makefile.am || die
+	# Fix doc dir #
+	sed -i "s:/doc/libzeitgeist:/doc/${PF}:" Makefile.am || die
+
+	# Make gtk-doc-html really optional #
+	use doc || sed -i "/doc /d" Makefile.am || die
 
 	ubuntu-versionator_src_prepare
+}
+
+src_configure() {
+	econf $(use_enable doc gtk-doc)
+}
+
+src_install() {
+	default
+	find "${ED}" \( -name "*.a" -o -name "*.la" \) -delete || die
 }

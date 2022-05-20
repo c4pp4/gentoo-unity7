@@ -4,7 +4,7 @@
 # @ECLASS: ubuntu-versionator.eclass
 # @MAINTAINER: c4pp4
 # @AUTHOR: c4pp4
-# @SUPPORTED_EAPIS: 6 7
+# @SUPPORTED_EAPIS: 7
 # @BLURB: Provides phases for Ubuntu based packages.
 # @DESCRIPTION:
 # Exports portage base functions used by ebuilds written for packages using
@@ -19,13 +19,13 @@ UBUNTU_EAUTORECONF=${UBUNTU_EAUTORECONF:-""}
 [[ ${UBUNTU_EAUTORECONF} == "yes" ]] && inherit autotools
 
 case "${EAPI:-0}" in
-	6|7) EXPORT_FUNCTIONS pkg_setup src_prepare pkg_postinst ;;
+	7) EXPORT_FUNCTIONS pkg_setup src_prepare pkg_postinst ;;
 	*) die "EAPI=${EAPI:-0} is not supported" ;;
 esac
 
 # Used by unity-base/unity-control-center, unity-base/unity-language-pack,
 # unity-extra/unity-greeter
-URELEASE="21.10 Impish"
+URELEASE="22.04 Jammy"
 
 # Set base sane vala version for all packages requiring vala, override
 # in ebuild if or when specific higher/lower versions are needed
@@ -48,17 +48,22 @@ RESTRICT="mirror"
 einstalldocs() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	if mv -n "${WORKDIR}"/debian/changelog changelog.debian 2>/dev/null; then
-		mv -n "${WORKDIR}"/debian/copyright copyright.debian 2>/dev/null
-	elif mv -n debian/changelog changelog.debian 2>/dev/null; then
-		mv -n debian/copyright copyright.debian 2>/dev/null
+	local \
+		clog="changelog.ubuntu" \
+		cright="copyright.ubuntu"
+
+	if mv -n "${WORKDIR}"/debian/changelog "${clog}" 2>/dev/null; then
+		mv -n "${WORKDIR}"/debian/copyright "${cright}" 2>/dev/null
+	elif mv -n debian/changelog "${clog}" 2>/dev/null; then
+		mv -n debian/copyright "${cright}" 2>/dev/null
 	fi
+	[[ -s ${cright} ]] || cright="COPYING* LICENSE*"
 
 	local x
 	local -aI DOCS
 	for x in README* ChangeLog AUTHORS NEWS TODO CHANGES \
 		THANKS BUGS FAQ CREDITS CHANGELOG \
-		COPYING* changelog.debian copyright.debian; do
+		${clog} ${cright}; do
 		if [[ -s ${x} ]] ; then
 			DOCS+=( "${x}" )
 		fi
@@ -126,23 +131,17 @@ ubuntu-versionator_src_prepare() {
 		export VALA_API_GEN="${VAPIGEN}"
 	fi
 
-	unset x
-	if declare -F gnome2_src_prepare 1>/dev/null; then
-		gnome2_src_prepare
-		x="1"
-	elif declare -F xdg_src_prepare 1>/dev/null; then
-		xdg_src_prepare
-		x="1"
-	fi
-	if declare -F distutils-r1_src_prepare 1>/dev/null; then
-		distutils-r1_src_prepare
-		x="1"
-	fi
 	if declare -F cmake-utils_src_prepare 1>/dev/null; then
 		cmake-utils_src_prepare
-		x="1"
+	elif declare -F distutils-r1_src_prepare 1>/dev/null; then
+		distutils-r1_src_prepare
+	elif declare -F gnome2_src_prepare 1>/dev/null; then
+		gnome2_src_prepare
+	elif declare -F xdg_src_prepare 1>/dev/null; then
+		xdg_src_prepare
+	else
+		default
 	fi
-	[[ -z ${x} ]] && default
 
 	[[ ${UBUNTU_EAUTORECONF} == 'yes' ]] && eautoreconf
 }

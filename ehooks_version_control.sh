@@ -271,7 +271,7 @@ portage_updates() {
 
 	local \
 		main_repo="$(/usr/bin/portageq get_repo_path / gentoo)" \
-		new_pkg old_pkg release x
+		new_pkg old_pkg x y
 
 	[[ -z $1 ]] && x="${PWD}" || x="$1"
 	local -a updates=( $(find_portage_updates "${x}") )
@@ -298,12 +298,21 @@ portage_updates() {
 			new_pkg="${x#*|}"
 			echo " * Update from ${color_bold}${old_pkg}${color_norm} to ${color_yellow}${new_pkg}${color_norm}"
 			printf "%s" " * Test command 'EHOOKS_PATH=${pmask%/*}/ehooks ebuild \$(portageq get_repo_path / gentoo)/${new_pkg%-[0-9]*}/${new_pkg#*/}.ebuild clean prepare'${color_blink}...${color_norm}"
-			if EHOOKS_PATH="${pmask%/*}/ehooks" ebuild "${main_repo}/${new_pkg%-[0-9]*}/${new_pkg#*/}".ebuild clean configure 1>/dev/null && sed -i -e "s:${old_pkg}:${new_pkg}:" "${pmask}" 2>/dev/null; then
+			if EHOOKS_PATH="${pmask%/*}/ehooks" ebuild "${main_repo}/${new_pkg%-[0-9]*}/${new_pkg#*/}".ebuild clean prepare 1>/dev/null; then
 				printf "\b\b\b%s\n" "... ${color_blue}[ ${color_green}passed ${color_blue}]${color_norm}"
-				echo " ${color_green}*${color_norm} ${new_pkg%-[0-9]*}: '${pmask##*/}' entry... ${color_blue}[ ${color_green}updated ${color_blue}]${color_norm}"
+				if [[ ${new_pkg} == "www-client/firefox"* ]]; then
+					y="${new_pkg#*firefox-}"; y="${y%%.*}"; y=$((y + 1))
+					new_pkg="www-client/firefox-${y}"
+				fi
+				if [[ ${new_pkg} == "mail-client/thunderbird"* ]]; then
+					y="${new_pkg#*thunderbird-}"; y="${y%%.*}"; y=$((y + 1))
+					new_pkg="mail-client/thunderbird-${y}"
+				fi
+				sed -i "s:${old_pkg}:${new_pkg}:" "${pmask}" 2>/dev/null \
+					&& echo " ${color_green}*${color_norm} ${new_pkg%-[0-9]*}: '${pmask##*/}' entry... ${color_blue}[ ${color_green}updated ${color_blue}]${color_norm}" \
+					|| echo " ${color_red}*${color_norm} ${new_pkg%-[0-9]*}: '${pmask##*/}' entry... ${color_blue}[ ${color_red}not updated ${color_blue}]${color_norm}"
 			else
 				printf "\b\b\b%s\n" "... ${color_blue}[ ${color_red}failed ${color_blue}]${color_norm}"
-				echo " ${color_red}*${color_norm} ${new_pkg%-[0-9]*}: '${pmask##*/}' entry... ${color_blue}[ ${color_red}not updated ${color_blue}]${color_norm}"
 			fi
 			echo
 		done
@@ -382,21 +391,48 @@ debian_changes() {
 			done
 			;;
 		-c|--changes)
-			printf "%s" "Looking for available version changes${color_blink}...${color_norm}"
-
 			local \
-				releases="impish jammy" \
-				sources="main universe" \
-				rls frls src
+				stable="jammy" \
+				dev="kinetic" \
+				rls frls rp
 
-			for rls in ${releases}; do
+			local -a \
+				repos=(
+					main
+					universe
+				)
+
+			for rls in ${stable} ${dev}; do
 				for frls in "${rls}" "${rls}"-security "${rls}"-updates; do
-					for src in ${sources}; do
-						wget -q -T 60 http://archive.ubuntu.com/ubuntu/dists/${frls}/${src}/source/Sources.gz -O /tmp/ehooks-${USER}-sources-${src}-${frls}.gz || exit 1
-						gunzip -qf /tmp/ehooks-${USER}-sources-${src}-${frls}.gz || exit 1
+					for rp in "${repos[@]}"; do
+						filename="/tmp/ehooks-${USER}-sources-${rp}-${frls}"
+						[[ -f ${filename} ]] && [[ $(($(date -r "${filename}" "+%s") + 72000)) -gt $(date "+%s") ]] && continue
+						printf "%s" "Downloading ${frls}/${rp} sources${color_blink}...${color_norm}"
+						wget -q -T 60 http://archive.ubuntu.com/ubuntu/dists/${frls}/${rp}/source/Sources.gz -O "${filename}.gz" \
+							&& printf "\b\b\b%s\n" "... done!" \
+							|| printf "\b\b\b%s\n" "... ${color_red}failed!${color_norm}"
+						gunzip -qf "${filename}.gz" 2>/dev/null
+						touch "${filename}"
+						ctl=1
 					done
 				done
 			done
+			[[ -n ${ctl} ]] && echo && unset ctl
+
+			for rls in ${stable} ${dev}; do
+				for frls in "${rls}" "${rls}"-security "${rls}"-updates; do
+					for rp in "${repos[@]}"; do
+						filename="/tmp/ehooks-${USER}-sources-${rp}-${frls}"
+						if [[ ! -f ${filename} ]]; then
+							echo "${filename}... ${color_red}file not found!${color_norm}"
+							ctl=1
+						fi
+					done
+				done
+			done
+			[[ -n ${ctl} ]] && return 1
+
+			printf "%s" "Looking for available version changes${color_blink}...${color_norm}"
 
 			local ipn pn un utd uv
 
@@ -405,13 +441,13 @@ debian_changes() {
 			for x in "${uvers[@]}"; do
 				auvers=()
 				un="${x#*|}"
-				utd="${color_yellow}${un}${color_norm}"
-				for rls in ${releases}; do
+				utd="${color_yellow}${un#*_}${color_norm}"
+				for rls in ${stable} ${dev}; do
 					for frls in "${rls}" "${rls}"-security "${rls}"-updates; do
-						for src in ${sources}; do
-							uv=$(grep -A6 "Package: ${un%_*}$" /tmp/ehooks-${USER}-sources-${src}-${frls} | sed -n 's/^Version: \(.*\)/\1/p' | sed 's/[0-9]://g')
+						for rp in "${repos[@]}"; do
+							uv=$(grep -A6 "Package: ${un%_*}$" /tmp/ehooks-${USER}-sources-${rp}-${frls} | sed -n 's/^Version: \(.*\)/\1/p' | sed 's/[0-9]://g')
 							[[ -n ${uv} ]] && [[ ${uv} != ${pn} ]] && [[ ${uv} != ${un#*_} ]] && auvers+=( "'${uv}'" ) && pn="${uv}"
-							[[ ${uv} == ${un#*_} ]] && utd="${color_green}${un}${color_norm}" || an[1]="${color_yellow}[ package is outdated ]${color_norm}"
+							[[ ${uv} == ${un#*_} ]] && utd="${utd/${color_yellow}/${color_green}}" || an[1]="${color_yellow}[ package is outdated ]${color_norm}"
 						done
 					done
 				done

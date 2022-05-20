@@ -5,6 +5,7 @@
 		<name>gentoo-unity7</name>
 	</maintainer>
 	<use>
+		<flag name="coverage">Include coverage reports (gcov, lcov)</flag>
 		<flag name="powerman">Enable Gnome Power Manager</flag>
 	</use>
 </pkgmetadata>

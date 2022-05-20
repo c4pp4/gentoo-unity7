@@ -6,7 +6,7 @@ ehooks() {
 		echo " * ${f}"
 
 		insinto /etc/fonts/conf.avail
-		newins "${ED%/}/usr/$(get_libdir)"/libreoffice/share/fonts/truetype/fc_local.conf "${f}"
+		newins "${ED}/usr/$(get_libdir)"/libreoffice/share/fonts/truetype/fc_local.conf "${f}"
 
 		dosym "../conf.avail/${f}" "/etc/fonts/conf.d/${f}"
 	fi

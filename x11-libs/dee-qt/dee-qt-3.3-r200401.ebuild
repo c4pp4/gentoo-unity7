@@ -1,44 +1,50 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-UVER="+14.04.20140317"
-UREV="0ubuntu4"
+UVER=+14.04.20140317
+UREV=0ubuntu4
 
 inherit cmake-utils ubuntu-versionator
 
 DESCRIPTION="Qt binding and QML plugin for Dee for the Unity7 user interface"
-HOMEPAGE="http://unity.ubuntu.com/"
+HOMEPAGE="https://wiki.ubuntu.com/Unity"
 
-LICENSE="GPL-2"
+LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE=""
+IUSE="test"
+RESTRICT="${RESTRICT} !test? ( test )"
 
-RDEPEND=">=dev-libs/dee-1.2.7
-	dev-libs/glib:2
-	dev-qt/qtcore:5
-	dev-qt/qtdeclarative:5"
-DEPEND="${RDEPEND}"
+COMMON_DEPEND="
+	>=dev-libs/dee-1.0.0:=
+	>=dev-qt/qtcore-5.12.2:5
+	>=dev-qt/qtdeclarative-5.0.2
+"
+RDEPEND="${COMMON_DEPEND}
+	>=dev-libs/glib-2.24.0:2
+	>=sys-devel/gcc-4.9
+	>=sys-libs/glibc-2.14
+"
+DEPEND="${COMMON_DEPEND}
+	test? ( dev-util/dbus-test-runner )
+"
 
 S="${S}${UVER}"
 
 src_prepare() {
-	# Correct library installation path #
-	sed \
-		-e 's:LIBRARY DESTINATION lib/\${CMAKE_LIBRARY_ARCHITECTURE}:LIBRARY DESTINATION lib\${CMAKE_LIBRARY_ARCHITECTURE}:' \
-		-e '/pkgconfig/{s/\/\${CMAKE_LIBRARY_ARCHITECTURE}/\${CMAKE_LIBRARY_ARCHITECTURE}\${LIB_SUFFIX}/}' \
-		-i CMakeLists.txt
-	sed \
-		-e 's:lib/@CMAKE_LIBRARY_ARCHITECTURE@:lib@CMAKE_LIBRARY_ARCHITECTURE@@LIB_SUFFIX@:' \
-		-i libdee-qt.pc.in
+	# Fix lib #
+	sed -i "s:lib/::" CMakeLists.txt libdee-qt.pc.in || die
+
 	ubuntu-versionator_src_prepare
 }
 
 src_configure() {
-	mycmakeargs+=(-DWITHQT5=1
-		-DCMAKE_INSTALL_PREFIX=/usr
-		-DCMAKE_BUILD_TYPE=Release)
+	local mycmakeargs=(
+		-DWITHQT5=1
+		-DCMAKE_LIBRARY_ARCHITECTURE=$(get_libdir)
+		-DLIB_SUFFIX=""
+	)
 	cmake-utils_src_configure
 }

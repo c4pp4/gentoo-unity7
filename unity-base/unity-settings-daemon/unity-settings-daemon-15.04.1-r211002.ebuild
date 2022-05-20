@@ -4,76 +4,97 @@
 EAPI=7
 GNOME2_EAUTORECONF="yes"
 
-UVER="+21.10.20210715"
-UREV="0ubuntu1"
+UVER=+21.10.20210715
+UREV=0ubuntu1
 
-inherit flag-o-matic gnome2 virtualx ubuntu-versionator
+inherit flag-o-matic gnome2 ubuntu-versionator
 
 DESCRIPTION="Unity Settings Daemon"
 HOMEPAGE="https://launchpad.net/unity-settings-daemon"
 SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 
-LICENSE="GPL-2"
+LICENSE="GPL-2 LGPL-2.1"
 SLOT="0"
-IUSE="+colord debug +fcitx +i18n +input_devices_wacom nls +short-touchpad-timeout smartcard +udev"
 KEYWORDS="~amd64"
-REQUIRED_USE="input_devices_wacom? ( udev )
-		smartcard? ( udev )"
+IUSE="+colord debug +fcitx +i18n +input_devices_wacom nls +short-touchpad-timeout smartcard +udev"
+REQUIRED_USE="
+	input_devices_wacom? ( udev )
+	smartcard? ( udev )
+"
+RESTRICT="${RESTRICT} test"
 
-# require colord-0.1.27 dependency for connection type support
-DEPEND="dev-libs/glib:2
-	dev-libs/libappindicator:=
-	x11-libs/gtk+:3
-	>=gnome-base/gnome-desktop-3.36:3=
-	gnome-base/gsettings-desktop-schemas
-	gnome-base/librsvg
-	media-libs/fontconfig
-	media-libs/lcms:2
-	media-libs/libcanberra[gtk3]
-	media-sound/pulseaudio
-	sys-apps/accountsservice
-	sys-apps/hwdata
-	>=sys-apps/systemd-232
-	>=sys-power/upower-0.99:=
-	unity-base/gsettings-ubuntu-touch-schemas
-	unity-base/session-migration
-	x11-apps/xinput
-	x11-libs/cairo
-	x11-libs/gdk-pixbuf:2
-	x11-libs/libnotify:=
+COMMON_DEPEND="
+	>=dev-libs/dbus-glib-0.74
+	>=dev-libs/glib-2.39.4:2
+	>=gnome-base/gnome-desktop-3.17.92:3=
+	>=gnome-base/gsettings-desktop-schemas-3.15.4
+	>=media-libs/alsa-lib-1.0.16
+	>=media-libs/fontconfig-2.12.6:1.0
+	>=media-libs/lcms-2.2:2
+	>=media-libs/libcanberra-0.25[gtk3]
+	>=media-sound/pulseaudio-2.0[glib]
+	>=net-misc/networkmanager-1.0.0
+	>=sys-apps/accountsservice-0.6.40
+	>=sys-power/upower-0.99.1:=
+	>=unity-base/gsettings-ubuntu-touch-schemas-0.0.7
+	>=x11-libs/gdk-pixbuf-2.23.0:2
+	>=x11-libs/gtk+-3.9.10:3
+	>=x11-libs/libnotify-0.7.3:=
 	x11-libs/libX11
-	x11-libs/libxkbfile
-	x11-libs/libXi
 	x11-libs/libXext
-	x11-libs/libXfixes
+	>=x11-libs/libXi-1.2.99.4
+	>=x11-libs/libxkbfile-1.1.0
 	x11-libs/libXtst
 
-	sys-auth/polkit
-
-	colord? ( x11-misc/colord:= )
-	fcitx? ( app-i18n/fcitx-configtool )
-	i18n? ( app-i18n/ibus )
+	colord? ( >=x11-misc/colord-1.4.3:= )
+	fcitx? (
+		>=app-i18n/fcitx-4.2.9.5
+		app-i18n/fcitx-configtool
+	)
+	i18n? ( >=app-i18n/ibus-1.5.1 )
 	input_devices_wacom? (
-		dev-libs/libwacom
-		x11-drivers/xf86-input-wacom )
-	smartcard? ( dev-libs/nss )
+		>=gnome-base/librsvg-2.36.2
+		>=dev-libs/libwacom-1.1
+	)
 	udev? (
-		dev-libs/libgudev:=
-		virtual/libudev:= )"
-RDEPEND="${DEPEND}
+		>=dev-libs/libgudev-146:=
+		virtual/libudev:=
+	)
+"
+RDEPEND="${COMMON_DEPEND}
 	gnome-base/dconf
-	x11-themes/gnome-themes-standard
-	x11-themes/adwaita-icon-theme
-	!<gnome-base/gnome-control-center-2.22
-	!<gnome-extra/gnome-color-manager-3.1.1
-	!<gnome-extra/gnome-power-manager-3.1.3"
-BDEPEND="dev-libs/libxml2:2
-	sys-devel/gettext
-	dev-util/intltool
-	virtual/pkgconfig
-	x11-base/xorg-proto"
+	>=gnome-base/nautilus-2.91.3
+	media-libs/libglvnd
+	>=sys-libs/glibc-2.33
+	unity-base/session-migration
+	>=x11-libs/cairo-1.14.0
+	>=x11-libs/libXfixes-4.0.1
+	>=x11-libs/libXrandr-1.2.99.3
+	>=x11-libs/pango-1.22.0
+	x11-wm/metacity
+"
+DEPEND="${COMMON_DEPEND}
+	>=dev-libs/libappindicator-0.4.90:3
+	dev-util/gperf
+	>=gnome-base/libgnomekbd-3.5.1
+	sys-apps/hwdata
+	>=sys-apps/systemd-183
+	sys-auth/polkit
+	x11-libs/libxklavier
+	x11-libs/libXt
+	x11-misc/xkeyboard-config
+
+	input_devices_wacom? ( x11-drivers/xf86-input-wacom )
+	smartcard? ( dev-libs/nss )
+"
+BDEPEND=" >=dev-util/intltool-0.37.1"
 
 S="${WORKDIR}"
+
+PATCHES=(
+	"${FILESDIR}"/01_"${PN}"-optional-color-wacom.patch # Make colord and wacom optional; requires eautoreconf
+	"${FILESDIR}"/02_"${PN}"-2021-optional-pnp-ids.patch # pnp.ids is not provided by >=gnome-base/gnome-desktop-3.21.4; use udev's hwdb to query PNP IDs instead
+)
 
 src_prepare() {
 	# https://bugzilla.gnome.org/show_bug.cgi?id=621836
@@ -83,17 +104,8 @@ src_prepare() {
 	use short-touchpad-timeout \
 		&& eapply "${FILESDIR}/${PN}-3.7.90-short-touchpad-timeout.patch"
 
-	# Make colord and wacom optional; requires eautoreconf
-	eapply "${FILESDIR}/01_${PN}-optional-color-wacom.patch"
-
-	# pnp.ids is not provided by >=gnome-base/gnome-desktop-3.21.4 #
-	#  use udev's hwdb to query PNP IDs instead #
-	eapply "${FILESDIR}/02_${PN}-2021-optional-pnp-ids.patch"
-
 	# Ensure libunity-settings-daemon.so.1 gets linked to libudev.so #
-	sed -i \
-		-e 's:-lm :-lm -ludev :g' \
-		gnome-settings-daemon/Makefile.am
+	sed -i 's:-lm :-lm -ludev :g' gnome-settings-daemon/Makefile.am || die
 
 	# Disable all language files as they can be incomplete #
 	#  due to being provided by Ubuntu's language-pack packages #
@@ -114,27 +126,30 @@ src_prepare() {
 	#       stop in a different jumbled order each time #
 	sed -i \
 		-e '/PartOf=/i After=graphical-session-pre.target' \
-		debian/user/unity-settings-daemon.service || die "Sed failed for debian/user/unity-settings-daemon.service"
+		debian/user/unity-settings-daemon.service || die
 }
 
 src_configure() {
 	append-ldflags -Wl,--warn-unresolved-symbols
-	append-cflags -Wno-deprecated-declarations -I/usr/include/librsvg-2.0
+	use input_devices_wacom \
+		&& append-cflags -Wno-deprecated-declarations -I/usr/include/librsvg-2.0
 
-	gnome2_src_configure \
-		--disable-static \
-		--enable-man \
-		--disable-packagekit \
-		$(use_enable colord color) \
-		$(use_enable debug) \
-		$(use_enable debug more-warnings) \
-		$(use_enable fcitx) \
-		$(use_enable i18n ibus) \
-		$(use_enable nls) \
-		$(use_enable smartcard smartcard-support) \
-		$(use_enable udev gudev) \
-		$(use_enable udev) \
+	local mygnome2args=(
+		--disable-static
+		--enable-man
+		--disable-packagekit
+		$(use_enable colord color)
+		$(use_enable debug)
+		$(use_enable debug more-warnings)
+		$(use_enable fcitx)
+		$(use_enable i18n ibus)
+		$(use_enable nls)
+		$(use_enable smartcard smartcard-support)
+		$(use_enable udev gudev)
+		$(use_enable udev)
 		$(use_enable input_devices_wacom wacom)
+	)
+	gnome2_src_configure "${mygnome2args[@]}"
 }
 
 src_install() {
@@ -151,8 +166,4 @@ src_install() {
 	doins debian/user/unity-settings-daemon.service
 	insinto /usr/share/upstart/systemd-session/upstart
 	doins debian/user/unity-settings-daemon.override
-}
-
-src_test() {
-	Xemake check
 }

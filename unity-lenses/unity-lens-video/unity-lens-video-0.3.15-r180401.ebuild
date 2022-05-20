@@ -1,11 +1,11 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 UBUNTU_EAUTORECONF="yes"
 
-UVER="+16.04.20160212.1"
-UREV="0ubuntu3"
+UVER=+16.04.20160212.1
+UREV=0ubuntu3
 
 inherit vala ubuntu-versionator
 
@@ -15,19 +15,24 @@ HOMEPAGE="https://launchpad.net/unity-lens-video"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE=""
+RESTRICT="${RESTRICT} test"
 
-RDEPEND="!unity-lenses/unity-scope-video-remote
-	dev-libs/dee:=
-	dev-libs/libunity:="
-DEPEND="dev-libs/dee
-	dev-libs/glib:2
-	dev-libs/json-glib
-	dev-libs/libgee
-	dev-libs/libunity
-	dev-libs/libzeitgeist
-	net-libs/libsoup
-	unity-base/unity
-	$(vala_depend)"
+COMMON_DEPEND="
+	>=dev-libs/dee-1.0.7:=
+	>=dev-libs/glib-2.37.3:2
+	>=dev-libs/json-glib-0.12.0
+	>=dev-libs/libgee-0.8.3:0.8
+	>=dev-libs/libunity-7.0.9:=
+	>=dev-libs/libzeitgeist-0.3.14
+	>=net-libs/libsoup-2.27.4:2.4
+"
+RDEPEND="${COMMON_DEPEND}
+	>=sys-libs/glibc-2.4
+"
+DEPEND="${COMMON_DEPEND}
+	gnome-base/gnome-common
+
+	$(vala_depend)
+"
 
 S="${S}${UVER}"

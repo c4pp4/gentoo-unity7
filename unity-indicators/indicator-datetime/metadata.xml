@@ -5,6 +5,7 @@
 		<name>gentoo-unity7</name>
 	</maintainer>
 	<use>
+		<flag name="coverage">Include coverage reports (gcov, lcov)</flag>
 		<flag name="eds">Enable support for Evolution-Data-Server</flag>
 	</use>
 </pkgmetadata>

@@ -4,8 +4,8 @@
 EAPI=7
 PYTHON_COMPAT=( python3_{8..10} )
 
-UVER="+22.04.20211026.2"
-UREV="0ubuntu1"
+UVER=+22.04.20211026.2
+UREV=0ubuntu1
 
 inherit gnome2 cmake-utils pam python-single-r1 systemd ubuntu-versionator
 
@@ -15,77 +15,94 @@ SRC_URI="${UURL}-${UREV}.tar.xz"
 
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"
-#KEYWORDS="~amd64"
-IUSE="+branding debug doc gles2 +hud +nemo pch systray"
+KEYWORDS="~amd64"
+IUSE="+branding debug doc gles2 +hud +nemo +pch systray"
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="${RESTRICT} test"
+
+COMMON_DEPEND="
+	>=dev-libs/appstream-glib-0.5.1
+	>=dev-libs/atk-2.2.0
+	>=dev-libs/dee-1.2.6:=[${PYTHON_SINGLE_USEDEP}]
+	>=dev-libs/glib-2.41.1:2
+	>=dev-libs/json-glib-1.5.2
+	>=dev-libs/libdbusmenu-0.4.2[gtk3]
+	>=dev-libs/libindicator-0.12.2:3
+	>=dev-libs/libsigc++-2.8.0:2
+	>=dev-libs/libunity-7.1.4:=[${PYTHON_SINGLE_USEDEP}]
+	>=dev-libs/libunity-misc-4.0.4
+	>=gnome-extra/zeitgeist-0.9.9[${PYTHON_SINGLE_USEDEP}]
+	>=sys-libs/pam-0.99.7.1
+	>=unity-base/bamf-0.5.3:=
+	>=unity-base/compiz-0.9.13.1:=[gles2=,${PYTHON_SINGLE_USEDEP}]
+	>=unity-base/gsettings-ubuntu-touch-schemas-0.0.7
+	>=unity-base/nux-4.0.6:=[debug?,gles2=]
+	>=unity-base/unity-settings-daemon-15.04.1
+	>=unity-indicators/ido-13.10.0
+	>=x11-libs/cairo-1.14.0
+	>=x11-libs/gtk+-3.19.12:3
+	>=x11-libs/libnotify-0.7.0
+	>=x11-libs/libXfixes-5.0.1
+	>=x11-libs/pango-1.22.0
+	>=x11-libs/libXi-1.7.1.901
+
+	${PYTHON_DEPS}
+"
+RDEPEND="${COMMON_DEPEND}
+	>=app-accessibility/at-spi2-atk-2.5.3:2
+	gnome-base/dconf
+	gnome-base/gnome-session[systemd]
+	gnome-base/nautilus
+	media-libs/libglvnd
+	sys-auth/polkit-pkla-compat
+	>=sys-devel/gcc-7
+	>=sys-libs/glibc-2.29
+	unity-base/session-migration[${PYTHON_SINGLE_USEDEP}]
+	unity-base/session-shortcuts
+	unity-base/unity-control-center
+	unity-base/unity-language-pack[branding=]
+	unity-extra/unity-greeter
+	unity-indicators/unity-indicators-meta
+	unity-scopes/unity-scope-home
+	>=x11-libs/gdk-pixbuf-2.22.0:2
+	>=x11-libs/libX11-1.2.99.901
+	x11-libs/libXext
+	x11-libs/libXrender
+	>=x11-themes/unity-asset-pool-0.8.18
+
+	!gles2? ( >=media-libs/glewmx-1.12.0 )
+	hud? ( unity-base/hud )
+	nemo? ( gnome-extra/nemo )
+
+	$(python_gen_cond_dep 'dev-python/pygobject:3[${PYTHON_USEDEP}]')
+"
+DEPEND="${COMMON_DEPEND}
+	dev-libs/libxslt
+	>=dev-libs/xpathselect-1.4
+	gnome-base/gsettings-desktop-schemas
+	gnome-base/gnome-desktop:3=
+	sys-apps/dbus[systemd,X]
+	>=unity-base/geis-2.0.10[${PYTHON_SINGLE_USEDEP}]
+	x11-libs/libXtst
+	x11-libs/startup-notification
+	x11-libs/xcb-util-wm
+	x11-themes/gtk-engines-murrine
+
+	$(python_gen_cond_dep 'dev-libs/boost:=[python,${PYTHON_USEDEP}]')
+"
+BDEPEND="
+	>=dev-util/intltool-0.35.0
+	virtual/pkgconfig
+
+	doc? ( app-doc/doxygen[dot] )
+"
 
 S="${WORKDIR}/${PN}"
 
-RDEPEND="app-i18n/ibus[gtk,gtk2]
-	>=sys-apps/systemd-232
-	sys-auth/polkit-pkla-compat
-	unity-base/gsettings-ubuntu-touch-schemas
-	unity-base/session-migration
-	unity-base/session-shortcuts
-	unity-base/unity-language-pack[branding=]
-	x11-themes/humanity-icon-theme
-	x11-themes/gtk-engines-murrine
-	x11-themes/unity-asset-pool
-	hud? (
-		unity-base/hud
-	)
-	nemo? (
-		gnome-extra/nemo
-	)
-"
-DEPEND="${RDEPEND}
-	!sys-apps/upstart
-	!unity-base/dconf-qt
-	dev-libs/appstream-glib
-	>=dev-libs/boost-1.71:=
-	dev-libs/dee:=
-	dev-libs/dbus-glib
-	dev-libs/icu:=
-	dev-libs/libappindicator
-	dev-libs/libdbusmenu:=
-	dev-libs/libffi
-	dev-libs/libindicate[gtk,introspection]
-	dev-libs/libindicator
-	dev-libs/libsigc++:2
-	dev-libs/libunity
-	dev-libs/libunity-misc:=
-	dev-libs/xpathselect
-	gnome-base/gnome-desktop:3=
-	gnome-base/gnome-menus:3
-	gnome-base/gnome-session[systemd]
-	gnome-base/gsettings-desktop-schemas
-	gnome-extra/polkit-gnome:0
-	media-libs/glew:=
-	media-libs/mesa
-	sys-apps/dbus[systemd,X]
-	sys-auth/pambase
-	unity-base/bamf:=
-	unity-base/compiz:=[gles2=]
-	unity-base/nux:=[debug?,gles2=]
-	unity-base/overlay-scrollbar
-	unity-base/unity-control-center
-	unity-base/unity-settings-daemon
-	x11-base/xorg-server
-	>=x11-libs/cairo-1.13.1
-	x11-libs/libXfixes
-	x11-libs/startup-notification
-	unity-base/unity-gtk-module
-"
-BDEPEND="
-	doc? (
-		app-doc/doxygen
-	)
-"
-
 src_prepare() {
-	use branding && sed -i \
+	use branding && ( sed -i \
 			-e 's:"Ubuntu Desktop":"Gentoo Unity⁷ Desktop":g' \
-			panel/PanelMenuView.cpp || die
+			panel/PanelMenuView.cpp || die )
 
 	# Preprocessor fixes #
 	if ! use pch; then
@@ -251,15 +268,16 @@ pkg_postinst() {
 	ubuntu-versionator_pkg_postinst
 
 	echo
-	elog "If you use a custom ~/.xinitrc to startx"
-	elog "then you should add the following to the top of your ~/.xinitrc file"
+	elog "If you use a custom ~/.xinitrc to startx then you should"
+	elog "add the following to the top of your ~/.xinitrc file"
 	elog "to ensure all needed services are started:"
-	elog ' XSESSION=unity'
-	elog ' if [ -d /etc/X11/xinit/xinitrc.d ] ; then'
-	elog '   for f in /etc/X11/xinit/xinitrc.d/* ; do'
-	elog '     [ -x "$f" ] && . "$f"'
-	elog '   done'
-	elog ' unset f'
-	elog ' fi'
+	elog
+	elog 'XSESSION=unity'
+	elog 'if [ -d /etc/X11/xinit/xinitrc.d ] ; then'
+	elog '    for f in /etc/X11/xinit/xinitrc.d/* ; do'
+	elog '        [ -x "$f" ] && . "$f"'
+	elog '    done'
+	elog '    unset f'
+	elog 'fi'
 	echo
 }

@@ -1,2 +1,3 @@
 # USE=pch is now use.mask-ed globally #
+dev-libs/libcolumbus -pch
 unity-base/unity -pch

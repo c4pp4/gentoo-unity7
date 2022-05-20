@@ -1,15 +1,20 @@
 ehooks() {
-	# Install GoogleTest source files + symlink for backwards compatibility #
-	pushd googletest
-		insinto /usr/src/googletest/googletest
-		doins -r src cmake CMakeLists.txt
-	popd
-	dosym /usr/src/googletest/googletest /usr/src/gtest
+	use examples && \
+		dosym /usr/share/doc/${P}/examples /usr/src/googletest/googletest/samples
 
-	# Install GoogleMock source files + symlink for backwards compatibility #
-	pushd googlemock
+	# Install GoogleMock source files and symlinks for backwards compatibility #
+	pushd googlemock >/dev/null || die
 		insinto /usr/src/googletest/googlemock
-		doins -r src cmake CMakeLists.txt test
-	popd
+		doins -r cmake scripts src test CMakeLists.txt
+	popd >/dev/null || die
 	dosym /usr/src/googletest/googlemock /usr/src/gmock
+	dosym /usr/include /usr/src/googletest/googlemock/include
+
+	# Install GoogleTest source files and symlinks for backwards compatibility #
+	pushd googletest >/dev/null || die
+		insinto /usr/src/googletest/googletest
+		doins -r cmake scripts src test CMakeLists.txt
+	popd >/dev/null || die
+	dosym /usr/src/googletest/googletest /usr/src/gtest
+	dosym /usr/include /usr/src/googletest/googletest/include
 }

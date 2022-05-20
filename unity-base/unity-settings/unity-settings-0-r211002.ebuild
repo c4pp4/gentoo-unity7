@@ -3,8 +3,8 @@
 
 EAPI=7
 
-UVER=""
-UREV=""
+UVER=
+UREV=
 
 inherit gnome2-utils ubuntu-versionator
 
@@ -13,16 +13,19 @@ HOMEPAGE="https://launchpad.net/ubuntu/+source/ubuntu-settings"
 SRC_URI=""
 
 LICENSE="GPL-2+"
-KEYWORDS="~amd64"
 SLOT="0"
+KEYWORDS="~amd64"
 IUSE="+files lowgfx +music +photos +ubuntu-cursor +ubuntu-sounds +video"
+RESTRICT="${RESTRICT} binchecks strip test"
 
-RDEPEND="media-fonts/ubuntu-font-family
+RDEPEND="
+	media-fonts/ubuntu-font-family
 	x11-themes/ubuntu-themes
 	x11-themes/ubuntu-wallpapers:=
-	ubuntu-cursor? ( x11-themes/vanilla-dmz-xcursors )
-	ubuntu-sounds? ( x11-themes/ubuntu-sounds )"
 
+	ubuntu-cursor? ( x11-themes/vanilla-dmz-xcursors )
+	ubuntu-sounds? ( x11-themes/ubuntu-sounds )
+"
 PDEPEND="unity-lenses/unity-lens-meta[files=,music=,photos=,video=]"
 
 S="${FILESDIR}"
@@ -37,20 +40,17 @@ src_install() {
 		"${gschema}"
 
 	if use ubuntu-cursor; then
-		# Do the following only if there #
-		#  is no file collision detected #
+		# Do the following only if there is no file collision detected #
 		local index_dir="/usr/share/cursors/xorg-x11/default"
 		[[ -e "${EROOT}${index_dir}"/index.theme ]] \
 			&& local index_owner=$(portageq owners "${EROOT}/" "${EROOT}${index_dir}"/index.theme 2>/dev/null | grep "${CATEGORY}/${PN}-[0-9]" 2>/dev/null)
-		## pass when not null or unset
+		# Pass when not null or unset #
 		if [[ -n "${index_owner-unset}" ]]; then
 			insinto "${index_dir}"
 			doins "${FILESDIR}"/index.theme
 		fi
 	else
-		sed -i \
-			-e "/cursor-theme/d" \
-			"${ED}${gschema_dir}/${gschema}"
+		sed -i "/cursor-theme/d" "${ED}${gschema_dir}/${gschema}"
 	fi
 
 	use ubuntu-sounds || sed -i \

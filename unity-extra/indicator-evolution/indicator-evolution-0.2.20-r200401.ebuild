@@ -1,11 +1,11 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 GNOME2_EAUTORECONF="yes"
 
-UVER=""
-UREV="0ubuntu42"
+UVER=
+UREV=0ubuntu42
 
 inherit gnome2 ubuntu-versionator
 MY_PN="evolution-indicator"
@@ -19,27 +19,39 @@ SRC_URI="${UURL}.orig.tar.gz
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE=""
+RESTRICT="${RESTRICT} test"
 
-DEPEND="dev-libs/dee:=
-	dev-libs/glib:2
-	dev-libs/libdbusmenu:=
-	dev-libs/libunity:=
-	dev-libs/libappindicator
-	dev-libs/libindicate[gtk,introspection]
-	gnome-base/gconf
-	gnome-extra/evolution-data-server
-	gnome-extra/gtkhtml
-	mail-client/evolution
-	media-libs/libcanberra
-	unity-indicators/indicator-messages
-	x11-libs/libnotify"
+COMMON_DEPEND="
+	>=dev-libs/glib-2.31.8:2
+	>=dev-libs/libunity-5.0.0:=
+	>=gnome-base/gconf-3.2.5
+	>=gnome-extra/evolution-data-server-3.17
+	>=mail-client/evolution-3.36.0
+	>=media-libs/libcanberra-0.2
+	>=unity-indicators/indicator-messages-12.10.0
+	>=x11-libs/gtk+-3.0.0:3
+	>=x11-libs/libnotify-0.7.0
+"
+RDEPEND="${COMMON_DEPEND}
+	>=dev-libs/libdbusmenu-0.4.2:=
+	>=sys-libs/glibc-2.4
+"
+DEPEND="${COMMON_DEPEND}
+	>=dev-libs/dbus-glib-0.7
+	net-libs/libsoup:2.4
+	>=sys-apps/dbus-1.0
+	>=x11-libs/cairo-1.2.4
+	>=x11-libs/pango-1.18.0
+"
 
 S="${WORKDIR}/${MY_PN}-${PV}"
 
 src_configure() {
-	econf --disable-static \
+	local myeconfargs=(
+		--disable-static
 		--disable-schemas-install
+	)
+	econf "${myeconfargs[@]}"
 }
 
 src_install() {

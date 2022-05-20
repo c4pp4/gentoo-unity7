@@ -1,11 +1,11 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 UBUNTU_EAUTORECONF="yes"
 
-UVER="+19.04.20190308.1"
-UREV="0ubuntu3"
+UVER=+19.04.20190308.1
+UREV=0ubuntu3
 
 inherit ubuntu-versionator
 
@@ -16,25 +16,34 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE=""
+RESTRICT="${RESTRICT} test"
 
-DEPEND="dev-libs/libappindicator:=
-	dev-libs/libdbusmenu:="
+COMMON_DEPEND="
+	>=dev-libs/dbus-glib-0.88
+	>=dev-libs/glib-2.37.3:2
+	>=dev-libs/libappindicator-0.2.92:3
+	>=dev-libs/libdbusmenu-0.5.90:=[gtk3]
+	>=dev-libs/libindicator-0.4.90:3
+	>=x11-libs/gtk+-3.0.0:3
+"
+RDEPEND="${COMMON_DEPEND}
+	>=sys-libs/glibc-2.4
+	>=x11-libs/pango-1.14.0
+"
+DEPEND="${COMMON_DEPEND}
+	dev-libs/json-glib
+	gnome-base/gnome-common
+	sys-apps/systemd
+"
+BDEPEND="dev-util/intltool"
 
 S="${WORKDIR}"
 
 src_prepare() {
 	# Fix desktop file installation location #
-	sed 's:$(pkgdatadir)/upstart/xdg/autostart:$(datadir)/upstart/xdg/autostart:g' \
-		-i data/upstart/Makefile.am
-
-	# src/application-service-appstore.c uses 'app->status = APP_INDICATOR_STATUS_PASSIVE' to remove the app from panel #
-	#	However some SNI tray icons always report their status as 'Passive' and so never show up, or get removed when they shouldn't be
-	#	Examples are:
-	#	KTorrent (never shows up)
-	#	Quassel (disappears when disconnected from it's core)
-	#	  Quassel also requires patching to have a complete base set of SNI items (profiles/ehooks/net-irc/quassel/files/SNI-systray_fix.patch)
-	eapply "${FILESDIR}/sni-systray_show-passive_v2.diff"
+	sed -i \
+		-e 's:$(pkgdatadir)/upstart/xdg/autostart:$(datadir)/upstart/xdg/autostart:g' \
+		data/upstart/Makefile.am
 
 	ubuntu-versionator_src_prepare
 }

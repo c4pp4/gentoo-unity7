@@ -1,11 +1,11 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 GNOME2_EAUTORECONF="yes"
 
-UVER=""
-UREV=""
+UVER=
+UREV=
 
 inherit gnome2 ubuntu-versionator
 
@@ -17,17 +17,18 @@ LICENSE="CC-BY-SA-3.0"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="+branding"
-RESTRICT="${RESTRICT} binchecks strip"
+RESTRICT="${RESTRICT} binchecks strip test"
 
-DEPEND="app-text/gnome-doc-utils
+RDEPEND="gnome-extra/yelp"
+BDEPEND="
 	app-text/yelp-tools
-	dev-libs/libxml2
-	gnome-extra/yelp"
+	gnome-base/gnome-common
+	virtual/pkgconfig
+"
 
 src_prepare() {
 	if use branding; then
 		local -a files=( $(find ubuntu-help -maxdepth 2 -type f -name "*.po" -o -name "*.page") )
-
 		sed -i \
 			-e "s/Ubuntu Desktop/Gentoo Unity⁷ Desktop/" \
 			-e "s/Ubuntu desktop/Gentoo Unity⁷ Desktop/" \
@@ -35,36 +36,43 @@ src_prepare() {
 			-e "s/Ubuntu features/Gentoo Unity⁷ features/" \
 			-e "s/Ubuntu Button/Gentoo Button/" \
 			-e "s/the Ubuntu logo/the Gentoo logo/" \
-			"${files[@]}"
+			"${files[@]}" || die
 
 		files=( $(find ubuntu-help -maxdepth 2 -type f -name "*.po") )
-		sed -i ":bgn;/Unity⁷/{:loop;n;/^#/b bgn;s/Ubuntu/Gentoo Unity⁷/g;b loop;}" "${files[@]}"
-		sed -i ":bgn;/Gentoo Button/{:loop;n;/^#/b bgn;s/Ubuntu/Gentoo/g;b loop;}" "${files[@]}"
-		sed -i ":bgn;/the Gentoo logo/{:loop;n;/^#/b bgn;s/Ubuntu/Gentoo/g;b loop;}" "${files[@]}"
+		sed -i ":bgn;/Unity⁷/{:loop;n;/^#/b bgn;s/Ubuntu/Gentoo Unity⁷/g;b loop;}" "${files[@]}" || die
+		sed -i ":bgn;/Gentoo Button/{:loop;n;/^#/b bgn;s/Ubuntu/Gentoo/g;b loop;}" "${files[@]}" || die
+		sed -i ":bgn;/the Gentoo logo/{:loop;n;/^#/b bgn;s/Ubuntu/Gentoo/g;b loop;}" "${files[@]}" || die
 
-		sed -i "s/ addremove//" ubuntu-help/C/index.page
-		sed -i "/Install languages/d" ubuntu-help/C/prefs-language.page
-		sed -i '/id="complex"/,+49 d' ubuntu-help/C/keyboard-layouts.page
-		sed -i "/dozens of languages/,+3 d" ubuntu-help/C/session-language.page
-		sed -i "/language-selector/d" ubuntu-help/C/session-{formats,language}.page
-		sed -i "/prefs-language-install.page/d" ubuntu-help/Makefile.am
+		pushd ubuntu-help/C >/dev/null || die
+			sed -i "s/ addremove//" index.page || die
+			sed -i "/Install languages/d" prefs-language.page || die
+			sed -i '/id="complex"/,+49 d' keyboard-layouts.page || die
+			sed -i "/dozens of languages/,+3 d" session-language.page || die
+			sed -i "/language-selector/d" session-{formats,language}.page || die
+		popd >/dev/null || die
 
-		cp "${FILESDIR}"/gentoo_signet.png ubuntu-help/C/figures/ubuntu-logo.png
-		cp "${FILESDIR}"/unity_logo.png ubuntu-help/C/figures/ubuntu-mascot-creature.png
-		cp "${FILESDIR}"/unity.png ubuntu-help/C/figures
-		cp "${FILESDIR}"/unity-dash.png ubuntu-help/C/figures
-		cp "${FILESDIR}"/unity-dash-intro.png ubuntu-help/C/figures
-		cp "${FILESDIR}"/unity-dash-sample.png ubuntu-help/C/figures
-		cp "${FILESDIR}"/unity-launcher.png ubuntu-help/C/figures
-		cp "${FILESDIR}"/unity-launcher-intro.png ubuntu-help/C/figures
-		cp "${FILESDIR}"/unity-overview.png ubuntu-help/C/figures
+		pushd ubuntu-help/C/figures >/dev/null || die
+			cp "${FILESDIR}"/gentoo_signet.png ubuntu-logo.png || die
+			cp "${FILESDIR}"/unity_logo.png ubuntu-mascot-creature.png || die
+			cp "${FILESDIR}"/unity.png . || die
+			cp "${FILESDIR}"/unity-dash.png . || die
+			cp "${FILESDIR}"/unity-dash-intro.png . || die
+			cp "${FILESDIR}"/unity-dash-sample.png . || die
+			cp "${FILESDIR}"/unity-launcher.png . || die
+			cp "${FILESDIR}"/unity-launcher-intro.png . || die
+			cp "${FILESDIR}"/unity-overview.png . || die
+		popd >/dev/null || die
 
-		rm ubuntu-help/it/figures/unity.png
-		rm ubuntu-help/{de,it}/figures/unity-dash.png
-		rm ubuntu-help/it/figures/unity-dash-intro.png
-		rm ubuntu-help/{de,it}/figures/unity-dash-sample.png
-		rm ubuntu-help/{de,it}/figures/unity-launcher-intro.png
-		rm ubuntu-help/{de,it}/figures/unity-overview.png
+		pushd ubuntu-help >/dev/null || die
+			sed -i "/prefs-language-install.page/d" Makefile.am || die
+
+			rm it/figures/unity.png || die
+			rm {de,it}/figures/unity-dash.png || die
+			rm it/figures/unity-dash-intro.png || die
+			rm {de,it}/figures/unity-dash-sample.png || die
+			rm {de,it}/figures/unity-launcher-intro.png || die
+			rm {de,it}/figures/unity-overview.png || die
+		popd >/dev/null || die
 	fi
 
 	ubuntu-versionator_src_prepare

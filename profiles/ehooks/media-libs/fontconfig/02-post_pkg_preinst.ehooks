@@ -33,7 +33,7 @@ ehooks() {
 
 	einfo "Creating fontconfig configuration symlinks ..."
 	for f in "${files[@]}"; do
-		if [[ ! -L ${ED%/}${symlink_dir}/${f} ]] && [[ -f ${ED%/}${template_dir}/${f} ]]; then
+		if [[ ! -L ${ED}${symlink_dir}/${f} ]] && [[ -f ${ED}${template_dir}/${f} ]]; then
 			echo " * ${f}"
 			dosym "../conf.avail/${f}" "${symlink_dir}/${f}"
 		fi

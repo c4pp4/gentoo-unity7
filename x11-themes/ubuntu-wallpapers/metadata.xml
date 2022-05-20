@@ -31,5 +31,6 @@
 		<flag name="groovy">Groovy Gorilla wallpapers</flag>
 		<flag name="hirsute">Hirsute Hippo wallpapers</flag>
 		<flag name="impish">Impish Indri wallpapers</flag>
+		<flag name="jammy">Jammy Jellyfish wallpapers</flag>
 	</use>
 </pkgmetadata>

@@ -13,7 +13,7 @@
 >gnome-base/nautilus-41.2
 >gnome-extra/gnome-calendar-41.2
 >gnome-extra/gnome-contacts-41.0
->gnome-extra/nemo-5.0.4
+>gnome-extra/nemo-5.2.4
 >gnome-extra/nm-applet-1.24.0
 >gnome-extra/polkit-gnome-0.105-r2
 >gui-libs/libhandy-1.4.0
@@ -29,7 +29,7 @@
 >x11-libs/gtk+-2.24.33:2
 >x11-libs/gtk+-3.24.31:3
 >x11-libs/vte-0.66.2
->x11-misc/lightdm-1.30.0-r2
+>x11-misc/lightdm-1.30.0-r3
 >x11-misc/zim-0.73.5
 >x11-plugins/pidgin-libnotify-0.14-r1
 >x11-terms/gnome-terminal-3.42.2
