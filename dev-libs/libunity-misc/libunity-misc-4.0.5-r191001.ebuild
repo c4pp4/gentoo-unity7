@@ -17,6 +17,7 @@ LICENSE="GPL-2 LGPL-2 LGPL-3"
 SLOT="0/4.1.0"
 KEYWORDS="~amd64"
 IUSE="doc"
+RESTRICT="${RESTRICT} test"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.37.3:2

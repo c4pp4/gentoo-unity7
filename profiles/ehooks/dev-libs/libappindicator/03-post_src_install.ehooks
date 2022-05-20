@@ -9,4 +9,6 @@ ehooks() {
 
 	local DOCS=( COPYING COPYING.LGPL.2.1 )
 	einstalldocs
+
+	find "${ED}" -name '*.la' -delete || die
 }

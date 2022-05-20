@@ -17,6 +17,7 @@ SRC_URI="${UURL}.orig.tar.xz
 LICENSE="LGPL-2"
 SLOT="0"
 KEYWORDS="~amd64"
+RESTRICT="${RESTRICT} test"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.43.2:2

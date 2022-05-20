@@ -15,7 +15,7 @@ LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="+system-wide"
-RESTRICT="mirror"
+RESTRICT="mirror test"
 
 RDEPEND="
 	>=dev-libs/glib-2.40.0

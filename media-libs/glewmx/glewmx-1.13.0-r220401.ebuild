@@ -16,6 +16,7 @@ LICENSE="BSD MIT"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="doc static-libs"
+RESTRICT="${RESTRICT} test"
 
 RDEPEND="
 	media-libs/libglvnd[${MULTILIB_USEDEP}]

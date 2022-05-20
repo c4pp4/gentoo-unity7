@@ -17,6 +17,7 @@ LICENSE="GPL-3"
 SLOT="3/7.0.0"
 KEYWORDS="~amd64"
 IUSE="test"
+RESTRICT="${RESTRICT} !test? ( test )"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.37.3:2

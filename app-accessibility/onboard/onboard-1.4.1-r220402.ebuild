@@ -18,6 +18,7 @@ LICENSE="GPL-3+ BSD"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="+accessibility wayland"
+RESTRICT="${RESTRICT} test"
 
 COMMON_DEPEND="
 	>=app-text/hunspell-1.7

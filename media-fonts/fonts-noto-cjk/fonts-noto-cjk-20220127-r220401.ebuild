@@ -20,7 +20,6 @@ LICENSE="OFL-1.1"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="extra"
-
 RESTRICT="${RESTRICT} binchecks strip test"
 
 RDEPEND="!media-fonts/noto-cjk"
