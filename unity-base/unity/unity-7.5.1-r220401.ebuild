@@ -14,7 +14,7 @@ HOMEPAGE="https://launchpad.net/unity"
 SRC_URI="${UURL}-${UREV}.tar.xz"
 
 LICENSE="GPL-3 LGPL-3"
-SLOT="0"
+SLOT="0/${PV}"
 KEYWORDS="~amd64"
 IUSE="+branding debug doc gles2 +hud +nemo +pch systray"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"

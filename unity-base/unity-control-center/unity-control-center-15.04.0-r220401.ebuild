@@ -95,7 +95,11 @@ DEPEND="${COMMON_DEPEND}
 	$(vala_depend)
 "
 BDEPEND=">=dev-util/intltool-0.37.1"
-PDEPEND="bluetooth? ( unity-indicators/indicator-bluetooth )"
+PDEPEND="
+	unity-base/unity:0=
+
+	bluetooth? ( unity-indicators/indicator-bluetooth )
+"
 
 S="${S}${UVER}"
 

@@ -21,7 +21,7 @@ RESTRICT="${RESTRICT} binchecks strip test"
 RDEPEND="
 	media-fonts/ubuntu-font-family
 	x11-themes/ubuntu-themes
-	x11-themes/ubuntu-wallpapers:=
+	x11-themes/ubuntu-wallpapers
 
 	ubuntu-cursor? ( x11-themes/vanilla-dmz-xcursors )
 	ubuntu-sounds? ( x11-themes/ubuntu-sounds )
