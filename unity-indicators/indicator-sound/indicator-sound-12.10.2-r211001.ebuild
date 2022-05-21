@@ -65,6 +65,7 @@ MAKEOPTS="${MAKEOPTS} -j1"
 src_prepare() {
 	# Disable tests #
 	use test || sed -i \
+		-e "s/TEST REQUIRED/TEST QUIET/" \
 		-e "/enable_testing()/d" \
 		-e "/add_subdirectory(tests)/d" \
 		CMakeLists.txt || die

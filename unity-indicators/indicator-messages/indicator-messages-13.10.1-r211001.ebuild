@@ -9,7 +9,7 @@ PYTHON_COMPAT=( python3_{8..10} )
 UVER=+18.10.20180918
 UREV=0ubuntu3
 
-inherit gnome2 python-single-r1 vala ubuntu-versionator
+inherit gnome2 python-single-r1 ubuntu-versionator vala
 
 DESCRIPTION="Indicator that collects messages that need a response used by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/indicator-messages"
@@ -49,6 +49,13 @@ DEPEND="${COMMON_DEPEND}
 BDEPEND="dev-util/intltool"
 
 S="${WORKDIR}"
+
+src_prepare() {
+	# Don't try to find test dep #
+	use test || sed -i "/DBUSTEST/d" configure.ac || die
+
+	ubuntu-versionator_src_prepare
+}
 
 src_configure() {
 	local mygnome2args=(
