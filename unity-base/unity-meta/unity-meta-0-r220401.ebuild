@@ -18,13 +18,12 @@ KEYWORDS="~amd64"
 IUSE="+accessibility +apps chat +core +extra +fonts +games +xdm"
 RESTRICT="${RESTRICT} binchecks strip test"
 
-RDEPEND="${COMMON_DEPEND}
+RDEPEND="
 	gnome-base/gnome-core-libs
 	gnome-extra/nm-applet
 	media-fonts/dejavu
 	unity-base/overlay-scrollbar
 	unity-base/unity
-	unity-lenses/unity-lens-meta
 	x11-misc/notify-osd
 
 	accessibility? (
