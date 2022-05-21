@@ -26,14 +26,19 @@
   unity-indicators/unity-indicators-meta paste
   ```
 
-- **net-mail/mailnag** - mail notification with Messaging menu support
+- **net-mail/mailnag** - mail notification with Messaging menu support:
 
   ```
   unity-indicators/unity-indicators-meta mail
   ```
 
-- **dev-java/jayatana** - enable Global menu for Java applications
+- **dev-java/jayatana** - enable Global menu for Java applications:
 
   ```
   unity-indicators/unity-indicators-meta java
+  ```
+- disable **Wayland** support globally:
+
+  ```
+  */* -wayland
   ```
