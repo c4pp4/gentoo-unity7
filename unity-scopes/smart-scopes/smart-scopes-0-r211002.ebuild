@@ -22,13 +22,13 @@ RDEPEND="
 	dev-libs/dee:=
 	dev-libs/gobject-introspection
 	dev-libs/libunity:=
-	unity-scopes/unity-scope-home
 
 	${PYTHON_DEPS}
 	$(python_gen_cond_dep '
 		dev-python/pygobject:3[${PYTHON_USEDEP}]
 	')
 "
+BDEPEND="virtual/pkgconfig"
 
 ## Neat and efficient way of bundling and tracking all available scopes into one ebuild ##
 ## Borrowed from chenxiaolong's Unity-for-Arch overlay at https://github.com/chenxiaolong/Unity-for-Arch ##
@@ -39,35 +39,35 @@ setvar() {
 	eval "_dep_${1//-/_}=\"${5}\""
 	packages+=( ${1} )
 }
-setvar audacious		0.1+13.10.20130927.1	0ubuntu1 + "$(python_gen_cond_dep 'dev-python/dbus-python[${PYTHON_USEDEP}]') unity-lenses/unity-lens-meta[music]"	## works with audacious 3.9
-setvar calculator		0.1+14.04.20140328	0ubuntu5 + ""														## works with gnome-calculator 3.32
-setvar chromiumbookmarks	0.1+13.10.20130723	0ubuntu1 + ""														## works with chromium 79 (fixed by patch)
-setvar clementine		0.1+13.10.20130723	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/dbus-python[${PYTHON_USEDEP}]')"						## not tested
-setvar colourlovers		0.1+13.10.20130723	0ubuntu1 + ""														## works
-setvar devhelp			0.1+14.04.20140328	0ubuntu4 + "$(python_gen_cond_dep 'dev-python/lxml[${PYTHON_USEDEP}]')"							## works
-setvar deviantart		0.1+13.10.20130723	0ubuntu1 + "$(python_gen_cond_dep 'dev-python/feedparser[${PYTHON_USEDEP}]')"						## works (fixed by patch)
-setvar firefoxbookmarks		0.1+13.10.20130809.1	0ubuntu1 + ""														## works with firefox 72 (fixed by patch)
-setvar gallica			0.1+13.10.20130816.2	0ubuntu1 + "$(python_gen_cond_dep 'dev-python/lxml[${PYTHON_USEDEP}]')"							## works (fixed by patch)
-#setvar gdrive			0.9+13.10.20130723	0ubuntu1 - ""														## doesn't work (account-plugins package not available)
-setvar github			0.1+13.10.20130723	0ubuntu1 + ""														## works
-setvar gmusicbrowser		0.1+13.10.20130723	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/dbus-python[${PYTHON_USEDEP}]')"						## not tested
-setvar gnote			0.1+13.10.20130723	0ubuntu3 - ""														## not tested
-#setvar googlenews		0.1+13.10.20130723	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/feedparser[${PYTHON_USEDEP}]')"						## doesn't work
-#setvar gourmet			0.1+13.10.20130723	0ubuntu1 - ""														## doesn't work (gourmet package not available)
-setvar guayadeque		0.1+13.10.20130927.1	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/dbus-python[${PYTHON_USEDEP}]')"						## not tested
-#setvar launchpad		0.1daily13.06.05	0ubuntu1 - ""														## doesn't work (python-launchpadlib package not available)
-setvar manpages			3.0+14.04.20140324	0ubuntu4 + "sys-apps/man-db x11-libs/gtk+:3"										## works
-setvar musique			0.1+13.10.20130723	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/dbus-python[${PYTHON_USEDEP}]')"						## not tested
-#setvar openclipart		0.1+13.10.20130723	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/feedparser[${PYTHON_USEDEP}]')"						## doesn't work (https://en.wikipedia.org/wiki/Openclipart#Lockdown_and_attempts_at_mirroring_the_library)
-#setvar openweathermap		0.1+13.10.20130828	0ubuntu1 - ""														## doesn't work (needs API key)
-setvar soundcloud		0.1+13.10.20130723	0ubuntu3 + "unity-lenses/unity-lens-meta[music]"									## works
-setvar sshsearch		0.1daily13.06.05	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/paramiko[${PYTHON_USEDEP}]')"						## not tested
-setvar texdoc			0.1+14.04.20140328	0ubuntu1 + ""														## works
-#setvar tomboy			0.1+13.10.20130723	0ubuntu1 - ""														## doesn't work (tomboy package not available)
-setvar virtualbox		0.1+13.10.20130723	0ubuntu3 + ""														## works
-#setvar yahoostock		0.1+13.10.20130723	0ubuntu1 - ""														## doesn't work
-setvar yelp			0.1+13.10.20130723	0ubuntu1 + ""														## works
-setvar zotero			0.1+13.10.20130723	0ubuntu3 - ""														## not tested (Zotero 4.0 for Firefox is being replaced by a Zotero Connector for Firefox)
+setvar audacious		0.1+13.10.20130927.1	0ubuntu1 + "$(python_gen_cond_dep 'dev-python/dbus-python[${PYTHON_USEDEP}]')"	## works with audacious 3.9
+setvar calculator		0.1+14.04.20140328	0ubuntu5 + ""									## works with gnome-calculator 3.32
+setvar chromiumbookmarks	0.1+13.10.20130723	0ubuntu1 + ""									## works with chromium 79 (fixed by patch)
+setvar clementine		0.1+13.10.20130723	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/dbus-python[${PYTHON_USEDEP}]')"	## not tested
+setvar colourlovers		0.1+13.10.20130723	0ubuntu1 + ""									## works
+setvar devhelp			0.1+14.04.20140328	0ubuntu4 + "$(python_gen_cond_dep 'dev-python/lxml[${PYTHON_USEDEP}]')"		## works
+setvar deviantart		0.1+13.10.20130723	0ubuntu1 + "$(python_gen_cond_dep 'dev-python/feedparser[${PYTHON_USEDEP}]')"	## works (fixed by patch)
+setvar firefoxbookmarks		0.1+13.10.20130809.1	0ubuntu1 + ""									## works with firefox 72 (fixed by patch)
+setvar gallica			0.1+13.10.20130816.2	0ubuntu1 + "$(python_gen_cond_dep 'dev-python/lxml[${PYTHON_USEDEP}]')"		## works (fixed by patch)
+#setvar gdrive			0.9+13.10.20130723	0ubuntu1 - ""									## doesn't work (account-plugins package not available)
+setvar github			0.1+13.10.20130723	0ubuntu1 + ""									## works
+setvar gmusicbrowser		0.1+13.10.20130723	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/dbus-python[${PYTHON_USEDEP}]')"	## not tested
+setvar gnote			0.1+13.10.20130723	0ubuntu3 - ""									## not tested
+#setvar googlenews		0.1+13.10.20130723	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/feedparser[${PYTHON_USEDEP}]')"	## doesn't work
+#setvar gourmet			0.1+13.10.20130723	0ubuntu1 - ""									## doesn't work (gourmet package not available)
+setvar guayadeque		0.1+13.10.20130927.1	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/dbus-python[${PYTHON_USEDEP}]')"	## not tested
+#setvar launchpad		0.1daily13.06.05	0ubuntu1 - ""									## doesn't work (python-launchpadlib package not available)
+setvar manpages			3.0+14.04.20140324	0ubuntu4 + "sys-apps/man-db x11-libs/gtk+:3"					## works
+setvar musique			0.1+13.10.20130723	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/dbus-python[${PYTHON_USEDEP}]')"	## not tested
+#setvar openclipart		0.1+13.10.20130723	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/feedparser[${PYTHON_USEDEP}]')"	## doesn't work (https://en.wikipedia.org/wiki/Openclipart#Lockdown_and_attempts_at_mirroring_the_library)
+#setvar openweathermap		0.1+13.10.20130828	0ubuntu1 - ""									## doesn't work (needs API key)
+setvar soundcloud		0.1+13.10.20130723	0ubuntu3 + ""									## works
+setvar sshsearch		0.1daily13.06.05	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/paramiko[${PYTHON_USEDEP}]')"	## not tested
+setvar texdoc			0.1+14.04.20140328	0ubuntu1 + ""									## works
+#setvar tomboy			0.1+13.10.20130723	0ubuntu1 - ""									## doesn't work (tomboy package not available)
+setvar virtualbox		0.1+13.10.20130723	0ubuntu3 + ""									## works
+#setvar yahoostock		0.1+13.10.20130723	0ubuntu1 - ""									## doesn't work
+setvar yelp			0.1+13.10.20130723	0ubuntu1 + ""									## works
+setvar zotero			0.1+13.10.20130723	0ubuntu3 - ""									## not tested (Zotero 4.0 for Firefox is being replaced by a Zotero Connector for Firefox)
 
 UURL="http://archive.ubuntu.com/ubuntu/pool/universe/u"	# Mirrors can be unpredictable #
 
@@ -83,6 +83,10 @@ done
 SRC_URI="${SRC_URI_array[@]}"
 
 DEPEND="${RDEPEND}"
+PDEPEND="
+	audacious? ( unity-lenses/unity-lens-meta[music] )
+	soundcloud? ( unity-lenses/unity-lens-meta[music] )
+"
 
 distutils_enable_tests nose
 
