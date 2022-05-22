@@ -10,13 +10,12 @@ inherit gnome2 ubuntu-versionator
 
 DESCRIPTION="Monochrome icons for the Unity7 user interface (default icon theme)"
 HOMEPAGE="https://launchpad.net/ubuntu-themes"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz
-	yaru? ( ${UURL%/*}/yaru-theme-gtk_22.04.4_all.deb )"
+SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 
 LICENSE="GPL-3 CC-BY-SA-3.0"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="+nemo +optimize +yaru"
+IUSE="+nemo +optimize"
 RESTRICT="${RESTRICT} binchecks strip test"
 
 RDEPEND="
@@ -28,6 +27,7 @@ RDEPEND="
 DEPEND="
 	dev-python/pygobject:3
 	gnome-base/librsvg
+	x11-themes/yaru-unity7
 
 	optimize? (
 		>=media-gfx/scour-0.36
@@ -35,11 +35,6 @@ DEPEND="
 	)
 "
 PDEPEND="nemo? ( gnome-extra/nemo )"
-
-src_unpack() {
-	default
-	use yaru && tar -I zstd -xf "${PWD}"/data.tar.zst
-}
 
 src_prepare() {
 	## Add nemo nautilus-like theme ##
@@ -94,14 +89,6 @@ src_install() {
 	insinto /usr/share/icons/suru
 	doins -r suru-icons/*
 
-	if use yaru; then
-		## Add Yaru gtk4 theme ##
-		insinto /usr/share/themes/Ambiance
-		doins -r "${WORKDIR}"/usr/share/themes/Yaru-dark/gtk-4.0
-		insinto /usr/share/themes/Radiance
-		doins -r "${WORKDIR}"/usr/share/themes/Yaru/gtk-4.0
-	fi
-
 	# Optimize icons #
 	if use optimize; then
 		local x
@@ -121,6 +108,10 @@ src_install() {
 
 	## Remove broken symlinks ##
 	find -L "${ED}" -type l -delete
+
+	## Add gtk4 theme from yaru-unity7 ##
+	dosym ../Yaru-unity-dark/gtk-4.0 /usr/share/themes/Ambiance/gtk-4.0
+	dosym ../Yaru-unity/gtk-4.0 /usr/share/themes/Radiance/gtk-4.0
 
 	einstalldocs
 }

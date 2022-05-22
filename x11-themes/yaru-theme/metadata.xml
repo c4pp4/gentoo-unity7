@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="project">
+		<name>gentoo-unity7</name>
+	</maintainer>
+	<use>
+		<flag name="cinnamon">Build Yaru with Cinnamon flavour</flag>
+		<flag name="gnome-shell">Build gnome-shell component</flag>
+		<flag name="mate">Build Yaru mate flavour</flag>
+		<flag name="unity">Build Yaru with Unity assets</flag>
+		<flag name="xfwm">Build Yaru with xfwm4 assets</flag>
+	</use>
+</pkgmetadata>
