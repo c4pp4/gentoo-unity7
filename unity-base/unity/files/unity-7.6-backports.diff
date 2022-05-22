@@ -1,0 +1,93 @@
+diff -Nur a/dash/DashView.cpp b/dash/DashView.cpp
+--- a/dash/DashView.cpp	2021-10-26 19:33:29.000000000 +0200
++++ b/dash/DashView.cpp	2022-05-22 02:02:07.372972910 +0200
+@@ -1420,7 +1420,7 @@
+     return application_starter_->Launch(appname, last_activated_timestamp_);
+   }
+   else
+-    return gtk_show_uri(NULL, uri.c_str(), last_activated_timestamp_, NULL);
++    return gtk_show_uri_on_window(NULL, uri.c_str(), last_activated_timestamp_, NULL);
+ 
+   return false;
+ }
+diff -Nur a/dash/previews/ApplicationPreview.cpp b/dash/previews/ApplicationPreview.cpp
+--- a/dash/previews/ApplicationPreview.cpp	2021-10-26 19:33:29.000000000 +0200
++++ b/dash/previews/ApplicationPreview.cpp	2022-05-22 02:06:18.281117369 +0200
+@@ -161,19 +161,6 @@
+         app_icon_->mouse_click.connect(on_mouse_down);
+         icon_layout_->AddView(app_icon_.GetPointer(), 0);
+ 
+-        if (app_preview_model->rating >= 0)
+-        {
+-          app_rating_ = new PreviewRatingsWidget();
+-          AddChild(app_rating_.GetPointer());
+-          app_rating_->scale = scale();
+-          app_rating_->SetMaximumHeight(style.GetRatingWidgetHeight().CP(scale));
+-          app_rating_->SetMinimumHeight(style.GetRatingWidgetHeight().CP(scale));
+-          app_rating_->SetRating(app_preview_model->rating);
+-          app_rating_->SetReviews(app_preview_model->num_ratings);
+-          app_rating_->request_close().connect([this]() { preview_container_->request_close.emit(); });
+-          icon_layout_->AddView(app_rating_.GetPointer(), 0);
+-        }
+-
+         /////////////////////
+ 
+         /////////////////////
+@@ -192,6 +179,7 @@
+         title_->SetFont(style.title_font().c_str());
+         title_->mouse_click.connect(on_mouse_down);
+         title_subtitle_layout_->AddView(title_.GetPointer(), 1);
++        title_subtitle_layout_->SetPadding(34, 0, 0, 0);
+ 
+         if (!preview_model_->subtitle.Get().empty())
+         {
+@@ -207,41 +195,6 @@
+         app_updated_copywrite_layout_ = new nux::VLayout();
+         app_updated_copywrite_layout_->SetSpaceBetweenChildren(COPYRIGHT_SPACE_CHILDREN.CP(scale));
+ 
+-        if (!app_preview_model->license.Get().empty())
+-        {
+-          license_ = new StaticCairoText(app_preview_model->license, true, NUX_TRACKER_LOCATION);
+-          AddChild(license_.GetPointer());
+-          license_->SetFont(style.app_license_font().c_str());
+-          license_->SetLines(-1);
+-          license_->SetScale(scale);
+-          license_->mouse_click.connect(on_mouse_down);
+-          app_updated_copywrite_layout_->AddView(license_.GetPointer(), 1);
+-        }
+-
+-        if (!app_preview_model->last_update.Get().empty())
+-        {
+-          std::stringstream last_update;
+-          last_update << _("Last Updated") << " " << app_preview_model->last_update.Get();
+-
+-          last_update_ = new StaticCairoText(last_update.str(), true, NUX_TRACKER_LOCATION);
+-          AddChild(last_update_.GetPointer());
+-          last_update_->SetFont(style.app_last_update_font().c_str());
+-          last_update_->SetScale(scale);
+-          last_update_->mouse_click.connect(on_mouse_down);
+-          app_updated_copywrite_layout_->AddView(last_update_.GetPointer(), 1);
+-        }
+-
+-        if (!app_preview_model->copyright.Get().empty())
+-        {
+-          copywrite_ = new StaticCairoText(app_preview_model->copyright, true, NUX_TRACKER_LOCATION);
+-          AddChild(copywrite_.GetPointer());
+-          copywrite_->SetFont(style.app_copywrite_font().c_str());
+-          copywrite_->SetLines(-1);
+-          copywrite_->SetScale(scale);
+-          copywrite_->mouse_click.connect(on_mouse_down);
+-          app_updated_copywrite_layout_->AddView(copywrite_.GetPointer(), 1);
+-        }
+-
+         app_data_layout_->AddLayout(title_subtitle_layout_);
+         app_data_layout_->AddLayout(app_updated_copywrite_layout_);
+ 
+@@ -297,7 +250,6 @@
+     full_data_layout_->AddLayout(actions_layout_, 0);
+     /////////////////////
+ 
+-  image_data_layout_->AddView(image_.GetPointer(), 0);
+   image_data_layout_->AddLayout(full_data_layout_, 1);
+ 
+   mouse_click.connect(on_mouse_down);

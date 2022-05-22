@@ -37,6 +37,7 @@
   ```
   unity-indicators/unity-indicators-meta java
   ```
+
 - disable **Wayland** support globally:
 
   ```

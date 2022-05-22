@@ -19,6 +19,7 @@ IUSE="+audacity_menu +eog_menu +evince_menu +fontconfig_adjust +gnome-screenshot
 
 RDEPEND="
 	x11-misc/gtk3-nocsd
+
 	fontconfig_adjust? ( media-libs/freetype:2[adobe-cff,cleartype-hinting,-infinality] )
 "
 DEPEND="unity-base/unity-build-env"

@@ -99,6 +99,8 @@ BDEPEND="
 
 S="${WORKDIR}/${PN}"
 
+PATCHES=( "${FILESDIR}"/unity-7.6-backports.diff )
+
 src_prepare() {
 	use branding && ( sed -i \
 			-e 's:"Ubuntu Desktop":"Gentoo Unity⁷ Desktop":g' \

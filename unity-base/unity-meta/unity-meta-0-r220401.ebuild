@@ -30,16 +30,34 @@ RDEPEND="
 		app-accessibility/at-spi2-atk
 		app-accessibility/at-spi2-core
 		app-accessibility/onboard
-		app-accessibility/orca )
+		app-accessibility/orca
+	)
 	apps? (
-		|| ( app-office/libreoffice app-office/libreoffice-bin )
-		|| ( mail-client/thunderbird mail-client/thunderbird-bin mail-client/evolution )
-		|| ( www-client/firefox www-client/firefox-bin www-client/chromium www-client/epiphany ) )
+		|| (
+			app-office/libreoffice
+			app-office/libreoffice-bin
+		)
+		|| (
+			mail-client/thunderbird
+			mail-client/thunderbird-bin
+			mail-client/evolution
+		)
+		|| (
+			www-client/firefox
+			www-client/firefox-bin
+			www-client/chromium
+			www-client/chromium-bin
+			www-client/epiphany
+		)
+	)
 	chat? (
 		|| (
-		( net-im/pidgin x11-plugins/pidgin-libnotify )
-		( net-im/empathy net-libs/telepathy-indicator )
-		net-im/telegram-desktop net-im/telegram-desktop-bin ) )
+			( net-im/pidgin x11-plugins/pidgin-libnotify )
+			( net-im/empathy net-libs/telepathy-indicator )
+			net-im/telegram-desktop
+			net-im/telegram-desktop-bin
+		)
+	)
 	core? (
 		app-arch/file-roller
 		app-editors/gedit
@@ -47,10 +65,17 @@ RDEPEND="
 		gnome-extra/gnome-calculator
 		media-gfx/eog
 		media-gfx/gnome-screenshot
-		|| ( media-gfx/shotwell media-gfx/gnome-photos )
-		|| ( media-sound/rhythmbox media-sound/gnome-music )
+		|| (
+			media-gfx/shotwell
+			media-gfx/gnome-photos
+		)
+		|| (
+			media-sound/rhythmbox
+			media-sound/gnome-music
+		)
 		media-video/totem
-		x11-terms/gnome-terminal )
+		x11-terms/gnome-terminal
+	)
 	extra? (
 		app-backup/deja-dup
 		app-crypt/seahorse
@@ -72,11 +97,15 @@ RDEPEND="
 		unity-extra/unity-tweak-tool
 		|| ( unity-indicators/indicator-keyboard[charmap] gnome-extra/gnome-characters )
 		unity-indicators/indicator-power[powerman]
-		unity-indicators/indicator-session[help] )
+		unity-indicators/indicator-session[help]
+	)
 	fonts? (
 		media-fonts/droid
 		media-fonts/font-bitstream-type1
-		|| ( media-fonts/fonts-noto-cjk media-fonts/noto-cjk )
+		|| (
+			media-fonts/fonts-noto-cjk
+			media-fonts/noto-cjk
+		)
 		media-fonts/freefont
 		media-fonts/kacst-fonts
 		media-fonts/khmer
@@ -102,7 +131,8 @@ RDEPEND="
 		media-fonts/takao-fonts
 		media-fonts/thaifonts-scalable
 		media-fonts/tibetan-machine-font
-		media-fonts/urw-fonts )
+		media-fonts/urw-fonts
+	)
 	games? (
 		games-arcade/gnome-nibbles
 		games-arcade/gnome-robots
@@ -121,8 +151,13 @@ RDEPEND="
 		games-puzzle/hitori
 		games-puzzle/lightsoff
 		games-puzzle/quadrapassel
-		games-puzzle/swell-foop )
-	xdm? ( || ( unity-extra/unity-greeter gnome-base/gdm ) )
+		games-puzzle/swell-foop
+	)
+	xdm? ( || (
+			unity-extra/unity-greeter
+			gnome-base/gdm
+		)
+	)
 "
 DEPEND="unity-extra/ehooks"
 
