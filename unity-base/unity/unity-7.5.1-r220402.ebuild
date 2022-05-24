@@ -87,6 +87,11 @@ DEPEND="${COMMON_DEPEND}
 	x11-libs/xcb-util-wm
 	x11-themes/gtk-engines-murrine
 
+	!gles2? (
+		>=media-libs/glew-2.0.0:0=
+		>=media-libs/glewmx-1.12.0:0=
+	)
+
 	$(python_gen_cond_dep 'dev-libs/boost:=[python,${PYTHON_USEDEP}]')
 "
 BDEPEND="
