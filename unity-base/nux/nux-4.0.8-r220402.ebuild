@@ -38,7 +38,10 @@ COMMON_DEPEND="
 	x11-libs/libXxf86vm
 	>=x11-libs/pango-1.20.0
 
-	!gles2? ( >=media-libs/glewmx-1.12.0 )
+	!gles2? (
+		>=media-libs/glew-2.0.0:0=
+		>=media-libs/glewmx-1.12.0:0=
+	)
 "
 RDEPEND="${COMMON_DEPEND}
 	media-libs/libglvnd

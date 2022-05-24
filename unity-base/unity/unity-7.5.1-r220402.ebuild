@@ -70,7 +70,6 @@ RDEPEND="${COMMON_DEPEND}
 	x11-libs/libXrender
 	>=x11-themes/unity-asset-pool-0.8.18
 
-	!gles2? ( >=media-libs/glewmx-1.12.0 )
 	hud? ( unity-base/hud )
 	nemo? ( gnome-extra/nemo )
 

@@ -75,7 +75,7 @@ DEPEND="${COMMON_DEPEND}
 	>=x11-base/xorg-proto-1.4.8
 	>=x11-base/xorg-server-0.7.0
 
-	!gles2? ( media-libs/glewmx )
+	!gles2? ( media-libs/glewmx:0= )
 
 	$(python_gen_cond_dep '
 		dev-libs/boost:=[python,${PYTHON_USEDEP}]
