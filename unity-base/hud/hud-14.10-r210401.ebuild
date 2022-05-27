@@ -21,9 +21,9 @@ IUSE="doc test"
 RESTRICT="${RESTRICT} !test? ( test )"
 
 COMMON_DEPEND="
-	>=dev-libs/dee-0.5.2:=[${PYTHON_SINGLE_USEDEP}]
+	>=dev-libs/dee-0.5.2:0=[${PYTHON_SINGLE_USEDEP}]
 	>=dev-libs/glib-2.37.3:2
-	>=dev-libs/libcolumbus-1.1.0:=[${PYTHON_SINGLE_USEDEP}]
+	>=dev-libs/libcolumbus-1.1.0:0=[${PYTHON_SINGLE_USEDEP}]
 	>=dev-libs/libdbusmenu-qt-0.9.3_pre20160218
 	>=dev-qt/qtcore-5.15.1:5[systemd]
 	>=dev-qt/qtdbus-5.0.2:5

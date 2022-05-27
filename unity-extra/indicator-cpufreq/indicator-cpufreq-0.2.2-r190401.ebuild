@@ -29,7 +29,12 @@ RDEPEND="
 		dev-python/pygobject:3[${PYTHON_USEDEP}]
 	')
 "
-DEPEND="${PYTHON_DEPS}"
+DEPEND="
+	${PYTHON_DEPS}
+	$(python_gen_cond_dep '
+		dev-python/python-distutils-extra[${PYTHON_USEDEP}]
+	')
+"
 
 src_prepare() {
 	# Allow users to use the indicator #

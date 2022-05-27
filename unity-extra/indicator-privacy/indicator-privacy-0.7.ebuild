@@ -33,7 +33,11 @@ RDEPEND="${COMMON_DEPEND}
 		>=unity-base/unity-7.0[${PYTHON_SINGLE_USEDEP}]
 	')
 "
-DEPEND="${COMMON_DEPEND}"
+DEPEND="${COMMON_DEPEND}
+	$(python_gen_cond_dep '
+		dev-python/python-distutils-extra[${PYTHON_USEDEP}]
+	')
+"
 BDEPEND="dev-util/intltool"
 
 src_install() {

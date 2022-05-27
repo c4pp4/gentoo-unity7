@@ -52,10 +52,6 @@ RDEPEND="${COMMON_DEPEND}
 		app-accessibility/at-spi2-core:2
 		gnome-extra/mousetweaks
 	)
-
-	$(python_gen_cond_dep '
-		dev-python/dbus-python[${PYTHON_USEDEP}]
-	')
 "
 DEPEND="${COMMON_DEPEND}
 	wayland? ( dev-libs/wayland )

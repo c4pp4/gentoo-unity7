@@ -21,8 +21,9 @@ IUSE="gnome-online-accounts"
 RESTRICT="${RESTRICT} test"
 
 RDEPEND="
-	>=dev-libs/dee-1.2.5:=[${PYTHON_SINGLE_USEDEP}]
-	>=dev-libs/libunity-7:=[${PYTHON_SINGLE_USEDEP}]
+	${PYTHON_DEPS}
+	>=dev-libs/dee-1.2.5:0=[${PYTHON_SINGLE_USEDEP}]
+	>=dev-libs/libunity-7:0=[${PYTHON_SINGLE_USEDEP}]
 	media-gfx/shotwell
 
 	gnome-online-accounts? (
@@ -36,9 +37,13 @@ RDEPEND="
 			net-libs/libsignon-glib[introspection,${PYTHON_USEDEP}]
 		')
 	)
-	${PYTHON_DEPS}
 "
-DEPEND="${PYTHON_DEPS}"
+DEPEND="
+	${PYTHON_DEPS}
+	$(python_gen_cond_dep '
+		dev-python/python-distutils-extra[${PYTHON_USEDEP}]
+	')
+"
 
 S="${WORKDIR}"
 

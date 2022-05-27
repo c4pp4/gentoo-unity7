@@ -24,7 +24,7 @@ COMMON_DEPEND="
 	>=dev-libs/json-c-0.15
 	>=dev-libs/libappindicator-0.2.92:3
 	>=dev-libs/libatasmart-0.13
-	>=dev-libs/libunity-3.4.6:=
+	>=dev-libs/libunity-3.4.6:0=
 	>=gnome-base/libgtop-2.22.3:2=
 	>=net-libs/libmicrohttpd-0.9.50
 	>=net-misc/curl-7.16.2

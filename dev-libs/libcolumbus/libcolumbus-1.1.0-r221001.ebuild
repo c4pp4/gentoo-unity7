@@ -38,9 +38,7 @@ DEPEND="${COMMON_DEPEND}
 		dev-util/lcov
 	)
 "
-BDEPEND="
-	virtual/pkgconfig
-"
+BDEPEND="virtual/pkgconfig"
 
 S="${S}${UVER}"
 

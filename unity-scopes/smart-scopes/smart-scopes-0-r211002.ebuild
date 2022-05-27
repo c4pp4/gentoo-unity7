@@ -19,9 +19,9 @@ KEYWORDS="~amd64"
 RESTRICT="${RESTRICT} !test? ( test )"
 
 RDEPEND="
-	dev-libs/dee:=
+	dev-libs/dee:0=
 	dev-libs/gobject-introspection
-	dev-libs/libunity:=
+	dev-libs/libunity:0=
 
 	${PYTHON_DEPS}
 	$(python_gen_cond_dep '
@@ -82,7 +82,11 @@ done
 
 SRC_URI="${SRC_URI_array[@]}"
 
-DEPEND="${RDEPEND}"
+DEPEND="${RDEPEND}
+	$(python_gen_cond_dep '
+		dev-python/python-distutils-extra[${PYTHON_USEDEP}]
+	')
+"
 PDEPEND="
 	audacious? ( unity-lenses/unity-lens-meta[music] )
 	soundcloud? ( unity-lenses/unity-lens-meta[music] )

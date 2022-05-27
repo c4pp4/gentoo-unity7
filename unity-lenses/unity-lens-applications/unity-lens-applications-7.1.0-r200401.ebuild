@@ -17,11 +17,11 @@ SLOT="0"
 KEYWORDS="~amd64"
 
 COMMON_DEPEND="
-	>=dev-libs/dee-1.0.2:=
+	>=dev-libs/dee-1.0.2:0=
 	>=dev-libs/glib-2.43.92:2
-	>=dev-libs/libcolumbus-1.1.0:=
+	>=dev-libs/libcolumbus-1.1.0:0=
 	>=dev-libs/libgee-0.8.3:0.8
-	>=dev-libs/libunity-7.1.4:=
+	>=dev-libs/libunity-7.1.4:0=
 	>=dev-libs/libzeitgeist-0.3.8
 	>=dev-libs/xapian-1.4.14:=
 	>=gnome-base/gnome-menus-3.2.0.1:3

@@ -21,7 +21,7 @@ RESTRICT="${RESTRICT} !test? ( test )"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.37.3:2
-	>=unity-indicators/ido-13.10.0
+	>=unity-indicators/ido-13.10.0:0=
 	>=x11-libs/gtk+-2.18:2
 	>=x11-libs/gtk+-3.5.18:3
 "

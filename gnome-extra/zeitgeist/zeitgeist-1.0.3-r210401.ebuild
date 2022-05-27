@@ -30,7 +30,7 @@ COMMON_DEPEND="
 
 	datahub? ( >=x11-libs/gtk+-3.0.0:3 )
 	fts? ( >=dev-libs/xapian-1.4.17:0=[inmemory] )
-	icu? ( >=dev-libs/dee-1.0.2:=[icu,${PYTHON_SINGLE_USEDEP}] )
+	icu? ( >=dev-libs/dee-1.0.2:0=[icu,${PYTHON_SINGLE_USEDEP}] )
 	introspection? ( >=dev-libs/gobject-introspection-1.30.0 )
 	telepathy? ( >=net-libs/telepathy-glib-0.18.0 )
 

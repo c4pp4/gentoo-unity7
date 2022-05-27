@@ -15,6 +15,7 @@ SRC_URI="${UURL}.tar.xz"
 LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="~amd64"
+RESTRICT="${RESTRICT} test"
 
 RDEPEND="
 	gnome-base/gnome-session

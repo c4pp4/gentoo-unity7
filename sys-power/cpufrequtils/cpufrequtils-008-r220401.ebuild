@@ -39,14 +39,16 @@ src_configure() {
 }
 
 src_compile() {
-	emake \
-		CC="$(tc-getCC)" \
-		LD="$(tc-getCC)" \
-		AR="$(tc-getAR)" \
-		STRIP=: \
-		RANLIB="$(tc-getRANLIB)" \
-		LIBTOOL="${EPREFIX}"/usr/bin/libtool \
+	local myemakeargs=(
+		CC="$(tc-getCC)"
+		LD="$(tc-getCC)"
+		AR="$(tc-getAR)"
+		STRIP=:
+		RANLIB="$(tc-getRANLIB)"
+		LIBTOOL="${EPREFIX}"/usr/bin/libtool
 		INSTALL="${EPREFIX}"/usr/bin/install
+	)
+	emake "${myemakeargs[@]}"
 }
 
 src_install() {

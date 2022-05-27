@@ -46,6 +46,6 @@ pkg_postinst() {
 
 	use dev && ewarn "Overlay missing keyword unmasking has been detected. Continue if you really know how broken development packages could be." && echo
 
-	elog "If you have recently changed profile then you should re-run 'emerge -avuDU --with-bdeps=y @world' to catch any updates."
+	elog "If you have recently changed USE flag or set profile then you should re-run 'emerge -avuDU --with-bdeps=y @world' to catch any updates."
 	echo
 }

@@ -18,7 +18,7 @@ IUSE="test"
 RESTRICT="${RESTRICT} !test? ( test )"
 
 COMMON_DEPEND="
-	>=dev-libs/dee-1.0.0:=
+	>=dev-libs/dee-1.0.0:0=
 	>=dev-qt/qtcore-5.12.2:5
 	>=dev-qt/qtdeclarative-5.0.2
 "

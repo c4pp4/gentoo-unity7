@@ -23,22 +23,22 @@ RESTRICT="${RESTRICT} test"
 COMMON_DEPEND="
 	>=dev-libs/appstream-glib-0.5.1
 	>=dev-libs/atk-2.2.0
-	>=dev-libs/dee-1.2.6:=[${PYTHON_SINGLE_USEDEP}]
+	>=dev-libs/dee-1.2.6:0=[${PYTHON_SINGLE_USEDEP}]
 	>=dev-libs/glib-2.41.1:2
 	>=dev-libs/json-glib-1.5.2
 	>=dev-libs/libdbusmenu-0.4.2[gtk3]
 	>=dev-libs/libindicator-0.12.2:3
 	>=dev-libs/libsigc++-2.8.0:2
-	>=dev-libs/libunity-7.1.4:=[${PYTHON_SINGLE_USEDEP}]
-	>=dev-libs/libunity-misc-4.0.4
+	>=dev-libs/libunity-7.1.4:0=[${PYTHON_SINGLE_USEDEP}]
+	>=dev-libs/libunity-misc-4.0.4:0=
 	>=gnome-extra/zeitgeist-0.9.9[${PYTHON_SINGLE_USEDEP}]
 	>=sys-libs/pam-0.99.7.1
-	>=unity-base/bamf-0.5.3:=
-	>=unity-base/compiz-0.9.13.1:=[gles2=,${PYTHON_SINGLE_USEDEP}]
+	>=unity-base/bamf-0.5.3:0=
+	>=unity-base/compiz-0.9.13.1:0=[gles2=,${PYTHON_SINGLE_USEDEP}]
 	>=unity-base/gsettings-ubuntu-touch-schemas-0.0.7
-	>=unity-base/nux-4.0.6:=[debug?,gles2=]
+	>=unity-base/nux-4.0.6:0=[debug?,gles2=]
 	>=unity-base/unity-settings-daemon-15.04.1
-	>=unity-indicators/ido-13.10.0
+	>=unity-indicators/ido-13.10.0:0=
 	>=x11-libs/cairo-1.14.0
 	>=x11-libs/gtk+-3.19.12:3
 	>=x11-libs/libnotify-0.7.0

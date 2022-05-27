@@ -18,11 +18,10 @@ LICENSE="LGPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
 
-COMMON_DEPEND=">=dev-libs/glib-2.51.1:2"
-RDEPEND="${COMMON_DEPEND}
+DEPEND=">=dev-libs/glib-2.51.1:2"
+RDEPEND="${DEPEND}
 	>=sys-libs/glibc-2.4
 "
-DEPEND="${COMMON_DEPEND}"
 
 distutils_enable_tests nose
 

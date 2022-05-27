@@ -18,7 +18,7 @@ KEYWORDS="~amd64"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.31.8:2
-	>=dev-libs/libunity-5.0.0:=
+	>=dev-libs/libunity-5.0.0:0=
 	>=net-libs/telepathy-glib-0.19.9
 	>=unity-indicators/indicator-messages-12.10.0
 	>=x11-libs/gtk+-3.0.0:3

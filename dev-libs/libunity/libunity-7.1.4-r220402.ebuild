@@ -22,7 +22,7 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="${RESTRICT} !test? ( test )"
 
 COMMON_DEPEND="
-	>=dev-libs/dee-1.2.7:=[${PYTHON_SINGLE_USEDEP}]
+	>=dev-libs/dee-1.2.7:0=[${PYTHON_SINGLE_USEDEP}]
 	>=dev-libs/glib-2.43.92:2
 	>=dev-libs/libdbusmenu-0.4.90[introspection]
 "

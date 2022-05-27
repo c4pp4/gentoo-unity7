@@ -23,7 +23,7 @@ RESTRICT="${RESTRICT} test"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.31.8:2
-	>=dev-libs/libunity-5.0.0:=
+	>=dev-libs/libunity-5.0.0:0=
 	>=gnome-base/gconf-3.2.5
 	>=gnome-extra/evolution-data-server-3.17
 	>=mail-client/evolution-3.36.0

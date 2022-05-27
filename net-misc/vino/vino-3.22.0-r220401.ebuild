@@ -61,15 +61,17 @@ BDEPEND="
 "
 
 src_configure() {
-	gnome2_src_configure \
-		$(use_enable ipv6) \
-		$(use_with crypt gcrypt) \
-		$(usex debug --enable-debug=yes ' ') \
-		$(use_with gnome-keyring secret) \
-		$(use_with jpeg) \
-		$(use_with ssl gnutls) \
-		$(use_with telepathy) \
-		$(use_with zeroconf avahi) \
-		$(use_with zlib) \
+	local mygnome2args=(
+		$(use_enable ipv6)
+		$(use_with crypt gcrypt)
+		$(usex debug --enable-debug=yes ' ')
+		$(use_with gnome-keyring secret)
+		$(use_with jpeg)
+		$(use_with ssl gnutls)
+		$(use_with telepathy)
+		$(use_with zeroconf avahi)
+		$(use_with zlib)
 		--with-systemduserunitdir="$(systemd_get_userunitdir)"
+	)
+	gnome2_src_configure "${mygnome2args[@]}"
 }

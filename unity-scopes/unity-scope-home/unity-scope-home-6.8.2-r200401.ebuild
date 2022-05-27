@@ -19,11 +19,11 @@ IUSE="test"
 RESTRICT="${RESTRICT} !test? ( test )"
 
 COMMON_DEPEND="
-	>=dev-libs/dee-1.2.7:=
+	>=dev-libs/dee-1.2.7:0=
 	>=dev-libs/glib-2.43.92:2
 	>=dev-libs/json-glib-0.13.2
 	>=dev-libs/libgee-0.8.3:0.8
-	>=dev-libs/libunity-7.1.4:=
+	>=dev-libs/libunity-7.1.4:0=
 	>=net-libs/libsoup-2.24.3:2.4
 	sys-apps/lsb-release
 	>=sys-apps/util-linux-2.16

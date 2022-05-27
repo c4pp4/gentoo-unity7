@@ -23,7 +23,7 @@ COMMON_DEPEND="
 	>=dev-libs/libindicator-0.4.90:3
 	>=media-libs/libcanberra-0.2[gtk3]
 	>=unity-base/unity-settings-daemon-15.04.1
-	>=unity-indicators/ido-13.10.0
+	>=unity-indicators/ido-13.10.0:0=
 	>=x11-libs/gtk+-3.16.2:3
 	>=x11-misc/lightdm-1.20.0[introspection]
 "
