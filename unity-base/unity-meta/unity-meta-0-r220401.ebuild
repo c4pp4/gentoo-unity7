@@ -62,7 +62,10 @@ RDEPEND="
 		app-arch/file-roller
 		app-editors/gedit
 		app-text/evince
-		gnome-extra/gnome-calculator
+		|| (
+			gnome-extra/gnome-calculator
+			mate-extra/mate-calc
+		)
 		media-gfx/eog
 		media-gfx/gnome-screenshot
 		|| (
@@ -95,7 +98,10 @@ RDEPEND="
 		sys-apps/gnome-disk-utility
 		unity-base/unity-control-center[gnome-online-accounts]
 		unity-extra/unity-tweak-tool
-		|| ( unity-indicators/indicator-keyboard[charmap] gnome-extra/gnome-characters )
+		|| (
+			unity-indicators/indicator-keyboard[charmap]
+			gnome-extra/gnome-characters
+		)
 		unity-indicators/indicator-power[powerman]
 		unity-indicators/indicator-session[help]
 	)

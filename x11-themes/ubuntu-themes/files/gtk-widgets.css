@@ -14,6 +14,10 @@ window.background.unified:dir(ltr) > deck:dir(ltr) > box.vertical.view:dir(ltr) 
 }
 
 /* nautilus path bar shadow */
+.nautilus-path-bar .current-dir {
+    color: @dark_fg_color;
+}
+
 .nautilus-path-bar .dim-label {
     text-shadow: none;
 }
