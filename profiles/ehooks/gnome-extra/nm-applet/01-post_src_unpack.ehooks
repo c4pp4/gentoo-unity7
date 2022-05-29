@@ -1,8 +1,0 @@
-ehooks() {
-	local \
-		blake=d25e9bfc8b403bb6f55cae3b699b9da9ff50f8a8e9dd2209b0915d213df58b061212532d7bfb225a68960adc12fe596c7ecc1094dd553cdd912ed4919bc5c566 \
-		uver=network-manager-applet_1.24.0-1ubuntu3
-
-	source "${EHOOKS_PATH}"/templates/fetch_debian.template
-	fetch_debian "${blake}" "${uver}"
-}

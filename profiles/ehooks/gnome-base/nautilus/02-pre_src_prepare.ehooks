@@ -1,5 +1,6 @@
 ehooks() {
 	sed -i \
 		-e "s/multiarch_fallback/#multiarch_fallback/" \
-		"${S}/debian/patches/series"
+		-e "s/Revert-meson.build-Use-environment-to-make-warnings-fatal/#Revert-meson.build-Use-environment-to-make-warnings-fatal/" \
+		"${S}/debian/patches/series" || die
 }

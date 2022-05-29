@@ -239,8 +239,8 @@ index 17c9140..7adcb40 100644
  resource_data = files(
    'pixmaps/thumbnail-frame.png',
 +  'eog-menubar.ui',
+   'eog-details-dialog.ui',
    'eog-gear-menu.ui',
-   'eog-image-properties-dialog.ui',
    'eog-multiple-save-as-dialog.ui',
 diff --git a/po/POTFILES.in b/po/POTFILES.in
 index 31cf8f1..8bc89b4 100644
@@ -249,11 +249,11 @@ index 31cf8f1..8bc89b4 100644
 @@ -3,6 +3,7 @@
  data/eog.appdata.xml.in
  data/eog-gear-menu.ui
- data/eog-image-properties-dialog.ui
+ data/eog-details-dialog.ui
 +data/eog-menubar.ui
  data/eog-multiple-save-as-dialog.ui
  data/eog-preferences-dialog.ui
- data/eog-zoom-entry.ui
+ data/eog-remote-presenter.ui
 diff --git a/src/eog-application.c b/src/eog-application.c
 index 69a5c06..ed2a82d 100644
 --- a/src/eog-application.c

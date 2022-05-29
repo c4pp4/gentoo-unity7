@@ -1,7 +1,9 @@
 ehooks() {
 	sed -i \
+		-e "s/tests-fix-the-signature-for-the-SetLocked-call/#tests-fix-the-signature-for-the-SetLocked-call/" \
+		-e "s/tests-fix-invocation-of-AddUser/#tests-fix-invocation-of-AddUser/" \
 		-e "s/0002-create-and-manage-groups-like-on-a-debian-system/#0002-create-and-manage-groups-like-on-a-debian-system/" \
 		-e "s/0009-language-tools/#0009-language-tools/" \
 		-e "s/0013-add-has-message-support/#0013-add-has-message-support/" \
-		"${S}/debian/patches/series"
+		"${S}/debian/patches/series" || die
 }

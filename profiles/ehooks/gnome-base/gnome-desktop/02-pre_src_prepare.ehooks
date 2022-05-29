@@ -1,5 +1,0 @@
-ehooks() {
-	sed -i \
-		-e "s/languages-Look-at-LOCPATH-before-compile-time-LIBLOCALEDI/#languages-Look-at-LOCPATH-before-compile-time-LIBLOCALEDI/" \
-		"${S}/debian/patches/series"
-}

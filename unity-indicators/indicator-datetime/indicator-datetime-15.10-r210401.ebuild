@@ -29,6 +29,7 @@ COMMON_DEPEND="
 	>=unity-base/gsettings-ubuntu-touch-schemas-0.0.7
 	>=unity-indicators/indicator-messages-12.10.6
 	>=x11-libs/libnotify-0.7.6
+	x11-themes/ubuntu-touch-sounds
 
 	eds? ( >=gnome-extra/evolution-data-server-3.17 )
 "
@@ -43,7 +44,6 @@ DEPEND="${COMMON_DEPEND}
 	gnome-base/gvfs
 	unity-base/unity-language-pack
 	sys-apps/dbus
-	x11-themes/ubuntu-touch-sounds
 
 	test? (
 		dev-cpp/gtest

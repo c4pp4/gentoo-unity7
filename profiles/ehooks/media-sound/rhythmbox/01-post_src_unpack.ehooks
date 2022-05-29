@@ -1,7 +1,7 @@
 ehooks() {
 	local \
-		blake=cb9e00c2333029dd2ad8ef873a31f7770280089f9f1c4a0ac9cfd6c926343d4750330733372825ff08d45cb14f641103fe9a18c00116a8faf84be76596b419bf \
-		uver=rhythmbox_3.4.4-5ubuntu1
+		blake=d2c8c87b7701ab557c869d4402dcfb9463970267bfeea15bc4e634935efee7daf12f1e5d4a93f232f0383c1e4045c6d2f3a2be70736d324b0847dfae1ae0ffb0 \
+		uver=rhythmbox_3.4.4-5ubuntu2
 
 	source "${EHOOKS_PATH}"/templates/fetch_debian.template
 	fetch_debian "${blake}" "${uver}"

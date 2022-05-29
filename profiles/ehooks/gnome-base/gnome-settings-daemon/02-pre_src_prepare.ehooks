@@ -1,5 +1,5 @@
 ehooks() {
 	sed -i \
-		-e "s/meson-drop-unused-argument-for-i18n.merge_file/#meson-drop-unused-argument-for-i18n.merge_file/" \
-		"${S}/debian/patches/series"
+		-e "s:ubuntu/Revert-media-keys-fix-gnome-settings-desktop-file.patch:#ubuntu/Revert-media-keys-fix-gnome-settings-desktop-file.patch:" \
+		"${S}/debian/patches/series" || die
 }

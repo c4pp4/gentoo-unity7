@@ -32,9 +32,7 @@ gnome-base/gconf			# Install 'update-gconf-defaults' script - Ubuntu's gconf upd
 					#  0001-Support-s-to-as-migrations-v2.patch
 					#  call-dbus_g_thread_init.patch
 					#  reduce-polling.patch
-gnome-base/gnome-desktop		# Ubuntu patchset:
-					#  04_compute_average_color.patch
-					#  tweak_color_computation.patch
+gnome-base/gnome-desktop		# Adjust background color detection for Unity (04_compute_average_color.patch, tweak_color_computation.patch)
 gnome-base/gnome-menus			# Needed for some menu patches but mostly to set XDG_MENU_PREFIX when running in gnome fallback mode
 					#  Ubuntu patchset:
 					#  01_default_prefix.patch
@@ -93,15 +91,7 @@ gnome-base/nautilus			# Give progressbar on Dash launcher nautilus icon
 gnome-extra/gnome-calendar		# Use unity-control-center as the fallback
 gnome-extra/gnome-contacts		# Use unity-control-center as the fallback
 gnome-extra/nemo			# Don't use file manager DBus service when in Unity, add Unity Launcher support, enable StartupNotify
-gnome-extra/nm-applet			# Shows nm-applet in indicator panel
-					#  Ubuntu patchset:
-					#  Force-online-state-with-unmanaged-devices.patch
-					#  lp341684_device_sensitive_disconnect_notify.patch
-					#  lp460144_correctly_update_notification.patch
-					#  Have-the-appindicator-enabled-by-default.patch
-					#  Make-policykit-restricted-actions-insensitive.patch
-					#  Support-hiding-rather-than-desensitizing-disallowed-items.patch
-					#  git_owe_activation.patch
+gnome-extra/nm-applet			# Shows nm-applet in indicator panel (Have-the-appindicator-enabled-by-default.patch)
 gnome-extra/polkit-gnome		# Patched to have polkit-gnome-authentication-agent-1 xdg-autostart on Unity login
 					#  Ubuntu patchset:
 					#  0001-Select-the-current-user-to-authenticate-with-by-defa.patch
@@ -155,8 +145,6 @@ sys-apps/accountsservice		# Requires patching for SetInputSources as needed by u
 					#  0012-add-keyboard-layout-support.patch
 					#  0016-add-input-sources-support.patch
 					#  0021-support-extrausers.patch
-					#  gitlab_change_types.patch
-					#  gitlab_shared_tmp.patch
 sys-auth/polkit-pkla-compat		# Fix localstatedir path (/var/lib)
 www-client/chromium			# Required to support Unity Launcher icon effects (no duplicate icons, quicklist menu, progress bar, window title bar fixes etc.)
 www-client/firefox			# Latest version, add Unity menubar and desktop launcher with quicklist and translations

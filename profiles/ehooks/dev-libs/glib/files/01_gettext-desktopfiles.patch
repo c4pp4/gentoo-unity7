@@ -39,8 +39,8 @@ index 5085916..d9c23b5 100644
  /**
 @@ -512,6 +523,7 @@ struct _GKeyFile
  
-   gboolean checked_locales;
-   gchar **locales;
+   gboolean checked_locales;  /* TRUE if @locales has been initialised */
+   gchar **locales;  /* (nullable) */
 +  gchar  *gettext_domain;
  
    gint ref_count;  /* (atomic) */
