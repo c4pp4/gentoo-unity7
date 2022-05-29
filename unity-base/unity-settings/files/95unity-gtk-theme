@@ -1,0 +1,8 @@
+# -*- sh -*-
+# Xsession.d script to set the GTK_THEME env variable to override libhandy theme
+#
+# This file is sourced by Xsession(5), not executed.
+
+if [ "x$DESKTOP_SESSION" = "xunity" ]; then
+	export GTK_THEME="$(gsettings get org.gnome.desktop.interface gtk-theme | sed "s:'::g")"
+fi

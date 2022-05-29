@@ -69,7 +69,7 @@ src_install() {
 		>> "${ED}${gschema_dir}/${gschema}"
 
 	exeinto /etc/X11/xinit/xinitrc.d
-	doexe "${FILESDIR}/95-gtk-theme"
+	doexe "${FILESDIR}/95unity-gtk-theme"
 
 	# Scopes: files, music, photos, video #
 	local \
