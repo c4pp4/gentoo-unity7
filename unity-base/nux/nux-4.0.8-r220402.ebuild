@@ -25,7 +25,7 @@ COMMON_DEPEND="
 	>=dev-libs/glib-2.31.8:2
 	dev-libs/libpcre:3
 	>=dev-libs/libsigc++-2.8.0:2
-	media-libs/libpng
+	media-libs/libpng:0=
 	>=sys-apps/pciutils-3.5.1
 	>=unity-base/geis-2.2.10
 	virtual/glu

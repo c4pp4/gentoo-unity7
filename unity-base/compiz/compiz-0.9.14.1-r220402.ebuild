@@ -28,7 +28,7 @@ COMMON_DEPEND="
 	gnome-base/gsettings-desktop-schemas
 	>=gnome-base/librsvg-2.14.4
 	>=media-libs/libjpeg-turbo-1.1.90
-	>=media-libs/libpng-1.6.2
+	>=media-libs/libpng-1.6.2:0=
 	virtual/glu
 	>=x11-libs/cairo-1.14.0
 	>=x11-libs/gtk+-3.9.10:3[introspection]
