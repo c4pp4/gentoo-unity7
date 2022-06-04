@@ -2,6 +2,7 @@
 
 app-accessibility/brltty python				# app-accessibility/orca[braille]
 app-i18n/fcitx -autostart				# don't launch systray tool by default
+app-i18n/ibus appindicator gtk2
 dev-libs/boost python					# dev-libs/libcolumbus
 dev-libs/libdbusmenu gtk3				# dev-libs/libappindicator, dev-libs/libindicate, unity-indicators/indicator-appmenu
 dev-libs/liblouis python				# app-accessibility/orca[braille]
