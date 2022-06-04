@@ -113,6 +113,7 @@ src_prepare() {
 		cp "${FILESDIR}"/branding/UnityLogo.svg panels/info/GnomeLogoVerticalMedium.svg || die
 		sed -i \
 			-e "/gtk_widget_hide (WID (\"version_label\")/d" \
+			-e "s/(res)/(TRUE)/" \
 			-e "s/Version %s/Version $(portageq 'unity-base/unity' best_version | cut -d "-" -f 3) (${URELEASE})/" \
 			panels/info/cc-info-panel.c || die
 		sed -i \
