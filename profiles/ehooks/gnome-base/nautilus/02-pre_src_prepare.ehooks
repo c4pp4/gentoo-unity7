@@ -1,6 +1,1 @@
-ehooks() {
-	sed -i \
-		-e "s/multiarch_fallback/#multiarch_fallback/" \
-		-e "s/Revert-meson.build-Use-environment-to-make-warnings-fatal/#Revert-meson.build-Use-environment-to-make-warnings-fatal/" \
-		"${S}/debian/patches/series" || die
-}
+../../templates/patches.template

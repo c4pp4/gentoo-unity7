@@ -27,12 +27,23 @@ case ":$PATH:" in
 esac
 
 # Select session type and platform
-if @@FORCE_OZONE_PLATFORM@@; then
-	CHROMIUM_FLAGS="--enable-features=UseOzonePlatform ${CHROMIUM_FLAGS}"
-elif @@OZONE_AUTO_SESSION@@ && ! ${DISABLE_OZONE_PLATFORM:-false}; then
-	if [[ ${XDG_SESSION_TYPE} == wayland || -n ${WAYLAND_DISPLAY} && ${XDG_SESSION_TYPE} != x11 ]]; then
-		CHROMIUM_FLAGS="--enable-features=UseOzonePlatform ${CHROMIUM_FLAGS}"
+if @@OZONE_AUTO_SESSION@@; then
+	platform=
+	if [[ ${XDG_SESSION_TYPE} == x11 ]]; then
+		platform=x11
+	elif [[ ${XDG_SESSION_TYPE} == wayland ]]; then
+		platform=wayland
+	else
+		if [[ -n ${WAYLAND_DISPLAY} ]]; then
+			platform=wayland
+		else
+			platform=x11
+		fi
 	fi
+	if ${DISABLE_OZONE_PLATFORM:-false}; then
+		platform=x11
+	fi
+	CHROMIUM_FLAGS="--ozone-platform=${platform} ${CHROMIUM_FLAGS}"
 fi
 
 # Set the .desktop file name
@@ -57,6 +68,6 @@ else
 	    CHROMIUM_FLAGS="--user-data-dir=${XDG_CONFIG_HOME:-${HOME}/.config}/chromium
 		    ${CHROMIUM_FLAGS}"
     fi
-    
+
     exec -a "chromium-browser" "$PROGDIR/chrome" --extra-plugin-dir=/usr/lib/nsbrowser/plugins ${CHROMIUM_FLAGS} "$@"
 fi

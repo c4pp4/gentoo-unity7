@@ -1,13 +1,14 @@
 ehooks() {
 	# add --temp-profile
-	local fixlib=$(get_libdir)
-	exeinto "/usr/${fixlib}/chromium-browser"
+	exeinto "/usr/$(get_libdir)/chromium-browser"
+	ozone_auto_session () {
+		use wayland && ! use headless && echo true || echo false
+	}
 	local sedargs=( -e
-		"s:/usr/lib/:/usr/${fixlib}/:g;
-		s:@@OZONE_AUTO_SESSION@@:$(usex wayland true false):g;
-		s:@@FORCE_OZONE_PLATFORM@@:$(usex headless true false):g"
+			"s:/usr/lib/:/usr/$(get_libdir)/:g;
+			s:@@OZONE_AUTO_SESSION@@:$(ozone_auto_session):g"
 	)
-	sed "${sedargs[@]}" "${EHOOKS_FILESDIR}/chromium-launcher-r6-with-temp.sh" > chromium-launcher.sh || die
+	sed "${sedargs[@]}" "${EHOOKS_FILESDIR}/chromium-launcher-r7-with-temp.sh" > chromium-launcher.sh || die
 	doexe chromium-launcher.sh
 
 	domenu "${EHOOKS_FILESDIR}/chromium-browser-chromium.desktop"

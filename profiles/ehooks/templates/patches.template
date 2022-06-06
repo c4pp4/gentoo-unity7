@@ -4,6 +4,9 @@ ehooks() {
 	local -a debian_patches
 
 	if [[ -r ${S}/debian/patches/series ]]; then
+		[[ -r "${EHOOKS_FILESDIR}"/series ]] \
+			&& ( cp "${EHOOKS_FILESDIR}"/series "${S}/debian/patches/series" || die )
+
 		for x in $(grep -v \# "${S}/debian/patches/series"); do
 			debian_patches+=( "${S}/debian/patches/${x}" )
 		done

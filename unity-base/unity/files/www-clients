@@ -1,3 +1,4 @@
         'application://firefox-bin.desktop',
         'application://chromium-browser-chromium.desktop',
+        'application://chromium-bin-browser-chromium.desktop',
         'application://org.gnome.Epiphany.desktop',

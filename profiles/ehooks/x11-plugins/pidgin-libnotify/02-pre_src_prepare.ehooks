@@ -1,3 +1,5 @@
 ehooks() {
+	rm "${WORKDIR}"/debian/patches/{de,it}_po.diff
+
 	cp src/pidgin-libnotify.c src/pidgin-libnotify.c.bak
 }

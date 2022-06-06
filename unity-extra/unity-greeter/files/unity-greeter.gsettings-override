@@ -5,9 +5,10 @@ play-ready-sound = false
 button-sleep = 'suspend'
 critical-battery-action = 'suspend'
 
-## nm-applet and indicator-keyboard icon theme ##
+## nm-applet and indicator-keyboard icon theme, password field cursor ##
 [org.gnome.desktop.interface:unity-greeter]
 icon-theme = 'ubuntu-mono-dark'
+cursor-theme = 'DMZ-White'
 
 [org.gnome.settings-daemon.plugins.power:unity-greeter]
 sleep-inactive-ac-timeout = 0

@@ -1,8 +1,1 @@
-ehooks() {
-	sed -i \
-		-e "s/gtk-imwayland-Use-serial-to-control-outbound-messages/#gtk-imwayland-Use-serial-to-control-outbound-messages/" \
-		-e "s/imwayland-Do-not-defer-commit-after-set_surrounding_text/#imwayland-Do-not-defer-commit-after-set_surrounding_text/" \
-		-e "s/imcontextwayland-Ignore-preedit-updates-from-NULL-to-NULL/#imcontextwayland-Ignore-preedit-updates-from-NULL-to-NULL/" \
-		-e "s/x11-Trap-errors-happening-when-getting-output-properties/#x11-Trap-errors-happening-when-getting-output-properties/" \
-		"${S}/debian/patches/series" || die
-}
+../../templates/patches.template

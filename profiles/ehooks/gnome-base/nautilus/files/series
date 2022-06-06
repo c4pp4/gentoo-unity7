@@ -1,0 +1,6 @@
+04_suppress_umount_in_ltsp.patch
+12_unity_launcher_support.patch
+18_unity_icon_color.patch
+ubuntu_infobars_color.patch
+ubuntu_backspace_behaviour.patch
+nautilusgtkplacesview-show-error-if-volume-is-not-mo.patch

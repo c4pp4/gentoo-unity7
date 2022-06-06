@@ -1,5 +1,1 @@
-ehooks() {
-	sed -i \
-		-e "s/098_multiarch_module_path/#098_multiarch_module_path/" \
-		"${S}/debian/patches/series"
-}
+../../templates/patches.template

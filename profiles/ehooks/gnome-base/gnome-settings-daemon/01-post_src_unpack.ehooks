@@ -1,8 +1,0 @@
-ehooks() {
-	local \
-		blake=66de70058d6d341bdd31d831a4830cdddcc8c5e133ab6643afd408ed6506bb4791259d8b286c45d1ab52f2f742ee8d935992268393ff8dc08a260916e88f6424 \
-		uver=gnome-settings-daemon_42.1-1ubuntu4
-
-	source "${EHOOKS_PATH}"/templates/fetch_debian.template
-	fetch_debian "${blake}" "${uver}"
-}

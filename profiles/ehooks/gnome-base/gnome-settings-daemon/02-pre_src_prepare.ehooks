@@ -1,5 +1,0 @@
-ehooks() {
-	sed -i \
-		-e "s:ubuntu/Revert-media-keys-fix-gnome-settings-desktop-file.patch:#ubuntu/Revert-media-keys-fix-gnome-settings-desktop-file.patch:" \
-		"${S}/debian/patches/series" || die
-}

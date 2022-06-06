@@ -32,11 +32,12 @@ gnome-base/gconf			# Install 'update-gconf-defaults' script - Ubuntu's gconf upd
 					#  0001-Support-s-to-as-migrations-v2.patch
 					#  call-dbus_g_thread_init.patch
 					#  reduce-polling.patch
-gnome-base/gnome-desktop		# Adjust background color detection for Unity (04_compute_average_color.patch, tweak_color_computation.patch)
-gnome-base/gnome-menus			# Needed for some menu patches but mostly to set XDG_MENU_PREFIX when running in gnome fallback mode
+gnome-base/gnome-desktop		# Adjust background color detection for Unity
 					#  Ubuntu patchset:
-					#  01_default_prefix.patch
-					#  02_kill_debian_menu.patch
+					#  04_compute_average_color.patch
+					#  tweak_color_computation.patch
+gnome-base/gnome-menus			# Needed for some menu patches
+					#  Ubuntu patchset:
 					#  04_fix-other.patch
 					#  08_settings-menus.patch
 					#  09_games-menu.patch
@@ -52,29 +53,7 @@ gnome-base/gnome-session		# Installs session files for launching Unity7 user int
 					#  ubuntu/remove_session_saving_from_gui.patch
 					#  ubuntu/add_sessionmigration.patch
 					#  ubuntu/dbus_request_shutdown.patch
-					#  ubuntu/ignore_gsettings_region.patch
 					#  revert_remove_gnome_session_properties.patch
-gnome-base/gnome-settings-daemon	# unity-settings-daemon relies on files created from patchset
-					#  compiz at runtime needs 'terminal' key in 'org.gnome.settings-daemon.plugins.media-keys' schema
-					#  unity-greeter at runtime needs 'active' key in 'org.gnome.settings-daemon.plugins.housekeeping' schema
-					#  Ubuntu patchset:
-					#  debian/01_debianize_xrdb.patch
-					#  debian/meson.build-Lower-polkit-requirement.patch
-					#  p11-kit/smartcard-Rewrite-to-use-p11-kit-backend-via-Gck-APIs.patch
-					#  p11-kit/smartcard-manager-Use-Blocking-wait-for-slot-event-if-ava.patch
-					#  p11-kit/smartcard-manager-Only-sync-token-state-if-it-really-chan.patch
-					#  p11-kit/smarcard-utils-Free-the-type-name-when-registering-domain.patch
-					#  p11-kit/smartcard-service-Unown-the-name-on-dispose.patch
-					#  p11-kit/smartcard-Use-autopointers.patch
-					#  p11-kit/smartcard-manager-Use-mutex-auto-lockers-when-convenient.patch
-					#  p11-kit/smarcard-Add-utility-function-to-get-the-login-token-name.patch
-					#  ubuntu/print-notifications-suppress-printer-may-not-be-connected.patch
-					#  ubuntu/keyboard-sync-input-sources-to-accountsservice.patch
-					#  ubuntu/media-keys-restore-terminal-keyboard-shortcut-schema.patch
-					#  ubuntu/media-keys-correct-logout-action.patch
-					#  ubuntu/lid-close-suspend-support.patch
-					#  ubuntu/keyboard-Use-ibus-sources-from-locale.patch
-					#  ubuntu/teach-gsd-about-the-gnome-calculator-snap-.desktop-name.patch
 gnome-base/gsettings-desktop-schemas	# Includes Unity7 user interface settings patches
 					#  Ubuntu patchset:
 					#  ubuntu_lock-on-suspend.patch
@@ -85,9 +64,7 @@ gnome-base/nautilus			# Give progressbar on Dash launcher nautilus icon
 					#  18_unity_icon_color.patch
 					#  ubuntu_infobars_color.patch
 					#  ubuntu_backspace_behaviour.patch
-					#  appstream-compulsory.patch
 					#  nautilusgtkplacesview-show-error-if-volume-is-not-mo.patch
-					#  ubuntu/shell-search-provider-implement-XUbuntuCancel-to-request-.patch
 gnome-extra/gnome-calendar		# Use unity-control-center as the fallback
 gnome-extra/gnome-contacts		# Use unity-control-center as the fallback
 gnome-extra/nemo			# Don't use file manager DBus service when in Unity, add Unity Launcher support, enable StartupNotify
@@ -110,19 +87,10 @@ media-gfx/gnome-screenshot		# Use Ubuntu help instead of GNOME help, don't use G
 media-gfx/shotwell			# Patched for integration with Unity online accounts
 media-sound/rhythmbox			# Patched/compiled for indicator-sound support, menu quicklist, Magnatune and other Ubuntu UI improvements
 					#  Ubuntu patchset:
-					#  ultiarch_fallback.patch
-					#  plugins-Update-website-links.patch
-					#  02_use_escaped_podcast_uri.patch
-					#  03_magnatune_partner.patch
+					#  Fix-broken-application-icon-in-About-dialog.patch
 					#  05_hide_on_quit.patch
 					#  07_quicklists.patch
 					#  08_stop_quit.patch
-					#  10_encoding_use_ubuntu_profiles.patch
-					#  make-shuffle-repeat-proper-toggle-actions.patch
-					#  0002-grilo-container-max-tracks.patch
-					#  git_icons_fixes.patch
-					#  gitlab_lyrics_resources.patch
-					#  git_xfade_gstreamer.patch
 net-im/empathy				# Integrates with Unity online accounts, associated plugins and the messages indicator
 					#  Ubuntu patchset:
 					#  enchant-2.patch
@@ -131,7 +99,7 @@ net-im/empathy				# Integrates with Unity online accounts, associated plugins an
 					#  34_start_raised_execpt_in_session.patch
 					#  38_default_to_facebook_for_im.patch
 					#  39_default_to_freenode_for_irc.patch
-					#  42_shell_running.patch
+					#  41_unity_launcher_progress.patch
 					#  43_quicklists.patch
 net-im/telegram-desktop			# Add ubuntu-mono-dark tray icons
 net-im/telegram-desktop-bin		# Add ubuntu-mono-dark tray icons
@@ -140,79 +108,35 @@ sys-apps/accountsservice		# Requires patching for SetInputSources as needed by u
 					#  Ubuntu patchset:
 					#  0001-formats-locale-property.patch
 					#  0007-add-lightdm-support.patch
-					#  0010-set-language.patch
 					#  0011-add-background-file-support.patch
 					#  0012-add-keyboard-layout-support.patch
 					#  0016-add-input-sources-support.patch
-					#  0021-support-extrausers.patch
 sys-auth/polkit-pkla-compat		# Fix localstatedir path (/var/lib)
 www-client/chromium			# Required to support Unity Launcher icon effects (no duplicate icons, quicklist menu, progress bar, window title bar fixes etc.)
 www-client/firefox			# Latest version, add Unity menubar and desktop launcher with quicklist and translations
 www-client/firefox-91			# ESR version, add Unity menubar and desktop launcher with quicklist and translations
 www-client/firefox-bin			# Add desktop launcher with quicklist and translations
-x11-libs/gtk+:2				# Needed for global appmenu
+x11-libs/gtk+:2				# Support for dynamically loading overlay scrollbars, have the local menubars hidding under unity in favor of the unity ones
 					#  Ubuntu patchset:
-					#  004_gtk+-ximian-gtk2-filesel-navbutton-5.patch
-					#  005_support_disabling_x11_extensions.patch
-					#  012_ubuntu-set-grab-add.patch
-					#  015_default-fallback-icon-theme.patch
-					#  042_treeview_single-focus.patch
-					#  044_tracker_fts.patch
-					#  060_ignore-random-icons.patch
-					#  061_use_pdf_as_default_printing_standard.patch
-					#  062_dnd_menubar.patch
-					#  063_treeview_almost_fixed.patch
-					#  071_no_offscreen_widgets_grabbing.patch
-					#  090_logging_file_saves.patch
-					#  092_default_to_xdg_document_dir.patch
-					#  093_gtk3_gtkimage_fallbacks_use.patch
-					#  096_git_gtkprintsettings.patch
-					#  097_statusicon_image_fallback.patch
-					#  099_printer_filename_fix.patch
 					#  100_overlay_scrollbar_loading.patch
-					#  print-dialog-show-options-of-remote-dnssd-printers.patch
 					#  gtk-shell-shows-menubar.patch
-					#  backport_search_printer_location.patch
-					#  menubar_toolbar_dragging.patch
-					#  use-secrets-service-for-cups-auth_info.patch
-					#  Reinstate-marshallers-that-accidentally-became-part-of-th.patch
-					#  d-i/textlayout-Clamp-width-to-the-value-we-asked-for-as-a-hac.patch
 x11-libs/gtk+:3				# Needed for global appmenu, fix firefox/thunderbird global submenus to be initially populated
 					#  Ubuntu patchset:
-					#  gdk-Don-t-distribute-generated-files-in-tarballs.patch
-					#  gtk-Really-don-t-distribute-built-files.patch
-					#  demos-examples-tests-Don-t-distribute-built-files.patch
-					#  016_no_offscreen_widgets_grabbing.patch
-					#  017_no_offscreen_device_grabbing.patch
-					#  060_ignore-random-icons.patch
-					#  reftest-known-fail.patch
-					#  Disable-accessibility-dump-aka-a11ytests-test.patch
-					#  073_treeview_almost_fixed.patch
 					#  bzg_gtkcellrenderer_grabbing_modifier.patch
 					#  ubuntu_gtk_custom_menu_items.patch
-					#  print-dialog-show-options-of-remote-dnssd-printers.patch
-					#  uimanager-guard-against-nested-node-updates.patch
 					#  x-canonical-accel.patch
 					#  message-dialog-restore-traditional-look-on-unity.patch
-					#  0001-gtk-reftest-Force-icon-theme-to-Adwaita.patch
-					#  0001-calendar-always-emit-day-selected-once.patch
 					#  0001-gtkwindow-set-transparent-background-color.patch
 					#  unity-border-radius.patch
 					#  unity-headerbar-maximized-mode.patch
 x11-misc/lightdm			# Custom fixes for Xsession profile sourcing and multi-monitor display
-					#  Ubuntu patchset:
-					#  04_language_handling.patch
-					#  05_translate_debian_files.patch
-					#  autologin-session-workaround.patch
-					#  remove-qt4.patch
-					#  fix-guest-session-ICEauthority-error.patch
-					#  Glibc-2.33-fix.patch
-					#  dont-turn-format-warnings-into-errors.patch
 x11-misc/zim				# Add ubuntu-mono-{dark,light} tray icons
 x11-plugins/pidgin-libnotify		# Fix Unity messaging menu support
 					#  Ubuntu patchset:
+					#  de_po.diff
 					#  force-load.patch
 					#  best_name.patch
+					#  it_po.diff
 					#  add-cs-translation.diff
 					#  replace-pidgin-action-requests.diff
 					#  ubuntu_notify_support.patch

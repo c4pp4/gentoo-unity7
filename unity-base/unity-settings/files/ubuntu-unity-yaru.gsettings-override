@@ -6,9 +6,10 @@ gtk-theme = 'Yaru-unity-dark'
 icon-theme = 'Yaru-unity'
 cursor-theme = 'Yaru'
 
-## nm-applet and indicator-keyboard icon theme ##
+## nm-applet and indicator-keyboard icon theme, password field cursor ##
 [org.gnome.desktop.interface:unity-greeter]
 icon-theme = 'Yaru-unity'
+cursor-theme = 'DMZ-White'
 
 [org.gnome.desktop.wm.preferences:Unity]
 theme = 'Yaru-unity-dark'

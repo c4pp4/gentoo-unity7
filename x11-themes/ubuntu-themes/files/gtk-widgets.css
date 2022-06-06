@@ -13,13 +13,18 @@ window.background.unified:dir(ltr) > deck:dir(ltr) > box.vertical.view:dir(ltr) 
  background-color: transparent;
 }
 
-/* nautilus path bar shadow */
+/* nautilus path bar */
 .nautilus-path-bar .current-dir {
     color: @dark_fg_color;
 }
 
 .nautilus-path-bar .dim-label {
+    color: @dark_fg_color;
     text-shadow: none;
+}
+
+.nautilus-path-bar button:hover .dim-label {
+    color: @selected_bg_color;
 }
 
 /* remove HdyHeaderBar rounded top corners */

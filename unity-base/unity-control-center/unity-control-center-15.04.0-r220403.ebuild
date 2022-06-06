@@ -90,7 +90,7 @@ DEPEND="${COMMON_DEPEND}
 	x11-libs/libxkbfile
 	>=x11-libs/libxklavier-5.1
 
-	bluetooth? ( >=net-wireless/gnome-bluetooth-3.3.4:= )
+	bluetooth? ( >=net-wireless/gnome-bluetooth-3.3.4:2= )
 
 	$(vala_depend)
 "
@@ -140,9 +140,10 @@ src_prepare() {
 		panels/info/hostname-helper.c || die
 	grep -Fq "translit: '%s'" panels/info/hostname-helper.c || die
 
-	# Fix typo (Sha ring) #
+	# Fix typo (Sha ring) and icon #
 	sed -i \
 		-e "/Name=/{s/Sha­ring/Sharing/}" \
+		-e "/Icon=/{s/system-sharing/desktop-remote-desktop/}" \
 		panels/sharing/unity-sharing-panel.desktop.in.in || die
 
 	# Fix metadata path #

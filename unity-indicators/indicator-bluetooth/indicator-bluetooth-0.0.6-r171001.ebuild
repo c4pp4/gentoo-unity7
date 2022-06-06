@@ -23,7 +23,7 @@ RDEPEND="
 	dev-libs/libindicator:3
 	gnome-base/dconf
 	>=net-wireless/bluez-5
-	net-wireless/gnome-bluetooth
+	net-wireless/gnome-bluetooth:2
 	>=sys-libs/glibc-2.4
 	unity-base/unity-control-center
 "

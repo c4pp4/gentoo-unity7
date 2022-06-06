@@ -1,7 +1,7 @@
 */* vala
 
 app-accessibility/brltty python				# app-accessibility/orca[braille]
-app-i18n/fcitx -autostart				# don't launch systray tool by default
+app-i18n/fcitx gtk2 -autostart				# don't launch systray tool by default
 app-i18n/ibus appindicator gtk2
 dev-libs/boost python					# dev-libs/libcolumbus
 dev-libs/libdbusmenu gtk3				# dev-libs/libappindicator, dev-libs/libindicate, unity-indicators/indicator-appmenu
@@ -14,6 +14,7 @@ dev-util/cmake qt5
 gnome-base/gvfs fuse mtp
 gnome-extra/nemo -tracker
 gnome-extra/nm-applet appindicator
+media-libs/libcanberra gtk2
 media-libs/freetype harfbuzz				# x11-libs/pango
 media-libs/libvpx postproc				# mail-client/thunderbird, www-client/firefox
 media-video/ffmpeg opus

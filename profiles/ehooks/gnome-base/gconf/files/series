@@ -1,0 +1,5 @@
+05_nodisplay_autostart.patch
+0001-gconf-gconf-value.h-Use-G_GNUC_-BEGIN_END-_DEPRECATI.patch
+0001-Support-s-to-as-migrations-v2.patch
+call-dbus_g_thread_init.patch
+reduce-polling.patch
