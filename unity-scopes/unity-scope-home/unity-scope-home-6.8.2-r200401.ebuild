@@ -42,6 +42,15 @@ S="${WORKDIR}"
 PATCHES=( "${FILESDIR}"/0002-productsearch.ubuntu.com-only-accepts-locale-string.patch )
 
 src_configure() {
-	local myeconfargs=( $(use_enable test headless-tests) )
+	# REVISIT: temporary workaround against vala-0.56 #
+	local ddir="${EROOT}/usr/share"
+	sed -i \
+		-e "/CLIENT_SCOPES_FILE/{s:Config.PKGDATADIR + \":\"${ddir}/unity:}" \
+		src/client-scopes-info.vala || die
+
+	local myeconfargs=(
+		--datadir="${ddir}"
+		$(use_enable test headless-tests)
+	)
 	econf "${myeconfargs[@]}"
 }
