@@ -447,7 +447,7 @@ debian_changes() {
 						for rp in "${repos[@]}"; do
 							uv=$(grep -A6 "Package: ${un%_*}$" /tmp/ehooks-${USER}-sources-${rp}-${frls} | sed -n 's/^Version: \(.*\)/\1/p' | sed 's/[0-9]://g')
 							[[ -n ${uv} ]] && [[ ${uv} != ${pn} ]] && [[ ${uv} != ${un#*_} ]] && auvers+=( "'${uv}'" ) && pn="${uv}"
-							[[ ${uv} == ${un#*_} ]] && utd="${utd/${color_yellow}/${color_green}}" || an[1]="${color_yellow}[ package is outdated ]${color_norm}"
+							[[ ${uv} == ${un#*_} ]] && utd="${utd/${color_yellow}/${color_green}}"
 						done
 					done
 				done
@@ -484,6 +484,7 @@ debian_changes() {
 		for x in "${result[@]}"; do
 			printf "%s\n\n" "${x}"
 		done
+		[[ "${result[@]}" == *"${color_yellow}"* ]] && an[1]="${color_yellow}[ package is outdated ]${color_norm}"
 		for x in "${an[@]}"; do
 			printf "%s\n" "${x}"
 		done

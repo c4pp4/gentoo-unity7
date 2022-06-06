@@ -44,6 +44,7 @@ DEPEND="${COMMON_DEPEND}
 		${PYTHON_DEPS}
 		$(python_gen_cond_dep 'dev-python/python-dbusmock[${PYTHON_USEDEP}]')
 	)
+
 	$(vala_depend)
 "
 BDEPEND="dev-util/intltool"

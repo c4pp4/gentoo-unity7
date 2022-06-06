@@ -54,6 +54,7 @@ DEPEND="${COMMON_DEPEND}
 			dev-util/lcov
 		)
 	)
+
 	$(vala_depend)
 "
 BDEPEND="dev-util/intltool"
