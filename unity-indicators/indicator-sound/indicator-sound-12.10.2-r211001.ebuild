@@ -71,6 +71,9 @@ src_prepare() {
 		-e "/add_subdirectory(tests)/d" \
 		CMakeLists.txt || die
 
+	# Fix error: unknown type name ‘VALA_EXTERN’ #
+	sed -i "/add_definitions(/a -DVALA_EXTERN=extern" src/CMakeLists.txt || die
+
 	# Disable all language files as they can be incomplete #
 	#  due to being provided by Ubuntu's language-pack packages #
 	sed -i "/add_subdirectory(po)/d" CMakeLists.txt || die
