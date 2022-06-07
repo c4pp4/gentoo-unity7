@@ -71,6 +71,7 @@ src_prepare() {
 	else
 		# Don't install ontology #
 		sed -i "/ontology /d" data/Makefile.am || die
+		sed -i "/install the python3-rdflib/{s/FAILURE/RESULT/}" configure.ac || die
 	fi
 
 	# Fix pre_populator.patch #
