@@ -4,7 +4,7 @@
 # @ECLASS: ubuntu-versionator.eclass
 # @MAINTAINER: c4pp4
 # @AUTHOR: c4pp4
-# @SUPPORTED_EAPIS: 7
+# @SUPPORTED_EAPIS: 7 8
 # @BLURB: Provides phases for Ubuntu based packages.
 # @DESCRIPTION:
 # Exports portage base functions used by ebuilds written for packages using
