@@ -1,13 +1,13 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 PYTHON_COMPAT=( python3_{8..10} )
 
 UVER=+22.04.20211217
 UREV=0ubuntu2
 
-inherit gnome2 cmake-utils python-single-r1 ubuntu-versionator
+inherit gnome2 cmake python-single-r1 ubuntu-versionator
 
 DESCRIPTION="Compiz Fusion OpenGL window and compositing manager patched for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/compiz"
@@ -18,7 +18,7 @@ SLOT="0/${PV}"
 KEYWORDS="~amd64"
 IUSE="gles2 mate"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
-RESTRICT="${RESTRICT} test"
+RESTRICT="test"
 
 COMMON_DEPEND="
 	>=dev-cpp/glibmm-2.64.2
@@ -147,11 +147,11 @@ src_configure() {
 		-DCOMPIZ_WERROR=OFF
 		-Wno-dev
 	)
-	CMAKE_BUILD_TYPE="RelWithDebInfo" cmake-utils_src_configure
+	CMAKE_BUILD_TYPE="RelWithDebInfo" cmake_src_configure
 }
 
 src_install() {
-	cmake-utils_src_install
+	cmake_src_install
 
 	python_optimize
 
@@ -169,6 +169,6 @@ src_install() {
 
 	doman debian/{ccsm,compiz,gtk-window-decorator}.1
 
-	use mate && dosym ../../applications/compiz.desktop \
+	use mate && dosym -r /usr/share/applications/compiz.desktop \
 		/usr/share/mate/wm-properties/compiz.desktop
 }

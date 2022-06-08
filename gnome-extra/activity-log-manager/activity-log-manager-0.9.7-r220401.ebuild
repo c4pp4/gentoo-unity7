@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 GNOME2_EAUTORECONF="yes"
 
 UVER=
@@ -17,7 +17,7 @@ SRC_URI="${UURL}.orig.tar.xz
 LICENSE="LGPL-2"
 SLOT="0"
 KEYWORDS="~amd64"
-RESTRICT="${RESTRICT} test"
+RESTRICT="test"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.43.2:2
@@ -64,5 +64,5 @@ src_install() {
 		echo "X-GNOME-Gettext-Domain=${PN}" >> "${x}"
 	done
 
-	find "${ED}" \( -name "*.a" -o -name "*.la" \) -delete || die
+	find "${ED}" -name '*.la' -delete || die
 }

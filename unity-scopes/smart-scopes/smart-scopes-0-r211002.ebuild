@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 DISTUTILS_SINGLE_IMPL=1
 PYTHON_COMPAT=( python3_{8..10} )
 
@@ -16,7 +16,7 @@ HOMEPAGE="https://launchpad.net/onehundredscopes"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
-RESTRICT="${RESTRICT} !test? ( test )"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
 	dev-libs/dee:0=

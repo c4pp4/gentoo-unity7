@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 UVER=+repack1
 UREV=1
@@ -20,7 +20,7 @@ LICENSE="OFL-1.1"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="extra"
-RESTRICT="${RESTRICT} binchecks strip test"
+RESTRICT="binchecks strip test"
 
 RDEPEND="!media-fonts/noto-cjk"
 
@@ -62,6 +62,6 @@ src_install() {
 	for f in "${ED}"/etc/fonts/conf.avail/*; do
 		f=${f##*/}
 		echo " * ${f}"
-		dosym "../conf.avail/${f}" "${symlink_dir}/${f}"
+		dosym -r "/etc/fonts/conf.avail/${f}" "${symlink_dir}/${f}"
 	done
 }

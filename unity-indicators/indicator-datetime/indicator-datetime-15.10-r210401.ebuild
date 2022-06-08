@@ -1,12 +1,12 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 UVER=+21.04.20210304
 UREV=0ubuntu1
 
-inherit gnome2 cmake-utils ubuntu-versionator
+inherit gnome2 cmake ubuntu-versionator
 
 DESCRIPTION="Date and Time Indicator used by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/indicator-datetime"
@@ -16,7 +16,7 @@ SLOT="0"
 KEYWORDS="~amd64"
 IUSE="coverage +eds test"
 REQUIRED_USE="coverage? ( test )"
-RESTRICT="${RESTRICT} !test? ( test )"
+RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.43.2:2
@@ -97,5 +97,5 @@ src_configure() {
 		-DWITH_EDS="$(usex eds)"
 		-Wno-dev
 	)
-	cmake-utils_src_configure
+	cmake_src_configure
 }

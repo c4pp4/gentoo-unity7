@@ -1,12 +1,12 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 UVER=+21.10.20210613.1
 UREV=0ubuntu1
 
-inherit desktop gnome2 cmake-utils ubuntu-versionator
+inherit desktop gnome2 cmake ubuntu-versionator
 
 DESCRIPTION="Indicator showing session management, status and user switching used by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/indicator-session"
@@ -16,7 +16,7 @@ SLOT="0"
 KEYWORDS="~amd64"
 IUSE="coverage +help test"
 REQUIRED_USE="coverage? ( test )"
-RESTRICT="${RESTRICT} !test? ( test )"
+RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.43.2:2
@@ -90,7 +90,7 @@ src_prepare() {
 }
 
 src_install() {
-	cmake-utils_src_install
+	cmake_src_install
 
 	use help && ! has nodoc ${FEATURES} && domenu "${FILESDIR}/unity-yelp.desktop"
 }

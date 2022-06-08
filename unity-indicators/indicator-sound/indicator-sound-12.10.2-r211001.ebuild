@@ -1,12 +1,12 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 UVER=+18.10.20180612
 UREV=0ubuntu4
 
-inherit gnome2 cmake-utils ubuntu-versionator vala
+inherit gnome2 cmake ubuntu-versionator vala
 
 DESCRIPTION="System sound indicator used by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/indicator-sound"
@@ -17,7 +17,7 @@ SLOT="0"
 KEYWORDS="~amd64"
 IUSE="coverage test"
 REQUIRED_USE="coverage? ( test )"
-RESTRICT="${RESTRICT} !test? ( test )"
+RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.43.92:2
@@ -89,11 +89,11 @@ src_configure() {
 		-DCMAKE_INSTALL_FULL_DATADIR=/usr/share
 		-Wno-dev
 	)
-	cmake-utils_src_configure
+	cmake_src_configure
 }
 
 src_install() {
-	cmake-utils_src_install
+	cmake_src_install
 
 	find "${ED}" -name "*.pkla" -exec chown root:polkitd {} \;
 }

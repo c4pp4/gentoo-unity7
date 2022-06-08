@@ -19,7 +19,7 @@ UBUNTU_EAUTORECONF=${UBUNTU_EAUTORECONF:-""}
 [[ ${UBUNTU_EAUTORECONF} == "yes" ]] && inherit autotools
 
 case "${EAPI:-0}" in
-	7) EXPORT_FUNCTIONS pkg_setup src_prepare pkg_postinst ;;
+	7|8) EXPORT_FUNCTIONS pkg_setup src_prepare pkg_postinst ;;
 	*) die "EAPI=${EAPI:-0} is not supported" ;;
 esac
 
@@ -126,13 +126,13 @@ ubuntu-versionator_src_prepare() {
 		echo "${color_bold}>>> Done.${color_norm}"
 	fi
 
-	if declare -F vala_src_prepare 1>/dev/null; then
-		vala_src_prepare
+	if declare -F vala_setup 1>/dev/null; then
+		vala_setup
 		export VALA_API_GEN="${VAPIGEN}"
 	fi
 
-	if declare -F cmake-utils_src_prepare 1>/dev/null; then
-		cmake-utils_src_prepare
+	if declare -F cmake_src_prepare 1>/dev/null; then
+		cmake_src_prepare
 	elif declare -F distutils-r1_src_prepare 1>/dev/null; then
 		distutils-r1_src_prepare
 	elif declare -F gnome2_src_prepare 1>/dev/null; then

@@ -1,20 +1,20 @@
 ehooks() {
 	use examples && \
-		dosym /usr/share/doc/${P}/examples /usr/src/googletest/googletest/samples
+		dosym -r /usr/share/doc/${P}/examples /usr/src/googletest/googletest/samples
 
 	# Install GoogleMock source files and symlinks for backwards compatibility #
 	pushd googlemock >/dev/null || die
 		insinto /usr/src/googletest/googlemock
 		doins -r cmake scripts src test CMakeLists.txt
 	popd >/dev/null || die
-	dosym /usr/src/googletest/googlemock /usr/src/gmock
-	dosym /usr/include /usr/src/googletest/googlemock/include
+	dosym -r /usr/src/googletest/googlemock /usr/src/gmock
+	dosym -r /usr/include /usr/src/googletest/googlemock/include
 
 	# Install GoogleTest source files and symlinks for backwards compatibility #
 	pushd googletest >/dev/null || die
 		insinto /usr/src/googletest/googletest
 		doins -r cmake scripts src test CMakeLists.txt
 	popd >/dev/null || die
-	dosym /usr/src/googletest/googletest /usr/src/gtest
-	dosym /usr/include /usr/src/googletest/googletest/include
+	dosym -r /usr/src/googletest/googletest /usr/src/gtest
+	dosym -r /usr/include /usr/src/googletest/googletest/include
 }

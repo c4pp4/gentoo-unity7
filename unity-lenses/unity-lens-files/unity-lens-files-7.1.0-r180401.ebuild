@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 GNOME2_EAUTORECONF="yes"
 
 UVER=+17.10.20170605
@@ -16,7 +16,7 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
-RESTRICT="${RESTRICT} test"
+RESTRICT="test"
 
 COMMON_DEPEND="
 	>=dev-libs/dee-1.0.0:0=

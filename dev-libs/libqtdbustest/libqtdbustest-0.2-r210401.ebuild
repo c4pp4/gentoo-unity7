@@ -1,13 +1,13 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 PYTHON_COMPAT=( python3_{8..10} )
 
 UVER=+bzr42+repack1
 UREV=11
 
-inherit cmake-utils python-single-r1 ubuntu-versionator
+inherit cmake python-single-r1 ubuntu-versionator
 
 DESCRIPTION="Library to facilitate testing DBus interactions in Qt applications"
 HOMEPAGE="https://launchpad.net/libqtdbustest"
@@ -19,7 +19,7 @@ SLOT="0"
 KEYWORDS="~amd64"
 IUSE="coverage test"
 REQUIRED_USE=" coverage? ( test ) test? ( ${PYTHON_REQUIRED_USE} )"
-RESTRICT="${RESTRICT} !test? ( test )"
+RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
 	>=dev-qt/qtcore-5.15.1:5
@@ -70,6 +70,8 @@ src_prepare() {
 }
 
 src_configure() {
-	local mycmakeargs=( -Wno-dev )
-	cmake-utils_src_configure
+	local mycmakeargs=(
+		-Wno-dev
+	)
+	cmake_src_configure
 }

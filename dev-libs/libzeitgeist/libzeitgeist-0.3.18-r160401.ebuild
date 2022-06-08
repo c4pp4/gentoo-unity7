@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 UBUNTU_EAUTORECONF="yes"
 
 UVER=
@@ -44,10 +44,13 @@ src_prepare() {
 }
 
 src_configure() {
-	econf $(use_enable doc gtk-doc)
+	local myeconfargs=(
+		$(use_enable doc gtk-doc)
+	)
+	econf "${myeconfargs[@]}"
 }
 
 src_install() {
 	default
-	find "${ED}" \( -name "*.a" -o -name "*.la" \) -delete || die
+	find "${ED}" -name '*.la' -delete || die
 }

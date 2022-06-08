@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 UBUNTU_EAUTORECONF="yes"
 
 UVER=daily13.06.05+16.10.20160809
@@ -17,7 +17,7 @@ LICENSE="GPL-3 LGPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="doc test"
-RESTRICT="${RESTRICT} !test? ( test )"
+RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
 	>=x11-libs/libX11-1.2.99.901
@@ -50,7 +50,6 @@ src_prepare() {
 
 src_configure() {
 	local myeconfargs=(
-		--enable-static=no
 		--enable-integration-tests=no
 		$(use_with test gtest-source-path)
 	)
@@ -64,5 +63,5 @@ src_compile() {
 
 src_install() {
 	default
-	find "${ED}" \( -name "*.a" -o -name "*.la" \) -delete || die
+	find "${ED}" -name '*.la' -delete || die
 }

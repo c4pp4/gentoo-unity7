@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 PYTHON_COMPAT=( python3_{8..10} )
 UBUNTU_EAUTORECONF="yes"
 
@@ -19,7 +19,7 @@ SLOT="0/9.0.2"
 KEYWORDS="~amd64"
 IUSE="test"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
-RESTRICT="${RESTRICT} !test? ( test )"
+RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
 	>=dev-libs/dee-1.2.7:0=[${PYTHON_SINGLE_USEDEP}]
@@ -50,10 +50,13 @@ BDEPEND="
 S="${WORKDIR}"
 
 src_configure() {
-	econf $(use_enable test headless-tests)
+	local myeconfargs=(
+		$(use_enable test headless-tests)
+	)
+	econf "${myeconfargs[@]}"
 }
 
 src_install() {
 	default
-	find "${ED}" \( -name "*.a" -o -name "*.la" \) -delete || die
+	find "${ED}" -name '*.la' -delete || die
 }

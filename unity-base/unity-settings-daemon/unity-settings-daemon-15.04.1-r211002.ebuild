@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 GNOME2_EAUTORECONF="yes"
 
 UVER=+21.10.20210715
@@ -21,7 +21,7 @@ REQUIRED_USE="
 	input_devices_wacom? ( udev )
 	smartcard? ( udev )
 "
-RESTRICT="${RESTRICT} test"
+RESTRICT="test"
 
 COMMON_DEPEND="
 	>=dev-libs/dbus-glib-0.74

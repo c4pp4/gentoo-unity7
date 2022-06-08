@@ -1,2 +1,1 @@
 * Fix inconsistent GTK4 theme (temporarily symlinked with yaru-unity7)
-* Change ebuilds to EAPI=8

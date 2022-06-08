@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 UVER=
 UREV=
@@ -16,6 +16,7 @@ LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="+audacity_menu +eog_menu +evince_menu +fontconfig_adjust +gnome-screenshot_adjust +gnome-terminal_theme +libreoffice_theme +pidgin_menu +totem_menu"
+RESTRICT="binchecks strip test"
 
 RDEPEND="
 	x11-misc/gtk3-nocsd
@@ -110,7 +111,7 @@ src_install() {
 	insinto /etc/ehooks
 	doins timestamps
 
-	dosym "${REPO_ROOT}"/ehooks_version_control.sh /usr/bin/ehooks
+	dosym -r "${REPO_ROOT}"/ehooks_version_control.sh /usr/bin/ehooks
 }
 
 pkg_postinst() {

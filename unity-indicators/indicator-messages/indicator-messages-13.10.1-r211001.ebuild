@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 GNOME2_EAUTORECONF="yes"
 GNOME2_LA_PUNT="yes"
 PYTHON_COMPAT=( python3_{8..10} )
@@ -20,7 +20,7 @@ SLOT="0"
 KEYWORDS="~amd64"
 IUSE="doc test"
 REQUIRED_USE="test? ( ${PYTHON_REQUIRED_USE} )"
-RESTRICT="${RESTRICT} !test? ( test )"
+RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
 	>=dev-libs/gobject-introspection-0.9.12

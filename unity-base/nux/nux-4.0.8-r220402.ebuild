@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 UBUNTU_EAUTORECONF="yes"
 
 UVER=+18.10.20180623
@@ -17,7 +17,7 @@ LICENSE="GPL-3 LGPL-2.1 LGPL-3"
 SLOT="0/4"
 KEYWORDS="~amd64"
 IUSE="debug doc examples gles2"
-RESTRICT="${RESTRICT} test"
+RESTRICT="test"
 
 COMMON_DEPEND="
 	>=app-i18n/ibus-1.5.1
@@ -95,7 +95,7 @@ src_configure() {
 src_install() {
 	default
 
-	dosym ../../libexec/nux/unity_support_test \
+	dosym -r /usr/libexec/nux/unity_support_test \
 		/usr/$(get_libdir)/nux/unity_support_test
 
 	# Install gfx hardware support test script #

@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 UVER=
 UREV=
@@ -16,7 +16,7 @@ LICENSE="metapackage"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="+accessibility +apps chat +core +extra +fonts +games +xdm"
-RESTRICT="${RESTRICT} binchecks strip test"
+RESTRICT="binchecks strip test"
 
 RDEPEND="
 	gnome-base/gnome-core-libs

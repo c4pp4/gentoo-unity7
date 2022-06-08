@@ -1,13 +1,13 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 PYTHON_COMPAT=( python3_{8..10} )
 
 UVER=+17.04.20170404
 UREV=0ubuntu5
 
-inherit cmake-utils python-single-r1 ubuntu-versionator
+inherit cmake python-single-r1 ubuntu-versionator
 
 DESCRIPTION="API for Unity shell integration"
 HOMEPAGE="https://launchpad.net/unity-api"
@@ -18,7 +18,7 @@ SLOT="0"
 KEYWORDS="~amd64"
 IUSE="doc test"
 REQUIRED_USE="test? ( ${PYTHON_REQUIRED_USE} )"
-RESTRICT="${RESTRICT} !test? ( test )"
+RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
 	>=sys-devel/gcc-7
@@ -66,5 +66,5 @@ src_prepare() {
 
 src_configure() {
 	local mycmakeargs=( -DNO_TESTS=$(usex !test ON OFF) )
-	cmake-utils_src_configure
+	cmake_src_configure
 }

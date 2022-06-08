@@ -1,13 +1,13 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 PYTHON_COMPAT=( python3_{8..10} )
 
 UVER=+15.10.20150806
 UREV=0ubuntu27
 
-inherit cmake-utils python-single-r1 ubuntu-versionator
+inherit cmake python-single-r1 ubuntu-versionator
 
 DESCRIPTION="Error tolerant matching engine used by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/libcolumbus"
@@ -18,7 +18,7 @@ SLOT="0/${PV}"
 #KEYWORDS="~amd64"
 IUSE="coverage debug +pch test"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
-RESTRICT="${RESTRICT} !test? ( test )"
+RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
 	>=dev-libs/icu-67.1:=
@@ -59,7 +59,7 @@ src_configure() {
 		-DPYTHONDIR=$(python_get_sitedir)
 		-Duse_pch=$(usex pch)
 	)
-	CMAKE_BUILD_TYPE=$(usex coverage coverage Gentoo) cmake-utils_src_configure
+	CMAKE_BUILD_TYPE=$(usex coverage coverage Gentoo) cmake_src_configure
 
 	use pch && \
 		( cp python/pch/colpython_pch.hh "${BUILD_DIR}"/python/colpython_pch.hh || die )
@@ -71,5 +71,5 @@ src_install() {
 		hacking.txt
 		readme.txt
 	)
-	cmake-utils_src_install
+	cmake_src_install
 }

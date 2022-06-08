@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 GNOME2_EAUTORECONF="yes"
 
 UVER=
@@ -19,7 +19,7 @@ SLOT="0"
 KEYWORDS="~amd64"
 IUSE="crypt debug gnome-keyring ipv6 jpeg ssl +telepathy zeroconf +zlib"
 REQUIRED_USE="jpeg? ( zlib )"
-RESTRICT="${RESTRICT} test"
+RESTRICT="test"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.37.3:2
@@ -64,7 +64,7 @@ src_configure() {
 	local mygnome2args=(
 		$(use_enable ipv6)
 		$(use_with crypt gcrypt)
-		$(usex debug --enable-debug=yes ' ')
+		$(usev debug --enable-debug=yes)
 		$(use_with gnome-keyring secret)
 		$(use_with jpeg)
 		$(use_with ssl gnutls)

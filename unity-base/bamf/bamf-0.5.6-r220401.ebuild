@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 UBUNTU_EAUTORECONF="yes"
 
 UVER=+22.04.20220217
@@ -17,7 +17,7 @@ LICENSE="GPL-3 LGPL-2.1 LGPL-3"
 SLOT="0/1.0.0"
 KEYWORDS="~amd64"
 IUSE="doc"
-RESTRICT="${RESTRICT} test"
+RESTRICT="test"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.43.2:2

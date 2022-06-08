@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 UVER=
 UREV=5
@@ -16,7 +16,7 @@ LICENSE="BSD MIT"
 SLOT="0/$(ver_cut 1-2)"
 KEYWORDS="~amd64"
 IUSE="doc static-libs"
-RESTRICT="${RESTRICT} test"
+RESTRICT="test"
 
 RDEPEND="
 	media-libs/libglvnd[${MULTILIB_USEDEP}]

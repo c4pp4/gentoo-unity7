@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 UVER=+15.10.20151016.2
 UREV=0ubuntu3
@@ -14,7 +14,7 @@ HOMEPAGE="https://launchpad.net/notify-osd"
 LICENSE="CC-BY-SA-3.0"
 SLOT="0"
 KEYWORDS="~amd64"
-RESTRICT="${RESTRICT} binchecks strip test"
+RESTRICT="binchecks strip test"
 
 DEPEND="media-gfx/scour"
 
@@ -28,11 +28,11 @@ src_install() {
 		path=/usr/share/notify-osd/icons/Humanity/scalable/status \
 		x
 
-	dosym notification-battery-000.svg ${path}/notification-battery-empty.svg
-	dosym notification-battery-020.svg ${path}/notification-battery-low.svg
-
 	# Optimize SVG files #
 	for x in "${ED}${path}"/*.svg; do
 		[[ -f ${x} ]] && ( scour -i "${x}" -o "${x}.tmp" && mv "${x}.tmp" "${x}" || rm "${x}.tmp" )
 	done
+
+	dosym notification-battery-000.svg ${path}/notification-battery-empty.svg
+	dosym notification-battery-020.svg ${path}/notification-battery-low.svg
 }

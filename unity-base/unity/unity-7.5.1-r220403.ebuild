@@ -1,13 +1,13 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 PYTHON_COMPAT=( python3_{8..10} )
 
 UVER=+22.04.20211026.2
 UREV=0ubuntu1
 
-inherit gnome2 cmake-utils pam python-single-r1 systemd ubuntu-versionator
+inherit gnome2 cmake pam python-single-r1 systemd ubuntu-versionator
 
 DESCRIPTION="The Ubuntu Unity Desktop"
 HOMEPAGE="https://launchpad.net/unity"
@@ -18,7 +18,7 @@ SLOT="0/${PV}"
 KEYWORDS="~amd64"
 IUSE="+branding debug doc gles2 +hud +nemo +pch systray"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
-RESTRICT="${RESTRICT} test"
+RESTRICT="test"
 
 COMMON_DEPEND="
 	>=dev-libs/appstream-glib-0.5.1
@@ -213,11 +213,11 @@ src_configure() {
 		-Duse_pch=$(usex pch ON OFF)
 		-Wno-dev
 	)
-	CMAKE_BUILD_TYPE="None" cmake-utils_src_configure
+	CMAKE_BUILD_TYPE="None" cmake_src_configure
 }
 
 src_install() {
-	cmake-utils_src_install
+	cmake_src_install
 
 	if use branding; then
 		insinto /usr/share/unity/icons
@@ -245,14 +245,14 @@ src_install() {
 	fowners root:polkitd /var/lib/polkit-1/localauthority/10-vendor.d/com.ubuntu.desktop.pkla
 
 	# Make 'unity-session.target' systemd user unit auto-start 'unity7.service' #
-	dosym $(systemd_get_userunitdir)/unity7.service $(systemd_get_userunitdir)/unity-session.target.requires/unity7.service
-	dosym $(systemd_get_userunitdir)/unity-settings-daemon.service $(systemd_get_userunitdir)/unity-session.target.wants/unity-settings-daemon.service
-	dosym $(systemd_get_userunitdir)/window-stack-bridge.service $(systemd_get_userunitdir)/unity-session.target.wants/window-stack-bridge.service
+	dosym -r $(systemd_get_userunitdir)/unity7.service $(systemd_get_userunitdir)/unity-session.target.requires/unity7.service
+	dosym -r $(systemd_get_userunitdir)/unity-settings-daemon.service $(systemd_get_userunitdir)/unity-session.target.wants/unity-settings-daemon.service
+	dosym -r $(systemd_get_userunitdir)/window-stack-bridge.service $(systemd_get_userunitdir)/unity-session.target.wants/window-stack-bridge.service
 
 	unity-panel-service_dosym() {
 		local x
 		for x in $2; do
-			dosym $(systemd_get_userunitdir)/indicator-${x}.service $(systemd_get_userunitdir)/$1.service.wants/indicator-${x}.service
+			dosym -r $(systemd_get_userunitdir)/indicator-${x}.service $(systemd_get_userunitdir)/$1.service.wants/indicator-${x}.service
 		done
 	}
 	# Top panel systemd indicator services required for unity-panel-service #
@@ -266,7 +266,7 @@ src_install() {
 	insinto /usr/lib/compiz/migration
 	doins tools/convert-files/*.convert
 
-	dosym ../../gnome-control-center/keybindings/50-unity-launchers.xml \
+	dosym -r /usr/share/gnome-control-center/keybindings/50-unity-launchers.xml \
 		/usr/share/unity-control-center/keybindings/50-unity-launchers.xml
 }
 

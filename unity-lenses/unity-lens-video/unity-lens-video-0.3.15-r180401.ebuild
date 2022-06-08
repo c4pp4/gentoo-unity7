@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 UBUNTU_EAUTORECONF="yes"
 
 UVER=+16.04.20160212.1
@@ -15,7 +15,7 @@ HOMEPAGE="https://launchpad.net/unity-lens-video"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
-RESTRICT="${RESTRICT} test"
+RESTRICT="test"
 
 COMMON_DEPEND="
 	>=dev-libs/dee-1.0.7:0=

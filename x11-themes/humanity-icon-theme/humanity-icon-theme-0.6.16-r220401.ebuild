@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 UVER=
 UREV=
@@ -16,7 +16,7 @@ LICENSE="CC-BY-SA CC-BY-SA-3.0 GPL-2 GPL-3 LGPL-3+ MPL-1.1"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="extra +optimize"
-RESTRICT="${RESTRICT} binchecks strip test"
+RESTRICT="binchecks strip test"
 
 RDEPEND="
 	x11-themes/adwaita-icon-theme

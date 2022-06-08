@@ -1,14 +1,14 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 DISTUTILS_SINGLE_IMPL=1
 PYTHON_COMPAT=( python3_{8..10} )
 
 UVER=
 UREV=
 
-inherit distutils-r1 cmake-utils systemd ubuntu-versionator
+inherit distutils-r1 cmake systemd ubuntu-versionator
 
 DESCRIPTION="Tool to migrate in user session settings used by the Unity desktop"
 HOMEPAGE="https://launchpad.net/session-migration"
@@ -32,8 +32,8 @@ src_test() {
 }
 
 src_install() {
-	cmake-utils_src_install
+	cmake_src_install
 
-	dosym $(systemd_get_userunitdir)/session-migration.service \
+	dosym -r $(systemd_get_userunitdir)/session-migration.service \
 		$(systemd_get_userunitdir)/graphical-session-pre.target.wants/session-migration.service
 }

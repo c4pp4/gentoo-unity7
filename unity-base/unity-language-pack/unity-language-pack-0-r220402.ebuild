@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 UVER=
 UREV=
@@ -182,7 +182,7 @@ SRC_URI="${MY_SRC_URI}"
 
 IUSE="+branding ${MY_IUSE/l10n_en/+l10n_en}"
 REQUIRED_USE="|| ( ${MY_IUSE} )"
-RESTRICT="${RESTRICT} test"
+RESTRICT="test"
 
 BDEPEND="sys-devel/gettext"
 

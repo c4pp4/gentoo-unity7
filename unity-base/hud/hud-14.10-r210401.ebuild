@@ -1,14 +1,14 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 DISTUTILS_SINGLE_IMPL=1
 PYTHON_COMPAT=( python3_{8..10} )
 
 UVER=+17.10.20170619
 UREV=0ubuntu4
 
-inherit distutils-r1 cmake-utils gnome2 ubuntu-versionator vala
+inherit distutils-r1 cmake gnome2 ubuntu-versionator vala
 
 DESCRIPTION="Backend for the Unity HUD"
 HOMEPAGE="https://launchpad.net/hud"
@@ -18,7 +18,7 @@ LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="doc test"
-RESTRICT="${RESTRICT} !test? ( test )"
+RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
 	>=dev-libs/dee-0.5.2:0=[${PYTHON_SINGLE_USEDEP}]
@@ -114,11 +114,11 @@ src_configure() {
 		-DVAPI_GEN=$(type -P vapigen-${VALA_MIN_API_VERSION})
 		-Wno-dev
 	)
-	cmake-utils_src_configure
+	cmake_src_configure
 }
 
 src_compile() {
-	cmake-utils_src_compile
+	cmake_src_compile
 
 	pushd tools/hudkeywords >/dev/null || die
 		distutils-r1_src_compile
@@ -126,7 +126,7 @@ src_compile() {
 }
 
 src_install() {
-	cmake-utils_src_install
+	cmake_src_install
 
 	pushd tools/hudkeywords >/dev/null || die
 		distutils-r1_src_install

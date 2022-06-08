@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 UVER=
 UREV=
@@ -16,7 +16,7 @@ LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="+files lowgfx +music +photos +ubuntu-cursor +ubuntu-sounds +video yaru"
-RESTRICT="${RESTRICT} binchecks strip test"
+RESTRICT="binchecks strip test"
 
 RDEPEND="
 	media-fonts/ubuntu-font-family

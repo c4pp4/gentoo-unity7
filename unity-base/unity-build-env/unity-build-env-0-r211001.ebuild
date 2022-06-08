@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 UVER=
 UREV=
@@ -16,7 +16,7 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="amd64"
 IUSE="dev minimal"
-RESTRICT="${RESTRICT} binchecks strip test"
+RESTRICT="binchecks strip test"
 
 S="${WORKDIR}"
 
@@ -24,18 +24,18 @@ src_install() {
 	local pfile
 	for pfile in {accept_keywords,env,mask,unmask,use}; do
 		dodir "/etc/portage/package.${pfile}"
-		dosym "${REPO_ROOT}/profiles/unity-portage.p${pfile}" \
+		dosym -r "${REPO_ROOT}/profiles/unity-portage.p${pfile}" \
 			"/etc/portage/package.${pfile}/0000_unity-portage.p${pfile}" || die
 	done
 
 	dodir "/etc/portage/env"
-	dosym "${REPO_ROOT}/profiles/env/ehooks-network" \
+	dosym -r "${REPO_ROOT}/profiles/env/ehooks-network" \
 		"/etc/portage/env/ehooks-network" || die
 
-	use dev && dosym "${REPO_ROOT}/profiles/unity-portage-dev.paccept_keywords" \
+	use dev && dosym -r "${REPO_ROOT}/profiles/unity-portage-dev.paccept_keywords" \
 		"/etc/portage/package.accept_keywords/0001_unity-portage-dev.paccept_keywords"
 
-	use minimal && dosym "${REPO_ROOT}/profiles/unity-portage-minimal.puse" \
+	use minimal && dosym -r "${REPO_ROOT}/profiles/unity-portage-minimal.puse" \
 		"/etc/portage/package.use/0001_unity-portage-minimal.puse"
 }
 

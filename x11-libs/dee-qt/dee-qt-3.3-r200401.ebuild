@@ -1,12 +1,12 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 UVER=+14.04.20140317
 UREV=0ubuntu4
 
-inherit cmake-utils ubuntu-versionator
+inherit cmake ubuntu-versionator
 
 DESCRIPTION="Qt binding and QML plugin for Dee for the Unity7 user interface"
 HOMEPAGE="https://wiki.ubuntu.com/Unity"
@@ -15,7 +15,7 @@ LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="test"
-RESTRICT="${RESTRICT} !test? ( test )"
+RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
 	>=dev-libs/dee-1.0.0:0=
@@ -46,5 +46,5 @@ src_configure() {
 		-DCMAKE_LIBRARY_ARCHITECTURE=$(get_libdir)
 		-DLIB_SUFFIX=""
 	)
-	cmake-utils_src_configure
+	cmake_src_configure
 }

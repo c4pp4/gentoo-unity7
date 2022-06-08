@@ -1,11 +1,11 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 COMMIT="6a09b01b13637454c268a4e1c050a266"
 
-inherit cmake-utils
+inherit cmake
 
 DESCRIPTION="Global menu for Java applications"
 HOMEPAGE="https://gitlab.com/vala-panel-project/vala-panel-appmenu/tree/master/subprojects/jayatana"
@@ -35,7 +35,7 @@ src_prepare() {
 	[[ ${active_vm##*-} == "8" ]] && ( sed -i \
 		"/--add-exports/d" java/CMakeLists.txt || die )
 
-	cmake-utils_src_prepare
+	cmake_src_prepare
 }
 
 src_configure() {
@@ -43,7 +43,7 @@ src_configure() {
 		-DENABLE_JAYATANA=ON
 		-DSTANDALONE=OFF
 	)
-	cmake-utils_src_configure
+	cmake_src_configure
 }
 
 src_install() {
@@ -52,7 +52,7 @@ src_install() {
 		LICENSE
 		README.md
 	)
-	cmake-utils_src_install
+	cmake_src_install
 
 	if use system-wide; then
 		exeinto /etc/X11/xinit/xinitrc.d

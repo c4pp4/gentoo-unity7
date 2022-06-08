@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 DISTUTILS_SINGLE_IMPL=1
 PYTHON_COMPAT=( python3_{8..10} )
 
@@ -18,7 +18,7 @@ LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="gnome-online-accounts"
-RESTRICT="${RESTRICT} test"
+RESTRICT="test"
 
 RDEPEND="
 	${PYTHON_DEPS}
@@ -57,7 +57,9 @@ src_prepare() {
 
 src_configure() {
 	# Workaround for distutils-r1.eclass: install --skip-build #
-	local mydistutilsargs=( build )
+	local mydistutilsargs=(
+		build
+	)
 	distutils-r1_src_configure
 }
 

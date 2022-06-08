@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 UVER=
 UREV=1ubuntu1
@@ -15,7 +15,7 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
 LICENSE="LGPL-2.1"
 SLOT="0"
 KEYWORDS="~amd64"
-RESTRICT="${RESTRICT} test"
+RESTRICT="test"
 
 RDEPEND=">=sys-libs/glibc-2.4"
 DEPEND="

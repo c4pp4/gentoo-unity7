@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 UVER=
 UREV=
@@ -15,7 +15,7 @@ SRC_URI="${UURL}.tar.xz"
 LICENSE="CC-BY-SA-2.0 GPL-2+"
 KEYWORDS="~amd64"
 SLOT="0"
-RESTRICT="${RESTRICT} binchecks strip test"
+RESTRICT="binchecks strip test"
 
 src_install() {
 	default

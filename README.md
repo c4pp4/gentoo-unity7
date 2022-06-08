@@ -18,7 +18,7 @@ A Gentoo overlay to build the Unity7 user interface.
 
 [//]: # (LINKS)
 [build]: docs/build_instructions.md
-[fesr]: profiles/ehooks/www-client/firefox-91/files
+[fesr]: profiles/ehooks/www-client/firefox:esr/files
 [ftlr]: profiles/ehooks/www-client/firefox/files
 [fork]: https://github.com/shiznix/unity-gentoo
 [pak]: profiles/unity-portage.paccept_keywords

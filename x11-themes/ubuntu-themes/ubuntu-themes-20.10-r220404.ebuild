@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 UVER=
 UREV=0ubuntu2
@@ -16,7 +16,7 @@ LICENSE="GPL-3 CC-BY-SA-3.0"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="+nemo +optimize"
-RESTRICT="${RESTRICT} binchecks strip test"
+RESTRICT="binchecks strip test"
 
 RDEPEND="
 	x11-themes/adwaita-icon-theme
@@ -89,8 +89,8 @@ src_install() {
 	find -L "${ED}" -type l -delete
 
 	## Add gtk4 theme from yaru-unity7 ##
-	dosym ../Yaru-unity-dark/gtk-4.0 /usr/share/themes/Ambiance/gtk-4.0
-	dosym ../Yaru-unity/gtk-4.0 /usr/share/themes/Radiance/gtk-4.0
+	dosym -r /usr/share/themes/Yaru-unity-dark/gtk-4.0 /usr/share/themes/Ambiance/gtk-4.0
+	dosym -r /usr/share/themes/Yaru-unity/gtk-4.0 /usr/share/themes/Radiance/gtk-4.0
 
 	einstalldocs
 }
