@@ -30,7 +30,7 @@
 >x11-libs/gtk+-3.24.34:3
 >x11-libs/vte-0.68.0
 >x11-misc/lightdm-1.30.0-r3
->x11-misc/zim-0.73.5
+>x11-misc/zim-0.74.3
 >x11-plugins/pidgin-libnotify-0.14-r1
 >x11-terms/gnome-terminal-3.44.0
 
