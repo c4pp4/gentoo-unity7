@@ -3,6 +3,7 @@
 
 EAPI=8
 DISTUTILS_SINGLE_IMPL=1
+DISTUTILS_USE_PEP517=setuptools
 PYTHON_COMPAT=( python3_{8..10} )
 
 UVER=
@@ -87,8 +88,12 @@ DEPEND="${RDEPEND}
 		dev-python/python-distutils-extra[${PYTHON_USEDEP}]
 	')
 "
+## gnome-base/gvfs[http]: show thumbnails when searching online in the Dash ##
 PDEPEND="
 	audacious? ( unity-lenses/unity-lens-meta[music] )
+	colourlovers? ( gnome-base/gvfs[http] )
+	deviantart? ( gnome-base/gvfs[http] )
+	gallica? ( gnome-base/gvfs[http] )
 	soundcloud? ( unity-lenses/unity-lens-meta[music] )
 "
 
@@ -118,7 +123,7 @@ src_compile() {
 		use ${i} || continue
 		eval "_name=${i}; _ver=\${_ver_${i//-/_}}; _rel=\${_rel_${i//-/_}}"
 		pushd "${S}/unity-scope-${_name}-${_ver}" >/dev/null || die
-			distutils-r1_src_compile
+			BUILD_DIR="${PWD#${WORKDIR}/}_${BUILD_DIR}" distutils-r1_src_compile
 		popd >/dev/null || die
 	done
 }
@@ -140,7 +145,7 @@ src_install() {
 		use ${i} || continue
 		eval "_name=${i}; _ver=\${_ver_${i//-/_}}; _rel=\${_rel_${i//-/_}}"
 		pushd "${S}/unity-scope-${_name}-${_ver}" >/dev/null || die
-			distutils-r1_src_install
+			BUILD_DIR="${PWD#${WORKDIR}/}_${BUILD_DIR}" distutils-r1_src_install
 		popd >/dev/null || die
 	done
 }

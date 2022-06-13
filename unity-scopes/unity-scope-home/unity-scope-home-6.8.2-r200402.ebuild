@@ -8,6 +8,7 @@ UVER=+19.04.20190412
 UREV=0ubuntu2
 
 inherit vala ubuntu-versionator
+VALA_MAX_API_VERSION=0.54
 
 DESCRIPTION="Home scope that aggregates results from multiple scopes for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/unity-scope-home"
@@ -42,14 +43,7 @@ S="${WORKDIR}"
 PATCHES=( "${FILESDIR}"/0002-productsearch.ubuntu.com-only-accepts-locale-string.patch )
 
 src_configure() {
-	# REVISIT: temporary workaround against vala-0.56 #
-	local ddir="${EROOT}/usr/share"
-	sed -i \
-		-e "/CLIENT_SCOPES_FILE/{s:Config.PKGDATADIR + \":\"${ddir}/unity:}" \
-		src/client-scopes-info.vala || die
-
 	local myeconfargs=(
-		--datadir="${ddir}"
 		$(use_enable test headless-tests)
 	)
 	econf "${myeconfargs[@]}"

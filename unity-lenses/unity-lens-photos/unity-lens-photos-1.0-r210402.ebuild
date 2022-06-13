@@ -3,6 +3,7 @@
 
 EAPI=8
 DISTUTILS_SINGLE_IMPL=1
+DISTUTILS_USE_PEP517=setuptools
 PYTHON_COMPAT=( python3_{8..10} )
 
 UVER=+17.10.20170605
@@ -48,19 +49,16 @@ DEPEND="
 S="${WORKDIR}"
 
 src_prepare() {
-	# Remove Facebook, Flickr and Picasa scopes #
-	#  as they are not maintained and tested anymore #
-	use gnome-online-accounts || eapply "${FILESDIR}/remove-goa-scopes.diff"
+	if ! use gnome-online-accounts; then
+		eapply "${FILESDIR}/remove-goa-scopes.diff"
+		find -type f \
+			\( -name '*facebook*' \
+			-o -name '*flickr*' \
+			-o -name '*picasa*' \) \
+				-delete || die
+	fi
 
 	ubuntu-versionator_src_prepare
-}
-
-src_configure() {
-	# Workaround for distutils-r1.eclass: install --skip-build #
-	local mydistutilsargs=(
-		build
-	)
-	distutils-r1_src_configure
 }
 
 src_install() {
