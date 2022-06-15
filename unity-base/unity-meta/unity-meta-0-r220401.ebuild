@@ -159,7 +159,8 @@ RDEPEND="
 		games-puzzle/quadrapassel
 		games-puzzle/swell-foop
 	)
-	xdm? ( || (
+	xdm? (
+		|| (
 			unity-extra/unity-greeter
 			gnome-base/gdm
 		)

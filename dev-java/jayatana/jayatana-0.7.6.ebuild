@@ -5,7 +5,7 @@ EAPI=8
 
 COMMIT="6a09b01b13637454c268a4e1c050a266"
 
-inherit cmake
+inherit cmake java-utils-2
 
 DESCRIPTION="Global menu for Java applications"
 HOMEPAGE="https://gitlab.com/vala-panel-project/vala-panel-appmenu/tree/master/subprojects/jayatana"
@@ -27,8 +27,9 @@ DEPEND="${RDEPEND}"
 
 src_prepare() {
 	# Fix .jar dir #
-	sed -i "/JAVADIR/{s/java/${PN}\/lib/}" lib/config.h.in || die
-	sed -i "s:/java):/${PN}/lib):" java/CMakeLists.txt || die
+	java-pkg_init_paths_
+	sed -i "s:\${CMAKE_INSTALL_DATAROOTDIR}/java:${JAVA_PKG_JARDEST}:" java/CMakeLists.txt || die
+	sed -i "s:@CMAKE_INSTALL_FULL_DATAROOTDIR@/java:${JAVA_PKG_JARDEST}:" lib/config.h.in || die
 
 	# Remove JDK 9+ related option #
 	local active_vm=$(java-config -f)
@@ -54,9 +55,12 @@ src_install() {
 	)
 	cmake_src_install
 
+	java-pkg_regjar "${ED}"/"${JAVA_PKG_JARDEST}"/*.jar
+
 	if use system-wide; then
 		exeinto /etc/X11/xinit/xinitrc.d
-		doexe "${FILESDIR}"/90jayatana
+		sed "s:JAGDEST:${JAVA_PKG_JARDEST}:" "${FILESDIR}"/90jayatana > 90jayatana
+		doexe 90jayatana
 	fi
 }
 
