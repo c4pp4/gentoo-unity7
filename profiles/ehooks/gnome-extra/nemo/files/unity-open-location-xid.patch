@@ -1,0 +1,329 @@
+From 9bee355bd1137d320ace02263eefd470674ecac1 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Tue, 28 Jun 2022 23:02:02 +0200
+Subject: [PATCH 1/1] Add a new dbus property to the nemo'
+
+"org.freedesktop.FileManager1" dbus interface where it stores the lists of
+opened locations referenced by their parent nemo window XID.
+Bug-Ubuntu: https://bugs.launchpad.net/unity/+bug/887449
+
+Taken from Nautilus patchset (19_unity_open_location_xid.patch).
+
+Signed-off-by: c4pp4
+---
+ data/freedesktop-dbus-interfaces.xml |   1 +
+ src/nemo-freedesktop-dbus.c          |  13 ++
+ src/nemo-freedesktop-dbus.h          |   1 +
+ src/nemo-main-application.c          | 178 +++++++++++++++++++++++++++
+ src/nemo-window-manage-views.c       |   6 +-
+ src/nemo-window-pane.c               |   5 +-
+ 6 files changed, 201 insertions(+), 3 deletions(-)
+
+diff --git a/data/freedesktop-dbus-interfaces.xml b/data/freedesktop-dbus-interfaces.xml
+index 3ebd049..4a51454 100644
+--- a/data/freedesktop-dbus-interfaces.xml
++++ b/data/freedesktop-dbus-interfaces.xml
+@@ -33,5 +33,6 @@
+       <arg type='s' name='StartupId' direction='in'/>
+     </method>
+     <property name="OpenLocations" type="as" access="read"/>
++    <property name="XUbuntuOpenLocationsXids" type="a{uas}" access="read"/>
+   </interface>
+ </node>
+diff --git a/src/nemo-freedesktop-dbus.c b/src/nemo-freedesktop-dbus.c
+index 0985c18..c14191d 100644
+--- a/src/nemo-freedesktop-dbus.c
++++ b/src/nemo-freedesktop-dbus.c
+@@ -226,7 +226,20 @@ nemo_freedesktop_dbus_set_open_locations (NemoFreedesktopDBus *fdb,
+ {
+ 	g_return_if_fail (NEMO_IS_FREEDESKTOP_DBUS (fdb));
+ 
++	if (fdb->skeleton) {
+ 	nemo_freedesktop_file_manager1_set_open_locations (fdb->skeleton, locations);
++	}
++}
++
++void
++nemo_freedesktop_dbus_set_open_locations_xids (NemoFreedesktopDBus *fdb,
++					       GVariant *locations)
++{
++	g_return_if_fail (NEMO_IS_FREEDESKTOP_DBUS (fdb));
++
++	if (fdb->skeleton) {
++		nemo_freedesktop_file_manager1_set_xubuntu_open_locations_xids (fdb->skeleton, locations);
++	}
+ }
+ 
+ /* Tries to own the org.freedesktop.FileManager1 service name */
+diff --git a/src/nemo-freedesktop-dbus.h b/src/nemo-freedesktop-dbus.h
+index 4f3ae84..ae825b8 100644
+--- a/src/nemo-freedesktop-dbus.h
++++ b/src/nemo-freedesktop-dbus.h
+@@ -44,5 +44,6 @@ GType nemo_freedesktop_dbus_get_type (void);
+ NemoFreedesktopDBus * nemo_freedesktop_dbus_new (void);
+ 
+ void nemo_freedesktop_dbus_set_open_locations (NemoFreedesktopDBus *fdb, const gchar **locations);
++void nemo_freedesktop_dbus_set_open_locations_xids (NemoFreedesktopDBus *fdb, GVariant *locations);
+ 
+ #endif /* __NEMO_FREEDESKTOP_DBUS_H__ */
+diff --git a/src/nemo-main-application.c b/src/nemo-main-application.c
+index b9834ec..3625358 100644
+--- a/src/nemo-main-application.c
++++ b/src/nemo-main-application.c
+@@ -929,11 +929,185 @@ nemo_main_application_quit_mainloop (GApplication *app)
+     G_APPLICATION_CLASS (nemo_main_application_parent_class)->quit_mainloop (app);
+ }
+ 
++static void
++update_dbus_opened_locations (NemoApplication *app)
++{
++	gint i;
++	GList *l, *lp, *sl;
++	GList *locations = NULL;
++	gsize locations_size = 0;
++	gchar **locations_array;
++	NemoWindow *win;
++	GFile *location;
++
++	GVariantBuilder b;
++	GVariantBuilder wb;
++
++	g_return_if_fail (NEMO_IS_APPLICATION (app));
++
++	g_variant_builder_init (&b, G_VARIANT_TYPE ("a{uas}"));
++
++	NemoMainApplication *self = NEMO_MAIN_APPLICATION (app);
++
++	if (!self->priv->fdb_manager) {
++		return;
++	}
++
++	for (l = gtk_application_get_windows (GTK_APPLICATION (self)); l; l = l->next) {
++		NemoWindowSlot *active_slot;
++
++		win = NEMO_WINDOW (l->data);
++
++		g_variant_builder_init (&wb, G_VARIANT_TYPE ("as"));
++
++		active_slot = nemo_window_get_active_slot (win);
++
++		if (active_slot != NULL) {
++			location = nemo_window_slot_get_location (active_slot);
++
++			if (location != NULL) {
++				gchar *active_uri = g_file_get_uri (location);
++				g_variant_builder_add (&wb, "s", active_uri);
++				g_free (active_uri);
++			}
++		}
++
++		for (lp = nemo_window_get_panes (win); lp; lp = lp->next) {
++			NemoWindowPane *pane;
++
++			pane = (NemoWindowPane*) lp->data;
++
++			for (sl = pane->slots; sl; sl = sl->next) {
++				NemoWindowSlot *slot = NEMO_WINDOW_SLOT (sl->data);
++				location = nemo_window_slot_get_location (slot);
++
++				if (location != NULL) {
++					gchar *uri = g_file_get_uri (location);
++
++					if (slot != active_slot) {
++						g_variant_builder_add (&wb, "s", uri);
++					}
++
++					GList *found = g_list_find_custom (locations, uri, (GCompareFunc) g_strcmp0);
++
++					if (!found) {
++						locations = g_list_prepend (locations, uri);
++						++locations_size;
++					} else {
++						g_free (uri);
++					}
++				}
++			}
++		}
++
++		if (gtk_widget_get_realized (GTK_WIDGET (win))) {
++			GdkWindow *gdk_win;
++			Window xid;
++
++			gdk_win = gtk_widget_get_window (GTK_WIDGET (win));
++			xid = gdk_x11_window_get_xid (gdk_win);
++			g_variant_builder_add (&b, "{uas}", xid, &wb);
++		}
++
++		g_variant_builder_clear (&wb);
++	}
++
++	locations_array = g_new (gchar*, locations_size + 1);
++
++	for (i = 0, l = locations; l; l = l->next, ++i) {
++		locations_array[i] = l->data;
++	}
++
++	locations_array[locations_size] = NULL;
++
++	nemo_freedesktop_dbus_set_open_locations (self->priv->fdb_manager,
++						  (const gchar**) locations_array);
++	nemo_freedesktop_dbus_set_open_locations_xids (self->priv->fdb_manager,
++						       g_variant_builder_end (&b));
++
++	g_free (locations_array);
++	g_list_free_full (locations, g_free);
++}
++
++static void
++on_slot_location_changed (NemoWindowSlot  *slot,
++			  const char      *from,
++ 			  const char      *to,
++			  NemoApplication *application)
++{
++	update_dbus_opened_locations (application);
++}
++
++static void
++on_slot_active_changed (NemoWindowSlot  *slot,
++			NemoApplication *application)
++{
++	update_dbus_opened_locations (application);
++}
++
++static void
++on_slot_added (NemoWindow      *window,
++	       NemoWindowSlot  *slot,
++	       NemoApplication *application)
++{
++	if (nemo_window_slot_get_location (slot)) {
++		update_dbus_opened_locations (application);
++	}
++
++	g_signal_connect (slot, "location-changed", G_CALLBACK (on_slot_location_changed), application);
++	g_signal_connect (slot, "active", G_CALLBACK (on_slot_active_changed), application);
++}
++
++static void
++on_slot_removed (NemoWindow      *window,
++		 NemoWindowSlot  *slot,
++		 NemoApplication *application)
++{
++	update_dbus_opened_locations (application);
++
++	g_signal_handlers_disconnect_by_func (slot, on_slot_location_changed, application);
++	g_signal_handlers_disconnect_by_func (slot, on_slot_active_changed, application);
++}
++
++static void
++on_realize (GtkWidget       *widget,
++	    NemoApplication *application)
++{
++	update_dbus_opened_locations (application);
++}
++
++static void
++nemo_main_application_window_added (GtkApplication *app,
++				    GtkWindow      *window)
++{
++	GTK_APPLICATION_CLASS (nemo_main_application_parent_class)->window_added (app, window);
++
++	if (NEMO_IS_WINDOW (window)) {
++		g_signal_connect (window, "realize", G_CALLBACK (on_realize), app);
++		g_signal_connect (window, "slot-added", G_CALLBACK (on_slot_added), app);
++		g_signal_connect (window, "slot-removed", G_CALLBACK (on_slot_removed), app);
++	}
++}
++
++static void
++nemo_main_application_window_removed (GtkApplication *app,
++				      GtkWindow      *window)
++{
++	GTK_APPLICATION_CLASS (nemo_main_application_parent_class)->window_removed (app, window);
++
++	if (NEMO_IS_WINDOW (window)) {
++		g_signal_handlers_disconnect_by_func (window, on_realize, app);
++		g_signal_handlers_disconnect_by_func (window, on_slot_added, app);
++		g_signal_handlers_disconnect_by_func (window, on_slot_removed, app);
++	}
++}
++
+ static void
+ nemo_main_application_class_init (NemoMainApplicationClass *class)
+ {
+     GObjectClass *object_class;
+     GApplicationClass *application_class;
++    GtkApplicationClass *gtkapp_class;
+     NemoApplicationClass *nemo_app_class;
+ 
+     object_class = G_OBJECT_CLASS (class);
+@@ -944,6 +1118,10 @@ nemo_main_application_class_init (NemoMainApplicationClass *class)
+     application_class->local_command_line = nemo_main_application_local_command_line;
+     application_class->quit_mainloop = nemo_main_application_quit_mainloop;
+ 
++    gtkapp_class = GTK_APPLICATION_CLASS (class);
++    gtkapp_class->window_added = nemo_main_application_window_added;
++    gtkapp_class->window_removed = nemo_main_application_window_removed;
++
+     nemo_app_class = NEMO_APPLICATION_CLASS (class);
+     nemo_app_class->open_location = nemo_main_application_open_location;
+     nemo_app_class->create_window = nemo_main_application_create_window;
+diff --git a/src/nemo-window-manage-views.c b/src/nemo-window-manage-views.c
+index cdce07f..b49a1a6 100644
+--- a/src/nemo-window-manage-views.c
++++ b/src/nemo-window-manage-views.c
+@@ -1452,6 +1452,7 @@ update_for_new_location (NemoWindowSlot *slot)
+ {
+ 	NemoWindow *window;
+         GFile *new_location;
++        GFile *old_location;
+         NemoFile *file;
+ 	NemoDirectory *directory;
+ 	gboolean location_really_changed;
+@@ -1469,11 +1470,12 @@ update_for_new_location (NemoWindowSlot *slot)
+ 		slot->location == NULL ||
+ 		!g_file_equal (slot->location, new_location);
+ 
+-	nemo_window_slot_emit_location_change (slot, slot->location, new_location);
+ 
+         /* Set the new location. */
+-	g_clear_object (&slot->location);
++	old_location = slot->location;
+ 	slot->location = new_location;
++	nemo_window_slot_emit_location_change (slot, old_location, new_location);
++	g_clear_object (&old_location);
+ 
+         /* Create a NemoFile for this location, so we can catch it
+          * if it goes away.
+diff --git a/src/nemo-window-pane.c b/src/nemo-window-pane.c
+index 2d1af15..68d4e46 100644
+--- a/src/nemo-window-pane.c
++++ b/src/nemo-window-pane.c
+@@ -1275,6 +1275,9 @@ nemo_window_pane_remove_slot_unsafe (NemoWindowPane *pane,
+ 
+ 	nemo_window_manage_views_close_slot (slot);
+ 
++	pane->slots = g_list_remove (pane->slots, slot);
++	nemo_window_slot_removed (pane->window, slot);
++
+ 	page_num = gtk_notebook_page_num (notebook, GTK_WIDGET (slot));
+ 	g_assert (page_num >= 0);
+ 
+@@ -1289,7 +1292,6 @@ nemo_window_pane_remove_slot_unsafe (NemoWindowPane *pane,
+ 
+ 	gtk_notebook_set_show_tabs (notebook,
+ 				    gtk_notebook_get_n_pages (notebook) > 1);
+-	pane->slots = g_list_remove (pane->slots, slot);
+ }
+ 
+ NemoWindowSlot *
+@@ -1317,6 +1319,7 @@ nemo_window_pane_open_slot (NemoWindowPane *pane,
+ 					   pane);
+ 
+ 	pane->slots = g_list_append (pane->slots, slot);
++	nemo_window_slot_added (pane->window, slot);
+ 
+ 	return slot;
+ }
+-- 
+2.35.1
+

@@ -2,7 +2,7 @@
 ## https://github.com/LibreOffice/core/tree/3498ed37527b7af795f00dc6a55c11e65a313186/icon-themes/human
 
 ehooks() {
-	ehooks_use libreoffice_theme \
+	ehooks_use libreoffice \
 		&& unpack "${EHOOKS_FILESDIR}"/human-icon-theme.tar.xz \
 		&& unpack "${EHOOKS_FILESDIR}"/tango-icon-theme.tar.xz
 }

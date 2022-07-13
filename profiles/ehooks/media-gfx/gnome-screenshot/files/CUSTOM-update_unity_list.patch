@@ -3,11 +3,11 @@ Date: Fri, 7 Sep 2018 17:27:22 +0200
 Subject: Add quicklist area-shot option
 
 ---
- data/org.gnome.Screenshot.desktop.in | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ data/org.gnome.Screenshot.desktop.in | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/data/org.gnome.Screenshot.desktop.in b/data/org.gnome.Screenshot.desktop.in
-index 5a017ad..17f9fbc 100644
+index 5a017ad..0833532 100644
 --- a/data/org.gnome.Screenshot.desktop.in
 +++ b/data/org.gnome.Screenshot.desktop.in
 @@ -14,7 +14,7 @@ NotShowIn=KDE;
@@ -19,7 +19,7 @@ index 5a017ad..17f9fbc 100644
  DBusActivatable=true
  
  [Desktop Action screen-shot]
-@@ -24,3 +24,7 @@ Exec=gnome-screenshot
+@@ -24,3 +24,8 @@ Exec=gnome-screenshot
  [Desktop Action window-shot]
  Name=Take a Screenshot of the Current Window
  Exec=gnome-screenshot -w
@@ -27,6 +27,7 @@ index 5a017ad..17f9fbc 100644
 +[Desktop Action area-shot]
 +Name=Take a Screenshot of a Selected Area
 +Exec=gnome-screenshot -a
++OnlyShowIn=Unity;
 -- 
 2.35.1
 

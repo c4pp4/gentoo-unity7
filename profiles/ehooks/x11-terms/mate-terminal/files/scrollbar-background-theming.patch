@@ -1,0 +1,198 @@
+From a48172989887141b66cbc91a69d62c443bd1b08c Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Thu, 14 Jul 2022 07:41:04 +0200
+Subject: draw proper background under the scrollbar
+
+Taken from gnome-terminal scrollbar-background-theming.patch.
+
+Signed-off-by: c4pp4
+---
+ src/terminal-screen-container.c | 27 +++++++++++++++-
+ src/terminal-screen.c           | 56 ++++++++++++++++++++++++++++++++-
+ src/terminal-screen.h           |  2 ++
+ 3 files changed, 83 insertions(+), 2 deletions(-)
+
+diff --git a/src/terminal-screen-container.c b/src/terminal-screen-container.c
+index 8e7418a..4351703 100644
+--- a/src/terminal-screen-container.c
++++ b/src/terminal-screen-container.c
+@@ -125,12 +125,28 @@ terminal_screen_container_init (TerminalScreenContainer *container)
+ 	gtk_orientable_set_orientation (GTK_ORIENTABLE (container), GTK_ORIENTATION_VERTICAL);
+ }
+ 
++static gboolean
++scrollbar_bg_draw_cb (GtkWidget *widget, cairo_t *cr, TerminalScreenContainer *container)
++{
++	TerminalScreenContainerPrivate *priv = container->priv;
++	GdkRGBA * bg = terminal_screen_get_bg_color (priv->screen);
++
++	cairo_save (cr);
++	cairo_set_source_rgba (cr, bg->red, bg->green, bg->blue, bg->alpha);
++	cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
++	cairo_paint (cr);
++	cairo_restore (cr);
++
++	return FALSE;
++}
++
+ static GObject *
+ terminal_screen_container_constructor (GType type,
+                                        guint n_construct_properties,
+                                        GObjectConstructParam *construct_params)
+ {
+ 	GObject *object;
++	GtkWidget *scrollbar;
+ 	TerminalScreenContainer *container;
+ 	TerminalScreenContainerPrivate *priv;
+ 
+@@ -162,8 +178,12 @@ terminal_screen_container_constructor (GType type,
+ #else
+ 
+ 	priv->hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
++	priv->vscrollbar = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+ 
+-	priv->vscrollbar = gtk_scrollbar_new (GTK_ORIENTATION_VERTICAL, gtk_scrollable_get_vadjustment (GTK_SCROLLABLE (priv->screen)));
++	scrollbar = gtk_scrollbar_new (GTK_ORIENTATION_VERTICAL,
++				       gtk_scrollable_get_vadjustment (GTK_SCROLLABLE (priv->screen)));
++
++	gtk_box_pack_start (GTK_BOX (priv->vscrollbar), scrollbar, TRUE, TRUE, 0);
+ 
+ 	gtk_box_pack_start (GTK_BOX (priv->hbox), GTK_WIDGET (priv->screen), TRUE, TRUE, 0);
+ 	gtk_box_pack_start (GTK_BOX (priv->hbox), priv->vscrollbar, FALSE, FALSE, 0);
+@@ -174,6 +194,11 @@ terminal_screen_container_constructor (GType type,
+ 
+ 	_terminal_screen_update_scrollbar (priv->screen);
+ 
++	g_signal_connect (G_OBJECT (priv->vscrollbar), "draw",
++			  G_CALLBACK (scrollbar_bg_draw_cb), container);
++	g_signal_connect_swapped (priv->screen, "notify::bg-color",
++				  G_CALLBACK (gtk_widget_queue_draw), priv->vscrollbar);
++
+ 	return object;
+ }
+ 
+diff --git a/src/terminal-screen.c b/src/terminal-screen.c
+index 9ead8be..0f5622c 100644
+--- a/src/terminal-screen.c
++++ b/src/terminal-screen.c
+@@ -76,6 +76,8 @@ struct _TerminalScreenPrivate
+ 	guint launch_child_source_id;
+ 	gulong bg_image_callback_id;
+ 	GdkPixbuf *bg_image;
++	GdkRGBA bg_color;
++	GdkRGBA fg_color;
+ };
+ 
+ enum
+@@ -95,7 +97,9 @@ enum
+     PROP_ICON_TITLE_SET,
+     PROP_OVERRIDE_COMMAND,
+     PROP_TITLE,
+-    PROP_INITIAL_ENVIRONMENT
++    PROP_INITIAL_ENVIRONMENT,
++    PROP_BG_COLOR,
++    PROP_FG_COLOR
+ };
+ 
+ enum
+@@ -425,6 +429,12 @@ terminal_screen_get_property (GObject *object,
+ 	case PROP_TITLE:
+ 		g_value_set_string (value, terminal_screen_get_title (screen));
+ 		break;
++	case PROP_BG_COLOR:
++		g_value_set_boxed (value, terminal_screen_get_bg_color (screen));
++		break;
++	case PROP_FG_COLOR:
++		g_value_set_boxed (value, terminal_screen_get_bg_color (screen));
++		break;
+ 	default:
+ 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+ 		break;
+@@ -459,6 +469,8 @@ terminal_screen_set_property (GObject *object,
+ 	case PROP_ICON_TITLE:
+ 	case PROP_ICON_TITLE_SET:
+ 	case PROP_TITLE:
++	case PROP_FG_COLOR:
++	case PROP_BG_COLOR:
+ 		/* not writable */
+ 	default:
+ 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+@@ -571,6 +583,20 @@ terminal_screen_class_init (TerminalScreenClass *klass)
+ 	                     G_TYPE_STRV,
+ 	                     G_PARAM_READWRITE | G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB));
+ 
++	g_object_class_install_property
++	(object_class,
++	 PROP_BG_COLOR,
++	 g_param_spec_boxed ("bg-color", NULL, NULL,
++	                     GDK_TYPE_RGBA,
++	                     G_PARAM_READABLE | G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB));
++
++	g_object_class_install_property
++	(object_class,
++	 PROP_FG_COLOR,
++	 g_param_spec_boxed ("fg-color", NULL, NULL,
++	                     GDK_TYPE_RGBA,
++	                     G_PARAM_READABLE | G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB));
++
+ 	/* Precompile the regexes */
+ 	n_url_regexes = G_N_ELEMENTS (url_regex_patterns);
+ 	url_regexes = g_new0 (VteRegex*, n_url_regexes);
+@@ -922,6 +948,22 @@ terminal_screen_cook_icon_title (TerminalScreen *screen)
+ 		g_object_notify (G_OBJECT (screen), "icon-title");
+ }
+ 
++GdkRGBA*
++terminal_screen_get_bg_color (TerminalScreen *screen)
++{
++	g_return_val_if_fail (TERMINAL_IS_SCREEN (screen), NULL);
++
++	return &screen->priv->bg_color;
++}
++
++GdkRGBA*
++terminal_screen_get_fg_color (TerminalScreen *screen)
++{
++	g_return_val_if_fail (TERMINAL_IS_SCREEN (screen), NULL);
++
++	return &screen->priv->fg_color;
++}
++
+ static void
+ terminal_screen_profile_notify_cb (TerminalProfile *profile,
+                                    GParamSpec *pspec,
+@@ -1159,6 +1201,18 @@ update_color_scheme (TerminalScreen *screen)
+ 	if (bold_rgba)
+ 		vte_terminal_set_color_bold (VTE_TERMINAL (screen),
+ 		                             bold_rgba);
++
++	if (gdk_rgba_hash (&priv->bg_color) != gdk_rgba_hash (&bg))
++	{
++		priv->bg_color = bg;
++		g_object_notify (G_OBJECT (screen), "bg-color");
++	}
++
++	if (gdk_rgba_hash (&priv->fg_color) != gdk_rgba_hash (&fg))
++	{
++		priv->fg_color = fg;
++		g_object_notify (G_OBJECT (screen), "fg-color");
++	}
+ }
+ 
+ void
+diff --git a/src/terminal-screen.h b/src/terminal-screen.h
+index b74372b..31f4faa 100644
+--- a/src/terminal-screen.h
++++ b/src/terminal-screen.h
+@@ -98,6 +98,8 @@ const char* terminal_screen_get_raw_title      (TerminalScreen *screen);
+ const char* terminal_screen_get_title          (TerminalScreen *screen);
+ const char* terminal_screen_get_icon_title     (TerminalScreen *screen);
+ gboolean    terminal_screen_get_icon_title_set (TerminalScreen *screen);
++GdkRGBA*    terminal_screen_get_bg_color       (TerminalScreen *screen);
++GdkRGBA*    terminal_screen_get_fg_color       (TerminalScreen *screen);
+ 
+ void terminal_screen_set_user_title (TerminalScreen *screen,
+                                      const char *text);
+-- 
+2.35.1
+

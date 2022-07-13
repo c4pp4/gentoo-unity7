@@ -6,9 +6,8 @@ Bug-Debian: https://bugs.debian.org/793445
  data/meson.build      |   1 +
  po/POTFILES.in        |   1 +
  src/eog-application.c |  35 +++++++
- src/eog-window.c      |  11 ++-
  src/eog.gresource.xml |   1 +
- 6 files changed, 259 insertions(+), 3 deletions(-)
+ 5 files changed, 251 insertions(+), 0 deletions(-)
  create mode 100644 data/eog-menubar.ui
 
 diff --git a/data/eog-menubar.ui b/data/eog-menubar.ui
@@ -307,53 +306,6 @@ index 69a5c06..ed2a82d 100644
  }
  
  static void
-diff --git a/src/eog-window.c b/src/eog-window.c
-index 131d0b3..1ce68eb 100644
---- a/src/eog-window.c
-+++ b/src/eog-window.c
-@@ -4256,6 +4256,7 @@ eog_window_construct_ui (EogWindow *window)
- 	gtk_widget_show (priv->zoom_scale);
- #endif
- 
-+	if (in_desktop ("GNOME")) {
- 	menu_button = gtk_menu_button_new ();
- 	menu_image = gtk_image_new_from_icon_name ("open-menu-symbolic",
- 						   GTK_ICON_SIZE_BUTTON);
-@@ -4269,10 +4270,14 @@ eog_window_construct_ui (EogWindow *window)
- 	gtk_header_bar_pack_end (GTK_HEADER_BAR (headerbar), menu_button);
- 	gtk_widget_show (menu_button);
- 
-+	priv->gear_menu_builder = builder;
-+	builder = NULL;
-+
- 	action = G_ACTION (g_property_action_new ("toggle-gear-menu",
- 						  menu_button, "active"));
- 	g_action_map_add_action (G_ACTION_MAP (window), action);
- 	g_object_unref (action);
-+	}
- 
- 	fullscreen_button = gtk_button_new_from_icon_name ("view-fullscreen-symbolic",
- 							   GTK_ICON_SIZE_BUTTON);
-@@ -4283,9 +4288,6 @@ eog_window_construct_ui (EogWindow *window)
- 	gtk_header_bar_pack_end (GTK_HEADER_BAR (headerbar), fullscreen_button);
- 	gtk_widget_show (fullscreen_button);
- 
--	priv->gear_menu_builder = builder;
--	builder = NULL;
--
- 	priv->cbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
- 	gtk_box_pack_start (GTK_BOX (priv->box), priv->cbox, TRUE, TRUE, 0);
- 	gtk_widget_show (priv->cbox);
-@@ -5283,6 +5285,9 @@ eog_window_get_gear_menu_section (EogWindow *window, const gchar *id)
- 	GObject *object;
- 	g_return_val_if_fail (EOG_IS_WINDOW (window), NULL);
- 
-+	if (window->priv->gear_menu_builder == NULL)
-+		return NULL;
-+
- 	object = gtk_builder_get_object (window->priv->gear_menu_builder, id);
- 	if (object == NULL || !G_IS_MENU (object))
- 		return NULL;
 diff --git a/src/eog.gresource.xml b/src/eog.gresource.xml
 index 472408a..0305a13 100644
 --- a/src/eog.gresource.xml

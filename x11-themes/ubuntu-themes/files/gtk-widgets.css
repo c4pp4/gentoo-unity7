@@ -8,25 +8,6 @@ window.background box.vertical > scrolledwindow > treeview.view:focus .progressb
  border-color: @selected_fg_color;
 }
 
-/* nautilus properties window background */
-window.background.unified:dir(ltr) > deck:dir(ltr) > box.vertical.view:dir(ltr) {
- background-color: transparent;
-}
-
-/* nautilus path bar */
-.nautilus-path-bar .current-dir {
-    color: @dark_fg_color;
-}
-
-.nautilus-path-bar .dim-label {
-    color: @dark_fg_color;
-    text-shadow: none;
-}
-
-.nautilus-path-bar button:hover .dim-label {
-    color: @selected_bg_color;
-}
-
 /* remove HdyHeaderBar rounded top corners */
 .background:not(.tiled):not(.maximized):not(.solid-csd) headerbar.titlebar {
  border-top-left-radius: 0;
@@ -40,14 +21,4 @@ viewswitcher button > stack > box.wide {
 
 headerbar button.horizontal.radio {
  padding: 0;
-}
-
-/* baobab pathbar background */
-headerbar.windowhandle.titlebar .horizontal.pathbar button:not(:hover) {
- background-color: @dark_bg_color;
-}
-
-headerbar.windowhandle.titlebar .horizontal.pathbar button {
- border-image-source: none;
- border-color: mix (@fg_color, @bg_color, 0.75);
 }

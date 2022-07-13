@@ -1,13 +1,19 @@
+========================================================================
 * To rebuild all packages against new GTK libs using qdepends (part of app-portage/portage-utils):
+========================================================================
 emerge -1 `qdepends -CNQ x11-libs/gtk+ 2> /dev/null`
 
+========================================================================
 * Core python deps. for the Dash lens to work
+========================================================================
 	dev-libs/dee
 	dev-libs/libappindicator
 	dev-libs/libunity
 	unity-lenses/unity-lens-video
 
+========================================================================
 * Reasons for patching/maintaining packages:
+========================================================================
 dev-libs/libindicator			# See "Using portage tree libindicate packages" above, the latest version in the Gentoo tree is 12.10.1 (2012-09-19)
 media-fonts/fonts-noto-cjk		# Repacked version with reduced size
 media-libs/glewmx			# Needed by unity-base/nux, MX discontinued as of GLEW v2.0.0
@@ -15,10 +21,13 @@ x11-misc/notify-osd::gentoo		# The latest version in the Gentoo tree is 0.9.34 (
 x11-themes/notify-osd-icons::gentoo	# The latest version in the Gentoo tree is 0.7 (2010-11-15)
 x11-themes/ubuntu-wallpapers::gentoo	# Version in the Gentoo tree doesn't control download size via USE flags
 
+========================================================================
 * Reasons for maintaining ehooks:
+========================================================================
 app-accessibility/at-spi2-core		# Start 'accessibility bus' by default (https://wiki.debian.org/accessibility-devel)
 app-admin/system-config-printer		# Fix Unity Control Center icon and About dialog icon
 app-backup/deja-dup			# Make Deja Dup appear in unity-control-center
+app-text/evince				# Add traditional menu bar (https://bugzilla.gnome.org/show_bug.cgi?id=736419), add menu translations
 dev-cpp/gtest				# Install /usr/src/{gmock,gtest}/* source files lacking from main tree ebuild
 dev-libs/glib				# Patched to call gettext if .desktop file does not have inline translations, don't try DBusActivatable when in Unity user interface and fallback on Exec=
 dev-libs/libappindicator		# Build with GTK2, see "Using portage tree libindicate packages" item above
@@ -57,17 +66,9 @@ gnome-base/gnome-session		# Installs session files for launching Unity7 user int
 gnome-base/gsettings-desktop-schemas	# Includes Unity7 user interface settings patches
 					#  Ubuntu patchset:
 					#  ubuntu_lock-on-suspend.patch
-gnome-base/nautilus			# Give progressbar on Dash launcher nautilus icon
-					#  Ubuntu patchset:
-					#  04_suppress_umount_in_ltsp.patch
-					#  12_unity_launcher_support.patch
-					#  18_unity_icon_color.patch
-					#  ubuntu_infobars_color.patch
-					#  ubuntu_backspace_behaviour.patch
-					#  nautilusgtkplacesview-show-error-if-volume-is-not-mo.patch
 gnome-extra/gnome-calendar		# Use unity-control-center as the fallback
 gnome-extra/gnome-contacts		# Use unity-control-center as the fallback
-gnome-extra/nemo			# Don't use file manager DBus service when in Unity, add Unity Launcher support, enable StartupNotify
+gnome-extra/nemo			# Add Unity Launcher support, enable StartupNotify
 gnome-extra/nm-applet			# Shows nm-applet in indicator panel (Have-the-appindicator-enabled-by-default.patch)
 gnome-extra/polkit-gnome		# Patched to have polkit-gnome-authentication-agent-1 xdg-autostart on Unity login
 					#  Ubuntu patchset:
@@ -79,18 +80,27 @@ gnome-extra/polkit-gnome		# Patched to have polkit-gnome-authentication-agent-1 
 					#  06-authentication-failure-string.patch
 gnome-extra/yelp			# Only show desktop launcher in Gnome as we have own launcher
 gui-libs/libhandy			# Disable headerbar close button when not in GNOME
+mate-extra/mate-system-monitor		# Add Unity branding when in Unity
+mate-extra/mate-utils			# mate-screenshot: add quicklist options and use ubuntu help when in Unity
 mail-client/thunderbird-91		# Add Unity menubar and desktop launcher with quicklist and translations
 mail-client/thunderbird-bin		# Add desktop launcher with quicklist and translations
 media-fonts/ubuntu-font-family		# Add Ubuntu medium font (e.g. used by unity-indicators/indicator-keyboard)
+media-gfx/eog				# Add traditional menu bar (https://bugzilla.gnome.org/749976, https://bugs.debian.org/793445), add menu translations
 media-gfx/gnome-photos			# Use unity-control-center as the fallback
 media-gfx/gnome-screenshot		# Use Ubuntu help instead of GNOME help, don't use GtkHeaderBar, show the save dialog by default, don't try and use the GNOME Shell D-Bus interface, add quicklist area-shot option
 media-gfx/shotwell			# Patched for integration with Unity online accounts
-media-sound/rhythmbox			# Patched/compiled for indicator-sound support, menu quicklist, Magnatune and other Ubuntu UI improvements
+media-plugins/audacious-plugins		# Unity Shortcuts Plugin (former GNOME Shortcuts Plugin)
+media-sound/audacious			# Install GTK version as well
+media-sound/audacity			# Fix Exec command to use Unity menubar properly
+media-sound/rhythmbox			# Patched for indicator-sound support, fix using multimedia key shortcuts, add menu quicklist
 					#  Ubuntu patchset:
 					#  Fix-broken-application-icon-in-About-dialog.patch
+					#  update-app-icon-name.patch
+					#  mpris-Make-the-plugin-builtin.patch
 					#  05_hide_on_quit.patch
 					#  07_quicklists.patch
 					#  08_stop_quit.patch
+media-video/totem			# Add traditional menubar (https://bugzilla.gnome.org/show_bug.cgi?id=749695)
 net-im/empathy				# Integrates with Unity online accounts, associated plugins and the messages indicator
 					#  Ubuntu patchset:
 					#  enchant-2.patch
@@ -101,6 +111,7 @@ net-im/empathy				# Integrates with Unity online accounts, associated plugins an
 					#  39_default_to_freenode_for_irc.patch
 					#  41_unity_launcher_progress.patch
 					#  43_quicklists.patch
+net-im/pidgin				# Add chat section into messaging menu (Available, Away, Busy, Invisible, Offline)
 net-im/telegram-desktop			# Add ubuntu-mono-dark tray icons
 net-im/telegram-desktop-bin		# Add ubuntu-mono-dark tray icons
 net-libs/libsoup:2.4			# Portage tree version forces '--without-gnome' and has removed net-libs/libsoup-gnome which provided '--with-gnome'
@@ -142,39 +153,42 @@ x11-plugins/pidgin-libnotify		# Fix Unity messaging menu support
 					#  ubuntu_notify_support.patch
 					#  messaging_menu.patch
 
+========================================================================
 * Optional ehooks managed via unity-extra/ehooks USE flags:
+========================================================================
 app-office/libreoffice			# Add Human icon theme and make it the default, create fontconfig configuration (30-opensymbol.conf) symlink
 					#  Add custom icons (savemodified_{large,small}.png)
 					#  https://github.com/LibreOffice/core/tree/3498ed37527b7af795f00dc6a55c11e65a313186/icon-themes/human
 app-office/libreoffice-bin		# Create fontconfig configuration (30-opensymbol.conf) symlink
-app-text/evince				# Add traditional menu bar (https://bugzilla.gnome.org/show_bug.cgi?id=736419), add menu translations
-gnome-extra/nemo			# Remove 'Open as Root' context menu action
 media-fonts/freefont			# Reduce fonts according to Ubuntu
 media-fonts/noto-emoji			# Reduce fonts according to Ubuntu
 media-fonts/droid			# Reduce fonts according to Ubuntu
 media-fonts/takao-fonts			# Reduce fonts according to Ubuntu
 media-fonts/nanum			# Reduce fonts according to Ubuntu
 media-fonts/khmer			# Reduce fonts according to Ubuntu
-media-gfx/eog				# Add traditional menu bar (https://bugzilla.gnome.org/749976, https://bugs.debian.org/793445), add menu translations
 media-libs/fontconfig			# Adjust fonts configuration according to Ubuntu
-media-sound/audacity			# Fix Exec command to use Unity menubar properly
-media-video/totem			# Add traditional menubar (https://bugzilla.gnome.org/show_bug.cgi?id=749695)
-net-im/pidgin				# Add chat section into messaging menu (Available, Away, Busy, Invisible, Offline)
-x11-libs/vte:2.91			# Add the style context provider with FALLBACK priority; see x11-terms/gnome-terminal
+x11-libs/vte:2.91			# Add the style context provider with FALLBACK priority; see x11-terms/{gnome,mate}-terminal
 x11-terms/gnome-terminal		# Add style classes and CSS names to some of our widgets, use theme transparency, draw proper background under the scrollbar (https://bugzilla.gnome.org/show_bug.cgi?id=754796, LP #1493964)
+x11-terms/mate-terminal			# Set as default terminal under Unity, add style classes and CSS names to some of our widgets, use theme transparency, draw proper background under the scrollbar (https://bugzilla.gnome.org/show_bug.cgi?id=754796, LP #1493964)
 
+========================================================================
 * By design, some indicators or their features will not appear until they meet certain criteria
+========================================================================
 	- indicator-messages	# Won't appear until a messaging type application is run first (eg. empathy, evolution (via indicator-evolution), pidgin, webapp)
 	- indicator-keyboard	# Won't appear until at least one input source is specified and 'Show current input source in menu bar' is checked in System Settings > Text Entry
 	- indicator-session	# Won't show username until 'Show my login name in the menu bar' is checked in System Settings > User Accounts
 					and then only if user has been added to /etc/passwd using useradd's '--comment' GECOS field
 
+========================================================================
 * Unity user specific settings locations
+========================================================================
 	- Dconf registry accessible via gsettings or dconf-editor
 	- ~/.{cache,config,local}/...
 	- /var/lib/AccountsService/users/<user>
 
+========================================================================
 * Empathy and message indicator integration
+========================================================================
 	- To reset all empathy accounts and configurations:
 		rm -rfv ~/.cache/telepathy
 		rm -rfv ~/.local/share/telepathy
@@ -185,19 +199,25 @@ x11-terms/gnome-terminal		# Add style classes and CSS names to some of our widge
 	- To debug telepathy packages:
 		G_MESSAGES_DEBUG=all FOO_PERSIST=1 FOO_DEBUG=all /path/to/telepathy-foo 2>&1 | tee foo.log
 
+========================================================================
 * Debugging Unity
+========================================================================
 	- Emerge unity-base/unity with the 'debug' USE flag enabled, and restart xsession
 	- Check ~/.xsession-errors and syslog
 	- gsettings get org.compiz.core:/org/compiz/profiles/unity/plugins/core/ active-plugins
 
+========================================================================
 * Debugging top panel systray/indicator icons and menus
+========================================================================
 	- In desktop user's xterm, issue the following command:
 		killall indicator-application-service; G_MESSAGES_DEBUG=all /usr/libexec/indicator-application/indicator-application-service
 	- Get list of currently running indicators with the following command:
 		dbus-send --type=method_call --print-reply --dest=com.canonical.indicator.application \
 			/com/canonical/indicator/application/service com.canonical.indicator.application.service.GetApplications
 
+========================================================================
 ## Systemd Session Launch ##
+========================================================================
 * Unity session is launched as follows:
 	- Display manager (eg.lightdm) executes /usr/share/xsessions/unity.desktop:
 		- '/usr/share/xsessions/unity.desktop' executes '/usr/libexec/run-systemd-session unity-session.target'
@@ -216,7 +236,9 @@ x11-terms/gnome-terminal		# Add style classes and CSS names to some of our widge
 			- Performs 'ExecStart=/usr/bin/compiz'
 			- Pulls in and starts {unity-settings-daemon,unity-panel-service,bamfdaemon}.service units
 
+========================================================================
 ## Compiz performance settings for 'ccsm' ##
+========================================================================
  Click on "OpenGL" and set "Texture Filter" to Fast.
  Make sure "Sync to V blank" is selected, that Texture Compression is NOT selected, and make sure Frame Buffer, Vertex Buffer, and Always Use Buffer Swapping ARE all selected.
  Scroll down to "Image Loading" and make sure all options (jpeg, png, svg, and text) ARE selected.

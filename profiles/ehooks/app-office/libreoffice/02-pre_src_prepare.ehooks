@@ -1,5 +1,5 @@
 ehooks() {
-	if ehooks_use libreoffice_theme; then
+	if ehooks_use libreoffice; then
 		## Add Human icon theme.
 		mv "${WORKDIR}"/human icon-themes
 

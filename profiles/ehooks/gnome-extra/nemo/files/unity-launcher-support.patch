@@ -1,13 +1,12 @@
-From 98b46bed6c3b101bbea7d09c3d62130260ead620 Mon Sep 17 00:00:00 2001
+From 3da40296bebe0b6c795cea49907cb71a822572b6 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Thu, 6 Jun 2019 13:55:23 +0200
+Date: Wed, 13 Jul 2022 05:46:54 +0200
 Subject: [PATCH 1/1] Add Unity Launcher support
 
 List bookmarks in the context menu and display a bar on the icon during
 copies.
+
 Taken from Nautilus Xenial patchset (12_unity_launcher_support.patch).
-The quicklist bookmark plugin only works if the application is running,
-see https://launchpad.net/bugs/1720594.
 
 Signed-off-by: c4pp4
 ---
@@ -18,7 +17,7 @@ Signed-off-by: c4pp4
  meson_options.txt                    |   2 +
  po/POTFILES.in                       |   1 +
  src/meson.build                      |   8 +
- src/nemo-application.c               |   8 +
+ src/nemo-main-application.c          |   8 +
  src/nemo-progress-ui-handler.c       | 230 +++++++++++++++++++++++++++
  src/unity-bookmarks-handler.c        | 141 ++++++++++++++++
  src/unity-bookmarks-handler.h        |  31 ++++
@@ -31,7 +30,7 @@ Signed-off-by: c4pp4
  create mode 100644 src/unity-quicklist-handler.h
 
 diff --git a/config.h.meson.in b/config.h.meson.in
-index 46ba4c8..84a18ce 100644
+index f724539..29a9790 100644
 --- a/config.h.meson.in
 +++ b/config.h.meson.in
 @@ -13,6 +13,8 @@
@@ -44,7 +43,7 @@ index 46ba4c8..84a18ce 100644
  #mesondefine HAVE_EXIF
  // Define if libselinux is available
 diff --git a/libnemo-private/nemo-progress-info.c b/libnemo-private/nemo-progress-info.c
-index bcd52c5..e321a39 100644
+index f0e97e7..d105080 100644
 --- a/libnemo-private/nemo-progress-info.c
 +++ b/libnemo-private/nemo-progress-info.c
 @@ -53,6 +53,10 @@ struct _NemoProgressInfo
@@ -130,7 +129,7 @@ index 235e58c..45c922e 100644
  void          nemo_progress_info_queue           (NemoProgressInfo *info);
  void          nemo_progress_info_start           (NemoProgressInfo *info);
 diff --git a/meson.build b/meson.build
-index bc328e8..842f1e1 100644
+index 3fa0cfd..317016c 100644
 --- a/meson.build
 +++ b/meson.build
 @@ -141,6 +141,14 @@ else
@@ -148,7 +147,7 @@ index bc328e8..842f1e1 100644
  enableEmptyView = get_option('empty_view')
  conf.set10('ENABLE_EMPTY_VIEW', enableEmptyView)
  
-@@ -211,6 +219,7 @@ message('\n'.join(['',
+@@ -212,6 +220,7 @@ message('\n'.join(['',
  '    prefix:                 @0@'.format(prefix),
  '    source code location:   @0@'.format(meson.source_root()),
  '    compiler:               @0@'.format(cc.get_id()),
@@ -197,25 +196,25 @@ index 3c01acb..bc5423a 100644
  nemo = executable('nemo',
    nemoCommon_sources + nemoWindow_sources,
    include_directories: [ rootInclude ],
-diff --git a/src/nemo-application.c b/src/nemo-application.c
-index 999eb3b..67ff556 100644
---- a/src/nemo-application.c
-+++ b/src/nemo-application.c
-@@ -81,6 +81,10 @@
- #define GNOME_DESKTOP_USE_UNSTABLE_API
+diff --git a/src/nemo-main-application.c b/src/nemo-main-application.c
+index b9834ec..83862d5 100644
+--- a/src/nemo-main-application.c
++++ b/src/nemo-main-application.c
+@@ -79,6 +79,10 @@
+ 
  #include <libcinnamon-desktop/gnome-desktop-thumbnail.h>
  
 +#ifdef HAVE_UNITY
 +#include "src/unity-bookmarks-handler.h"
 +#endif
 +
- #define NEMO_ACCEL_MAP_SAVE_DELAY 30
+ /* Keep window from shrinking down ridiculously small; numbers are somewhat arbitrary */
+ #define APPLICATION_WINDOW_MIN_WIDTH	300
+ #define APPLICATION_WINDOW_MIN_HEIGHT	100
+@@ -914,6 +918,10 @@ nemo_main_application_continue_startup (NemoApplication *app)
  
- G_DEFINE_TYPE (NemoApplication, nemo_application, GTK_TYPE_APPLICATION);
-@@ -568,6 +572,10 @@ nemo_application_startup (GApplication *app)
-         if (!gnome_desktop_thumbnail_cache_check_permissions (NULL, TRUE))
-             self->priv->cache_problem = TRUE;
-     }
+     g_signal_connect_swapped (nemo_window_state, "changed::" NEMO_WINDOW_STATE_START_WITH_MENU_BAR,
+                               G_CALLBACK (menu_state_changed_callback), self);
 +
 +#ifdef HAVE_UNITY
 +    unity_bookmarks_handler_initialize ();
@@ -916,5 +915,5 @@ index 0000000..52caa1e
 +
 +#endif /* __UNITY_QUICKLIST_HANDLER_H__ */
 -- 
-2.31.1
+2.35.1
 

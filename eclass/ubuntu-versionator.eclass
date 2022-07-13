@@ -23,10 +23,6 @@ case "${EAPI:-0}" in
 	*) die "EAPI=${EAPI:-0} is not supported" ;;
 esac
 
-# Used by unity-base/unity-control-center, unity-base/unity-language-pack,
-# unity-extra/unity-greeter
-URELEASE="22.04 Jammy"
-
 # Set base sane vala version for all packages requiring vala, override
 # in ebuild if or when specific higher/lower versions are needed
 VALA_MIN_API_VERSION=0.54

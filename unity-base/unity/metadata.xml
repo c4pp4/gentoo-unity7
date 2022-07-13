@@ -5,10 +5,8 @@
 		<name>gentoo-unity7</name>
 	</maintainer>
 	<use>
-		<flag name="branding">Enable Gentoo Unity7 specific branding</flag>
 		<flag name="gles2">Use OpenGL ES 2.0</flag>
 		<flag name="hud">Enable the backend for Unity's HUD</flag>
-		<flag name="nemo">Enable desktop icons via <pkg>gnome-extra/nemo</pkg></flag>
 		<flag name="systray">Enable system tray support in the notification area for all applications</flag>
 	</use>
 </pkgmetadata>

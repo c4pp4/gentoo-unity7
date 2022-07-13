@@ -1,0 +1,137 @@
+From b9bfecd6d6cd3c5b196c98267e62d0357b414e8c Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Fri, 15 Jul 2022 21:36:35 +0200
+Subject: [PATCH 1/1] Add Unity branding when in Unity
+
+Signed-off-by: c4pp4
+---
+ src/sysinfo.cpp | 68 +++++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 58 insertions(+), 10 deletions(-)
+
+diff --git a/src/sysinfo.cpp b/src/sysinfo.cpp
+index 39d5f8c..c18eaa2 100644
+--- a/src/sysinfo.cpp
++++ b/src/sysinfo.cpp
+@@ -36,6 +36,28 @@
+ using std::string;
+ using std::vector;
+ 
++static gboolean
++in_desktop (const gchar *name)
++{
++    const gchar *desktop_name_list;
++    gchar **names;
++    gboolean in_list = FALSE;
++    gint i;
++
++    desktop_name_list = g_getenv ("XDG_CURRENT_DESKTOP");
++    if (!desktop_name_list)
++        return FALSE;
++
++    names = g_strsplit (desktop_name_list, ":", -1);
++    for (i = 0; names[i] && !in_list; i++)
++        if (strcmp (names[i], name) == 0) {
++            in_list = TRUE;
++            break;
++        }
++    g_strfreev (names);
++
++    return in_list;
++}
+ 
+ namespace {
+ 
+@@ -422,13 +444,22 @@ namespace {
+         {
+             xmlDocPtr document;
+             xmlXPathContextPtr context;
+-            const string nodes[3] = { "string(/mate-version/platform)",
+-                                      "string(/mate-version/minor)",
+-                                      "string(/mate-version/micro)" };
+-            string values[3];
+ 
+-            if (not (document = xmlParseFile(DATADIR "/mate-about/mate-version.xml")))
+-                return;
++            string node_prefix;
++            if (in_desktop("Unity")) {
++                document = xmlParseFile(DATADIR "/unity/unity-version.xml");
++                node_prefix = "string(/unity-version/";
++            } else {
++                document = xmlParseFile(DATADIR "/mate-about/mate-version.xml");
++                node_prefix = "string(/mate-version/";
++            }
++            if (not document)
++                return;
++
++            const string nodes[3] = { node_prefix + "platform)",
++                                      node_prefix + "minor)",
++                                      node_prefix + "micro)" };
++            string values[3];
+ 
+             if (not (context = xmlXPathNewContext(document)))
+                 return;
+@@ -802,6 +833,7 @@ namespace {
+ #define LOGO_W 92
+ #define LOGO_H 351
+ #define RADIUS 5
++#define URADIUS 46
+ 
+ static gboolean sysinfo_logo_draw (GtkWidget *widget, cairo_t *context, gpointer data_ptr)
+ {
+@@ -815,18 +847,29 @@ static gboolean sysinfo_logo_draw (GtkWidget *widget, cairo_t *context, gpointer
+     gtk_widget_get_allocation (widget, &allocation);
+     cairo_translate(cr, allocation.x, allocation.y);
+ 
+-    cairo_move_to(cr, X_PAD + RADIUS, Y_PAD);
++    cairo_move_to(cr, X_PAD, Y_PAD + LOGO_H - RADIUS);
++    if (in_desktop("Unity")) {
++        cairo_line_to(cr, X_PAD, Y_PAD + URADIUS);
++        cairo_arc(cr,  X_PAD + URADIUS, Y_PAD + URADIUS, URADIUS, -1.0 * M_PI, -0.5 * M_PI);
++        cairo_line_to(cr, X_PAD + LOGO_W - URADIUS, Y_PAD);
++        cairo_arc(cr, X_PAD + LOGO_W - URADIUS, Y_PAD + URADIUS, URADIUS, -0.5 * M_PI, 0);
++    } else {
++    cairo_line_to(cr, X_PAD, Y_PAD + RADIUS);
++    cairo_arc(cr,  X_PAD + RADIUS, Y_PAD + RADIUS, RADIUS, -1.0 * M_PI, -0.5 * M_PI);
+     cairo_line_to(cr, X_PAD + LOGO_W - RADIUS, Y_PAD);
+     cairo_arc(cr, X_PAD + LOGO_W - RADIUS, Y_PAD + RADIUS, RADIUS, -0.5 * M_PI, 0);
++    }
+     cairo_line_to(cr, X_PAD + LOGO_W, Y_PAD + LOGO_H - RADIUS);
+     cairo_arc(cr, X_PAD + LOGO_W - RADIUS, Y_PAD + LOGO_H - RADIUS, RADIUS, 0, 0.5 * M_PI);
+     cairo_line_to(cr, X_PAD + RADIUS, Y_PAD + LOGO_H);
+     cairo_arc(cr, X_PAD + RADIUS, Y_PAD + LOGO_H - RADIUS, RADIUS, 0.5 * M_PI, -1.0 * M_PI);
+-    cairo_line_to(cr, X_PAD, Y_PAD + RADIUS);
+-    cairo_arc(cr,  X_PAD + RADIUS, Y_PAD + RADIUS, RADIUS, -1.0 * M_PI, -0.5 * M_PI);
+ 
+     cp = cairo_pattern_create_linear(0, Y_PAD, 0, Y_PAD + LOGO_H);
+     style = gtk_widget_get_style (widget);
++    if (in_desktop("Unity")) {
++        cairo_pattern_add_color_stop_rgba(cp, 0.0,1.0,1.0,1.0,1.0);
++        cairo_pattern_add_color_stop_rgba(cp, 1.0,1.0,1.0,1.0,0.0);
++    } else {
+     cairo_pattern_add_color_stop_rgba(cp, 0.0,
+                                       style->base[GTK_STATE_SELECTED].red / 65535.0,
+                                       style->base[GTK_STATE_SELECTED].green / 65535.0,
+@@ -837,6 +880,8 @@ static gboolean sysinfo_logo_draw (GtkWidget *widget, cairo_t *context, gpointer
+                                       style->base[GTK_STATE_SELECTED].green / 65535.0,
+                                       style->base[GTK_STATE_SELECTED].blue / 65535.0,
+                                       0.0);
++    }
++
+     cairo_set_source(cr, cp);
+     cairo_fill(cr);
+ 
+@@ -989,7 +1034,10 @@ procman_create_sysinfo_view(void)
+ 
+     if (data->mate_version != "")
+     {
+-        markup = g_strdup_printf(_("MATE %s"), data->mate_version.c_str());
++        if (in_desktop("Unity"))
++            markup = g_strdup_printf(_("Unity %s"), data->mate_version.c_str());
++        else
++            markup = g_strdup_printf(_("MATE %s"), data->mate_version.c_str());
+         header = gtk_label_new(markup);
+         gtk_label_set_selectable(GTK_LABEL(header), TRUE);
+         gtk_widget_set_can_focus(header, FALSE);
+-- 
+2.35.1
+

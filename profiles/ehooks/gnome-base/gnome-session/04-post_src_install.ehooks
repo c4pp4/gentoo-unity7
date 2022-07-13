@@ -56,8 +56,9 @@ ehooks() {
 	doins "${S}/debian/data/50-unity.conf"
 
 	# Allow Nemo to manage Unity7 desktop and icons #
+	sed -i "/NoDisplay/{s/false/true/}" "${S}/debian/data/nemo-unity-autostart.desktop" || die
 	insinto /etc/xdg/autostart
-	doins "${S}/debian/data/nemo-unity-autostart.desktop"
+	newins "${S}/debian/data/nemo-unity-autostart.desktop" unity-nemo-desktop.desktop
 	insinto /usr/share/nemo/actions
 	doins "${S}/debian/data/change-background-unity.nemo_action"
 	doins "${S}/debian/data/set-as-background-unity.nemo_action"

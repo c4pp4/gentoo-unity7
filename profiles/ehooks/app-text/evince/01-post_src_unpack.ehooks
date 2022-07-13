@@ -1,6 +1,4 @@
 ehooks() {
-	ehooks_require evince_menu
-
 	unpack "${EHOOKS_FILESDIR}"/global-menu-translations-artful.tar.xz
 
 	einfo "  Merging available translations..."

@@ -234,7 +234,7 @@ find_portage_updates() {
 			[[ -n ${start_reading} ]] && [[ ${line} == "#"* ]] && break
 			echo "${line}" > /tmp/"${tmp_um}"
 
-			if [[ ${line} == ">www-client/firefox"* ]]; then
+			if [[ ${line} == ">www-client/firefox"* ]] && [[ ${line} != *":esr" ]] ; then
 				## Temporarily accept_keywords www-client/firefox.
 				install -m 666 /dev/null /tmp/"${tmp_ak}" || exit 1
 				ln -fs /tmp/"${tmp_ak}" /etc/portage/package.accept_keywords/zzzz_"${tmp_ak}" || exit 1
@@ -244,7 +244,7 @@ find_portage_updates() {
 			update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "\[32;01m" | tail -1 | sed "s/|.*$//")
 			[[ -n ${update} ]] && result+=( "${line}|${update}" )
 
-			if [[ ${line} == ">www-client/firefox"* ]]; then
+			if [[ -h /etc/portage/package.accept_keywords/zzzz_"${tmp_ak}" ]]; then
 				## Remove temporary www-client/firefox accept_keywords file.
 				rm /etc/portage/package.accept_keywords/zzzz_"${tmp_ak}" || exit 1
 				rm /tmp/"${tmp_ak}" || exit 1
@@ -296,7 +296,7 @@ portage_updates() {
 			## Format: ">old_pkg:slot|new_pkg".
 			old_pkg="${x%|*}"; old_pkg="${old_pkg#>}"; old_pkg="${old_pkg%:*}"
 			new_pkg="${x#*|}"
-			echo " * Update from ${color_bold}${old_pkg}${color_norm} to ${color_yellow}${new_pkg}${color_norm}"
+			echo " * Update to ${color_yellow}${new_pkg}${color_norm} (old pmask entry: ${color_bold}>${old_pkg}${color_norm})"
 			printf "%s" " * Test command 'EHOOKS_PATH=${pmask%/*}/ehooks ebuild \$(portageq get_repo_path / gentoo)/${new_pkg%-[0-9]*}/${new_pkg#*/}.ebuild clean prepare'${color_blink}...${color_norm}"
 			if EHOOKS_PATH="${pmask%/*}/ehooks" ebuild "${main_repo}/${new_pkg%-[0-9]*}/${new_pkg#*/}".ebuild clean prepare 1>/dev/null; then
 				printf "\b\b\b%s\n" "... ${color_blue}[ ${color_green}passed ${color_blue}]${color_norm}"
@@ -309,8 +309,8 @@ portage_updates() {
 					new_pkg="mail-client/thunderbird-${y}"
 				fi
 				sed -i "s:${old_pkg}:${new_pkg}:" "${pmask}" 2>/dev/null \
-					&& echo " ${color_green}*${color_norm} ${new_pkg%-[0-9]*}: '${pmask##*/}' entry... ${color_blue}[ ${color_green}updated ${color_blue}]${color_norm}" \
-					|| echo " ${color_red}*${color_norm} ${new_pkg%-[0-9]*}: '${pmask##*/}' entry... ${color_blue}[ ${color_red}not updated ${color_blue}]${color_norm}"
+					&& echo " ${color_green}*${color_norm} New pmask entry: >${new_pkg}... ${color_blue}[ ${color_green}updated ${color_blue}]${color_norm}" \
+					|| echo " ${color_red}*${color_norm} New pmask entry: >${new_pkg}... ${color_blue}[ ${color_red}not updated ${color_blue}]${color_norm}"
 			else
 				printf "\b\b\b%s\n" "... ${color_blue}[ ${color_red}failed ${color_blue}]${color_norm}"
 			fi

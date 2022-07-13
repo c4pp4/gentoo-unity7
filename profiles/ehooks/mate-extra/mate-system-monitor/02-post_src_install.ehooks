@@ -1,0 +1,8 @@
+ehooks() {
+	insinto /usr/share/pixmaps/mate-system-monitor/distribution
+	newins "${EHOOKS_FILESDIR}"/unity-logo.png side.png
+
+	sed -i \
+		-e "/OnlyShowIn/{s/;$/;Unity;/}" \
+		"${ED}"/usr/share/applications/mate-system-monitor.desktop || die
+}

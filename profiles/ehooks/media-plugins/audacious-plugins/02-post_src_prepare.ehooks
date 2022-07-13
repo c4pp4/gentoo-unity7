@@ -1,0 +1,15 @@
+ehooks() {
+	## Status Icon Plugin first run defaults ##
+	sed -i \
+		-e "/constexpr StatusIcon/{s/false/true/}" \
+		-e "/close_to_tray/{s/FALSE/TRUE/}" \
+		src/statusicon/statusicon.cc || die
+
+	## Desktop Notifications Plugin first run defaults ##
+	sed -i \
+		-e "/constexpr StatusIcon/{s/false/true/}" \
+		-e "/actions/{s/TRUE/FALSE/}" \
+		src/notify/notify.cc || die
+
+	eautoreconf
+}

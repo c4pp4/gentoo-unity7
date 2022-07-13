@@ -1,6 +1,4 @@
 ehooks() {
-	ehooks_require eog_menu
-
 	unpack "${EHOOKS_FILESDIR}"/global-menu-translations-xenial.tar.xz
 
 	einfo "  Merging available translations..."

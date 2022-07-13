@@ -1,6 +1,7 @@
 if [ "x$DESKTOP_SESSION" = "xunity" ]; then
 	export XDG_CURRENT_DESKTOP="Unity:Unity7"	# Needs to be manually set for 'startx' to work
 	export XDG_CONFIG_DIRS="/usr/share/upstart/systemd-session:$XDG_CONFIG_DIRS"
+	systemctl --user unset-environment SESSION_MANAGER	# Unset previous network socket
 	dbus-update-activation-environment --systemd --all	# Pass all current environment variables to the 'systemd --user' process
 	[[ "$XSESSION" = "unity" ]] && exec /usr/libexec/run-systemd-session unity-session.target	# Using 'startx' to launch
 	## If $XSESSION is not set, then we need not do anything as the Display Manager will start the session via '/usr/share/xsessions/unity.desktop' ##

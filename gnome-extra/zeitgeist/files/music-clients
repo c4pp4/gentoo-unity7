@@ -1,0 +1,2 @@
++    arr.add (event_for_desktop_file ("audacious.desktop", ++ts));
++    arr.add (event_for_desktop_file ("org.gnome.Music.desktop", ++ts));

@@ -1,0 +1,391 @@
+From 7a06c1c336ae7af7f2eb0882e407e8104c9c3026 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Thu, 30 Jun 2022 22:22:51 +0200
+Subject: [PATCH 1/1] Add *WithTimestamp dbus methods for file operations
+
+Operations that might trigger a dialog, that should be presented with event time.
+Bug-Ubuntu: https://launchpad.net/bugs/1445595
+Bug: https://bugzilla.gnome.org/show_bug.cgi?id=758833
+
+Taken from Nautilus patchset (20_add_timestamp_to_operations.patch).
+
+Signed-off-by: c4pp4
+---
+ data/dbus-interfaces.xml               |  8 +++
+ libnemo-private/nemo-dbus-manager.c    | 88 ++++++++++++++++++--------
+ libnemo-private/nemo-dbus-manager.h    |  4 ++
+ libnemo-private/nemo-file-operations.c | 31 +++++++++
+ libnemo-private/nemo-file-operations.h |  9 +++
+ src/nemo-application.c                 | 32 ++++++++++
+ 6 files changed, 147 insertions(+), 25 deletions(-)
+
+diff --git a/data/dbus-interfaces.xml b/data/dbus-interfaces.xml
+index bd8388f..a4ed3e1 100644
+--- a/data/dbus-interfaces.xml
++++ b/data/dbus-interfaces.xml
+@@ -29,12 +29,20 @@
+       <arg type='as' name='SourceFilesURIList' direction='in'/>
+       <arg type='s' name='DestinationDirectoryURI' direction='in'/>
+     </method>
++    <method name='CopyURIsWithTimestamp'>
++      <arg type='as' name='SourceFilesURIList' direction='in'/>
++      <arg type='s' name='DestinationDirectoryURI' direction='in'/>
++      <arg type='u' name='EventTimestamp' direction='in'/>
++    </method>
+     <method name='MoveURIs'>
+       <arg type='as' name='SourceFilesURIList' direction='in'/>
+       <arg type='s' name='DestinationDirectoryURI' direction='in'/>
+     </method>
+     <method name='EmptyTrash'>
+     </method>"
++    <method name='EmptyTrashWithTimestamp'>
++      <arg type='u' name='EventTimestamp' direction='in'/>
++    </method>"
+     <method name='CopyFile'>
+       <arg type='s' name='SourceFileURI' direction='in'/>
+       <arg type='s' name='SourceDisplayName' direction='in'/>
+diff --git a/libnemo-private/nemo-dbus-manager.c b/libnemo-private/nemo-dbus-manager.c
+index 5c3a389..160bc3c 100644
+--- a/libnemo-private/nemo-dbus-manager.c
++++ b/libnemo-private/nemo-dbus-manager.c
+@@ -36,7 +36,6 @@
+ struct _NemoDBusManager {
+   GObject parent;
+ 
+-  GDBusObjectManagerServer *object_manager;
+   NemoDBusFileOperations *file_operations;
+ };
+ 
+@@ -52,16 +51,10 @@ nemo_dbus_manager_dispose (GObject *object)
+   NemoDBusManager *self = (NemoDBusManager *) object;
+ 
+   if (self->file_operations) {
+-    g_dbus_interface_skeleton_unexport (G_DBUS_INTERFACE_SKELETON (self->file_operations));
+     g_object_unref (self->file_operations);
+     self->file_operations = NULL;
+   }
+ 
+-  if (self->object_manager) {
+-    g_object_unref (self->object_manager);
+-    self->object_manager = NULL;
+-  }
+-
+   G_OBJECT_CLASS (nemo_dbus_manager_parent_class)->dispose (object);
+ }
+ 
+@@ -95,11 +88,10 @@ handle_copy_file (NemoDBusFileOperations *object,
+   return TRUE; /* invocation was handled */
+ }
+ 
+-static gboolean
+-handle_copy_uris (NemoDBusFileOperations *object,
+-		  GDBusMethodInvocation *invocation,
+-		  const gchar **sources,
+-		  const gchar *destination)
++static void
++copy_uris (const gchar **sources,
++           const gchar *destination,
++           guint32 timestamp)
+ {
+   GList *source_files = NULL;
+   GFile *dest_dir;
+@@ -111,17 +103,37 @@ handle_copy_uris (NemoDBusFileOperations *object,
+     source_files = g_list_prepend (source_files,
+                                    g_file_new_for_uri (sources[idx]));
+ 
+-  nemo_file_operations_copy (source_files, NULL,
+-                                 dest_dir,
+-                                 NULL, NULL, NULL);
++  nemo_file_operations_copy_with_time (source_files, NULL,
++                                       dest_dir, NULL,
++                                       timestamp, NULL, NULL);
+ 
+   g_list_free_full (source_files, g_object_unref);
+   g_object_unref (dest_dir);
++}
+ 
++static gboolean
++handle_copy_uris (NemoDBusFileOperations *object,
++		  GDBusMethodInvocation *invocation,
++		  const gchar **sources,
++		  const gchar *destination)
++{
++  copy_uris (sources, destination, GDK_CURRENT_TIME);
+   nemo_dbus_file_operations_complete_copy_uris (object, invocation);
+   return TRUE; /* invocation was handled */
+ }
+ 
++static gboolean
++handle_copy_uris_with_timestamp (NemoDBusFileOperations *object,
++                                 GDBusMethodInvocation *invocation,
++                                 const gchar **sources,
++                                 const gchar *destination,
++                                 guint32 timestamp)
++{
++  copy_uris (sources, destination, timestamp);
++  nemo_dbus_file_operations_complete_copy_uris_with_timestamp (object, invocation);
++  return TRUE;
++}
++
+ static gboolean
+ handle_move_uris (NemoDBusFileOperations *object,
+ 		  GDBusMethodInvocation *invocation,
+@@ -159,14 +171,20 @@ handle_empty_trash (NemoDBusFileOperations *object,
+   return TRUE; /* invocation was handled */
+ }
+ 
+-static void
+-nemo_dbus_manager_init (NemoDBusManager *self)
++static gboolean
++handle_empty_trash_with_timestamp (NemoDBusFileOperations *object,
++				   GDBusMethodInvocation *invocation,
++				   guint32 timestamp)
+ {
+-  GDBusConnection *connection;
++  nemo_file_operations_empty_trash_with_time (NULL, timestamp);
+ 
+-  connection = g_application_get_dbus_connection (g_application_get_default ());
++  nemo_dbus_file_operations_complete_empty_trash_with_timestamp (object, invocation);
++  return TRUE; /* invocation was handled */
++}
+ 
+-  self->object_manager = g_dbus_object_manager_server_new ("/org/Nemo");
++static void
++nemo_dbus_manager_init (NemoDBusManager *self)
++{
+   self->file_operations = nemo_dbus_file_operations_skeleton_new ();
+ 
+   g_signal_connect (self->file_operations,
+@@ -185,11 +203,14 @@ nemo_dbus_manager_init (NemoDBusManager *self)
+ 		    "handle-empty-trash",
+ 		    G_CALLBACK (handle_empty_trash),
+ 		    self);
+-
+-  g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (self->file_operations), connection,
+-				    "/org/Nemo", NULL);
+-
+-  g_dbus_object_manager_server_set_connection (self->object_manager, connection);
++  g_signal_connect (self->file_operations,
++		    "handle-copy-uris-with-timestamp",
++		    G_CALLBACK (handle_copy_uris_with_timestamp),
++		    self);
++  g_signal_connect (self->file_operations,
++		    "handle-empty-trash-with-timestamp",
++		    G_CALLBACK (handle_empty_trash_with_timestamp),
++		    self);
+ }
+ 
+ static void
+@@ -206,3 +227,20 @@ nemo_dbus_manager_new (void)
+   return g_object_new (nemo_dbus_manager_get_type (),
+                        NULL);
+ }
++
++gboolean
++nemo_dbus_manager_register (NemoDBusManager *self,
++                            GDBusConnection *connection,
++                            GError         **error)
++{
++  return g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (self->file_operations),
++					   connection,
++					   "/org/Nemo",
++					   error);
++}
++
++void
++nemo_dbus_manager_unregister (NemoDBusManager *self)
++{
++  g_dbus_interface_skeleton_unexport (G_DBUS_INTERFACE_SKELETON (self->file_operations));
++}
+diff --git a/libnemo-private/nemo-dbus-manager.h b/libnemo-private/nemo-dbus-manager.h
+index 8a5617e..64f1246 100644
+--- a/libnemo-private/nemo-dbus-manager.h
++++ b/libnemo-private/nemo-dbus-manager.h
+@@ -32,5 +32,9 @@ typedef struct _NemoDBusManagerClass NemoDBusManagerClass;
+ 
+ GType nemo_dbus_manager_get_type (void);
+ NemoDBusManager * nemo_dbus_manager_new (void);
++gboolean nemo_dbus_manager_register (NemoDBusManager *self,
++                                     GDBusConnection *connection,
++                                     GError         **error);
++void nemo_dbus_manager_unregister (NemoDBusManager *self);
+ 
+ #endif /* __NEMO_DBUS_MANAGER_H__ */
+diff --git a/libnemo-private/nemo-file-operations.c b/libnemo-private/nemo-file-operations.c
+index 8ce1e5a..031e125 100644
+--- a/libnemo-private/nemo-file-operations.c
++++ b/libnemo-private/nemo-file-operations.c
+@@ -92,6 +92,7 @@ typedef struct {
+ 	GtkWindow *parent_window;
+     int monitor_num;
+ 	int inhibit_cookie;
++	guint32 action_timestamp;
+ 	NemoProgressInfo *progress;
+ 	GCancellable *cancellable;
+ 	GHashTable *skip_files;
+@@ -1264,6 +1265,7 @@ typedef struct {
+ 	const char *details_text;
+ 	const char **button_titles;
+ 	gboolean show_all;
++	guint32 timestamp;
+ 
+ 	int result;
+ } RunSimpleDialogData;
+@@ -1313,6 +1315,7 @@ do_run_simple_dialog (gpointer _data)
+ 	}
+ 
+ 	/* Run it. */
++        gtk_window_present_with_time (GTK_WINDOW (dialog), data->timestamp);
+         result = gtk_dialog_run (GTK_DIALOG (dialog));
+ 
+ 	while ((result == GTK_RESPONSE_NONE || result == GTK_RESPONSE_DELETE_EVENT) && data->ignore_close_box) {
+@@ -1354,6 +1357,7 @@ run_simple_dialog_va (CommonJob *job,
+ 	data->secondary_text = secondary_text;
+ 	data->details_text = details_text;
+ 	data->show_all = show_all;
++	data->timestamp = job->action_timestamp;
+ 
+ 	ptr_array = g_ptr_array_new ();
+ 	while ((button_title = va_arg (varargs, const char *)) != NULL) {
+@@ -5027,6 +5031,24 @@ nemo_file_operations_copy (GList *files,
+ 			       GtkWindow *parent_window,
+ 			       NemoCopyCallback  done_callback,
+ 			       gpointer done_callback_data)
++{
++    nemo_file_operations_copy_with_time (files,
++                                         relative_item_points,
++                                         target_dir,
++                                         parent_window,
++                                         GDK_CURRENT_TIME,
++                                         done_callback,
++                                         done_callback_data);
++}
++
++void
++nemo_file_operations_copy_with_time (GList            *files,
++                                     GArray           *relative_item_points,
++                                     GFile            *target_dir,
++                                     GtkWindow        *parent_window,
++                                     guint32           timestamp,
++                                     NemoCopyCallback  done_callback,
++                                     gpointer          done_callback_data)
+ {
+ 	CopyMoveJob *job;
+ 
+@@ -5036,6 +5058,7 @@ nemo_file_operations_copy (GList *files,
+ 	job->done_callback_data = done_callback_data;
+ 	job->files = eel_g_object_list_copy (files);
+ 	job->destination = g_object_ref (target_dir);
++	((CommonJob *)job)->action_timestamp = timestamp;
+ 	if (relative_item_points != NULL &&
+ 	    relative_item_points->len > 0) {
+ 		job->icon_positions =
+@@ -6839,6 +6862,13 @@ empty_trash_job (GIOSchedulerJob *io_job,
+ 
+ void
+ nemo_file_operations_empty_trash (GtkWidget *parent_view)
++{
++	nemo_file_operations_empty_trash_with_time (parent_view, GDK_CURRENT_TIME);
++}
++
++void
++nemo_file_operations_empty_trash_with_time (GtkWidget *parent_view,
++					    guint32    timestamp)
+ {
+ 	EmptyTrashJob *job;
+ 	GtkWindow *parent_window;
+@@ -6852,6 +6882,7 @@ nemo_file_operations_empty_trash (GtkWidget *parent_view)
+ 	job->trash_dirs = g_list_prepend (job->trash_dirs,
+ 					  g_file_new_for_uri ("trash:"));
+ 	job->should_confirm = TRUE;
++	((CommonJob *)job)->action_timestamp = timestamp;
+ 
+ 	inhibit_power_manager ((CommonJob *)job, _("Emptying Trash"));
+ 
+diff --git a/libnemo-private/nemo-file-operations.h b/libnemo-private/nemo-file-operations.h
+index 04924bd..64aef63 100644
+--- a/libnemo-private/nemo-file-operations.h
++++ b/libnemo-private/nemo-file-operations.h
+@@ -63,6 +63,8 @@ void nemo_file_operations_copy_file (GFile *source_file,
+ 					 NemoCopyCallback done_callback,
+ 					 gpointer done_callback_data);
+ void nemo_file_operations_empty_trash (GtkWidget                 *parent_view);
++void nemo_file_operations_empty_trash_with_time (GtkWidget *parent_view,
++						 guint32    timestamp);
+ void nemo_file_operations_new_folder  (GtkWidget                 *parent_view,
+ 					   GdkPoint                  *target_point,
+ 					   const char                *parent_dir_uri,
+@@ -125,6 +127,13 @@ void nemo_file_operations_copy      (GList                *files,
+ 					 GtkWindow            *parent_window,
+ 					 NemoCopyCallback  done_callback,
+ 					 gpointer              done_callback_data);
++void nemo_file_operations_copy_with_time (GList                *files,
++                                          GArray               *relative_item_points,
++                                          GFile                *target_dir,
++                                          GtkWindow            *parent_window,
++                                          guint32               timestamp,
++                                          NemoCopyCallback      done_callback,
++                                          gpointer              done_callback_data);
+ void nemo_file_operations_move      (GList                *files,
+ 					 GArray               *relative_item_points,
+ 					 GFile                *target_dir,
+diff --git a/src/nemo-application.c b/src/nemo-application.c
+index ecf4384..663dd25 100644
+--- a/src/nemo-application.c
++++ b/src/nemo-application.c
+@@ -87,6 +87,7 @@ G_DEFINE_TYPE (NemoApplication, nemo_application, GTK_TYPE_APPLICATION);
+ 
+ struct _NemoApplicationPriv {
+ 	NemoProgressUIHandler *progress_handler;
++	NemoDBusManager *dbus_manager;
+ 
+     gboolean cache_problem;
+     gboolean ignore_cache_problem;
+@@ -575,6 +576,35 @@ nemo_application_startup (GApplication *app)
+     }
+ }
+ 
++static gboolean
++nemo_application_dbus_register (GApplication        *app,
++                                GDBusConnection     *connection,
++                                const gchar         *object_path,
++                                GError	           **error)
++{
++	NemoApplication *self = NEMO_APPLICATION (app);
++
++	self->priv->dbus_manager = nemo_dbus_manager_new ();
++	if (!nemo_dbus_manager_register (self->priv->dbus_manager, connection, error)) {
++		return FALSE;
++	}
++
++	return TRUE;
++}
++
++static void
++nemo_application_dbus_unregister (GApplication      *app,
++                                  GDBusConnection   *connection,
++                                  const gchar   	*object_path)
++{
++	NemoApplication *self = NEMO_APPLICATION (app);
++
++	if (self->priv->dbus_manager) {
++		nemo_dbus_manager_unregister (self->priv->dbus_manager);
++		g_clear_object (&self->priv->dbus_manager);
++	}
++}
++
+ static void
+ nemo_application_quit_mainloop (GApplication *app)
+ {
+@@ -617,6 +647,8 @@ nemo_application_class_init (NemoApplicationClass *class)
+ 
+     application_class = G_APPLICATION_CLASS (class);
+     application_class->startup = nemo_application_startup;
++    application_class->dbus_register = nemo_application_dbus_register;
++    application_class->dbus_unregister = nemo_application_dbus_unregister;
+     application_class->quit_mainloop = nemo_application_quit_mainloop;
+ 
+     gtkapp_class = GTK_APPLICATION_CLASS (class);
+-- 
+2.35.1
+

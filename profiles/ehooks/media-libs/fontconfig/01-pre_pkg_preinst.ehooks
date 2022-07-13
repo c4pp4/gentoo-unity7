@@ -1,5 +1,5 @@
 ehooks() {
-	ehooks_require fontconfig_adjust
+	ehooks_require fontconfig
 
 	local \
 		f \

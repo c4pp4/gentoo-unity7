@@ -7,8 +7,8 @@ Signed-off-by: c4pp4
 ---
  editor/base-headerbar.vala |  5 ++++-
  editor/meson.build         |  1 +
- editor/xdg-desktop.vala    | 12 ++++++++++++
- 3 files changed, 17 insertions(+), 1 deletion(-)
+ editor/xdg-desktop.vala    | 15 +++++++++++++++
+ 3 files changed, 20 insertions(+), 1 deletion(-)
  create mode 100644 editor/xdg-desktop.vala
 
 diff --git a/editor/base-headerbar.vala b/editor/base-headerbar.vala
@@ -19,7 +19,7 @@ index 8733b79..30133ad 100644
                                  || AdaptativeWidget.WindowSize.is_extra_flat (new_size);
          if (disable_action_bar != _disable_action_bar)
          {
-+            if (!in_desktop ("GNOME"))
++            if (disable_headerbar ())
 +                disable_action_bar = false;
 +            else
              disable_action_bar = _disable_action_bar;
@@ -30,7 +30,7 @@ index 8733b79..30133ad 100644
                                            false,        /* show info_button         */
                                            false,        /* show ltr_right_separator */
 -                                          true);        /* show quit_button_stack   */
-+                                          in_desktop ("GNOME") ? true : false);        /* show quit_button_stack   */
++                                          disable_headerbar () ? false : true);        /* show quit_button_stack   */
      }
  
      /*\
@@ -51,18 +51,21 @@ new file mode 100644
 index 0000000..c9d5623
 --- /dev/null
 +++ b/editor/xdg-desktop.vala
-@@ -0,0 +1,12 @@
-+private bool in_desktop (string name)
+@@ -0,0 +1,15 @@
++private bool disable_headerbar ()
 +{
 +    var desktop_name_list = (!) Environment.get_variable ("XDG_CURRENT_DESKTOP");
 +    if (desktop_name_list == "")
 +        return false;
 +
 +    foreach (var n in desktop_name_list.split (":"))
-+        if (n == name)
-+            return true;
++        if (n == "GNOME")
++            return false;
 +
-+    return false;
++    if (Environment.get_variable ("GTK_CSD") == "0")
++        return true;
++    else
++        return false;
 +}
 -- 
 2.32.0

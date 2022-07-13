@@ -5,7 +5,6 @@
 		<name>gentoo-unity7</name>
 	</maintainer>
 	<use>
-		<flag name="nemo">Mimic <pkg>gnome-base/nautilus</pkg> theme</flag>
 		<flag name="optimize">Enable icons optimization</flag>
 	</use>
 </pkgmetadata>

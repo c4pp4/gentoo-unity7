@@ -9,14 +9,14 @@ Don't try and use the GNOME Shell D-Bus interface.
  src/screenshot-application.c |  4 ++--
  src/screenshot-config.c      | 21 +++++++++++++++++++++
  src/screenshot-config.h      |  1 +
- src/screenshot-utils.c       |  9 +++++++++
- 4 files changed, 33 insertions(+), 2 deletions(-)
+ src/screenshot-utils.c       |  2 +-
+ 4 files changed, 25 insertions(+), 3 deletions(-)
 
 diff --git a/src/screenshot-application.c b/src/screenshot-application.c
-index 4cc64c8..2968152 100644
+index 7acdc0e..8ad25f6 100644
 --- a/src/screenshot-application.c
 +++ b/src/screenshot-application.c
-@@ -131,7 +131,7 @@ static void
+@@ -153,7 +153,7 @@ static void
  save_pixbuf_handle_error (ScreenshotApplication *self,
                            GError *error)
  {
@@ -25,9 +25,9 @@ index 4cc64c8..2968152 100644
      {
        ScreenshotDialog *dialog = self->dialog;
  
-@@ -439,7 +439,7 @@ build_filename_ready_cb (GObject *source,
- 
-   screenshot_play_sound_effect ("screen-capture", _("Screenshot taken"));
+@@ -453,7 +453,7 @@ build_filename_ready_cb (GObject *source,
+       return;
+     }
  
 -  if (screenshot_config->interactive)
 +  if (in_desktop ("Unity") || screenshot_config->interactive)
@@ -35,10 +35,10 @@ index 4cc64c8..2968152 100644
        self->dialog = screenshot_dialog_new (GTK_APPLICATION (self),
                                              self->screenshot,
 diff --git a/src/screenshot-config.c b/src/screenshot-config.c
-index 6abeaa5..e9941c2 100644
+index 9fb1387..f47ebd7 100644
 --- a/src/screenshot-config.c
 +++ b/src/screenshot-config.c
-@@ -147,3 +147,24 @@ screenshot_config_parse_command_line (gboolean clipboard_arg,
+@@ -146,3 +146,24 @@ screenshot_config_parse_command_line (gboolean clipboard_arg,
  
    return TRUE;
  }
@@ -75,32 +75,18 @@ index fdf77a9..c9883df 100644
  
  G_END_DECLS
 diff --git a/src/screenshot-utils.c b/src/screenshot-utils.c
-index 9b87cad..ae4874e 100644
+index df0b6e9..fa342d8 100644
 --- a/src/screenshot-utils.c
 +++ b/src/screenshot-utils.c
-@@ -74,6 +74,14 @@ screenshot_get_pixbuf (GdkRectangle *rectangle)
-   g_autoptr (ScreenshotBackend) backend = NULL;
- 
- #ifdef HAVE_X11
-+  if (in_desktop ("Unity"))
-+    {
-+      g_clear_object (&backend);
-+      backend = screenshot_backend_x11_new ();
-+      screenshot = screenshot_backend_get_pixbuf (backend, rectangle);
-+    }
-+  else
-+    {
+@@ -43,7 +43,7 @@ screenshot_get_pixbuf (GdkRectangle *rectangle)
    force_fallback = g_getenv ("GNOME_SCREENSHOT_FORCE_FALLBACK") != NULL;
  #endif
  
-@@ -99,6 +107,7 @@ screenshot_get_pixbuf (GdkRectangle *rectangle)
-       backend = screenshot_backend_x11_new ();
+-  if (!force_fallback)
++  if (!force_fallback && !in_desktop ("Unity"))
+     {
+       backend = screenshot_backend_shell_new ();
        screenshot = screenshot_backend_get_pixbuf (backend, rectangle);
-     }
-+    }
- #endif
- 
-   return screenshot;
 -- 
-2.26.2
+2.35.1
 

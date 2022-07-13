@@ -1,6 +1,4 @@
 ehooks() {
-	ehooks_require totem_menu
-
 	unpack "${EHOOKS_FILESDIR}"/global-menu-translations-cosmic.tar.xz
 
 	einfo "  Merging available translations..."

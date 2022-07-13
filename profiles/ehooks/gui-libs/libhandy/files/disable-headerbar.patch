@@ -1,0 +1,59 @@
+From 6c12e218ad2448c109d3dc7de2ea21eeb084b956 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sat, 16 Jul 2022 06:49:25 +0200
+Subject: [PATCH 1/1] Disable headerbar close button when not in GNOME
+
+Signed-off-by: c4pp4
+---
+ src/hdy-header-bar.c | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
+
+diff --git a/src/hdy-header-bar.c b/src/hdy-header-bar.c
+index 9d455e1..7734272 100644
+--- a/src/hdy-header-bar.c
++++ b/src/hdy-header-bar.c
+@@ -2567,6 +2567,32 @@ hdy_header_bar_set_custom_title (HdyHeaderBar *self,
+   g_object_notify_by_pspec (G_OBJECT (self), props[PROP_CUSTOM_TITLE]);
+ }
+ 
++static gboolean
++disable_headerbar ()
++{
++  const gchar *desktop_name_list;
++  gchar **names;
++  gboolean in_list = FALSE;
++  gint i;
++
++  desktop_name_list = g_getenv ("XDG_CURRENT_DESKTOP");
++  if (!desktop_name_list)
++    return FALSE;
++
++  names = g_strsplit (desktop_name_list, ":", -1);
++  for (i = 0; names[i] && !in_list; i++)
++    if (strcmp (names[i], "GNOME") == 0) {
++      in_list = TRUE;
++      break;
++    }
++  g_strfreev (names);
++
++  if ((!in_list) && (strcmp (g_getenv ("GTK_CSD"), "0") == 0))
++    return TRUE;
++  else
++    return FALSE;
++}
++
+ /**
+  * hdy_header_bar_get_custom_title: (attributes org.gtk.Method.get_property=custom-title)
+  * @self: a header bar
+@@ -2628,6 +2654,8 @@ hdy_header_bar_set_show_close_button (HdyHeaderBar *self,
+ 
+   priv = hdy_header_bar_get_instance_private (self);
+ 
++  if (disable_headerbar())
++    setting = FALSE;
+   setting = setting != FALSE;
+ 
+   if (priv->shows_wm_decorations == setting)
+-- 
+2.35.1
+

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Nemo
+Comment=Hold Nemo running seamlessly
+Exec=env NEMO_PERSIST=1 nemo -n
+AutostartCondition=GSettings org.nemo.desktop nemo-persist
+OnlyShowIn=Unity;
+NoDisplay=true

@@ -1,0 +1,4 @@
+ehooks() {
+	insinto "/usr/share/glib-2.0/schemas"
+	newins "${EHOOKS_FILESDIR}"/unity-mate-terminal.gsettings-override "10_unity-mate-terminal.gschema.override"
+}

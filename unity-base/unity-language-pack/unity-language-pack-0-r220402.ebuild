@@ -180,7 +180,7 @@ done
 
 SRC_URI="${MY_SRC_URI}"
 
-IUSE="+branding ${MY_IUSE/l10n_en/+l10n_en}"
+IUSE="${MY_IUSE/l10n_en/+l10n_en}"
 REQUIRED_USE="|| ( ${MY_IUSE} )"
 RESTRICT="test"
 
@@ -356,10 +356,6 @@ src_install() {
 				fi
 			done
 			rm "${gcc_src}" "${ls_src}" 2>/dev/null
-
-			# Add Version
-			x="$(portageq 'unity-base/unity' best_version | cut -d "-" -f 3) (${URELEASE})"
-			sed -i -e "s/Version %s/Version ${x}/" -e "/${x}/{n;s/%s/${x}/;}" "${pofile}" || die
 		fi
 
 		# Add translations for Unity help desktop launcher
@@ -378,7 +374,7 @@ src_install() {
 		fi
 
 		# Rename Ubuntu Desktop
-		use branding && [[ ${pofile##*/} == ${u_po} ]] && ( sed -i -e "s/Ubuntu Desktop/Gentoo Unity⁷ Desktop/" -e "/Unity⁷/{n;s/Ubuntu/Gentoo Unity⁷/;}" "${pofile}" || die )
+		[[ ${pofile##*/} == ${u_po} ]] && ( sed -i -e "s/Ubuntu Desktop/Gentoo Unity⁷ Desktop/" -e "/Unity⁷/{n;s/Ubuntu/Gentoo Unity⁷/;}" "${pofile}" || die )
 
 		msgfmt -o "${pofile%.po}.mo" "${pofile}"
 		rm "${pofile}" 2>/dev/null
