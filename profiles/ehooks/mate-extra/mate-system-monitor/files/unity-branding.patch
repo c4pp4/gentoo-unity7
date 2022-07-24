@@ -90,8 +90,8 @@ index 39d5f8c..1ef7558 100644
      cp = cairo_pattern_create_linear(0, Y_PAD, 0, Y_PAD + LOGO_H);
      style = gtk_widget_get_style (widget);
 +    if (in_desktop("Unity")) {
-+        cairo_pattern_add_color_stop_rgba(cp, 0.0,0.714,0.281,0.487,1.0);
-+        cairo_pattern_add_color_stop_rgba(cp, 1.0,0.714,0.281,0.487,0.0);
++        cairo_pattern_add_color_stop_rgba(cp, 0.0,0.596,0.18,0.435,1.0);
++        cairo_pattern_add_color_stop_rgba(cp, 1.0,0.596,0.18,0.435,0.0);
 +    } else {
      cairo_pattern_add_color_stop_rgba(cp, 0.0,
                                        style->base[GTK_STATE_SELECTED].red / 65535.0,
