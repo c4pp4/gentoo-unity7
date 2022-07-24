@@ -5,11 +5,11 @@ Subject: [PATCH 1/1] Add Unity branding when in Unity
 
 Signed-off-by: c4pp4
 ---
- src/sysinfo.cpp | 68 +++++++++++++++++++++++++++++++++++++++++--------
- 1 file changed, 58 insertions(+), 10 deletions(-)
+ src/sysinfo.cpp | 57 +++++++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 50 insertions(+), 7 deletions(-)
 
 diff --git a/src/sysinfo.cpp b/src/sysinfo.cpp
-index 39d5f8c..c18eaa2 100644
+index 39d5f8c..1ef7558 100644
 --- a/src/sysinfo.cpp
 +++ b/src/sysinfo.cpp
 @@ -36,6 +36,28 @@
@@ -41,7 +41,7 @@ index 39d5f8c..c18eaa2 100644
  
  namespace {
  
-@@ -422,13 +444,22 @@ namespace {
+@@ -422,18 +444,28 @@ namespace {
          {
              xmlDocPtr document;
              xmlXPathContextPtr context;
@@ -51,7 +51,6 @@ index 39d5f8c..c18eaa2 100644
 -            string values[3];
  
 -            if (not (document = xmlParseFile(DATADIR "/mate-about/mate-version.xml")))
--                return;
 +            string node_prefix;
 +            if (in_desktop("Unity")) {
 +                document = xmlParseFile(DATADIR "/unity/unity-version.xml");
@@ -61,57 +60,43 @@ index 39d5f8c..c18eaa2 100644
 +                node_prefix = "string(/mate-version/";
 +            }
 +            if (not document)
-+                return;
-+
-+            const string nodes[3] = { node_prefix + "platform)",
-+                                      node_prefix + "minor)",
-+                                      node_prefix + "micro)" };
-+            string values[3];
+                 return;
  
++            const string nodes[4] = { node_prefix + "platform)",
++                                      node_prefix + "minor)",
++                                      node_prefix + "micro)",
++                                      node_prefix + "release)" };
++            string values[4];
++
              if (not (context = xmlXPathNewContext(document)))
                  return;
-@@ -802,6 +833,7 @@ namespace {
- #define LOGO_W 92
- #define LOGO_H 351
- #define RADIUS 5
-+#define URADIUS 46
  
- static gboolean sysinfo_logo_draw (GtkWidget *widget, cairo_t *context, gpointer data_ptr)
- {
-@@ -815,18 +847,29 @@ static gboolean sysinfo_logo_draw (GtkWidget *widget, cairo_t *context, gpointer
-     gtk_widget_get_allocation (widget, &allocation);
-     cairo_translate(cr, allocation.x, allocation.y);
+-            for (size_t i = 0; i != 3; ++i)
++            for (size_t i = 0; i != 4; ++i)
+             {
+                 xmlXPathObjectPtr xpath;
+                 xpath = xmlXPathEvalExpression(BAD_CAST nodes[i].c_str(), context);
+@@ -449,6 +481,8 @@ namespace {
  
--    cairo_move_to(cr, X_PAD + RADIUS, Y_PAD);
-+    cairo_move_to(cr, X_PAD, Y_PAD + LOGO_H - RADIUS);
-+    if (in_desktop("Unity")) {
-+        cairo_line_to(cr, X_PAD, Y_PAD + URADIUS);
-+        cairo_arc(cr,  X_PAD + URADIUS, Y_PAD + URADIUS, URADIUS, -1.0 * M_PI, -0.5 * M_PI);
-+        cairo_line_to(cr, X_PAD + LOGO_W - URADIUS, Y_PAD);
-+        cairo_arc(cr, X_PAD + LOGO_W - URADIUS, Y_PAD + URADIUS, URADIUS, -0.5 * M_PI, 0);
-+    } else {
-+    cairo_line_to(cr, X_PAD, Y_PAD + RADIUS);
-+    cairo_arc(cr,  X_PAD + RADIUS, Y_PAD + RADIUS, RADIUS, -1.0 * M_PI, -0.5 * M_PI);
-     cairo_line_to(cr, X_PAD + LOGO_W - RADIUS, Y_PAD);
-     cairo_arc(cr, X_PAD + LOGO_W - RADIUS, Y_PAD + RADIUS, RADIUS, -0.5 * M_PI, 0);
-+    }
-     cairo_line_to(cr, X_PAD + LOGO_W, Y_PAD + LOGO_H - RADIUS);
-     cairo_arc(cr, X_PAD + LOGO_W - RADIUS, Y_PAD + LOGO_H - RADIUS, RADIUS, 0, 0.5 * M_PI);
-     cairo_line_to(cr, X_PAD + RADIUS, Y_PAD + LOGO_H);
-     cairo_arc(cr, X_PAD + RADIUS, Y_PAD + LOGO_H - RADIUS, RADIUS, 0.5 * M_PI, -1.0 * M_PI);
--    cairo_line_to(cr, X_PAD, Y_PAD + RADIUS);
--    cairo_arc(cr,  X_PAD + RADIUS, Y_PAD + RADIUS, RADIUS, -1.0 * M_PI, -0.5 * M_PI);
+             if (!values[0].empty() && !values[1].empty() && !values[2].empty())
+                 this->mate_version = values[0] + '.' + values[1] + '.' + values[2];
++            if (!values[3].empty())
++                this->mate_version += '(' + values[3] + ')';
+         }
+     };
+ 
+@@ -827,6 +861,10 @@ static gboolean sysinfo_logo_draw (GtkWidget *widget, cairo_t *context, gpointer
  
      cp = cairo_pattern_create_linear(0, Y_PAD, 0, Y_PAD + LOGO_H);
      style = gtk_widget_get_style (widget);
 +    if (in_desktop("Unity")) {
-+        cairo_pattern_add_color_stop_rgba(cp, 0.0,1.0,1.0,1.0,1.0);
-+        cairo_pattern_add_color_stop_rgba(cp, 1.0,1.0,1.0,1.0,0.0);
++        cairo_pattern_add_color_stop_rgba(cp, 0.0,0.714,0.281,0.487,1.0);
++        cairo_pattern_add_color_stop_rgba(cp, 1.0,0.714,0.281,0.487,0.0);
 +    } else {
      cairo_pattern_add_color_stop_rgba(cp, 0.0,
                                        style->base[GTK_STATE_SELECTED].red / 65535.0,
                                        style->base[GTK_STATE_SELECTED].green / 65535.0,
-@@ -837,6 +880,8 @@ static gboolean sysinfo_logo_draw (GtkWidget *widget, cairo_t *context, gpointer
+@@ -837,6 +875,8 @@ static gboolean sysinfo_logo_draw (GtkWidget *widget, cairo_t *context, gpointer
                                        style->base[GTK_STATE_SELECTED].green / 65535.0,
                                        style->base[GTK_STATE_SELECTED].blue / 65535.0,
                                        0.0);
@@ -120,7 +105,7 @@ index 39d5f8c..c18eaa2 100644
      cairo_set_source(cr, cp);
      cairo_fill(cr);
  
-@@ -989,7 +1034,10 @@ procman_create_sysinfo_view(void)
+@@ -989,7 +1029,10 @@ procman_create_sysinfo_view(void)
  
      if (data->mate_version != "")
      {

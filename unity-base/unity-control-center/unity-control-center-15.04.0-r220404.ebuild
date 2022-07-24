@@ -120,6 +120,9 @@ src_prepare() {
 	# Branding #
 	cp "${FILESDIR}"/branding/UnityLogo.svg panels/info/GnomeLogoVerticalMedium.svg || die
 	sed -i \
+		-e 's/"distributor"/"release"/' \
+		-e "s/%s.%s.%s/%s.%s.%s (%s)/" \
+		-e "/%s.%s.%s/{s/micro/micro, data->distributor/}" \
 		-e "/gtk_widget_hide (WID (\"version_label\")/d" \
 		-e "s:gnome/gnome:unity/unity:" \
 		panels/info/cc-info-panel.c || die
