@@ -81,7 +81,7 @@ index 39d5f8c..1ef7558 100644
              if (!values[0].empty() && !values[1].empty() && !values[2].empty())
                  this->mate_version = values[0] + '.' + values[1] + '.' + values[2];
 +            if (!values[3].empty())
-+                this->mate_version += '(' + values[3] + ')';
++                this->mate_version += " (" + values[3] + ")";
          }
      };
  
