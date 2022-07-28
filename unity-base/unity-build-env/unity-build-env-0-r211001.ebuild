@@ -15,7 +15,7 @@ SRC_URI=""
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="dev minimal"
+IUSE="dev"
 RESTRICT="binchecks strip test"
 
 S="${WORKDIR}"
@@ -34,9 +34,6 @@ src_install() {
 
 	use dev && dosym -r "${REPO_ROOT}/profiles/unity-portage-dev.paccept_keywords" \
 		"/etc/portage/package.accept_keywords/0001_unity-portage-dev.paccept_keywords"
-
-	use minimal && dosym -r "${REPO_ROOT}/profiles/unity-portage-minimal.puse" \
-		"/etc/portage/package.use/0001_unity-portage-minimal.puse"
 }
 
 pkg_postinst() {

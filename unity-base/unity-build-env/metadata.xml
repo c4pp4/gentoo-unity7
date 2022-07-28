@@ -6,6 +6,5 @@
 	</maintainer>
 	<use>
 		<flag name="dev">Unmask overlay development packages with missing keyword (experimental)</flag>
-		<flag name="minimal">Install a very minimal build</flag>
 	</use>
 </pkgmetadata>
