@@ -6,9 +6,9 @@
 
    - see the [code][code]
 
-- IMPORTANT: **Changes** are managed via **unity-extra/ehooks** package bump. It looks for ehooks changes, generates emerge command needed to apply the changes and display it as a warning message. **Don't forget to apply it!** Alternative way to display it is `ehooks -g` command.
-
 - Overlay's ehooks are located in [gentoo-unity7/profiles/ehooks][ehooks] directory.
+
+- **Changes** are managed via **unity-extra/ehooks** package. The package looks for ehooks changes, generates emerge command needed to be applied and displays it as a warning message.
 
 - **Optional** ehooks are managed via [unity-extra/ehooks USE flags][use flags].
 

@@ -22,11 +22,13 @@
 
    `emerge -av unity-build-env`
 
-5. Update the whole system:
+5. Previous emerge command will install `unity-extra/ehooks` package. The package generates emerge command needed to be applied and displays it as a warning message. Rebuild affected packages if needed.
+
+6. Update the whole system:
 
    `emerge -avuDU --with-bdeps=y @world`
 
-6. Install the Unity7:
+7. Install the Unity7:
 
    `emerge -av unity-meta`
 

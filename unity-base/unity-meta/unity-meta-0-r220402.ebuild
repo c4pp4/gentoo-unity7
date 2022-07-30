@@ -198,6 +198,5 @@ RDEPEND="
 		)
 	)
 "
-DEPEND="unity-extra/ehooks"
 
 S="${WORKDIR}"

@@ -18,6 +18,8 @@ KEYWORDS="amd64"
 IUSE="dev"
 RESTRICT="binchecks strip test"
 
+PDEPEND="unity-extra/ehooks"
+
 S="${WORKDIR}"
 
 src_install() {
