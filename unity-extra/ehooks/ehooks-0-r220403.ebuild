@@ -28,11 +28,11 @@ pkg_setup() {
 	[[ -f ${EROOT}/etc/ehooks/timestamps ]] && cp "${EROOT}"/etc/ehooks/timestamps "${S}"/timestamps.old
 
 	## Temporarily: USE flags names migration ##
-	sed -i \
+	[[ -f ${S}/timestamps.old ]] && ( sed -i \
 		-e "s/_adjust//" \
 		-e "s/_menu//" \
 		-e "s/_theme//" \
-		"${S}"/timestamps.old || die
+		"${S}"/timestamps.old || die )
 }
 
 src_install() {
