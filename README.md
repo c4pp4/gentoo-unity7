@@ -2,15 +2,15 @@
 
 A Gentoo overlay to build the Unity7 user interface.
 
-- [Take a look][yt] (YouTube link)
+- [Take a look⬀][yt]
 - [Build instructions][build]
 - [USE flag tips][tips]
-- [Join the Telegram group][tg] (Telegram link)
+- [Join the Telegram group⬀][tg]
 
 #
 
 - [Forked from unity-gentoo][fork]
-- [About the Unity7][wiki] (Wikipedia link)
+- [About the Unity7⬀][wiki]
 
 #
 

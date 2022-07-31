@@ -7,10 +7,9 @@
 2. Add the overlay using `eselect-repository` module or `layman` tool:
    - eselect-repository:
 
-     ```
-     eselect repository add gentoo-unity7 git https://github.com/c4pp4/gentoo-unity7.git
-     emaint sync -r gentoo-unity7
-     ```
+     `eselect repository add gentoo-unity7 git https://github.com/c4pp4/gentoo-unity7.git`
+     <br/>
+     `emaint sync -r gentoo-unity7`
 
    - layman:
 

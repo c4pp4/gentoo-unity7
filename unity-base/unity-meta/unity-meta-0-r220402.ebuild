@@ -41,7 +41,7 @@ RDEPEND="
 		|| (
 			mail-client/thunderbird
 			mail-client/thunderbird-bin
-			mail-client/evolution
+			( mail-client/evolution unity-indicators/indicator-datetime[eds] )
 		)
 		|| (
 			www-client/firefox
@@ -107,8 +107,8 @@ RDEPEND="
 		app-backup/deja-dup
 		app-crypt/seahorse
 		|| (
-			( app-dicts/gnome-dictionary sys-apps/baobab )
 			mate-extra/mate-utils
+			( app-dicts/gnome-dictionary sys-apps/baobab )
 		)
 		gnome-base/dconf-editor
 		gnome-extra/gnome-calendar

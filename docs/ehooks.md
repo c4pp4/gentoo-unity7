@@ -2,7 +2,7 @@
 
 ### Chapter I.
 
-- It's a patching system that looks for existence of **{pre,post}\_${EBUILD_PHASE_FUNC}.ehooks** file and source it to perform hooks. It provides a way to patch packages not needed to maintain. It's loosly based on **eapply_user** function from /usr/lib/portage/python3.\*/phase-helpers.sh script and **pre_src_prepare** function from the Gentoo wiki ([archived version](https://web.archive.org/web/20191226202345/https://wiki.gentoo.org/wiki//etc/portage/patches#Enabling_.2Fetc.2Fportage.2Fpatches_for_all_ebuilds) from web.archive.org).
+- It's a patching system that looks for existence of **{pre,post}\_${EBUILD_PHASE_FUNC}.ehooks** file and source it to perform hooks. It provides a way to patch packages not needed to maintain. It's loosly based on **eapply_user** function from /usr/lib/portage/python3.\*/phase-helpers.sh script and **pre_src_prepare** function from the Gentoo wiki ([archived version⬀][warch] from web.archive.org).
 
    - see the [code][code]
 
@@ -89,7 +89,7 @@
   }
   ```
 
-  - it's possible to use any [ebuild function](https://devmanual.gentoo.org/function-reference/index.html)
+  - it's possible to use any [ebuild function⬀][efnc]
 
   - **templates** are in [gentoo-unity7/profiles/ehooks/templates][templates] directory
 
@@ -160,6 +160,7 @@
 
 [//]: # (LINKS)
 [code]: ../profiles/amd64/17.1/desktop/unity/profile.bashrc#L15
+[efnc]: https://devmanual.gentoo.org/function-reference/index.html
 [ehooks]: ../profiles/ehooks
 [env]: ../profiles/env/ehooks-network
 [gnome-session]: ../profiles/ehooks/gnome-base/gnome-session
@@ -169,3 +170,4 @@
 [terminal]: ../profiles/ehooks/x11-terms/mate-terminal/01-pre_src_prepare.ehooks
 [use flags]: ../unity-extra/ehooks/metadata.xml
 [vte]: ../profiles/ehooks/x11-libs/vte:2.91/01-post_src_prepare.ehooks
+[warch]: https://web.archive.org/web/20191226202345/https://wiki.gentoo.org/wiki//etc/portage/patches#Enabling_.2Fetc.2Fportage.2Fpatches_for_all_ebuilds
