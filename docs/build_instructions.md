@@ -1,10 +1,8 @@
 # Build instructions
 
-1. Switch init system to systemd:
+1. Switch to [systemd⬀][sysd] init system.
 
-   https://wiki.gentoo.org/wiki/Systemd
-
-2. Add the overlay using `eselect-repository` module or `layman` tool:
+2. Add the overlay using [eselect-repository⬀][erepo] module or [layman⬀][lay] tool:
    - eselect-repository:
 
      `eselect repository add gentoo-unity7 git https://github.com/c4pp4/gentoo-unity7.git`
@@ -21,23 +19,26 @@
 
    `eselect profile list`
 
-5. Set variable `EHOOKS_ACCEPT="yes"` in `/etc/portage/make.conf`
+4. Set `EHOOKS_ACCEPT="yes"` variable in `/etc/portage/make.conf` configuration file.
 
    WARNING: Some overlay patches will be applied to packages from the Gentoo tree via ehooks patching system. For more details, see [ehooks - Chapter I.][ehooks] Set the variable to confirm you agree with it.
 
-4. Install the package to setup the Unity7 build environment:
+5. Install the package to setup the Unity7 build environment:
 
    `emerge -av unity-build-env`
 
-5. Previous emerge command will install `unity-extra/ehooks` package. The package generates emerge command needed to be applied and displays it as a warning message. Rebuild affected packages if needed.
+6. Previous emerge command will install `unity-extra/ehooks` package. The package generates emerge command needed to be applied and displays it as a warning message. Rebuild affected packages if needed.
 
-6. Update the whole system:
+7. Update the whole system:
 
    `emerge -avuDU --with-bdeps=y @world`
 
-7. Install the Unity7:
+8. Install the Unity7:
 
    `emerge -av unity-meta`
 
 [//]: # (LINKS)
 [ehooks]: ehooks.md
+[erepo]: https://wiki.gentoo.org/wiki/Eselect/Repository
+[lay]: https://wiki.gentoo.org/wiki/Layman
+[sysd]: https://wiki.gentoo.org/wiki/Systemd
