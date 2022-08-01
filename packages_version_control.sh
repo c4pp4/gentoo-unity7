@@ -256,12 +256,14 @@ update_languages() {
 							[[ ${upstr_gver_prev} == ${upstr_gver} ]] && unset upstr_gver
 							[[ -n ${filename} ]] && [[ ${rls} == ${dev} ]] && continue
 						fi
+						[[ -z ${lcl_ver} ]] && [[ ${rls} == ${stable} ]] && continue
 						[[ -z ${lcl_ver} ]] && [[ -z ${upstr_ver} ]] && [[ -z ${lcl_gver} ]] && [[ -z ${upstr_gver} ]] && continue
 						[[ ${lcl_ver} == ${upstr_ver} ]] && [[ ${lcl_gver} == ${upstr_gver} ]] && continue
+						[[ ${lcl_ver#*+} -gt ${upstr_ver#*+} && ${lcl_gver#*+} -gt ${upstr_gver#*+} ]] && continue
 						ctl=1
 						tput rc; tput el
-						if [[ ${lcl_ver} != ${upstr_ver} ]]; then
-							echo "Overlay:  ${name/-gnome}-${color_yellow}${lcl_ver:-none}${color_norm} (${rls})"
+						if [[ ${lcl_ver#*+} -lt ${upstr_ver#*+} ]]; then
+							echo "Overlay:  ${name/-gnome}-${color_yellow}${lcl_ver:-new}${color_norm} (${rls})"
 							printf "%s" "Upstream: ${name/-gnome}-${color_green}${upstr_ver}${color_norm} (${rls})"
 							if [[ -n ${lcl_ver} ]]; then
 								sed -i "/^setvar ${pkg%%|*}\t/{s/${lcl_ver}/${upstr_ver}/}" "${filename}" 2>/dev/null \
@@ -271,8 +273,8 @@ update_languages() {
 								printf "\n"
 							fi
 						fi
-						if [[ ${lcl_gver} != ${upstr_gver} ]]; then
-							echo "Overlay:  ${name}-${color_yellow}${lcl_gver:-none}${color_norm} (${rls})"
+						if [[ ${lcl_gver#*+} -lt ${upstr_gver#*+} ]]; then
+							echo "Overlay:  ${name}-${color_yellow}${lcl_gver:-new}${color_norm} (${rls})"
 							printf "%s" "Upstream: ${name}-${color_green}${upstr_gver}${color_norm} (${rls})"
 							if [[ -n ${lcl_gver} ]]; then
 								sed -i "/^setvar ${pkg%%|*}\t/{s/${lcl_gver}/${upstr_gver}/}" "${filename}" 2>/dev/null \
