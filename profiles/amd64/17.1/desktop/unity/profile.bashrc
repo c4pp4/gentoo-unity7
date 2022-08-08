@@ -1,18 +1,5 @@
-if [[ ${EBUILD_PHASE} == "setup" ]] ; then
-	CURRENT_PROFILE="$(readlink /etc/portage/make.profile)"
-	REPO_ROOT="$(/usr/bin/portageq get_repo_path / gentoo-unity7)"
-
-	KEYWORD_STATE="${KEYWORD_STATE:=`grep ACCEPT_KEYWORDS /etc/portage/make.conf 2>/dev/null`}"
-	KEYWORD_STATE="${KEYWORD_STATE:=`grep ACCEPT_KEYWORDS /etc/make.conf 2>/dev/null`}"
-	if [[ -n "$(echo ${KEYWORD_STATE} | grep \~)" ]] && [[ "$(eval echo \${UNITY_GLOBAL_KEYWORD_UNMASK})" != "yes" ]]; then
-			eerror "Oops! Your system has been detected as having ~arch keywords globally unmasked (${KEYWORD_STATE})."
-			eerror " To maintain build sanity for Unity it is highly recommended to *NOT* globally set your entire system to experimental."
-			eerror " To override this error message, set 'UNITY_GLOBAL_KEYWORD_UNMASK=yes' in make.conf and accept that many packages may fail to build or run correctly."
-			eerror
-			die
-	fi
-
 ## ehooks patching system.
+if [[ ${EBUILD_PHASE} == "setup" ]]; then
 	local -a EHOOKS_SOURCE=()
 
 	## Define function to look for ehooks in setup phase.
@@ -20,7 +7,7 @@ if [[ ${EBUILD_PHASE} == "setup" ]] ; then
 
 	local \
 		pkg \
-		basedir="${REPO_ROOT}"/profiles/ehooks
+		basedir="$(portageq get_repo_path / gentoo-unity7)"/profiles/ehooks
 
 	for pkg in ${CATEGORY}/{${P}-${PR},${P},${P%.*},${P%.*.*},${PN}}{:${SLOT%/*},}; do
 		if [[ -d ${EHOOKS_PATH:=${basedir}}/${pkg} ]]; then
@@ -55,7 +42,7 @@ if [[ ${EBUILD_PHASE} == "setup" ]] ; then
 	}
 
 	## Define function to apply ehooks.
-	__ehooks_apply() {
+	ehooks_apply() {
 		local \
 			x \
 			log="${T}/ehooks.log" \
@@ -181,93 +168,45 @@ if [[ ${EBUILD_PHASE} == "setup" ]] ; then
 		## Sanitize 'die' command.
 		source <(declare -f die | sed "/ehooks/d")
 
-	} ## End of __ehooks_apply function.
+	} ## End of ehooks_apply function.
 
 	## Apply ehooks intended for setup phase.
 	[[ ${EHOOKS_SOURCE[@]} == *"pre_pkg_setup"* ]] \
-		&& __ehooks_apply
+		&& ehooks_apply
 	[[ ${EHOOKS_SOURCE[@]} == *"post_pkg_setup"* ]] \
-		&& post_pkg_setup() {
-			__ehooks_apply
-		}
+		&& post_pkg_setup() { ehooks_apply; }
+	[[ ${EHOOKS_SOURCE[@]} == *"pre_src_unpack"* ]] \
+		&& pre_src_unpack() { ehooks_apply; }
+	[[ ${EHOOKS_SOURCE[@]} == *"post_src_unpack"* ]] \
+		&& post_src_unpack() { ehooks_apply; }
+	[[ ${EHOOKS_SOURCE[@]} == *"pre_src_prepare"* ]] \
+		&& pre_src_prepare() { ehooks_apply; }
+	[[ ${EHOOKS_SOURCE[@]} == *"post_src_prepare"* ]] \
+		&& post_src_prepare() { ehooks_apply; }
+	[[ ${EHOOKS_SOURCE[@]} == *"pre_src_configure"* ]] \
+		&& pre_src_configure() { ehooks_apply; }
+	[[ ${EHOOKS_SOURCE[@]} == *"post_src_configure"* ]] \
+		&& post_src_configure() { ehooks_apply; }
+	[[ ${EHOOKS_SOURCE[@]} == *"pre_src_compile"* ]] \
+		&& pre_src_compile() { ehooks_apply; }
+	[[ ${EHOOKS_SOURCE[@]} == *"post_src_compile"* ]] \
+		&& post_src_compile() { ehooks_apply; }
+	[[ ${EHOOKS_SOURCE[@]} == *"pre_src_install"* ]] \
+		&& pre_src_install() { ehooks_apply; }
+	[[ ${EHOOKS_SOURCE[@]} == *"post_src_install"* ]] \
+		&& post_src_install() { ehooks_apply; }
+	[[ ${EHOOKS_SOURCE[@]} == *"pre_pkg_preinst"* ]] \
+		&& pre_pkg_preinst() { ehooks_apply; }
+	[[ ${EHOOKS_SOURCE[@]} == *"post_pkg_preinst"* ]] \
+		&& post_pkg_preinst() { ehooks_apply; }
+	[[ ${EHOOKS_SOURCE[@]} == *"pre_pkg_postinst"* ]] \
+		&& pre_pkg_postinst() { ehooks_apply; }
+	[[ ${EHOOKS_SOURCE[@]} == *"post_pkg_postinst"* ]] \
+		&& post_pkg_postinst() { ehooks_apply; }
 
 	fi ## End of processing EHOOKS_SOURCE.
 
 	} ## End of pre_pkg_setup function.
 
 fi ## End of setup phase.
-
-## Define appropriate ebuild function to apply ehooks.
-case ${EBUILD_PHASE} in
-	unpack)
-		[[ ${EHOOKS_SOURCE[@]} == *"pre_src_unpack"* ]] \
-			&& pre_src_unpack() {
-				__ehooks_apply
-			}
-		[[ ${EHOOKS_SOURCE[@]} == *"post_src_unpack"* ]] \
-			&& post_src_unpack() {
-				__ehooks_apply
-			}
-		;;
-	prepare)
-		[[ ${EHOOKS_SOURCE[@]} == *"pre_src_prepare"* ]] \
-			&& pre_src_prepare() {
-				__ehooks_apply
-			}
-		[[ ${EHOOKS_SOURCE[@]} == *"post_src_prepare"* ]] \
-			&& post_src_prepare() {
-				__ehooks_apply
-			}
-		;;
-	configure)
-		[[ ${EHOOKS_SOURCE[@]} == *"pre_src_configure"* ]] \
-			&& pre_src_configure() {
-				__ehooks_apply
-			}
-		[[ ${EHOOKS_SOURCE[@]} == *"post_src_configure"* ]] \
-			&& post_src_configure() {
-				__ehooks_apply
-			}
-		;;
-	compile)
-		[[ ${EHOOKS_SOURCE[@]} == *"pre_src_compile"* ]] \
-			&& pre_src_compile() {
-				__ehooks_apply
-			}
-		[[ ${EHOOKS_SOURCE[@]} == *"post_src_compile"* ]] \
-			&& post_src_compile() {
-				__ehooks_apply
-			}
-		;;
-	install)
-		[[ ${EHOOKS_SOURCE[@]} == *"pre_src_install"* ]] \
-			&& pre_src_install() {
-				__ehooks_apply
-			}
-		[[ ${EHOOKS_SOURCE[@]} == *"post_src_install"* ]] \
-			&& post_src_install() {
-				__ehooks_apply
-			}
-		;;
-	preinst)
-		[[ ${EHOOKS_SOURCE[@]} == *"pre_pkg_preinst"* ]] \
-			&& pre_pkg_preinst() {
-				__ehooks_apply
-			}
-		[[ ${EHOOKS_SOURCE[@]} == *"post_pkg_preinst"* ]] \
-			&& post_pkg_preinst() {
-				__ehooks_apply
-			}
-		;;
-	postinst)
-		[[ ${EHOOKS_SOURCE[@]} == *"pre_pkg_postinst"* ]] \
-			&& pre_pkg_postinst() {
-				__ehooks_apply
-			}
-		[[ ${EHOOKS_SOURCE[@]} == *"post_pkg_postinst"* ]] \
-			&& post_pkg_postinst() {
-				__ehooks_apply
-			}
-		;;
-esac
 ## End of ehooks patching system.

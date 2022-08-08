@@ -30,7 +30,7 @@ get_subdirs() {
 }
 
 get_repo_root() {
-	echo $(/usr/bin/portageq get_repo_path / gentoo-unity7)
+	echo $(portageq get_repo_path / gentoo-unity7)
 }
 
 get_ehooks_subdirs() {
@@ -270,7 +270,7 @@ portage_updates() {
 	printf "%s" "Looking for gentoo main portage updates${color_blink}...${color_norm}"
 
 	local \
-		main_repo="$(/usr/bin/portageq get_repo_path / gentoo)" \
+		main_repo="$(portageq get_repo_path / gentoo)" \
 		new_pkg old_pkg x y
 
 	[[ -z $1 ]] && x="${PWD}" || x="$1"

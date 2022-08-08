@@ -79,7 +79,7 @@ einstalldocs() {
 ubuntu-versionator_pkg_setup() {
 	debug-print-function ${FUNCNAME} "$@"
 
-	[[ -n ${CURRENT_PROFILE} ]] && [[ ${CURRENT_PROFILE} == *"${REPO_ROOT}"* ]] \
+	[[ "$(readlink /etc/portage/make.profile)" == *"gentoo-unity7"* ]] \
 		|| die "Invalid profile detected, please select gentoo-unity7 profile shown in 'eselect profile list'."
 
 	declare -F python-single-r1_pkg_setup 1>/dev/null && python-single-r1_pkg_setup

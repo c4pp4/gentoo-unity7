@@ -89,7 +89,7 @@
   }
   ```
 
-  - it's possible to use any [ebuild function⬀][efnc]
+  - it's possible to use any [ebuild function⬀][efn]
 
   - **templates** are in [gentoo-unity7/profiles/ehooks/templates][templates] directory
 
@@ -159,8 +159,8 @@
      `ln -s ../../templates/patches.template 02-pre_src_prepare.ehooks`
 
 [//]: # (LINKS)
-[code]: ../profiles/amd64/17.1/desktop/unity/profile.bashrc#L15
-[efnc]: https://devmanual.gentoo.org/function-reference/index.html
+[code]: ../profiles/amd64/17.1/desktop/unity/profile.bashrc
+[efn]: https://devmanual.gentoo.org/function-reference/index.html
 [ehooks]: ../profiles/ehooks
 [env]: ../profiles/env/ehooks-network
 [gnome-session]: ../profiles/ehooks/gnome-base/gnome-session
