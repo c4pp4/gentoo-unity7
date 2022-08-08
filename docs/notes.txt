@@ -41,10 +41,7 @@ gnome-base/gconf			# Install 'update-gconf-defaults' script - Ubuntu's gconf upd
 					#  0001-Support-s-to-as-migrations-v2.patch
 					#  call-dbus_g_thread_init.patch
 					#  reduce-polling.patch
-gnome-base/gnome-desktop		# Adjust background color detection for Unity
-					#  Ubuntu patchset:
-					#  04_compute_average_color.patch
-					#  tweak_color_computation.patch
+gnome-base/gnome-desktop:3		# Adjust background color detection for Unity (04_compute_average_color.patch, tweak_color_computation.patch)
 gnome-base/gnome-menus			# Needed for some menu patches
 					#  Ubuntu patchset:
 					#  04_fix-other.patch
@@ -92,11 +89,8 @@ media-gfx/shotwell			# Patched for integration with Unity online accounts
 media-plugins/audacious-plugins		# Unity Shortcuts Plugin (former GNOME Shortcuts Plugin)
 media-sound/audacious			# Install GTK version as well
 media-sound/audacity			# Fix Exec command to use Unity menubar properly
-media-sound/rhythmbox			# Patched for indicator-sound support, fix using multimedia key shortcuts, add menu quicklist
+media-sound/rhythmbox			# Patched for indicator-sound support, add Unity MediaKeys plugin, add menu quicklist
 					#  Ubuntu patchset:
-					#  Fix-broken-application-icon-in-About-dialog.patch
-					#  update-app-icon-name.patch
-					#  mpris-Make-the-plugin-builtin.patch
 					#  05_hide_on_quit.patch
 					#  07_quicklists.patch
 					#  08_stop_quit.patch
@@ -125,7 +119,7 @@ sys-apps/accountsservice		# Requires patching for SetInputSources as needed by u
 sys-auth/polkit-pkla-compat		# Fix localstatedir path (/var/lib)
 www-client/chromium			# Required to support Unity Launcher icon effects (no duplicate icons, quicklist menu, progress bar, window title bar fixes etc.)
 www-client/firefox			# Latest version, add Unity menubar and desktop launcher with quicklist and translations
-www-client/firefox-91			# ESR version, add Unity menubar and desktop launcher with quicklist and translations
+www-client/firefox:esr			# ESR version, add Unity menubar and desktop launcher with quicklist and translations
 www-client/firefox-bin			# Add desktop launcher with quicklist and translations
 x11-libs/gtk+:2				# Support for dynamically loading overlay scrollbars, have the local menubars hidding under unity in favor of the unity ones
 					#  Ubuntu patchset:

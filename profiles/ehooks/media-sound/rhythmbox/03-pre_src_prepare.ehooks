@@ -1,0 +1,3 @@
+ehooks() {
+	sed -i "s/_Name/Name/" data/org.gnome.Rhythmbox3.desktop.in.in
+}

@@ -1,3 +1,0 @@
-ehooks() {
-	AT_NOELIBTOOLIZE="yes" eautoreconf
-}

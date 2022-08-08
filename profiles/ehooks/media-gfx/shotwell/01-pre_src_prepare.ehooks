@@ -1,4 +1,0 @@
-ehooks() {
-	# Don't check for gdk-wayland if not enabled #
-	portageq has_version / x11-libs/gtk+:3[wayland] || eapply "${EHOOKS_FILESDIR}"/remove-gdk-wayland-dependency.patch
-}
