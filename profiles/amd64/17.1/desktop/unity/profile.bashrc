@@ -1,5 +1,7 @@
 ## ehooks patching system.
 if [[ ${EBUILD_PHASE} == "setup" ]]; then
+	REPO_ROOT="$(portageq get_repo_path / gentoo-unity7)"
+
 	local -a EHOOKS_SOURCE=()
 
 	## Define function to look for ehooks in setup phase.
@@ -7,7 +9,7 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 
 	local \
 		pkg \
-		basedir="$(portageq get_repo_path / gentoo-unity7)"/profiles/ehooks
+		basedir="${REPO_ROOT}"/profiles/ehooks
 
 	for pkg in ${CATEGORY}/{${P}-${PR},${P},${P%.*},${P%.*.*},${PN}}{:${SLOT%/*},}; do
 		if [[ -d ${EHOOKS_PATH:=${basedir}}/${pkg} ]]; then
