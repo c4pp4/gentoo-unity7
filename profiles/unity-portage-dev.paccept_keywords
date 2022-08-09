@@ -2,6 +2,8 @@
 dev-libs/dee **
 dev-libs/libcolumbus **
 dev-libs/properties-cpp **
+unity-base/unity-control-center **
 unity-base/unity-language-pack **
 unity-extra/diodon **
+unity-indicators/indicator-keyboard **
 x11-themes/yaru-theme **
