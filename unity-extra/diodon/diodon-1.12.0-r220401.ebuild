@@ -6,7 +6,7 @@ EAPI=8
 UVER=
 UREV=1
 
-inherit meson ubuntu-versionator vala xdg
+inherit meson vala xdg ubuntu-versionator
 
 DESCRIPTION="GTK+ Clipboard manager"
 HOMEPAGE="https://launchpad.net/diodon"

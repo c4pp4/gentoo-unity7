@@ -87,6 +87,7 @@ src_install() {
 	# Install bamf-2.index creation script #
 	#  Run at postinst of *.desktop files from ubuntu-versionator.eclass #
 	#  bamf-index-create only indexes *.desktop files in /usr/share/applications #
+	sed -i "s/Rebuilding/>>> Rebuilding/" debian/bamfdaemon.postinst || die
 	exeinto /usr/bin
 	newexe debian/bamfdaemon.postinst bamf-index-create
 

@@ -155,8 +155,5 @@ ubuntu-versionator_pkg_postinst() {
 		xdg_pkg_postinst
 	fi
 
-	if [[ -x /usr/bin/bamf-index-create ]]; then
-		einfo "Checking bamf-2.index"
-		/usr/bin/bamf-index-create triggered
-	fi
+	[[ -x $(type -p bamf-index-create) ]] && bamf-index-create triggered
 }
