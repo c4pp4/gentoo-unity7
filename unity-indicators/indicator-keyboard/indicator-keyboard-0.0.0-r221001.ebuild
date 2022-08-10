@@ -49,7 +49,7 @@ DEPEND="${COMMON_DEPEND}
 	$(vala_depend)
 "
 
-S="${WORKDIR}"
+S="${S}${UVER}"
 
 PATCHES=( "${FILESDIR}"/"${PN}"-optional-fcitx.patch )
 
@@ -59,9 +59,7 @@ src_prepare() {
 		lib/indicator-menu.vala || die )
 
 	# Disable tests #
-	sed -i \
-		-e "s/ tests//" \
-		Makefile.am || die
+	sed -i "s/ tests//" Makefile.am || die
 
 	ubuntu-versionator_src_prepare
 }

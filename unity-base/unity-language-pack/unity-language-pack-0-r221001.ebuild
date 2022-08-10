@@ -189,6 +189,10 @@ BDEPEND="sys-devel/gettext"
 S="${WORKDIR}"
 
 src_install() {
+	# Documentation
+	mv language-pack-en-base/COPYING .
+	default
+
 	# sharing panel msgids
 	local -a sh_msgids=(
 		"No networks selected for sharing"

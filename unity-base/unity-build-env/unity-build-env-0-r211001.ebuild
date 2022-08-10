@@ -41,10 +41,12 @@ src_install() {
 pkg_postinst() {
 	ubuntu-versionator_pkg_postinst
 
+	if use dev; then
+		echo
+		ewarn "Overlay development packages unmasked. Continue if you really know how broken development packages could be."
+	fi
+
 	echo
-
-	use dev && ewarn "Overlay missing keyword unmasking has been detected. Continue if you really know how broken development packages could be." && echo
-
 	elog "If you have recently changed USE flag or set profile then you should re-run 'emerge -avuDU --with-bdeps=y @world' to catch any updates."
 	echo
 }
