@@ -101,7 +101,13 @@ update_packages() {
 					upstr_ver=$(grep -A 4 -- "^Package: ${fixname}$" /tmp/gentoo-unity7-${USER}-sources-${rp}-${frls} | grep "Version: " | cut -d " " -f 2)
 					if [[ -n ${upstr_ver} ]]; then
 						[[ ${rls} == ${stable} ]] && pattern="^KEYWORDS=" || pattern="^#KEYWORDS="
-						filename=$(grep -H -- "${pattern}" ${pkg}/*.ebuild | cut -d ":" -f 1)
+						if [[ ${pkg} == "dev-libs/libindicator" ]]; then
+							filename=$(grep -H -- "${pattern}" ${pkg}/*r2*.ebuild | cut -d ":" -f 1)
+							[[ ${filename} == *".ebuild"*".ebuild"* ]] \
+								|| filename=$(grep -H -- "${pattern}" ${pkg}/*r3*.ebuild | cut -d ":" -f 1)
+						else
+							filename=$(grep -H -- "${pattern}" ${pkg}/*.ebuild | cut -d ":" -f 1)
+						fi
 						if [[ ${filename} == *".ebuild"*".ebuild"* ]]; then
 							printf "\b\b%s\n\n" "... error!"
 							[[ ${rls} == ${stable} ]] \
