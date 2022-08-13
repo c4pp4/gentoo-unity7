@@ -18,6 +18,7 @@ ehooks() {
 		$(use_enable bs2b)
 		$(use_enable cdda cdaudio)
 		$(use_enable cue)
+		$(use_enable ffmpeg ffaudio)
 		$(use_enable flac)
 		$(use_enable flac filewriter)
 		$(use_enable fluidsynth amidiplug)
@@ -44,7 +45,6 @@ ehooks() {
 		$(use_enable streamtuner)
 		$(use_enable vorbis)
 		$(use_enable wavpack)
-		$(use_with ffmpeg ffmpeg ffmpeg)
 	)
 	econf "${myeconfargs[@]}"
 }
