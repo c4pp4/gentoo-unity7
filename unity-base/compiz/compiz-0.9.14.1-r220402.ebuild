@@ -155,7 +155,7 @@ src_install() {
 
 	python_optimize
 
-	local CMAKE_DIR=$(cmake --system-information | grep "^CMAKE_ROOT " | sed -e 's/.*"\(.*\)"/\1/')
+	local CMAKE_DIR=$(cmake --system-information | grep "^CMAKE_ROOT " | cut -d '"' -f 2)
 	insinto "${CMAKE_DIR}"/Modules
 	doins cmake/FindCompiz.cmake
 	doins cmake/FindOpenGLES2.cmake

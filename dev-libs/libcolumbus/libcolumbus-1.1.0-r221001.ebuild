@@ -14,7 +14,7 @@ HOMEPAGE="https://launchpad.net/libcolumbus"
 SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 
 LICENSE="LGPL-3"
-SLOT="0/${PV}"
+SLOT="0/${UVER}-${UREV}"
 #KEYWORDS="~amd64"
 IUSE="coverage debug +pch test"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"

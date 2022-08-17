@@ -104,8 +104,8 @@ S="${WORKDIR}/${PN}"
 
 PATCHES=(
 	"${FILESDIR}"/add-unity-version-xml.patch
+	"${FILESDIR}"/adjust-broken-app-preview.patch
 	"${FILESDIR}"/nemo-support.patch
-	"${FILESDIR}"/unity-7.6-backports.diff
 )
 
 src_prepare() {
@@ -121,7 +121,10 @@ src_prepare() {
 		sed -i '/#include <NuxCore\/Property.h>/a #include <vector>' unity-shared/ThemeSettings.h || die
 	fi
 
-	use systray && eapply "${FILESDIR}/show-all-in-systray.diff" # see https://launchpad.net/bugs/974480 #
+	# see https://launchpad.net/bugs/974480 #
+	use systray && ( sed -i \
+		-e "s/bool accept = FilterTray(title.Str(), res_name.Str(), res_class.Str());/bool accept = true;/" \
+		panel/PanelTray.cpp || die )
 
 	# Setup Unity side launcher default applications #
 	sed -i \
@@ -196,6 +199,11 @@ src_prepare() {
 	sed -i \
 		-e "s:/usr/lib/:/usr/$(get_libdir)/:" \
 		tools/compiz-profile-selector.in || die
+
+	# Replace deprecated function with recommended one #
+	sed -i \
+		-e "s/gtk_show_uri/gtk_show_uri_on_window/" \
+		dash/DashView.cpp || die
 
 	python_fix_shebang tools
 

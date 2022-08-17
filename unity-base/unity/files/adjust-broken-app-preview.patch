@@ -1,19 +1,20 @@
-diff -Nur a/dash/DashView.cpp b/dash/DashView.cpp
---- a/dash/DashView.cpp	2021-10-26 19:33:29.000000000 +0200
-+++ b/dash/DashView.cpp	2022-05-22 02:02:07.372972910 +0200
-@@ -1420,7 +1420,7 @@
-     return application_starter_->Launch(appname, last_activated_timestamp_);
-   }
-   else
--    return gtk_show_uri(NULL, uri.c_str(), last_activated_timestamp_, NULL);
-+    return gtk_show_uri_on_window(NULL, uri.c_str(), last_activated_timestamp_, NULL);
- 
-   return false;
- }
-diff -Nur a/dash/previews/ApplicationPreview.cpp b/dash/previews/ApplicationPreview.cpp
---- a/dash/previews/ApplicationPreview.cpp	2021-10-26 19:33:29.000000000 +0200
-+++ b/dash/previews/ApplicationPreview.cpp	2022-05-22 02:06:18.281117369 +0200
-@@ -161,19 +161,6 @@
+From dae7816e6ce1a3f99b4f2de328ee4200da861626 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Wed, 17 Aug 2022 16:52:59 +0200
+Subject: [PATCH 1/1] Adjust broken app preview (right click in the Dash)
+
+Taken from https://gitlab.com/ubuntu-unity/unity/unity/-/commit/e7c90e4fad47878161fa9ba4a2aedacada624c1b#1ed5cd0ca0193cb91961b47adcd71e8f9a49c248
+
+Signed-off-by: c4pp4
+---
+ dash/previews/ApplicationPreview.cpp | 50 +---------------------------
+ 1 file changed, 1 insertion(+), 49 deletions(-)
+
+diff --git a/dash/previews/ApplicationPreview.cpp b/dash/previews/ApplicationPreview.cpp
+index 19d5172..51baf5f 100644
+--- a/dash/previews/ApplicationPreview.cpp
++++ b/dash/previews/ApplicationPreview.cpp
+@@ -161,19 +161,6 @@ void ApplicationPreview::SetupViews()
          app_icon_->mouse_click.connect(on_mouse_down);
          icon_layout_->AddView(app_icon_.GetPointer(), 0);
  
@@ -33,7 +34,7 @@ diff -Nur a/dash/previews/ApplicationPreview.cpp b/dash/previews/ApplicationPrev
          /////////////////////
  
          /////////////////////
-@@ -192,6 +179,7 @@
+@@ -192,6 +179,7 @@ void ApplicationPreview::SetupViews()
          title_->SetFont(style.title_font().c_str());
          title_->mouse_click.connect(on_mouse_down);
          title_subtitle_layout_->AddView(title_.GetPointer(), 1);
@@ -41,7 +42,7 @@ diff -Nur a/dash/previews/ApplicationPreview.cpp b/dash/previews/ApplicationPrev
  
          if (!preview_model_->subtitle.Get().empty())
          {
-@@ -207,41 +195,6 @@
+@@ -207,41 +195,6 @@ void ApplicationPreview::SetupViews()
          app_updated_copywrite_layout_ = new nux::VLayout();
          app_updated_copywrite_layout_->SetSpaceBetweenChildren(COPYRIGHT_SPACE_CHILDREN.CP(scale));
  
@@ -83,7 +84,7 @@ diff -Nur a/dash/previews/ApplicationPreview.cpp b/dash/previews/ApplicationPrev
          app_data_layout_->AddLayout(title_subtitle_layout_);
          app_data_layout_->AddLayout(app_updated_copywrite_layout_);
  
-@@ -297,7 +250,6 @@
+@@ -297,7 +250,6 @@ void ApplicationPreview::SetupViews()
      full_data_layout_->AddLayout(actions_layout_, 0);
      /////////////////////
  
@@ -91,3 +92,6 @@ diff -Nur a/dash/previews/ApplicationPreview.cpp b/dash/previews/ApplicationPrev
    image_data_layout_->AddLayout(full_data_layout_, 1);
  
    mouse_click.connect(on_mouse_down);
+-- 
+2.35.1
+
