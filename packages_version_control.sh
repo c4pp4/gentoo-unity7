@@ -94,6 +94,9 @@ update_packages() {
 						indicator-psensor)
 							fixname="psensor"
 							;;
+						nemo-engrampa)
+							fixname="nemo-fileroller"
+							;;
 						*)
 							fixname=${name}
 							;;
