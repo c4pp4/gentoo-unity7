@@ -37,7 +37,6 @@ RDEPEND="${COMMON_DEPEND}
 "
 DEPEND="${COMMON_DEPEND}
 	dev-libs/libappindicator:3
-	>=dev-libs/libindicator-0.4.90:3
 	gnome-base/gnome-common
 	>=unity-indicators/indicator-application-0.4.90
 "
