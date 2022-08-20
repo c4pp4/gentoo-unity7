@@ -2,6 +2,9 @@
 dev-libs/dee **
 dev-libs/libcolumbus **
 dev-libs/properties-cpp **
+gnome-extra/nemo-engrampa **
+unity-base/compiz **
+unity-base/unity **
 unity-base/unity-control-center **
 unity-base/unity-language-pack **
 unity-extra/diodon **

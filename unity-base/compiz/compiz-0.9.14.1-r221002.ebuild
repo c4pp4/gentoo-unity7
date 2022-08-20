@@ -4,7 +4,7 @@
 EAPI=8
 PYTHON_COMPAT=( python3_{8..10} )
 
-UVER=+22.10.20220815.3
+UVER=+22.10.20220817
 UREV=0ubuntu1
 
 inherit gnome2 cmake python-single-r1 ubuntu-versionator
