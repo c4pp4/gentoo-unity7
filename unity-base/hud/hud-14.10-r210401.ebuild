@@ -110,8 +110,8 @@ src_configure() {
 		-DENABLE_BAMF=ON
 		-DENABLE_DOCUMENTATION=$(usex doc ON OFF)
 		-DENABLE_TESTS=$(usex test ON OFF)
-		-DVALA_COMPILER=$(type -P valac-${VALA_MIN_API_VERSION})
-		-DVAPI_GEN=$(type -P vapigen-${VALA_MIN_API_VERSION})
+		-DVALA_COMPILER=${VALAC}
+		-DVAPI_GEN=${VAPIGEN}
 		-Wno-dev
 	)
 	cmake_src_configure
