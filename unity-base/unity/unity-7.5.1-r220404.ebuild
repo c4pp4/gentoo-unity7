@@ -159,15 +159,6 @@ src_prepare() {
 		-e 's:boost/utility.hpp:boost/next_prior.hpp:g' \
 		launcher/FavoriteStorePrivate.cpp || die
 
-	# 'After=graphical-session-pre.target' must be explicitly set in the unit files that require it #
-	# Relying on the upstart job /usr/share/upstart/systemd-session/upstart/systemd-graphical-session.conf #
-	#	to create "$XDG_RUNTIME_DIR/systemd/user/${unit}.d/graphical-session-pre.conf" drop-in units #
-	#	results in weird race problems on desktop logout where the reliant desktop services #
-	#	stop in a different jumbled order each time #
-	sed -i \
-		-e 's:After=\(unity-settings-daemon.service\):After=graphical-session-pre.target gnome-session.service bamfdaemon.service \1:' \
-		data/unity7.service.in || die
-
 	# Apps launched from u-c-c need GTK_MODULES environment variable with unity-gtk-module value #
 	#	to use unity global/titlebar menu. Disable unity-gtk-module.service as it only sets #
 	#	dbus/systemd environment variable. We are providing xinit.d script to set GTK_MODULES #
@@ -289,9 +280,13 @@ pkg_postinst() {
 	elog "add the following to the top of your ~/.xinitrc file"
 	elog "to ensure all needed services are started:"
 	elog
-	elog 'XSESSION=unity'
+	elog '#!/bin/sh'
+	elog
+	elog 'export XSESSION=unity'
+	elog 'export XDG_CURRENT_DESKTOP=Unity:Unity7'
+	elog
 	elog 'if [ -d /etc/X11/xinit/xinitrc.d ] ; then'
-	elog '    for f in /etc/X11/xinit/xinitrc.d/* ; do'
+	elog '    for f in /etc/X11/xinit/xinitrc.d/?* ; do'
 	elog '        [ -x "$f" ] && . "$f"'
 	elog '    done'
 	elog '    unset f'

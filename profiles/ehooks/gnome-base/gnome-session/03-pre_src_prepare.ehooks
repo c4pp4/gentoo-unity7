@@ -1,4 +1,6 @@
 ehooks() {
+	sed -i "s/:ubuntu//" data/unity{,.session}.desktop.in.in || die
+
 	# Disable all language files as they can be incomplete #
 	#  due to being provided by Ubuntu's language-pack packages #
 	> po/LINGUAS

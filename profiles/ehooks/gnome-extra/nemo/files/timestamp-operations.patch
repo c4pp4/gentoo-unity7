@@ -1,6 +1,6 @@
-From 7a06c1c336ae7af7f2eb0882e407e8104c9c3026 Mon Sep 17 00:00:00 2001
+From 06965265c4f5b959180e188919b7078bce7a3a6e Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Thu, 30 Jun 2022 22:22:51 +0200
+Date: Thu, 1 Sep 2022 04:30:37 +0200
 Subject: [PATCH 1/1] Add *WithTimestamp dbus methods for file operations
 
 Operations that might trigger a dialog, that should be presented with event time.
@@ -17,7 +17,8 @@ Signed-off-by: c4pp4
  libnemo-private/nemo-file-operations.c | 31 +++++++++
  libnemo-private/nemo-file-operations.h |  9 +++
  src/nemo-application.c                 | 32 ++++++++++
- 6 files changed, 147 insertions(+), 25 deletions(-)
+ src/nemo-main-application.c            |  3 -
+ 7 files changed, 147 insertions(+), 28 deletions(-)
 
 diff --git a/data/dbus-interfaces.xml b/data/dbus-interfaces.xml
 index bd8388f..a4ed3e1 100644
@@ -386,6 +387,34 @@ index ecf4384..663dd25 100644
      application_class->quit_mainloop = nemo_application_quit_mainloop;
  
      gtkapp_class = GTK_APPLICATION_CLASS (class);
+diff --git a/src/nemo-main-application.c b/src/nemo-main-application.c
+index b9834ec..1b7c190 100644
+--- a/src/nemo-main-application.c
++++ b/src/nemo-main-application.c
+@@ -102,7 +102,6 @@ G_DEFINE_TYPE (NemoMainApplication, nemo_main_application, NEMO_TYPE_APPLICATION
+ struct _NemoMainApplicationPriv {
+ 	GVolumeMonitor *volume_monitor;
+ 
+-	NemoDBusManager *dbus_manager;
+ 	NemoFreedesktopDBus *fdb_manager;
+ 
+ 	gchar *geometry;
+@@ -567,7 +566,6 @@ nemo_main_application_finalize (GObject *object)
+     g_clear_object (&application->priv->volume_monitor);
+     g_free (application->priv->geometry);
+ 
+-    g_clear_object (&application->priv->dbus_manager);
+     g_clear_object (&application->priv->fdb_manager);
+ 
+     free_search_helpers ();
+@@ -887,7 +885,6 @@ nemo_main_application_continue_startup (NemoApplication *app)
+ 	NemoMainApplication *self = NEMO_MAIN_APPLICATION (app);
+ 
+ 	/* create DBus manager */
+-	self->priv->dbus_manager = nemo_dbus_manager_new ();
+ 	self->priv->fdb_manager = nemo_freedesktop_dbus_new ();
+ 
+     /* Check the user's ~/.config/nemo directory and post warnings
 -- 
 2.35.1
 

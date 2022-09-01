@@ -1,0 +1,5 @@
+ehooks() {
+	sed -i \
+		-e 's/\(\[ -n "$dbuslaunch" ]\)/[ "$DESKTOP_SESSION" != "unity" ] \&\& \1/' \
+		"${ED}"/etc/X11/xinit/xinitrc.d/80-dbus || die
+}

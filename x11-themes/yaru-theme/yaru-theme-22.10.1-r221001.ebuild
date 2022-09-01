@@ -3,15 +3,14 @@
 
 EAPI=8
 
-UVER=+dfsg
-UREV=2
+UVER=
+UREV=
 
 inherit meson xdg ubuntu-versionator
 
 DESCRIPTION="Yaru icon theme from the Ubuntu Community"
 HOMEPAGE="https://discourse.ubuntu.com/c/desktop/theme-refresh/18"
-SRC_URI="${UURL}.orig.tar.xz
-	${UURL}-${UREV}.debian.tar.xz"
+SRC_URI="${UURL}.tar.xz"
 
 LICENSE="CC-BY-SA-4.0 GPL-3 LGPL-2.1 LGPL-3"
 SLOT="0"

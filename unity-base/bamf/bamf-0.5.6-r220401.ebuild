@@ -46,25 +46,6 @@ DEPEND="${COMMON_DEPEND}
 
 S="${WORKDIR}"
 
-src_prepare() {
-	#  'After=graphical-session-pre.target' must be explicitly set in the unit files that require it #
-	#  Relying on the upstart job /usr/share/upstart/systemd-session/upstart/systemd-graphical-session.conf #
-	#       to create "$XDG_RUNTIME_DIR/systemd/user/${unit}.d/graphical-session-pre.conf" drop-in units #
-	#       results in weird race problems on desktop logout where the reliant desktop services #
-	#       stop in a different jumbled order each time #
-	sed -i \
-		-e '/PartOf=/i After=graphical-session-pre.target' \
-		data/bamfdaemon.service.in || die
-
-	# Remove 'Restart=on-failure' and instead bind to unity7.service so as not to create false fail triggers for both services #
-	sed -i \
-		-e 's:Restart=on-failure::g' \
-		-e '/PartOf=/a BindsTo=unity7.service' \
-		data/bamfdaemon.service.in || die
-
-	ubuntu-versionator_src_prepare
-}
-
 src_configure() {
 	local myeconfargs=(
 		--disable-static

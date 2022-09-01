@@ -38,6 +38,7 @@ RDEPEND="${COMMON_DEPEND}
 	unity-indicators/indicator-keyboard
 	unity-indicators/indicator-session
 	x11-apps/xhost
+	x11-apps/xrandr
 	>=x11-libs/cairo-1.10.0[glib]
 	>=x11-libs/gdk-pixbuf-2.22.0:2
 	x11-libs/libX11

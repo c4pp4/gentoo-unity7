@@ -91,19 +91,16 @@ BDEPEND=" >=dev-util/intltool-0.37.1"
 S="${WORKDIR}"
 
 PATCHES=(
-	"${FILESDIR}"/01_"${PN}"-optional-color-wacom.patch # Make colord and wacom optional; requires eautoreconf
-	"${FILESDIR}"/02_"${PN}"-2021-optional-pnp-ids.patch # pnp.ids is not provided by >=gnome-base/gnome-desktop-3.21.4; use udev's hwdb to query PNP IDs instead
+	"${FILESDIR}"/optional-colord-and-wacom.patch
 	"${FILESDIR}"/remove-nautilus-support.patch
 	"${FILESDIR}"/shortcut-alt-app.patch
 )
 
 src_prepare() {
 	# https://bugzilla.gnome.org/show_bug.cgi?id=621836
-	# Apparently this change severely affects touchpad usability for some
-	# people, so revert it if USE=short-touchpad-timeout.
-	# Revisit if/when upstream adds a setting for customizing the timeout.
-	use short-touchpad-timeout \
-		&& eapply "${FILESDIR}/${PN}-3.7.90-short-touchpad-timeout.patch"
+	use short-touchpad-timeout && ( sed -i \
+		-e "/g_ptr_array_add/{s/1.0/0.5/}" \
+		plugins/mouse/gsd-mouse-manager.c || die )
 
 	# Ensure libunity-settings-daemon.so.1 gets linked to libudev.so #
 	sed -i 's:-lm :-lm -ludev :g' gnome-settings-daemon/Makefile.am || die
@@ -118,15 +115,6 @@ src_prepare() {
 	sed -i \
 		-e 's:/usr/lib/unity-settings-daemon:/usr/libexec:g' \
 		debian/unity-settings-daemon.user-session.{desktop,upstart} \
-		debian/user/unity-settings-daemon.service || die
-
-	#  'After=graphical-session-pre.target' must be explicitly set in the unit files that require it #
-	#  Relying on the upstart job /usr/share/upstart/systemd-session/upstart/systemd-graphical-session.conf #
-	#       to create "$XDG_RUNTIME_DIR/systemd/user/${unit}.d/graphical-session-pre.conf" drop-in units #
-	#       results in weird race problems on desktop logout where the reliant desktop services #
-	#       stop in a different jumbled order each time #
-	sed -i \
-		-e '/PartOf=/i After=graphical-session-pre.target' \
 		debian/user/unity-settings-daemon.service || die
 }
 

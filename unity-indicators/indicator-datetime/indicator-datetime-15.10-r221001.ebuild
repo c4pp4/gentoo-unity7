@@ -4,7 +4,7 @@
 EAPI=8
 
 UVER=+21.04.20210304
-UREV=0ubuntu1
+UREV=0ubuntu3
 
 inherit gnome2 cmake ubuntu-versionator
 
@@ -13,7 +13,7 @@ HOMEPAGE="https://launchpad.net/indicator-datetime"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+#KEYWORDS="~amd64"
 IUSE="coverage +eds test"
 REQUIRED_USE="coverage? ( test )"
 RESTRICT="!test? ( test )"
@@ -25,6 +25,7 @@ COMMON_DEPEND="
 	>=net-libs/libaccounts-glib-1.0:=
 	sys-apps/systemd
 	>=sys-apps/util-linux-2.16
+	>=sys-devel/gcc-11
 	>=sys-libs/glibc-2.14
 	>=unity-base/gsettings-ubuntu-touch-schemas-0.0.7
 	>=unity-indicators/indicator-messages-12.10.6
@@ -36,7 +37,6 @@ COMMON_DEPEND="
 RDEPEND="${COMMON_DEPEND}
 	dev-libs/libindicator:3
 	gnome-base/dconf
-	>=sys-devel/gcc-5.2
 "
 DEPEND="${COMMON_DEPEND}
 	dev-libs/properties-cpp

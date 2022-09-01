@@ -49,6 +49,7 @@ ehooks() {
 	doexe "${S}/debian/data/run-systemd-session"
 
 	# Install systemd unit files to enable starting desktop sessions via systemd #
+	sed -i "s/ --builtin//" "${S}/debian/data/gnome-session.service" || die
 	systemd_douserunit "${S}/debian/data/gnome-session.service"
 	systemd_douserunit "${S}/debian/data/unity-session.target"
 

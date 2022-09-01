@@ -4,7 +4,7 @@
 EAPI=8
 GNOME2_EAUTORECONF="yes"
 
-UVER=+21.10.20220802
+UVER=+21.10.20220829
 UREV=0ubuntu1
 
 inherit gnome2 ubuntu-versionator vala

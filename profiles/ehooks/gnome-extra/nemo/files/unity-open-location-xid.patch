@@ -1,6 +1,6 @@
-From 9bee355bd1137d320ace02263eefd470674ecac1 Mon Sep 17 00:00:00 2001
+From 39295ed601c0ef32fed20654c7245f8619c3b82d Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Tue, 28 Jun 2022 23:02:02 +0200
+Date: Thu, 1 Sep 2022 04:26:32 +0200
 Subject: [PATCH 1/1] Add a new dbus property to the nemo'
 
 "org.freedesktop.FileManager1" dbus interface where it stores the lists of
@@ -12,12 +12,13 @@ Taken from Nautilus patchset (19_unity_open_location_xid.patch).
 Signed-off-by: c4pp4
 ---
  data/freedesktop-dbus-interfaces.xml |   1 +
+ src/nemo-desktop-application.c       |   5 -
  src/nemo-freedesktop-dbus.c          |  13 ++
  src/nemo-freedesktop-dbus.h          |   1 +
  src/nemo-main-application.c          | 178 +++++++++++++++++++++++++++
  src/nemo-window-manage-views.c       |   6 +-
  src/nemo-window-pane.c               |   5 +-
- 6 files changed, 201 insertions(+), 3 deletions(-)
+ 7 files changed, 201 insertions(+), 8 deletions(-)
 
 diff --git a/data/freedesktop-dbus-interfaces.xml b/data/freedesktop-dbus-interfaces.xml
 index 3ebd049..4a51454 100644
@@ -30,6 +31,36 @@ index 3ebd049..4a51454 100644
 +    <property name="XUbuntuOpenLocationsXids" type="a{uas}" access="read"/>
    </interface>
  </node>
+diff --git a/src/nemo-desktop-application.c b/src/nemo-desktop-application.c
+index 7479785..2da4308 100644
+--- a/src/nemo-desktop-application.c
++++ b/src/nemo-desktop-application.c
+@@ -70,7 +70,6 @@ G_DEFINE_TYPE (NemoDesktopApplication, nemo_desktop_application, NEMO_TYPE_APPLI
+ 
+ struct _NemoDesktopApplicationPriv {
+     NemoDesktopManager *desktop_manager;
+-    NemoFreedesktopDBus *fdb_manager;
+ };
+ 
+ static void
+@@ -86,8 +85,6 @@ nemo_desktop_application_finalize (GObject *object)
+ {
+     NemoDesktopApplication *app = NEMO_DESKTOP_APPLICATION (object);
+ 
+-    g_clear_object (&app->priv->fdb_manager);
+-
+     G_OBJECT_CLASS (nemo_desktop_application_parent_class)->finalize (object);
+ }
+ 
+@@ -347,8 +344,6 @@ nemo_desktop_application_continue_startup (NemoApplication *app)
+     nemo_application_check_required_directory (app, nemo_get_desktop_directory ());
+     nemo_application_check_required_directory (app, nemo_get_user_directory ());
+ 
+-    NEMO_DESKTOP_APPLICATION (app)->priv->fdb_manager = nemo_freedesktop_dbus_new ();
+-
+ 	/* register views */
+ 	nemo_desktop_icon_view_register ();
+     nemo_desktop_icon_grid_view_register ();
 diff --git a/src/nemo-freedesktop-dbus.c b/src/nemo-freedesktop-dbus.c
 index 0985c18..c14191d 100644
 --- a/src/nemo-freedesktop-dbus.c
