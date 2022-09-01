@@ -39,12 +39,13 @@ download_sources() {
 	for rls in ${stable} ${dev}; do
 		for frls in "${rls}" "${rls}"-security "${rls}"-updates; do
 			for rp in "${repos[@]}"; do
-				filename="/tmp/gentoo-unity7-${USER}-sources-${rp}-${frls}"
+				filename="/tmp/gentoo-unity7-sources-${rp}-${frls}"
 				[[ -f ${filename} ]] && [[ $(($(date -r "${filename}" "+%s") + 72000)) -gt $(date "+%s") ]] && continue
 				printf "%s" "Downloading ${frls}/${rp} sources${color_blink}...${color_norm}"
 				wget -q -T 60 http://archive.ubuntu.com/ubuntu/dists/${frls}/${rp}/source/Sources.gz -O "${filename}.gz" \
 					&& printf "\b\b\b%s\n" "... done!" \
 					|| printf "\b\b\b%s\n" "... ${color_red}failed!${color_norm}"
+				chmod 666 "${filename}.gz" 2>/dev/null
 				gunzip -qf "${filename}.gz" 2>/dev/null
 				touch "${filename}"
 				ctl=1
@@ -58,8 +59,8 @@ check_sources() {
 	for rls in ${stable} ${dev}; do
 		for frls in "${rls}" "${rls}"-security "${rls}"-updates; do
 			for rp in "${repos[@]}"; do
-				if [[ ! -f /tmp/gentoo-unity7-${USER}-sources-${rp}-${frls} ]]; then
-					echo "/tmp/gentoo-unity7-${USER}-sources-${rp}-${frls}... ${color_red}file not found!${color_norm}"
+				if [[ ! -f /tmp/gentoo-unity7-sources-${rp}-${frls} ]]; then
+					echo "/tmp/gentoo-unity7-sources-${rp}-${frls}... ${color_red}file not found!${color_norm}"
 					ctl=1
 				fi
 			done
@@ -101,7 +102,7 @@ update_packages() {
 							fixname=${name}
 							;;
 					esac
-					upstr_ver=$(grep -A 4 -- "^Package: ${fixname}$" /tmp/gentoo-unity7-${USER}-sources-${rp}-${frls} | grep "Version: " | cut -d " " -f 2)
+					upstr_ver=$(grep -A 4 -- "^Package: ${fixname}$" /tmp/gentoo-unity7-sources-${rp}-${frls} | grep "Version: " | cut -d " " -f 2)
 					if [[ -n ${upstr_ver} ]]; then
 						[[ ${rls} == ${stable} ]] && pattern="^KEYWORDS=" || pattern="^#KEYWORDS="
 						if [[ ${pkg} == "dev-libs/libindicator" ]]; then
@@ -171,7 +172,7 @@ update_scopes() {
 		for rls in ${stable} ${dev}; do
 			for frls in "${rls}" "${rls}"-security "${rls}"-updates; do
 				for rp in ${repos[1]}; do
-					upstr_ver=$(grep -A 4 "^Package: ${name}$" /tmp/gentoo-unity7-${USER}-sources-${rp}-${frls} | grep "Version: " | cut -d " " -f 2)
+					upstr_ver=$(grep -A 4 "^Package: ${name}$" /tmp/gentoo-unity7-sources-${rp}-${frls} | grep "Version: " | cut -d " " -f 2)
 					upstr_ver="${upstr_ver#*:}"
 					if [[ -n ${upstr_ver} ]]; then
 						[[ ${rls} == ${stable} ]] && pattern="^KEYWORDS=" || pattern="^#KEYWORDS="
@@ -240,8 +241,8 @@ update_languages() {
 		for rls in ${stable} ${dev}; do
 			for frls in "${rls}" "${rls}"-security "${rls}"-updates; do
 				for rp in ${repos[0]}; do
-					upstr_ver=$(grep -A 4 "^Package: ${name/-gnome}$" /tmp/gentoo-unity7-${USER}-sources-${rp}-${frls} | grep "Version: " | cut -d " " -f 2)
-					upstr_gver=$(grep -A 4 "^Package: ${name}$" /tmp/gentoo-unity7-${USER}-sources-${rp}-${frls} | grep "Version: " | cut -d " " -f 2)
+					upstr_ver=$(grep -A 4 "^Package: ${name/-gnome}$" /tmp/gentoo-unity7-sources-${rp}-${frls} | grep "Version: " | cut -d " " -f 2)
+					upstr_gver=$(grep -A 4 "^Package: ${name}$" /tmp/gentoo-unity7-sources-${rp}-${frls} | grep "Version: " | cut -d " " -f 2)
 					upstr_ver="${upstr_ver#*:}"; upstr_gver="${upstr_gver#*:}"
 					if [[ -n ${upstr_ver} || -n ${upstr_gver} ]]; then
 						[[ ${rls} == ${stable} ]] && pattern="^KEYWORDS=" || pattern="^#KEYWORDS="
