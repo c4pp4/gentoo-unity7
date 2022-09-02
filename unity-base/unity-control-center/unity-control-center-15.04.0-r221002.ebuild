@@ -101,7 +101,7 @@ S="${S}${UVER}"
 
 PATCHES=(
 	"${FILESDIR}"/01_"${PN}"-2019-langselector.patch # Based on g-c-c v3.24 Region & Language panel
-	"${FILESDIR}"/02_"${PN}"-2020-optional-bt-colord-kerberos-wacom-webkit.patch
+	"${FILESDIR}"/02_"${PN}"-2022-optional-bt-colord-kerberos-wacom-webkit.patch
 )
 
 src_prepare() {
