@@ -27,7 +27,7 @@ RDEPEND="
 DEPEND="
 	dev-python/pygobject:3
 	gnome-base/librsvg
-	x11-themes/yaru-unity7
+	x11-themes/yaru-theme[unity]
 
 	optimize? (
 		>=media-gfx/scour-0.36
@@ -85,8 +85,8 @@ src_install() {
 	find -L "${ED}" -type l -delete
 
 	## Add gtk4 theme from yaru-unity7 ##
-	dosym -r /usr/share/themes/Yaru-unity-dark/gtk-4.0 /usr/share/themes/Ambiance/gtk-4.0
-	dosym -r /usr/share/themes/Yaru-unity/gtk-4.0 /usr/share/themes/Radiance/gtk-4.0
+	dosym -r /usr/share/themes/Yaru-dark/gtk-4.0 /usr/share/themes/Ambiance/gtk-4.0
+	dosym -r /usr/share/themes/Yaru/gtk-4.0 /usr/share/themes/Radiance/gtk-4.0
 
 	einstalldocs
 }
