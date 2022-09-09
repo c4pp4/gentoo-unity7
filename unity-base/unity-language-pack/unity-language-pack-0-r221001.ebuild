@@ -148,11 +148,11 @@ setvar yo		14.04+20150804 14.04+20150804
 setvar zh-CN		22.10+20220618 22.10+20220618 zh-hans
 setvar zh-TW		22.10+20220618 22.10+20220618 zh-hant
 setvar zu		14.04+20150804 14.04+20150804
-# Add new line and launch './packages_version_control.sh -l' #
+# Add a new line and launch './packages_version_control.sh -l' #
 #setvar [xy]		none none
 
 # Only valid IETF language tags that are listed in #
-# /usr/portage/profiles/desc/l10n.desc are supported: #
+# $(portageq get_repo_path / gentoo)/profiles/desc/l10n.desc are supported: #
 MY_L10N="af am an ar as ast az be bg bn bo br bs ca ca-valencia ckb cs
 cy da de dv dz el en en-AU en-CA en-GB eo es et eu fa ff fi fil fo fr
 fur fy ga gd gl gu he hi hr ht hu hy ia id is it ja ka kab kk km kn ko

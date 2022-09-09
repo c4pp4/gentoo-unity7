@@ -1,4 +1,5 @@
 ## These are packages maintained via ehooks that must be checked before bump ##
+>app-i18n/ibus-1.5.26-r1
 >app-text/evince-42.3
 >dev-libs/glib-2.72.3
 >games-board/iagno-3.38.1

@@ -86,7 +86,7 @@ update_packages() {
 
 		name=${pkg#*/}
 		for rls in ${stable} ${dev}; do
-			for frls in "${rls}" "${rls}"-security "${rls}"-updates; do
+			for frls in "${rls}"-updates "${rls}"-security "${rls}"; do
 				for rp in "${repos[@]}"; do
 					case ${name} in
 						indicator-evolution)
@@ -135,7 +135,7 @@ update_packages() {
 							[[ ${upstr_ver_prev} == ${upstr_ver#*:} ]] && unset upstr_ver
 						fi
 						[[ -z ${lcl_ver} ]] && [[ -z ${upstr_ver} ]] && continue
-						[[ ${lcl_ver} == ${upstr_ver#*:} ]] && continue
+						[[ ${lcl_ver} == ${upstr_ver#*:} ]] && break 2
 						ctl=1
 						tput rc; tput el
 						echo "Overlay:  ${pkg}-${color_yellow}${lcl_ver:-none}${color_norm} (${rls})"

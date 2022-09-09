@@ -4,7 +4,7 @@
 EAPI=8
 GNOME2_EAUTORECONF="yes"
 
-UVER=+21.10.20220829
+UVER=+22.10.20220903.2
 UREV=0ubuntu1
 
 inherit gnome2 ubuntu-versionator vala
@@ -97,7 +97,7 @@ DEPEND="${COMMON_DEPEND}
 BDEPEND=">=dev-util/intltool-0.37.1"
 PDEPEND="bluetooth? ( unity-indicators/indicator-bluetooth )"
 
-S="${S}${UVER}"
+S="${WORKDIR}"
 
 PATCHES=(
 	"${FILESDIR}"/01_"${PN}"-2019-langselector.patch # Based on g-c-c v3.24 Region & Language panel
@@ -127,7 +127,7 @@ src_prepare() {
 		-e "s:gnome/gnome:unity/unity:" \
 		panels/info/cc-info-panel.c || die
 	sed -i \
-		-e "s/UbuntuLogo.png/GnomeLogoVerticalMedium.svg/" \
+		-e "s/UnityLogo.png/GnomeLogoVerticalMedium.svg/" \
 		panels/info/info.ui || die
 
 	# Fix hostname transliteration #
@@ -163,6 +163,15 @@ src_prepare() {
 	sed -i \
 		-e 's/"faces"/"ucc-faces"/' \
 		panels/user-accounts/um-photo-dialog.c || die
+
+	# Add legacy themes #
+	sed -i \
+		-e 's/\(themes_id\[] = {\)/\1 "Adwaita", "Ambiance", "Radiance", "HighContrast",/' \
+		-e 's/\(themes_name\[] = {\)/\1 "Adwaita", "Ambiance", "Radiance", "High Contrast",/' \
+		-e 's/\(colors_id\[] = {\)/\1 "Adwaita", "ubuntu-mono-dark", "ubuntu-mono-light", "HighContrast",/' \
+		-e 's/\(colors_name\[] = {\)/\1 "Adwaita", "Ambiance", "Radiance", "High Contrast",/' \
+		-e "s/prefer-light/default/" \
+		panels/appearance/cc-appearance-panel.c || die
 
 	# Disable all language files as they can be incomplete #
 	#  due to being provided by Ubuntu's language-pack packages #

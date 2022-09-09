@@ -1,0 +1,8 @@
+ehooks() {
+	local \
+		blake=4a459464b5900867475fa4c7e1a07b6701654805312717de9e9dbaf316cd1da4a563f4fedf5666b028db09464d64b8edfe890c5ca5d94ea357ba72296fe3459a \
+		uver=ibus_1.5.26-4
+
+	source "${EHOOKS_PATH}"/templates/fetch_debian.template
+	fetch_debian "${blake}" "${uver}"
+}
