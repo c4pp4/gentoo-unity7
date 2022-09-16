@@ -170,6 +170,8 @@ src_prepare() {
 		-e 's/\(themes_name\[] = {\)/\1 "Adwaita", "Ambiance", "Radiance", "High Contrast",/' \
 		-e 's/\(colors_id\[] = {\)/\1 "Adwaita", "ubuntu-mono-dark", "ubuntu-mono-light", "HighContrast",/' \
 		-e 's/\(colors_name\[] = {\)/\1 "Adwaita", "Ambiance", "Radiance", "High Contrast",/' \
+		-e "/colors_name/{s/Default (Yaru)/Yaru/}" \
+		-e "/colors_name/{s/Default (Yaru-dark)/Yaru-dark/}" \
 		-e "s/prefer-light/default/" \
 		panels/appearance/cc-appearance-panel.c || die
 

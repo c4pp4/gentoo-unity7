@@ -25,7 +25,7 @@ esac
 
 # Set base sane vala version for all packages requiring vala, override
 # in ebuild if or when specific higher/lower versions are needed
-VALA_MIN_API_VERSION=0.54
+VALA_MIN_API_VERSION=0.56
 VALA_MAX_API_VERSION=0.56
 
 # Ubuntu delete superceded release tarballs from their mirrors if the release

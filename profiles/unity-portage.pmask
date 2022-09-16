@@ -2,8 +2,8 @@
 >app-i18n/ibus-1.5.26-r1
 >app-text/evince-42.3
 >dev-libs/glib-2.72.3
->games-board/iagno-3.38.1
->games-puzzle/gnome-taquin-3.38.1
+>games-board/iagno-3.38.1-r1
+>games-puzzle/gnome-taquin-3.38.1-r1
 >gnome-base/dconf-editor-3.38.3
 >gnome-base/gconf-3.2.6-r5
 >gnome-base/gnome-desktop-42.4-r300:3
