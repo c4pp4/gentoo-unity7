@@ -4,7 +4,7 @@
 EAPI=8
 PYTHON_COMPAT=( python3_{8..10} )
 
-UVER=+22.10.20220818
+UVER=+22.10.20220913
 UREV=0ubuntu1
 
 inherit gnome2 cmake pam python-single-r1 systemd ubuntu-versionator
@@ -104,8 +104,7 @@ S="${WORKDIR}/${PN}"
 
 PATCHES=(
 	"${FILESDIR}"/add-unity-version-xml.patch
-	"${FILESDIR}"/adjust-broken-app-preview.patch
-	"${FILESDIR}"/nemo-support.patch
+	"${FILESDIR}"/nemo-support-2022.patch
 )
 
 src_prepare() {
@@ -190,11 +189,6 @@ src_prepare() {
 	sed -i \
 		-e "s:/usr/lib/:/usr/$(get_libdir)/:" \
 		tools/compiz-profile-selector.in || die
-
-	# Replace deprecated function with recommended one #
-	sed -i \
-		-e "s/gtk_show_uri/gtk_show_uri_on_window/" \
-		dash/DashView.cpp || die
 
 	python_fix_shebang tools
 

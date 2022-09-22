@@ -28,8 +28,8 @@
 >media-video/totem-42.0-r1
 >net-im/empathy-3.12.14
 >sys-apps/accountsservice-22.08.8
->www-client/firefox-105
->www-client/firefox-92:esr
+>www-client/firefox-106
+>www-client/firefox-103:esr
 >x11-libs/gtk+-2.24.33:2
 >x11-libs/gtk+-3.24.34:3
 >x11-libs/vte-0.68.0:2.91
