@@ -18,6 +18,12 @@
   unity-indicators/unity-indicators-meta java
   ```
 
+- set the theme from **Ubuntu Unity** as a default one:
+
+  ```
+  unity-base/unity-settings yaru
+  ```
+
 - enable **system tray** support for all applications:
 
   ```

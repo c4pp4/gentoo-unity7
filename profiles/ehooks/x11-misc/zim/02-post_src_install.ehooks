@@ -1,0 +1,5 @@
+ehooks() {
+	# Yaru-dark symlink to ubuntu-mono-dark icon #
+	dosym ../../../ubuntu-mono-dark/apps/22/zim-panel.svg \
+		/usr/share/icons/Yaru-dark/22x22/panel/zim-panel.svg
+}

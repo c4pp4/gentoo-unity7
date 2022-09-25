@@ -9,9 +9,10 @@
 			according to Ubuntu</flag>
 		<flag name="libreoffice">Add Ubuntu's Human icon theme for
 			<pkg>app-office/libreoffice</pkg></flag>
+			and make it the default
 		<flag name="terminal">Add Unity's theme for
-			<pkg>x11-terms/gnome-terminal</pkg> and for
-			<pkg>x11-terms/mate-terminal</pkg> and make
-			the latter the default terminal under Unity</flag>
+			<pkg>x11-terms/gnome-terminal</pkg> or for
+			<pkg>x11-terms/mate-terminal</pkg> and make the latter
+			the default terminal under Unity (if installed)</flag>
 	</use>
 </pkgmetadata>
