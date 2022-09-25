@@ -53,7 +53,7 @@ src_configure() {
 		--enable-integration-tests=no
 		$(use_with test gtest-source-path)
 	)
-	econf "${myecongargs[@]}"
+	econf "${myeconfargs[@]}"
 }
 
 src_compile() {

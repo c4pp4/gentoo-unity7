@@ -29,7 +29,10 @@ BDEPEND=">=dev-util/intltool-0.40.0"
 S="${WORKDIR}"
 
 src_configure() {
-	econf --localstatedir="/var"
+	local myeconfargs=(
+		--localstatedir="/var"
+	)
+	econf "${myeconfargs[@]}"
 }
 
 src_install() {

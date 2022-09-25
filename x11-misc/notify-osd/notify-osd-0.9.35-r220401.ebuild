@@ -16,7 +16,7 @@ LICENSE="LGPL-2+ GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="minimal"
-RESTRICT="${RESTRICT} test"
+RESTRICT="test"
 
 COMMON_DEPEND="
 	>=dev-libs/dbus-glib-0.88
@@ -53,13 +53,17 @@ src_prepare() {
 		-e "/README/d" \
 		data/icons/scalable/Makefile.am || die
 
-	restore_config src/{bubble,defaults,dnd}.c #428134
+	# b.g.o #428134 #
+	restore_config src/{bubble,defaults,dnd}.c
 
 	ubuntu-versionator_src_prepare
 }
 
 src_configure() {
-	econf --libexecdir=/usr/$(get_libdir)/"${PN}"
+	local myeconfargs=(
+		--libexecdir=/usr/$(get_libdir)/"${PN}"
+	)
+	econf "${myeconfargs[@]}"
 }
 
 src_install() {
