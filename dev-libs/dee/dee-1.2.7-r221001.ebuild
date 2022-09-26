@@ -15,7 +15,7 @@ HOMEPAGE="https://launchpad.net/dee/"
 SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
 
 LICENSE="GPL-3 LGPL-3"
-SLOT="0/${UVER}-${UREV}"
+SLOT="0/${UVER/#+}-${UREV}"
 #KEYWORDS="~amd64"
 IUSE="debug doc examples +icu test"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"

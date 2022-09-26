@@ -84,7 +84,7 @@ src_install() {
 	## Remove broken symlinks ##
 	find -L "${ED}" -type l -delete
 
-	## Add gtk4 theme from yaru-unity7 ##
+	## Add gtk4 theme from Yaru ##
 	dosym -r /usr/share/themes/Yaru-dark/gtk-4.0 /usr/share/themes/Ambiance/gtk-4.0
 	dosym -r /usr/share/themes/Yaru/gtk-4.0 /usr/share/themes/Radiance/gtk-4.0
 

@@ -82,7 +82,7 @@ gnome-extra/yelp			# Only show desktop launcher in Gnome as we have own launcher
 gui-libs/libhandy			# Disable headerbar close button when not in GNOME
 mate-extra/mate-system-monitor		# Add Unity branding when in Unity
 mate-extra/mate-utils			# mate-screenshot: add quicklist options and use ubuntu help when in Unity
-mail-client/thunderbird-91		# Add Unity menubar and desktop launcher with quicklist and translations
+mail-client/thunderbird			# Add Unity menubar and desktop launcher with quicklist and translations
 mail-client/thunderbird-bin		# Add desktop launcher with quicklist and translations
 media-fonts/ubuntu-font-family		# Add Ubuntu medium font (e.g. used by unity-indicators/indicator-keyboard)
 media-gfx/eog				# Add traditional menu bar (https://bugzilla.gnome.org/749976, https://bugs.debian.org/793445), add menu translations
@@ -109,8 +109,8 @@ net-im/empathy				# Integrates with Unity online accounts, associated plugins an
 					#  41_unity_launcher_progress.patch
 					#  43_quicklists.patch
 net-im/pidgin				# Add chat section into messaging menu (Available, Away, Busy, Invisible, Offline)
-net-im/telegram-desktop			# Add ubuntu-mono-dark tray icons
-net-im/telegram-desktop-bin		# Add ubuntu-mono-dark tray icons
+net-im/telegram-desktop			# Add ubuntu-mono-dark and Yaru-dark tray icons
+net-im/telegram-desktop-bin		# Add ubuntu-mono-dark and Yaru-dark tray icons
 net-libs/libsoup:2.4			# Portage tree version forces '--without-gnome' and has removed net-libs/libsoup-gnome which provided '--with-gnome'
 sys-apps/accountsservice		# Requires patching for SetInputSources as needed by unity-indicators/indicator-keyboard and u-c-c text entry settings
 					#  Ubuntu patchset:
@@ -139,7 +139,7 @@ x11-libs/gtk+:3				# Needed for global appmenu, fix firefox/thunderbird global s
 					#  unity-border-radius.patch
 					#  unity-headerbar-maximized-mode.patch
 x11-misc/lightdm			# Custom fixes for Xsession profile sourcing and multi-monitor display
-x11-misc/zim				# Add ubuntu-mono-{dark,light} tray icons
+x11-misc/zim				# Add ubuntu-mono-{dark,light} and Yaru-dark tray icons
 x11-plugins/pidgin-libnotify		# Fix Unity messaging menu support
 					#  Ubuntu patchset:
 					#  de_po.diff
