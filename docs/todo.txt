@@ -1,1 +1,2 @@
-* Fix inconsistent GTK4 theme (temporarily symlinked with Yaru-dark)
+* Fix missing GTK4 theme for {Ambi,Rad}iance themes (temporarily symlinked with Yaru)
+* Fix missing titlebar for apps that depend on libadwaita package

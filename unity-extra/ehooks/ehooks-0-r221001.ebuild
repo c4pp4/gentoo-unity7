@@ -26,13 +26,6 @@ S="${WORKDIR}"
 pkg_setup() {
 	ubuntu-versionator_pkg_setup
 	[[ -f ${EROOT}/etc/ehooks/timestamps ]] && cp "${EROOT}"/etc/ehooks/timestamps "${S}"/timestamps.old
-
-	## Temporarily: USE flags names migration ##
-	[[ -f ${S}/timestamps.old ]] && ( sed -i \
-		-e "s/_adjust//" \
-		-e "s/_menu//" \
-		-e "s/_theme//" \
-		"${S}"/timestamps.old || die )
 }
 
 src_install() {

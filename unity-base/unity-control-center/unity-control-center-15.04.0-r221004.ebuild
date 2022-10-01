@@ -15,7 +15,7 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-#KEYWORDS="~amd64"
+KEYWORDS="~amd64"
 IUSE="+accessibility +bluetooth +colord +cups +fcitx +gnome-online-accounts +i18n +input_devices_wacom +kerberos +networkmanager +v4l wayland +webkit"
 RESTRICT="test"
 
@@ -100,8 +100,8 @@ PDEPEND="bluetooth? ( unity-indicators/indicator-bluetooth )"
 S="${WORKDIR}"
 
 PATCHES=(
-	"${FILESDIR}"/01_"${PN}"-2019-langselector.patch # Based on g-c-c v3.24 Region & Language panel
-	"${FILESDIR}"/02_"${PN}"-2022-optional-bt-colord-kerberos-wacom-webkit.patch
+	"${FILESDIR}"/01_"${PN}"-langselector.patch # Based on g-c-c v3.24 Region & Language panel
+	"${FILESDIR}"/02_"${PN}"-optional-bt-colord-kerberos-wacom-webkit.patch
 )
 
 src_prepare() {

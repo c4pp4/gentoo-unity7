@@ -1,7 +1,7 @@
 #!/bin/bash
 
-stable="jammy"
-dev="kinetic"
+stable="kinetic"
+dev=""
 repos=(
 	main
 	universe

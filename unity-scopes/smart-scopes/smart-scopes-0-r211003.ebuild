@@ -70,17 +70,16 @@ setvar virtualbox		0.1+13.10.20130723	0ubuntu3 + ""									## works
 setvar yelp			0.1+13.10.20130723	0ubuntu1 + ""									## works
 setvar zotero			0.1+13.10.20130723	0ubuntu3 - ""									## not tested (Zotero 4.0 for Firefox is being replaced by a Zotero Connector for Firefox)
 
-UURL="${UURL%/*}"
+UURL="${UURL%/*}"; SRC_URI=""
 for i in ${packages[@]}; do
 	unset _rel
 	eval "_name=${i}; _ver=\${_ver_${i//-/_}}; _rel=\${_rel_${i//-/_}}; _use=\${_use_${i//-/_}}; _dep=\${_dep_${i//-/_}}"
 	[[ -n ${_dep} ]] && RDEPEND+=" ${_name}? ( ${_dep} )"
-	IUSE+=" ${_use/-}${_name}"
-	SRC_URI_array+=("${_name}? ( ${UURL}/unity-scope-${_name}_${_ver}.orig.tar.gz"
-	"${UURL}/unity-scope-${_name}_${_ver}-${_rel}.diff.gz )")
+	IUSE+="${_use/-}${_name} "
+	SRC_URI+="${_name}? (
+		${UURL}/unity-scope-${_name}_${_ver}.orig.tar.gz
+		${UURL}/unity-scope-${_name}_${_ver}-${_rel}.diff.gz ) "
 done
-
-SRC_URI="${SRC_URI_array[@]}"
 
 DEPEND="${RDEPEND}
 	$(python_gen_cond_dep '

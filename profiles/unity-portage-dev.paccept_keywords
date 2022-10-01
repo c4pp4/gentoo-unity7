@@ -1,16 +1,2 @@
 ## Overlay missing keyword unmasking ##
-dev-libs/dee **
-dev-libs/libcolumbus **
-dev-libs/properties-cpp **
-gnome-extra/nemo-engrampa **
-unity-base/compiz **
-unity-base/unity **
-unity-base/unity-control-center **
-unity-base/unity-language-pack **
-unity-extra/diodon **
-unity-indicators/indicator-datetime **
-unity-indicators/indicator-keyboard **
 x11-misc/gtk3-nocsd **
-x11-themes/ubuntu-unity-backgrounds **
-x11-themes/ubuntu-wallpapers **
-x11-themes/yaru-theme **

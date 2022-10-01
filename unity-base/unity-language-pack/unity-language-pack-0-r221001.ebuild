@@ -13,7 +13,7 @@ HOMEPAGE="https://translations.launchpad.net/ubuntu"
 
 LICENSE="GPL-2"
 SLOT="0"
-#KEYWORDS="~amd64"
+KEYWORDS="~amd64"
 
 setvar() {
 	eval "${1//-/_}=( ${2} ${3} ${4} )"
@@ -154,34 +154,27 @@ setvar zu		14.04+20150804 14.04+20150804
 # Only valid IETF language tags that are listed in #
 # $(portageq get_repo_path / gentoo)/profiles/desc/l10n.desc are supported: #
 MY_L10N="af am an ar as ast az be bg bn bo br bs ca ca-valencia ckb cs
-cy da de dv dz el en en-AU en-CA en-GB eo es et eu fa ff fi fil fo fr
-fur fy ga gd gl gu he hi hr ht hu hy ia id is it ja ka kab kk km kn ko
-ks ku ky lb lo lt lv mai mi mk ml mn mr ms mt my nb ne nl nn nso oc om
-or pa pl ps pt pt-BR ro ru rw sa sc sd si sk sl so sq sr sr-Latn st sv
-sw szl ta te tg th ti tk tl tr ts tt ug uk ur uz ve vi xh yi yo zh-CN
-zh-TW zu"
+cy da de dv dz el en-AU en-CA en-GB eo es et eu fa ff fi fil fo fr fur
+fy ga gd gl gu he hi hr ht hu hy ia id is it ja ka kab kk km kn ko ks ku
+ky lb lo lt lv mai mi mk ml mn mr ms mt my nb ne nl nn nso oc om or pa
+pl ps pt pt-BR ro ru rw sa sc sd si sk sl so sq sr sr-Latn st sv sw szl
+ta te tg th ti tk tl tr ts tt ug uk ur uz ve vi xh yi yo zh-CN zh-TW zu"
 
-# IUSE and SRC_URI generator: #
-MY_UURL="http://archive.ubuntu.com/ubuntu/pool/main/l"
+UURL="${UURL%/*}"; SRC_URI=""; IUSE="+l10n_en"
 for use_flag in ${MY_L10N}; do
-	MY_IUSE+=" l10n_${use_flag}"
+	IUSE+=" l10n_${use_flag}"
 	use_flag=${use_flag//-/_}
 	eval "tag=\${$use_flag[2]}"
 	[[ -z ${tag} ]] && tag=${use_flag}
 	eval "ver=\${$use_flag[0]}"
 	eval "ver_gnome=\${$use_flag[1]}"
-	compress="xz"
-	[[ ${ver//[!0-9]} -lt 161000000000 ]] \
-		&& compress="gz"
-	MY_SRC_URI+=" l10n_${use_flag//_/-}? (
-		${MY_UURL}/language-pack-${tag}-base/language-pack-${tag}-base_${ver}.tar.${compress}
-		${MY_UURL}/language-pack-gnome-${tag}-base/language-pack-gnome-${tag}-base_${ver_gnome}.tar.${compress} )"
+	[[ ${ver//[!0-9]} -lt 161000000000 ]] && compress="gz" || compress="xz"
+	SRC_URI+="l10n_${use_flag//_/-}? (
+		${UURL}/language-pack-${tag}-base_${ver}.tar.${compress}
+		${UURL}/language-pack-gnome-${tag}-base_${ver_gnome}.tar.${compress} ) "
 done
 
-SRC_URI="${MY_SRC_URI}"
-
-IUSE="${MY_IUSE/l10n_en/+l10n_en}"
-REQUIRED_USE="|| ( ${MY_IUSE} )"
+REQUIRED_USE="|| ( ${IUSE/+l10n_en/l10n_en} )"
 RESTRICT="test"
 
 BDEPEND="sys-devel/gettext"

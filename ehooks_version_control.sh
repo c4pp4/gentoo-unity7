@@ -392,8 +392,8 @@ debian_changes() {
 			;;
 		-c|--changes)
 			local \
-				stable="jammy" \
-				dev="kinetic" \
+				stable="kinetic" \
+				dev="" \
 				rls frls rp
 
 			local -a \

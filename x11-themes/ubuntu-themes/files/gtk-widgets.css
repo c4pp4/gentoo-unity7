@@ -1,24 +1,34 @@
-/* eog fullscreen toolbar background */
-overlay > revealer > box > toolbar {
- background-color: @bg_color;
-}
 
-/* progress bar border when selected */
+/* selected progress bar border (transmission) */
 window.background box.vertical > scrolledwindow > treeview.view:focus .progressbar:selected:not(:backdrop) {
  border-color: @selected_fg_color;
 }
 
-/* remove HdyHeaderBar rounded top corners */
-.background:not(.tiled):not(.maximized):not(.solid-csd) headerbar.titlebar {
- border-top-left-radius: 0;
- border-top-right-radius: 0;
-}
-
-/* headerbar horizontal radio buttons */
+/* headerbar horizontal radio buttons (deja-dup) */
 viewswitcher button > stack > box.wide {
  padding: 8px 12px;
 }
 
 headerbar button.horizontal.radio {
  padding: 0;
+}
+
+/* fullscreen toolbar background (eog) */
+overlay > revealer > box > toolbar {
+ background-color: @bg_color;
+}
+
+/* avoid unwanted black frame when using HdyHeaderBar */
+decoration {
+    margin: 0;
+}
+
+.background.csd decoration {
+    margin: 10px;
+}
+
+/* remove HdyHeaderBar rounded top corners */
+.background:not(.tiled):not(.maximized):not(.solid-csd) headerbar.titlebar {
+ border-top-left-radius: 0;
+ border-top-right-radius: 0;
 }

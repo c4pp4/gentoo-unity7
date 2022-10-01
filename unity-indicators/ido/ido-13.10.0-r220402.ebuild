@@ -14,7 +14,7 @@ HOMEPAGE="https://launchpad.net/ido"
 SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 
 LICENSE="LGPL-2.1 LGPL-3"
-SLOT="0/0.0.0"
+SLOT="0/$(usub)"
 KEYWORDS="~amd64"
 RESTRICT="test"
 

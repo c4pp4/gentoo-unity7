@@ -39,12 +39,7 @@ src_prepare() {
 	## Add nemo nautilus-like theme ##
 	cat "${FILESDIR}"/nemo.css >> Ambiance/gtk-3.20/apps/nemo.css
 
-	## Workaround to avoid unwanted black frame when using HdyHeaderBar ##
-	sed -i \
-		-e "s/^decoration {$/.background.csd decoration {/" \
-		Ambiance/gtk-3.20/gtk-widgets.css || die
-
-	## Multiple widgets fixes ##
+	## Add widget fixes ##
 	cat "${FILESDIR}"/gtk-widgets.css >> Ambiance/gtk-3.20/gtk-widgets.css
 
 	ubuntu-versionator_src_prepare
@@ -84,7 +79,7 @@ src_install() {
 	## Remove broken symlinks ##
 	find -L "${ED}" -type l -delete
 
-	## Add gtk4 theme from Yaru ##
+	## {Amb,Rad}iance symlinks to gtk4 Yaru theme ##
 	dosym -r /usr/share/themes/Yaru-dark/gtk-4.0 /usr/share/themes/Ambiance/gtk-4.0
 	dosym -r /usr/share/themes/Yaru/gtk-4.0 /usr/share/themes/Radiance/gtk-4.0
 

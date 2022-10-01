@@ -7,7 +7,7 @@ Subject: [PATCH 1/1] Add a new dbus property to the nemo'
 opened locations referenced by their parent nemo window XID.
 Bug-Ubuntu: https://bugs.launchpad.net/unity/+bug/887449
 
-Taken from Nautilus patchset (19_unity_open_location_xid.patch).
+Based on Nautilus 19_unity_open_location_xid.patch.
 
 Signed-off-by: c4pp4
 ---

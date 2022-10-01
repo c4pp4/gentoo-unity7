@@ -37,6 +37,17 @@ UURL="https://launchpad.net/ubuntu/+archive/primary/+files/${PN}_${PV}${UVER}"
 SRC_URI="${UURL}.orig.tar.gz"
 RESTRICT="mirror"
 
+# @FUNCTION: usub
+# @DESCRIPTION:
+# Generate a sub-slot from UVER and UREV values or use PV as a fallback.
+usub() {
+	local sub
+
+	[[ -n ${UVER} ]] && sub="${UVER#+}-" || sub="${PV}-"
+	[[ -n ${UREV} ]] && sub+="${UREV}" || sub="${sub%-}"
+	echo "${sub}"
+}
+
 # @FUNCTION: einstalldocs
 # @DESCRIPTION:
 # Based on eutils.eclass' function. Install documentation using DOCS

@@ -106,10 +106,6 @@ RDEPEND="
 	extra? (
 		app-backup/deja-dup
 		app-crypt/seahorse
-		|| (
-			mate-extra/mate-utils
-			( app-dicts/gnome-dictionary sys-apps/baobab )
-		)
 		gnome-base/dconf-editor
 		gnome-extra/gnome-calendar
 		gnome-extra/gnome-contacts
@@ -118,6 +114,10 @@ RDEPEND="
 			gnome-extra/gnome-system-monitor
 		)
 		gnome-extra/gnome-weather
+		|| (
+			mate-extra/mate-utils
+			( app-dicts/gnome-dictionary sys-apps/baobab )
+		)
 		media-gfx/gnome-font-viewer
 		media-gfx/simple-scan
 		media-video/cheese

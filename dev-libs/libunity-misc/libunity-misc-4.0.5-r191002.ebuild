@@ -14,7 +14,7 @@ HOMEPAGE="https://launchpad.net/libunity-misc"
 SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 
 LICENSE="GPL-2 LGPL-2 LGPL-3"
-SLOT="0/4.1.0"
+SLOT="0/$(usub)"
 KEYWORDS="~amd64"
 IUSE="doc"
 RESTRICT="test"

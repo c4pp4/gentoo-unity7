@@ -15,7 +15,7 @@ HOMEPAGE="https://launchpad.net/libunity"
 SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 
 LICENSE="GPL-3 LGPL-3"
-SLOT="0/9.0.2"
+SLOT="0/$(usub)"
 KEYWORDS="~amd64"
 IUSE="test"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"

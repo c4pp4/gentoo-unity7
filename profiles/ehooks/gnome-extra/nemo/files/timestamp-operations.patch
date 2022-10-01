@@ -7,7 +7,7 @@ Operations that might trigger a dialog, that should be presented with event time
 Bug-Ubuntu: https://launchpad.net/bugs/1445595
 Bug: https://bugzilla.gnome.org/show_bug.cgi?id=758833
 
-Taken from Nautilus patchset (20_add_timestamp_to_operations.patch).
+Based on Nautilus 20_add_timestamp_to_operations.patch.
 
 Signed-off-by: c4pp4
 ---

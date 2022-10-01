@@ -13,7 +13,7 @@ HOMEPAGE="https://glew.sourceforge.net/"
 SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
 
 LICENSE="BSD MIT"
-SLOT="0/$(ver_cut 1-2)"
+SLOT="0/$(usub)"
 KEYWORDS="~amd64"
 IUSE="doc static-libs"
 RESTRICT="test"
