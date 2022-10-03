@@ -22,11 +22,11 @@
 >media-gfx/eog-42.3
 >media-gfx/gnome-photos-42.0-r1
 >media-gfx/gnome-screenshot-41.0
->media-gfx/shotwell-0.30.16
+>media-gfx/shotwell-0.30.16-r1
 >media-plugins/audacious-plugins-4.2-r1
 >media-sound/rhythmbox-3.4.6
 >media-video/totem-42.0-r1
->net-im/empathy-3.12.14-r1
+>net-im/empathy-3.12.14-r2
 >sys-apps/accountsservice-22.08.8
 >www-client/firefox-106
 >www-client/firefox-103:esr
