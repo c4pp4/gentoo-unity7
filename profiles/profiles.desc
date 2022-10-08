@@ -1,1 +1,2 @@
-amd64	amd64/17.1/desktop/unity/systemd	stable
+amd64	amd64/17.1/desktop/unity/systemd		stable
+amd64	amd64/17.1/desktop/unity/systemd/merged-usr	dev

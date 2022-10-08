@@ -5,15 +5,14 @@ EAPI=8
 
 UVER=
 UREV=1.3ubuntu2
+MY_PN="psensor"
 
 inherit gnome2 ubuntu-versionator
-MY_PN="psensor"
-UURL="${UURL%/*}/${MY_PN}_${PV}${UVER}"
 
 DESCRIPTION="Indicator for monitoring hardware temperature used by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/psensor"
-SRC_URI="${UURL}.orig.tar.gz
-	${UURL}-${UREV}.debian.tar.xz"
+SRC_URI="${UURL/${PN}/${MY_PN}}.orig.tar.gz
+	${UURL/${PN}/${MY_PN}}-${UREV}.debian.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"

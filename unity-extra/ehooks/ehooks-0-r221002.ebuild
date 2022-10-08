@@ -107,7 +107,7 @@ src_install() {
 	insinto /etc/ehooks
 	doins timestamps
 
-	dosym -r "${REPO_ROOT}"/ehooks_version_control.sh /usr/bin/ehooks
+	dosym -r "${REPO_ROOT}"/version_control.sh /usr/bin/guver
 }
 
 pkg_postinst() {

@@ -20,9 +20,9 @@
 
 ### Chapter II.
 
-- Version control is managed via **/usr/bin/ehooks**. It's not intended for end users. It looks for ehooks changes and generates emerge command needed to apply the changes. It looks for gentoo tree updates of package versions masked via **unity-portage.pmask** and refreshes version entries. It looks for available version changes of debian archive file in {pre,post}\_src_unpack.ehooks and updates BLAKE2 checksum. It's a symlink to **ehooks_version_control.sh** script.
+- Version control is managed via **guver**. It's not intended for end users. It's a symlink to **version_control.sh** script.
 
-   - run **ehooks** for options
+   - run **guver** for more options
 
 - **Directory name and search order:**
 
@@ -153,7 +153,7 @@
      }
      ```
 
-   - update BLAKE2 512-bit checksum via `ehooks -b` command
+   - update BLAKE2 512-bit checksum via `guver -b` command
    - create **02-pre_src_prepare.ehooks** file to apply debian archive file patchset:
 
      `ln -s ../../templates/patches.template 02-pre_src_prepare.ehooks`

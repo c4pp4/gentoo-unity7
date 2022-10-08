@@ -6,15 +6,14 @@ GNOME2_EAUTORECONF="yes"
 
 UVER=
 UREV=0ubuntu42
+MY_PN="evolution-indicator"
 
 inherit gnome2 ubuntu-versionator
-MY_PN="evolution-indicator"
-UURL="${UURL%/*}/${MY_PN}_${PV}${UVER}"
 
 DESCRIPTION="Indicator for the Evolution mail client used by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/evolution-indicator"
-SRC_URI="${UURL}.orig.tar.gz
-	${UURL}-${UREV}.debian.tar.xz"
+SRC_URI="${UURL/${PN}/${MY_PN}}.orig.tar.gz
+	${UURL/${PN}/${MY_PN}}-${UREV}.debian.tar.xz"
 
 LICENSE="GPL-3"
 SLOT="0"

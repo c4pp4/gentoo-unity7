@@ -3,9 +3,10 @@
 
 EAPI=8
 
-inherit gnome2
-MY_PN="indicator-netspeed-unity"
 COMMIT="41a9b524efc767a8990532667a92748235ed6917"
+MY_PN="indicator-netspeed-unity"
+
+inherit gnome2
 
 DESCRIPTION="Network speed indicator for Unity"
 HOMEPAGE="https://github.com/GGleb/indicator-netspeed-unity"

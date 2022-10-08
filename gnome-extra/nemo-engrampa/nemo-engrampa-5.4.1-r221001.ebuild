@@ -5,9 +5,9 @@ EAPI=8
 
 UVER=+ds
 UREV=1
+MY_PN="nemo-fileroller"
 
 inherit meson ubuntu-versionator
-MY_PN=nemo-fileroller
 
 DESCRIPTION="Nemo engrampa integration"
 HOMEPAGE="https://projects.linuxmint.com/cinnamon/ https://github.com/linuxmint/nemo-extensions"

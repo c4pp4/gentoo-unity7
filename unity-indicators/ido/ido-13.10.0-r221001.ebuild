@@ -4,8 +4,8 @@
 EAPI=8
 UBUNTU_EAUTORECONF="yes"
 
-UVER=+17.04.20161028
-UREV=0ubuntu3
+UVER=+22.10.20221007
+UREV=0ubuntu1
 
 inherit vala ubuntu-versionator
 

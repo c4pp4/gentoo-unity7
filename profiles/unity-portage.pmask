@@ -30,8 +30,8 @@
 >sys-apps/accountsservice-22.08.8
 >www-client/firefox-106
 >www-client/firefox-103:esr
->x11-libs/gtk+-2.24.33:2
->x11-libs/gtk+-3.24.34:3
+>x11-libs/gtk+-2.24.33-r2:2
+>x11-libs/gtk+-3.24.34-r1:3
 >x11-libs/vte-0.68.0:2.91
 >x11-misc/lightdm-1.30.0-r3
 >x11-misc/zim-0.74.3
