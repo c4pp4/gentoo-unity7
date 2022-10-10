@@ -13,7 +13,7 @@ HOMEPAGE="https://launchpad.net/indicator-datetime"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="coverage +eds test"
 REQUIRED_USE="coverage? ( test )"
 RESTRICT="!test? ( test )"

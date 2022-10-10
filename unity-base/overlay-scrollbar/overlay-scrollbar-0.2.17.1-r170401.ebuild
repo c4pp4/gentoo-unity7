@@ -14,7 +14,7 @@ HOMEPAGE="https://launchpad.net/overlay-scrollbar"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 RESTRICT="test"
 
 COMMON_DEPEND="

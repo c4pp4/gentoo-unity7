@@ -14,7 +14,7 @@ SRC_URI=""
 
 LICENSE="GPL-2+"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="+files lowgfx +music +photos +ubuntu-cursor +ubuntu-sounds +video yaru"
 RESTRICT="binchecks strip test"
 

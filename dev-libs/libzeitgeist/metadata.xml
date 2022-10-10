@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-	<maintainer type="person">
-		<name>Gilles Dartiguelongue</name>
-	</maintainer>
 	<maintainer type="project">
-		<name>Gentoo Desktop Miscellaneous Project</name>
+		<name>gentoo-unity7</name>
 	</maintainer>
+</pkgmetadata>

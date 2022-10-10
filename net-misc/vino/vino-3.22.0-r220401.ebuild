@@ -16,7 +16,7 @@ SRC_URI="${UURL}.orig.tar.xz
 
 LICENSE="GPL-2+"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="crypt debug gnome-keyring ipv6 jpeg ssl +telepathy zeroconf +zlib"
 REQUIRED_USE="jpeg? ( zlib )"
 RESTRICT="test"

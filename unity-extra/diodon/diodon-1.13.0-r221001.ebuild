@@ -14,7 +14,7 @@ SRC_URI="${UURL}.orig.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="+indicator scope"
 
 COMMON_DEPEND="

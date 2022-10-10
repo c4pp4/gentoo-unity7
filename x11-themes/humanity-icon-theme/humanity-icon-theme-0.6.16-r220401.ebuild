@@ -14,7 +14,7 @@ SRC_URI="${UURL}.tar.xz"
 
 LICENSE="CC-BY-SA CC-BY-SA-3.0 GPL-2 GPL-3 LGPL-3+ MPL-1.1"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="extra +optimize"
 RESTRICT="binchecks strip test"
 

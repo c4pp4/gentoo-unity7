@@ -15,7 +15,7 @@ SRC_URI="${UURL}.tar.xz"
 
 LICENSE="CC-BY-SA-3.0"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 RESTRICT="binchecks strip test"
 
 RDEPEND="gnome-extra/yelp"

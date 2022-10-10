@@ -14,7 +14,7 @@ SRC_URI=""
 
 LICENSE="metapackage"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="+accessibility +apps chat +core +extra +fonts +games +xdm"
 RESTRICT="binchecks strip test"
 

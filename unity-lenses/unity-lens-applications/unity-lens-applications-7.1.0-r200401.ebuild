@@ -14,7 +14,7 @@ HOMEPAGE="https://launchpad.net/unity-lens-applications"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 
 COMMON_DEPEND="
 	>=dev-libs/dee-1.0.2:0=

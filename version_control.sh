@@ -558,7 +558,7 @@ update_packages() {
 					esac
 					upstr_ver=$(grep -A 4 -- "^Package: ${fixname}$" /tmp/gentoo-unity7-sources-${rp}-${frls} | grep "Version: " | cut -d " " -f 2)
 					if [[ -n ${upstr_ver} ]]; then
-						[[ ${rls} == ${stable} ]] && pattern="^KEYWORDS=" || pattern="^#KEYWORDS="
+						[[ ${rls} == ${stable} ]] && pattern="\"amd64\"" || pattern="\"~amd64\""
 						if [[ ${pkg} == "dev-libs/libindicator" ]]; then
 							filename=$(grep -H -- "${pattern}" ${path}/${pkg}/*r2*.ebuild | cut -d ":" -f 1)
 							[[ ${filename} == *".ebuild"*".ebuild"* ]] \
@@ -568,9 +568,7 @@ update_packages() {
 						fi
 						if [[ ${filename} == *".ebuild"*".ebuild"* ]]; then
 							printf "\b\b%s\n\n" "... error!"
-							[[ ${rls} == ${stable} ]] \
-								&& printf "%s\n\n" " ${color_red}*${color_norm} ${pkg}: multiple files with KEYWORDS" \
-								|| printf "%s\n\n" " ${color_red}*${color_norm} ${pkg}: multiple files with missing KEYWORDS"
+							printf "%s\n\n" " ${color_red}*${color_norm} ${pkg}: multiple files with KEYWORDS=${pattern}"
 							exit 1
 						fi
 						if [[ -n ${filename} ]]; then
@@ -636,13 +634,11 @@ update_scopes() {
 					upstr_ver=$(grep -A 4 "^Package: ${name}$" /tmp/gentoo-unity7-sources-${rp}-${frls} | grep "Version: " | cut -d " " -f 2)
 					upstr_ver="${upstr_ver#*:}"
 					if [[ -n ${upstr_ver} ]]; then
-						[[ ${rls} == ${stable} ]] && pattern="^KEYWORDS=" || pattern="^#KEYWORDS="
+						[[ ${rls} == ${stable} ]] && pattern="\"amd64\"" || pattern="\"~amd64\""
 						filename=$(grep -H -- "${pattern}" "${ebuilds[@]}" | cut -d ":" -f 1)
 						if [[ ${filename} == *".ebuild"*".ebuild"* ]]; then
 							printf "\b\b%s\n\n" "... error!"
-							[[ ${rls} == ${stable} ]] \
-								&& printf "%s\n\n" " ${color_red}*${color_norm} $(echo ${ebuilds[0]} | cut -d "/" -f 2,3): multiple files with KEYWORDS" \
-								|| printf "%s\n\n" " ${color_red}*${color_norm} $(echo ${ebuilds[0]} | cut -d "/" -f 2,3): multiple files with missing KEYWORDS"
+							printf "%s\n\n" " ${color_red}*${color_norm} ${pkg}: multiple files with KEYWORDS=${pattern}"
 							exit 1
 						fi
 						if [[ -n ${filename} ]] && [[ $(grep -- "^setvar ${pkg%%|*}" "${filename}") == *"${uver}"*"${urev}"* ]]; then
@@ -713,13 +709,11 @@ update_languages() {
 					upstr_gver=$(grep -A 4 "^Package: ${name}$" /tmp/gentoo-unity7-sources-${rp}-${frls} | grep "Version: " | cut -d " " -f 2)
 					upstr_ver="${upstr_ver#*:}"; upstr_gver="${upstr_gver#*:}"
 					if [[ -n ${upstr_ver} || -n ${upstr_gver} ]]; then
-						[[ ${rls} == ${stable} ]] && pattern="^KEYWORDS=" || pattern="^#KEYWORDS="
+						[[ ${rls} == ${stable} ]] && pattern="\"amd64\"" || pattern="\"~amd64\""
 						filename=$(grep -H -- "${pattern}" "${ebuilds[@]}" | cut -d ":" -f 1)
 						if [[ ${filename} == *".ebuild"*".ebuild"* ]]; then
 							printf "\b\b%s\n\n" "... error!"
-							[[ ${rls} == ${stable} ]] \
-								&& printf "%s\n\n" " ${color_red}*${color_norm} $(echo ${ebuilds[0]} | cut -d "/" -f 2,3): multiple files with KEYWORDS" \
-								|| printf "%s\n\n" " ${color_red}*${color_norm} $(echo ${ebuilds[0]} | cut -d "/" -f 2,3): multiple files with missing KEYWORDS"
+							printf "%s\n\n" " ${color_red}*${color_norm} ${pkg}: multiple files with KEYWORDS=${pattern}"
 							exit 1
 						fi
 						if [[ -n ${filename} ]] && [[ $(grep -P -- "^setvar ${pkg%%|*}\t" "${filename}") == *"${ver} ${gver}"* ]]; then

@@ -14,7 +14,7 @@ HOMEPAGE="https://launchpad.net/unity-gtk-module"
 
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="doc"
 RESTRICT="test"
 

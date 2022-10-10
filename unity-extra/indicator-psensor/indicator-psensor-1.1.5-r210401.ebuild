@@ -16,7 +16,7 @@ SRC_URI="${UURL/${PN}/${MY_PN}}.orig.tar.gz
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="hddtemp nls"
 
 COMMON_DEPEND="

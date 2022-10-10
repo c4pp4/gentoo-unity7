@@ -3,7 +3,7 @@
 
 EAPI=8
 DISTUTILS_SINGLE_IMPL=1
-PYTHON_COMPAT=( python3_{8..10} )
+PYTHON_COMPAT=( python3_{8..11} )
 
 UVER=
 UREV=5build5
@@ -16,7 +16,7 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
 
 LICENSE="GPL-3+ BSD"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="+accessibility wayland"
 RESTRICT="test"
 

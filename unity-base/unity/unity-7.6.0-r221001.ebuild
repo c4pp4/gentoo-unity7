@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-PYTHON_COMPAT=( python3_{8..10} )
+PYTHON_COMPAT=( python3_{8..11} )
 
 UVER=+22.10.20220913
 UREV=0ubuntu1
@@ -15,7 +15,7 @@ SRC_URI="${UURL}-${UREV}.tar.xz"
 
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="debug doc gles2 +hud pch systray"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="test"

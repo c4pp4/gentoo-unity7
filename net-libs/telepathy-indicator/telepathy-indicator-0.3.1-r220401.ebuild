@@ -14,7 +14,7 @@ HOMEPAGE="https://launchpad.net/telepathy-indicator"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.31.8:2

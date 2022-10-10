@@ -52,6 +52,8 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 			color_bold=$(tput bold) \
 			color_red=$(tput setaf 1)
 
+		> "${log}"
+
 		## Append bug information to 'die' command.
 		local \
 			bugapnd="eerror \"S: '\${S}'\"" \
@@ -137,7 +139,7 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 
 		## Log errors to screen and logfile via fd 3.
 		exec 3>&1
-		ehooks 2>&1 >&3 | tee "${log}"
+		ehooks 2>&1 >&3 | tee -a "${log}"
 
 		## Clear source when exit status SKIP_CODE is returned.
 		## Needs to be right after the ehooks call.

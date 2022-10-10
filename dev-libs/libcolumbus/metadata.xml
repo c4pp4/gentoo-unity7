@@ -6,5 +6,7 @@
 	</maintainer>
 	<use>
 		<flag name="coverage">Include coverage reports (gcov, lcov)</flag>
+		<flag name="pch">Build using pre-compiled headers
+			(it can lead to unclear build failures!)</flag>
 	</use>
 </pkgmetadata>

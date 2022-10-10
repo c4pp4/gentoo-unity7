@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-PYTHON_COMPAT=( python3_{8..10} )
+PYTHON_COMPAT=( python3_{8..11} )
 
 UVER=+15.10.20150806
 UREV=0ubuntu29
@@ -15,7 +15,7 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 
 LICENSE="LGPL-3"
 SLOT="0/$(usub)"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="coverage debug pch test"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="!test? ( test )"

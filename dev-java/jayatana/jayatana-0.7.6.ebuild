@@ -13,7 +13,7 @@ SRC_URI="https://gitlab.com/vala-panel-project/vala-panel-appmenu/uploads/${COMM
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="+system-wide"
 RESTRICT="mirror test"
 

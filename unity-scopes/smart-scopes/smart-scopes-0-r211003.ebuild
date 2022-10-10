@@ -4,7 +4,7 @@
 EAPI=8
 DISTUTILS_SINGLE_IMPL=1
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{8..10} )
+PYTHON_COMPAT=( python3_{8..11} )
 
 UVER=
 UREV=
@@ -16,7 +16,7 @@ HOMEPAGE="https://launchpad.net/onehundredscopes"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 RESTRICT="!test? ( test )"
 
 RDEPEND="

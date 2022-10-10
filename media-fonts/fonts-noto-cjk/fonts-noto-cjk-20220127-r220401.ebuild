@@ -18,7 +18,7 @@ SRC_URI="${UURL}.orig.tar.xz
 
 LICENSE="OFL-1.1"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="extra"
 RESTRICT="binchecks strip test"
 

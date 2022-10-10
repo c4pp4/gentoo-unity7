@@ -15,7 +15,7 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 
 LICENSE="GPL-3 LGPL-2.1 LGPL-3"
 SLOT="0/$(usub)"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="debug doc examples gles2"
 RESTRICT="test"
 

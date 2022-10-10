@@ -1,14 +1,17 @@
 fetch_debian() {
 	local \
 		archive=$2.debian.tar.xz \
-		blake=$1
+		blake=$1 \
+		wlog="${T}/wget.log"
 
 	pushd "${S}" >/dev/null || die
 		ebegin "Downloading ${color_bold}${archive}${color_norm}"
-			wget -q "https://launchpad.net/ubuntu/+archive/primary/+files/${archive}" -O "${archive}" 2>/dev/null
+			wget "https://launchpad.net/ubuntu/+archive/primary/+files/${archive}" -O "${archive}" -o ${wlog}
 		eend $?
+		grep -iqs "failed\|error" ${wlog} && cat ${wlog} >> ${log}
+		[[ -s ${archive} ]] || die "ehooks: archive not fetched"
 		ebegin "Checking BLAKE2 checksum"
-			b2sum --status -c <(echo "${blake} ${archive}") || die "b2sum: checksum did not match"
+			b2sum --status -c <(echo "${blake} ${archive}") || die "ehooks: archive checksum did not match"
 		eend $?
 		unpack "${S}/${archive}"
 	popd >/dev/null || die

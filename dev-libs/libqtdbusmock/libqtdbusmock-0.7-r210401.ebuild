@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-PYTHON_COMPAT=( python3_{8..10} )
+PYTHON_COMPAT=( python3_{8..11} )
 
 UVER=+bzr49+repack1
 UREV=5
@@ -16,7 +16,7 @@ SRC_URI="${UURL}.orig.tar.xz
 
 LICENSE="LGPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="coverage test"
 REQUIRED_USE="${PYTHON_REQUIRED_USE} coverage? ( test )"
 RESTRICT="!test? ( test )"

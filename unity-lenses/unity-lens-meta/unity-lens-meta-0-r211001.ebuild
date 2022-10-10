@@ -14,7 +14,7 @@ SRC_URI=""
 
 LICENSE="metapackage"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="+files +music +photos plugins +video"
 RESTRICT="binchecks strip test"
 

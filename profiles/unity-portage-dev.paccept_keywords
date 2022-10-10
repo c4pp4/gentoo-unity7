@@ -1,2 +1,2 @@
-## Overlay missing keyword unmasking ##
-x11-misc/gtk3-nocsd **
+## Overlay keyword unmasking ##
+*/*::gentoo-unity7

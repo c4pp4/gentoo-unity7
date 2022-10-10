@@ -19,7 +19,7 @@ UBUNTU_EAUTORECONF=${UBUNTU_EAUTORECONF:-""}
 [[ ${UBUNTU_EAUTORECONF} == "yes" ]] && inherit autotools
 
 case "${EAPI:-0}" in
-	7|8) EXPORT_FUNCTIONS pkg_setup src_prepare pkg_postinst ;;
+	8) EXPORT_FUNCTIONS pkg_setup src_prepare pkg_postinst ;;
 	*) die "EAPI=${EAPI:-0} is not supported" ;;
 esac
 

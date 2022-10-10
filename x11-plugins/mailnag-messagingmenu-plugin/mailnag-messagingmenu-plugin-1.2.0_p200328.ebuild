@@ -3,7 +3,7 @@
 
 EAPI=8
 DISTUTILS_SINGLE_IMPL=1
-PYTHON_COMPAT=( python3_{8..10} )
+PYTHON_COMPAT=( python3_{8..11} )
 
 COMMIT="69f8e5f123643d7fdae28b77afec458ed976b086"
 
@@ -15,7 +15,7 @@ SRC_URI="https://github.com/pulb/mailnag-messagingmenu-plugin/archive/${COMMIT}.
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 RESTRICT="mirror test"
 
 DEPEND="${PYTHON_DEPS}"

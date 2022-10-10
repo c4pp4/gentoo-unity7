@@ -14,7 +14,7 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-#KEYWORDS="~amd64"
+KEYWORDS="~amd64"
 RESTRICT="test"
 
 RDEPEND=">=sys-libs/glibc-2.4"

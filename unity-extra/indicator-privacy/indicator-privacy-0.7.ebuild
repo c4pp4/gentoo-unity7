@@ -3,7 +3,7 @@
 
 EAPI=8
 DISTUTILS_SINGLE_IMPL=1
-PYTHON_COMPAT=( python3_{8..10} )
+PYTHON_COMPAT=( python3_{8..11} )
 
 inherit desktop gnome2 distutils-r1
 
@@ -13,7 +13,7 @@ SRC_URI="https://www.florian-diesch.de/software/indicator-privacy/dist/${P}.tar.
 
 LICENSE="GPL-3+"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 RESTRICT="mirror test"
 
 COMMON_DEPEND="

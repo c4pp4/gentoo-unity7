@@ -14,7 +14,7 @@ SRC_URI=""
 
 LICENSE="metapackage"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="+battery bluetooth +cups +datetime java +keyboard mail paste sensors +session +sound weather"
 RESTRICT="binchecks strip test"
 
