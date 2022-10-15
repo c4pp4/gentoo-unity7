@@ -2,11 +2,12 @@ ehooks() {
 	build-gtk2_src_configure() {
 		mkdir -p "${BUILD_DIR}" || die
 		pushd "${BUILD_DIR}" >/dev/null || die
-			ECONF_SOURCE="${S}" \
-			econf \
-				--disable-static \
-				--disable-introspection \
+			local myeconfargs=(
+				--disable-static
 				--with-gtk=2
+				$(multilib_native_use_enable introspection)
+			)
+			ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
 		popd >/dev/null || die
 	}
 

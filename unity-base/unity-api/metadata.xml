@@ -4,4 +4,8 @@
 	<maintainer type="project">
 		<name>gentoo-unity7</name>
 	</maintainer>
+	<use>
+		<flag name="pch">Build using pre-compiled headers
+			(it can lead to unclear build failures!)</flag>
+	</use>
 </pkgmetadata>

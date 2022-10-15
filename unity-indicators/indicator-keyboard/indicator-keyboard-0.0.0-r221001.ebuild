@@ -65,7 +65,10 @@ src_prepare() {
 }
 
 src_configure() {
-	econf $(use_enable fcitx)
+	local myeconfargs=(
+		$(use_enable fcitx)
+	)
+	econf "${myeconfargs[@]}"
 }
 
 src_install() {

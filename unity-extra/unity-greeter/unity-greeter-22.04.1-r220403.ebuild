@@ -101,7 +101,10 @@ src_prepare() {
 }
 
 src_configure() {
-	econf $(use_enable nls)
+	local myeconfargs=(
+		$(use_enable nls)
+	)
+	econf "${myeconfargs[@]}"
 }
 
 src_install() {

@@ -119,7 +119,7 @@ pkg_postinst() {
 		color_norm=$(tput sgr0) \
 		fn="get_subdirs get_repo_root get_ehooks_subdirs get_installed_packages get_slot find_flag_changes find_tree_changes ehooks_changes" \
 		prev_shopt=$(shopt -p nullglob) \
-		x="$(portageq get_repo_path / gentoo-unity7)"/ehooks_version_control.sh
+		x="$(portageq get_repo_path / gentoo-unity7)"/version_control.sh
 
 	shopt -s nullglob
 	local -a cfg_files=( "${EROOT}"/etc/ehooks/._cfg*timestamps )

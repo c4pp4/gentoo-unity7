@@ -16,7 +16,7 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 LICENSE="LGPL-3"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="doc test"
+IUSE="doc pch test"
 REQUIRED_USE="test? ( ${PYTHON_REQUIRED_USE} )"
 RESTRICT="!test? ( test )"
 
@@ -65,6 +65,9 @@ src_prepare() {
 }
 
 src_configure() {
-	local mycmakeargs=( -DNO_TESTS=$(usex !test ON OFF) )
+	local mycmakeargs=(
+		-DNO_TESTS=$(usex !test ON OFF)
+		-Duse_pch=$(usex pch ON OFF)
+	)
 	cmake_src_configure
 }

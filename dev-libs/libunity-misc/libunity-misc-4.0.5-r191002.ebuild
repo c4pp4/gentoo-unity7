@@ -38,7 +38,10 @@ DEPEND="${COMMON_DEPEND}
 S="${S}${UVER}"
 
 src_configure() {
-	econf $(use_enable doc gtk-doc)
+	local myeconfargs=(
+		$(use_enable doc gtk-doc)
+	)
+	econf "${myeconfargs[@]}"
 }
 
 src_install() {
