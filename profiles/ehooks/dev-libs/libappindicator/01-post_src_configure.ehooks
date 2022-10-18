@@ -3,9 +3,9 @@ ehooks() {
 		mkdir -p "${BUILD_DIR}" || die
 		pushd "${BUILD_DIR}" >/dev/null || die
 			local myeconfargs=(
+				--disable-introspection
 				--disable-static
 				--with-gtk=2
-				$(multilib_native_use_enable introspection)
 			)
 			ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
 		popd >/dev/null || die

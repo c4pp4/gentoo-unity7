@@ -33,7 +33,7 @@ nl oc pl pt pt-BR ro ru si sk sl sq sr sv ta te tg th tl tr ug uk ur uz
 zh-CN zh-HK zh-TW"
 
 for use_flag in ${MY_L10N}; do
-	IUSE+="l10n_${use_flag} "
+	IUSE+=" l10n_${use_flag}"
 done
 
 src_prepare() {
