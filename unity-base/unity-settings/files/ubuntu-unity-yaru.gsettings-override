@@ -1,3 +1,5 @@
+## Unity ##
+
 [org.gnome.desktop.background:Unity]
 picture-uri = 'file:///usr/share/backgrounds/ubuntu-unity/ubuntu-unity-default.png'
 
@@ -6,13 +8,10 @@ gtk-theme = 'Yaru-dark'
 icon-theme = 'Yaru-purple-dark'
 cursor-theme = 'Yaru'
 
-## nm-applet and indicator-keyboard icon theme, password field cursor ##
-[org.gnome.desktop.interface:unity-greeter]
-icon-theme = 'Yaru-purple-dark'
-cursor-theme = 'Yaru'
-
 [org.gnome.desktop.wm.preferences:Unity]
 theme = 'Yaru-dark'
+
+## Unity Greeter ##
 
 [com.canonical.unity-greeter]
 draw-grid = false
@@ -21,3 +20,8 @@ draw-grid = false
 background = '/usr/share/backgrounds/ubuntu-unity/ubuntu-unity-default.png'
 theme-name = 'Yaru-dark'
 icon-theme-name = 'Yaru-purple-dark'
+
+## nm-applet and indicator-keyboard icon theme, password field cursor ##
+[org.gnome.desktop.interface:unity-greeter]
+icon-theme = 'Yaru-purple-dark'
+cursor-theme = 'Yaru'

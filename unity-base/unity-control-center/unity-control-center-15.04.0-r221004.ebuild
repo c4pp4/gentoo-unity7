@@ -62,7 +62,6 @@ COMMON_DEPEND="
 RDEPEND="${COMMON_DEPEND}
 	app-text/iso-codes
 	>=dev-libs/atk-1.12.4
-	gnome-extra/activity-log-manager
 	gnome-extra/polkit-gnome
 	>=media-libs/fontconfig-2.12.6:1.0
 	media-libs/libglvnd
@@ -95,7 +94,11 @@ DEPEND="${COMMON_DEPEND}
 	$(vala_depend)
 "
 BDEPEND=">=dev-util/intltool-0.37.1"
-PDEPEND="bluetooth? ( unity-indicators/indicator-bluetooth )"
+PDEPEND="
+	gnome-extra/activity-log-manager
+
+	bluetooth? ( unity-indicators/indicator-bluetooth )
+"
 
 S="${WORKDIR}"
 

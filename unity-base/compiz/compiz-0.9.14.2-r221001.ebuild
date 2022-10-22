@@ -87,9 +87,7 @@ BDEPEND="
 	sys-devel/libtool
 	virtual/pkgconfig
 "
-PDEPEND="
-	unity-base/unity[gles2=]
-"
+PDEPEND="unity-base/unity[gles2=]"
 
 S="${WORKDIR}/${PN}"
 

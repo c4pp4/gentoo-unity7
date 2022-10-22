@@ -17,14 +17,12 @@ SLOT="0"
 KEYWORDS="amd64"
 RESTRICT="test"
 
-RDEPEND="
-	gnome-base/gnome-session
-	unity-base/unity
-"
+RDEPEND="gnome-base/gnome-session"
 DEPEND="
 	dev-util/intltool
 	sys-devel/gettext
 "
+PDEPEND="unity-base/unity"
 
 S="${WORKDIR}/${PN}-1.3"
 
