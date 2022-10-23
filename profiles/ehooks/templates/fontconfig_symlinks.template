@@ -13,7 +13,7 @@ ehooks() {
 		[[ -d ${ED}${symlink_dir} ]] || dodir "${symlink_dir}"
 		if [[ ! -L ${ED}${symlink_dir}/${f} ]]; then
 			echo " * ${f}"
-			dosym -r "/etc/fonts/conf.avail/${f}" "${symlink_dir}/${f}"
+			dosym "../conf.avail/${f}" "${symlink_dir}/${f}"
 		fi
 	done
 }
