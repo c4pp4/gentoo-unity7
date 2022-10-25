@@ -44,9 +44,6 @@ setvar dv		14.04+20150804 14.04+20150804
 setvar dz		22.10+20221013 22.10+20221013
 setvar el		22.10+20221013 22.10+20221013
 setvar en		22.10+20221013 22.10+20221013
-setvar en-AU		22.10+20221013 22.10+20221013 en
-setvar en-CA		22.10+20221013 22.10+20221013 en
-setvar en-GB		22.10+20221013 22.10+20221013 en
 setvar eo		22.10+20221013 22.10+20221013
 setvar es		22.10+20221013 22.10+20221013
 setvar et		22.10+20221013 22.10+20221013
@@ -154,27 +151,32 @@ setvar zu		14.04+20150804 14.04+20150804
 # Only valid IETF language tags that are listed in #
 # $(portageq get_repo_path / gentoo)/profiles/desc/l10n.desc are supported: #
 MY_L10N="af am an ar as ast az be bg bn bo br bs ca ca-valencia ckb cs
-cy da de dv dz el en-AU en-CA en-GB eo es et eu fa ff fi fil fo fr fur
-fy ga gd gl gu he hi hr ht hu hy ia id is it ja ka kab kk km kn ko ks ku
-ky lb lo lt lv mai mi mk ml mn mr ms mt my nb ne nl nn nso oc om or pa
-pl ps pt pt-BR ro ru rw sa sc sd si sk sl so sq sr sr-Latn st sv sw szl
-ta te tg th ti tk tl tr ts tt ug uk ur uz ve vi xh yi yo zh-CN zh-TW zu"
+cy da de dv dz el en eo es et eu fa ff fi fil fo fr fur fy ga gd gl gu
+he hi hr ht hu hy ia id is it ja ka kab kk km kn ko ks ku ky lb lo lt lv
+mai mi mk ml mn mr ms mt my nb ne nl nn nso oc om or pa pl ps pt pt-BR
+ro ru rw sa sc sd si sk sl so sq sr sr-Latn st sv sw szl ta te tg th ti
+tk tl tr ts tt ug uk ur uz ve vi xh yi yo zh-CN zh-TW zu"
 
-UURL="${UURL%/*}"; SRC_URI=""; IUSE="+l10n_en"
-for use_flag in ${MY_L10N}; do
-	IUSE+=" l10n_${use_flag}"
-	use_flag=${use_flag//-/_}
-	eval "tag=\${$use_flag[2]}"
-	[[ -z ${tag} ]] && tag=${use_flag}
-	eval "ver=\${$use_flag[0]}"
-	eval "ver_gnome=\${$use_flag[1]}"
+UURL="${UURL%/*}"; SRC_URI=""
+for flag in ${MY_L10N}; do
+	flag=${flag/-/_}
+	eval "tag=\${$flag[2]}"
+	[[ -z ${tag} ]] && tag=${flag}
+	eval "ver=\${$flag[0]}"
+	eval "ver_gnome=\${$flag[1]}"
 	[[ ${ver//[!0-9]} -lt 161000000000 ]] && compress="gz" || compress="xz"
-	SRC_URI+="l10n_${use_flag//_/-}? (
-		${UURL}/language-pack-${tag}-base_${ver}.tar.${compress}
-		${UURL}/language-pack-gnome-${tag}-base_${ver_gnome}.tar.${compress} ) "
+	flag=${flag/_/-}
+	if [[ ${flag} == "en" ]]; then
+		SRC_URI+="${UURL}/language-pack-${tag}-base_${ver}.tar.${compress}
+			${UURL}/language-pack-gnome-${tag}-base_${ver_gnome}.tar.${compress} "
+	else
+		IUSE+=" l10n_${flag}"
+		SRC_URI+="l10n_${flag}? (
+			${UURL}/language-pack-${tag}-base_${ver}.tar.${compress}
+			${UURL}/language-pack-gnome-${tag}-base_${ver_gnome}.tar.${compress} ) "
+	fi
 done
 
-REQUIRED_USE="|| ( ${IUSE/+l10n_en/l10n_en} )"
 RESTRICT="test"
 
 BDEPEND="sys-devel/gettext"
