@@ -1,3 +1,7 @@
 ## A set of packages that require keyword unmasking for Unity installation ##
 app-backup/deja-dup::gentoo
 x11-wm/metacity::gentoo
+
+# Temporarily unmask pluma due to a bug of 1.24.2 ver #
+~app-editors/pluma-1.26.0
+~mate-base/mate-common-1.26.0
