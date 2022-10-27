@@ -5,6 +5,7 @@ A Gentoo overlay to build the Unity7 user interface.
 - [Take a look⬀][yt]
 - [Build instructions][build]
 - [USE flag tips][tips]
+- [Source URIs][uris]
 - [Join the Telegram group⬀][tg]
 
 #
@@ -24,5 +25,6 @@ A Gentoo overlay to build the Unity7 user interface.
 [pak]: profiles/unity-portage.paccept_keywords
 [tg]: https://t.me/gentoo_unity7
 [tips]: docs/use_flag_tips.md
+[uris]: docs/source_uris.md
 [wiki]: https://en.wikipedia.org/wiki/Unity_(user_interface)
 [yt]: https://youtu.be/MVXhgwiOZrc
