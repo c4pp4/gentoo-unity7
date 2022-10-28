@@ -1,7 +1,7 @@
 #!/bin/bash
 
 stable="kinetic"
-dev=""
+dev="lunar"
 repos=(
 	main
 	universe
