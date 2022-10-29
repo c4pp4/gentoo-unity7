@@ -135,9 +135,11 @@ src_prepare() {
 		-e "s/the Ubuntu logo/the Gentoo logo/" \
 		"${page_files[@]}" "${po_files[@]}" || die
 
-	sed -i ":bgn;/Unity⁷/{:loop;n;/^#/b bgn;s/Ubuntu/Gentoo Unity⁷/g;b loop;}" "${po_files[@]}" || die
-	sed -i ":bgn;/Gentoo Button/{:loop;n;/^#/b bgn;s/Ubuntu/Gentoo/g;b loop;}" "${po_files[@]}" || die
-	sed -i ":bgn;/the Gentoo logo/{:loop;n;/^#/b bgn;s/Ubuntu/Gentoo/g;b loop;}" "${po_files[@]}" || die
+	if [[ -n ${po_files[@]} ]]; then
+		sed -i ":bgn;/Unity⁷/{:loop;n;/^#/b bgn;s/Ubuntu/Gentoo Unity⁷/g;b loop;}" "${po_files[@]}" || die
+		sed -i ":bgn;/Gentoo Button/{:loop;n;/^#/b bgn;s/Ubuntu/Gentoo/g;b loop;}" "${po_files[@]}" || die
+		sed -i ":bgn;/the Gentoo logo/{:loop;n;/^#/b bgn;s/Ubuntu/Gentoo/g;b loop;}" "${po_files[@]}" || die
+	fi
 
 	ubuntu-versionator_src_prepare
 }
