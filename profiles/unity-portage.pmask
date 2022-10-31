@@ -11,7 +11,7 @@
 >gnome-base/gnome-session-42.0
 >gnome-base/gsettings-desktop-schemas-42.0
 >gnome-extra/gnome-calendar-42.2-r2
->gnome-extra/gnome-contacts-42.0
+>gnome-extra/gnome-contacts-42.0-r1
 >gnome-extra/nemo-5.2.4-r1
 >gnome-extra/nm-applet-1.28.0
 >gnome-extra/polkit-gnome-0.105-r2
@@ -19,7 +19,7 @@
 >mail-client/thunderbird-103
 >mate-extra/mate-system-monitor-1.24.2
 >mate-extra/mate-utils-1.24.0-r3
->media-gfx/eog-42.3
+>media-gfx/eog-42.3-r1
 >media-gfx/gnome-photos-42.0-r1
 >media-gfx/gnome-screenshot-41.0
 >media-gfx/shotwell-0.30.16-r1
