@@ -26,8 +26,8 @@ RDEPEND="
 	ubuntu-cursor? ( x11-themes/vanilla-dmz-xcursors )
 	ubuntu-sounds? ( x11-themes/ubuntu-sounds )
 	yaru? (
+		unity-indicators/unity-indicator-appearance
 		x11-themes/ubuntu-unity-backgrounds
-		x11-themes/yaru-theme[unity]
 	)
 "
 PDEPEND="unity-lenses/unity-lens-meta[files=,music=,photos=,video=]"
