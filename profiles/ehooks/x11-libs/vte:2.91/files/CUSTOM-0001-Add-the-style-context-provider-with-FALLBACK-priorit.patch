@@ -26,14 +26,14 @@ index 4544d9a..86ced97 100644
  };
  
  #if VTE_GTK == 4
-@@ -844,6 +845,9 @@ try
+@@ -853,6 +854,9 @@ try
          context = gtk_widget_get_style_context(&terminal->widget);
          gtk_style_context_add_provider (context,
                                          VTE_TERMINAL_GET_CLASS (terminal)->priv->style_provider,
 +                                        GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
 +        gtk_style_context_add_provider (context,
 +                                        VTE_TERMINAL_GET_CLASS (terminal)->priv->style_provider_padding,
-                                         GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+                                         VTE_TERMINAL_CSS_PRIORITY);
  
  #if VTE_GTK == 3
 @@ -2451,6 +2455,7 @@ vte_terminal_class_init(VteTerminalClass *klass)

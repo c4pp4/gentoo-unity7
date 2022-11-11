@@ -185,13 +185,14 @@ diff --git a/shell/evince.gresource.xml b/shell/evince.gresource.xml
 index c7dcc17..865ba3f 100644
 --- a/shell/evince.gresource.xml
 +++ b/shell/evince.gresource.xml
-@@ -21,5 +21,6 @@
+@@ -21,6 +21,7 @@
      <file alias="ui/evince.css" compressed="true">evince.css</file>
      <file alias="ui/thumbnail-frame.png" compressed="true">thumbnail-frame.png</file>
      <file alias="gtk/menus.ui" compressed="true" preprocess="xml-stripblanks">evince-menus.ui</file>
 +    <file alias="gtk/traditional-menus.ui" compressed="true" preprocess="xml-stripblanks">traditional-menus.ui</file>
-   </gresource>
- </gresources>
+     <file alias="ui/message-area.ui" compressed="true" preprocess="xml-stripblanks">evince-message-area.ui</file>
+     <file alias="ui/password-view.ui" compressed="true" preprocess="xml-stripblanks">evince-password-view.ui</file>
+     <file alias="ui/progress-message-area.ui" compressed="true" preprocess="xml-stripblanks">evince-progress-message-area.ui</file>
 diff --git a/shell/meson.build b/shell/meson.build
 index 7cbc48f..9320505 100644
 --- a/shell/meson.build
