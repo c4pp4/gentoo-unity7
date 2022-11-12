@@ -98,16 +98,6 @@ media-sound/rhythmbox			# Patched for indicator-sound support, add Unity MediaKe
 					#  07_quicklists.patch
 					#  08_stop_quit.patch
 media-video/totem			# Add traditional menubar (https://bugzilla.gnome.org/show_bug.cgi?id=749695)
-net-im/empathy				# Integrates with Unity online accounts, associated plugins and the messages indicator
-					#  Ubuntu patchset:
-					#  enchant-2.patch
-					#  00_linker-fixes.patch
-					#  10_use_notify_osd_icons.patch
-					#  34_start_raised_execpt_in_session.patch
-					#  38_default_to_facebook_for_im.patch
-					#  39_default_to_freenode_for_irc.patch
-					#  41_unity_launcher_progress.patch
-					#  43_quicklists.patch
 net-im/pidgin				# Add chat section into messaging menu (Available, Away, Busy, Invisible, Offline)
 net-im/telegram-desktop			# Add ubuntu-mono-dark and Yaru-dark tray icons
 net-im/telegram-desktop-bin		# Add ubuntu-mono-dark and Yaru-dark tray icons
@@ -138,6 +128,7 @@ x11-libs/gtk+:3				# Needed for global appmenu, fix firefox/thunderbird global s
 					#  0001-gtkwindow-set-transparent-background-color.patch
 					#  unity-border-radius.patch
 					#  unity-headerbar-maximized-mode.patch
+x11-libs/libwnck			# Fix segfault in invalidate_icons (LP: #1990263)
 x11-misc/lightdm			# Custom fixes for Xsession profile sourcing and multi-monitor display
 x11-misc/zim				# Add ubuntu-mono-{dark,light} and Yaru-dark tray icons
 x11-plugins/pidgin-libnotify		# Fix Unity messaging menu support
@@ -172,7 +163,7 @@ x11-terms/mate-terminal			# Set as default terminal under Unity, add style class
 ========================================================================
 * By design, some indicators or their features will not appear until they meet certain criteria
 ========================================================================
-	- indicator-messages	# Won't appear until a messaging type application is run first (eg. empathy, evolution (via indicator-evolution), pidgin, webapp)
+	- indicator-messages	# Won't appear until a messaging type application is run first (eg. evolution (via indicator-evolution), pidgin)
 	- indicator-keyboard	# Won't appear until at least one input source is specified and 'Show current input source in menu bar' is checked in System Settings > Text Entry
 	- indicator-session	# Won't show username until 'Show my login name in the menu bar' is checked in System Settings > User Accounts
 					and then only if user has been added to /etc/passwd using useradd's '--comment' GECOS field
@@ -183,19 +174,6 @@ x11-terms/mate-terminal			# Set as default terminal under Unity, add style class
 	- Dconf registry accessible via gsettings or dconf-editor
 	- ~/.{cache,config,local}/...
 	- /var/lib/AccountsService/users/<user>
-
-========================================================================
-* Empathy and message indicator integration
-========================================================================
-	- To reset all empathy accounts and configurations:
-		rm -rfv ~/.cache/telepathy
-		rm -rfv ~/.local/share/telepathy
-		rm -rfv ~/.config/libaccounts-glib
-		rm -rfv ~/.config/Empathy
-		rm -rfv ~/.cache/folks
-		rm -rfv ~/.local/share/folks
-	- To debug telepathy packages:
-		G_MESSAGES_DEBUG=all FOO_PERSIST=1 FOO_DEBUG=all /path/to/telepathy-foo 2>&1 | tee foo.log
 
 ========================================================================
 * Debugging Unity

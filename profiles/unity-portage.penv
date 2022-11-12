@@ -6,7 +6,6 @@ gnome-base/gnome-session ehooks-network
 gnome-base/gsettings-desktop-schemas ehooks-network
 gnome-extra/polkit-gnome ehooks-network
 media-sound/rhythmbox ehooks-network
-net-im/empathy ehooks-network
 sys-apps/accountsservice ehooks-network
 x11-libs/gtk+:2 ehooks-network
 x11-libs/gtk+:3 ehooks-network

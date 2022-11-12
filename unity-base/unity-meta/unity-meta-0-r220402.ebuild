@@ -54,7 +54,6 @@ RDEPEND="
 	chat? (
 		|| (
 			( net-im/pidgin x11-plugins/pidgin-libnotify )
-			( net-im/empathy app-text/enchant:2 net-libs/telepathy-indicator )
 			net-im/telegram-desktop
 			net-im/telegram-desktop-bin
 		)

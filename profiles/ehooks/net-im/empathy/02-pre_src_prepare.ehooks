@@ -1,3 +1,0 @@
-ehooks() {
-	sed -i "/appdatadir/{s/\/appdata/\/metainfo/}" data/Makefile.am || die
-}
