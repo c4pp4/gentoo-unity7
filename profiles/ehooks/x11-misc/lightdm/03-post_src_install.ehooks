@@ -36,6 +36,7 @@ ehooks() {
 	exeinto /usr/share/lightdm/guest-session
 	doexe "${EHOOKS_FILESDIR}"/setup.sh
 	dodir /usr/share/lightdm/guest-session/skel
+	touch "${ED}/usr/share/lightdm/guest-session/skel/.${PN}"
 
 	# Add guest session GSettings defaults
 	insinto /etc/guest-session/gsettings

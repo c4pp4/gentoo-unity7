@@ -21,7 +21,7 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="test"
 
 COMMON_DEPEND="
-	>=dev-cpp/glibmm-2.64.2
+	>=dev-cpp/glibmm-2.64.2:2
 	>=dev-libs/glib-2.39.4:2
 	dev-libs/libxslt
 	>=dev-libs/protobuf-3.12.4:=
