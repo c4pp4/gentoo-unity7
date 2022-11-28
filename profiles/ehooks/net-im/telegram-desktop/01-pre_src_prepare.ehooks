@@ -1,0 +1,6 @@
+ehooks() {
+	# Autostart delay #
+	sed -i \
+		-e "/SingleWindow/a X-GNOME-Autostart-Delay=3" \
+		lib/xdg/${PN/-}.desktop || die
+}

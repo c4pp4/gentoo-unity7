@@ -5,19 +5,29 @@ ehooks() {
 	insinto /etc/${PN}
 	doins "${EHOOKS_FILESDIR}"/${PN}.conf
 
+	insinto /etc/logrotate.d
+	newins "${S}"/debian/${PN}.logrotate ${PN}
+
+	sed -i \
+		-e "s:/usr/lib/lightdm:/usr/libexec:" \
+		"${S}"/debian/50-{greeter,guest}-wrapper.conf || die
+
 	insinto /etc/${PN}/${PN}.conf.d
 	doins "${EHOOKS_FILESDIR}"/50-display-setup.conf		# Executes lightdm-greeter-display-setup
-	doins "${S}"/debian/50-greeter-wrapper.conf		# Executes lightdm-greeter-session
+	doins "${S}"/debian/50-disable-log-backup.conf			# Use logrotate instead
+	doins "${S}"/debian/50-greeter-wrapper.conf			# Executes lightdm-greeter-session
+	doins "${S}"/debian/50-guest-wrapper.conf			# Executes lightdm-guest-session
+	doins "${S}"/debian/50-xserver-command.conf
 
-	exeinto /usr/lib/${PN}
-	doexe "${S}"/debian/lightdm-greeter-session		# Handle extraneous dbus processes (eliminates 2nd nm-applet icon)
+	exeinto /usr/libexec
+	doexe "${S}"/debian/lightdm-greeter-session			# Handle extraneous dbus processes (eliminates 2nd nm-applet icon)
 	# script makes lightdm multi monitor sessions aware
 	# and enable first display as primary output
 	# all other monitors are aranged right of it in a row
 	#
 	# on 'unity-greeter' the login prompt will follow the mouse cursor
 	#
-	doexe "${EHOOKS_FILESDIR}"/lightdm-greeter-display-setup       # Handle multi-monitor setups
+	doexe "${EHOOKS_FILESDIR}"/lightdm-greeter-display-setup	# Handle multi-monitor setups
 
 	exeinto /usr/sbin
 	newexe "${EHOOKS_FILESDIR}"/Xsession lightdm-session		# Install our custom Xsession as /usr/sbin/lightdm-session
@@ -35,8 +45,7 @@ ehooks() {
 	# to work the script properly
 	exeinto /usr/share/lightdm/guest-session
 	doexe "${EHOOKS_FILESDIR}"/setup.sh
-	dodir /usr/share/lightdm/guest-session/skel
-	touch "${ED}/usr/share/lightdm/guest-session/skel/.${PN}"
+	keepdir /usr/share/lightdm/guest-session/skel
 
 	# Add guest session GSettings defaults
 	insinto /etc/guest-session/gsettings
@@ -55,7 +64,7 @@ ehooks() {
 	# Add gnome-keyring support to automatically
 	# unlock the keyring once you log in. Issue #203
 	sed -i \
-		-e "/^auth/ a -auth\toptional\tpam_gnome_keyring.so" \
-		-e "/^session/ a -session\toptional\tpam_gnome_keyring.so auto_start" \
+		-e "/^auth/a -auth\toptional\t\tpam_gnome_keyring.so" \
+		-e "/^session/a -session\toptional\t\tpam_gnome_keyring.so auto_start" \
 		"${ED}/etc/pam.d/${PN}" || die
 }

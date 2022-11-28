@@ -1,7 +1,7 @@
 ehooks() {
 	local \
-		blake=1e441f1e341f176e26d9ca3361f56ba731efb58153750d5b7a36633f29c10a93d19211507a1e79890a77c06e4cad0f1c66f520a99528de7f2525b463014e7b0d \
-		uver=accountsservice_22.08.8-1ubuntu1
+		blake=0fdb808be00b9cfb02b32c8b5cee344173c6fae054a79c76326cbfa9112b428346371b6c2b7b47c4452435350c82032630879dcf56699434a69aa1abca846df9 \
+		uver=accountsservice_22.08.8-1ubuntu3
 
 	source "${EHOOKS_PATH}"/templates/fetch_debian.template
 	fetch_debian "${blake}" "${uver}"
