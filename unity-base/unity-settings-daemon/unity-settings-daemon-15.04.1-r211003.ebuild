@@ -135,7 +135,6 @@ src_configure() {
 		$(use_enable nls)
 		$(use_enable smartcard smartcard-support)
 		$(use_enable udev gudev)
-		$(use_enable udev)
 		$(use_enable input_devices_wacom wacom)
 	)
 	gnome2_src_configure "${mygnome2args[@]}"
