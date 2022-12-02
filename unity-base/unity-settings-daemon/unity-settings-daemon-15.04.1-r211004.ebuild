@@ -7,7 +7,7 @@ GNOME2_EAUTORECONF="yes"
 UVER=+21.10.20210715
 UREV=0ubuntu1
 
-inherit flag-o-matic gnome2 ubuntu-versionator
+inherit flag-o-matic gnome2 ubuntu-versionator udev
 
 DESCRIPTION="Unity Settings Daemon"
 HOMEPAGE="https://launchpad.net/unity-settings-daemon"
@@ -16,7 +16,7 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 LICENSE="GPL-2 LGPL-2.1"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="+colord debug +fcitx +i18n +input_devices_wacom nls +short-touchpad-timeout smartcard +udev"
+IUSE="+colord debug +fcitx +i18n +input_devices_wacom nls rfkill +short-touchpad-timeout smartcard +udev"
 REQUIRED_USE="
 	input_devices_wacom? ( udev )
 	smartcard? ( udev )
@@ -133,6 +133,7 @@ src_configure() {
 		$(use_enable fcitx)
 		$(use_enable i18n ibus)
 		$(use_enable nls)
+		$(use_enable rfkill)
 		$(use_enable smartcard smartcard-support)
 		$(use_enable udev gudev)
 		$(use_enable input_devices_wacom wacom)
@@ -154,4 +155,21 @@ src_install() {
 	doins debian/user/unity-settings-daemon.service
 	insinto /usr/share/upstart/systemd-session/upstart
 	doins debian/user/unity-settings-daemon.override
+
+	# Install rfkill rules #
+	if use rfkill; then
+		udev_newrules plugins/rfkill/61-gnome-settings-daemon-rfkill.rules \
+			61-unity-settings-daemon-rfkill.rules
+		rm "${ED}"/usr/lib/udev/rules.d/61-gnome-settings-daemon-rfkill.rules
+	fi
+}
+
+pkg_postinst() {
+	ubuntu-versionator_pkg_postinst
+	use rfkill && udev_reload
+}
+
+pkg_postrm() {
+	gnome2_pkg_postrm
+	use rfkill && udev_reload
 }
