@@ -288,7 +288,7 @@ portage_updates() {
 			echo "www-client/firefox::gentoo ~amd64" > /tmp/"${tmp_ak}"
 		fi
 
-		update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "\[32;01m" | tail -1 | sed "s/|.*$//")
+		update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "|amd64$" | tail -1 | sed "s/|.*$//")
 		[[ -n ${update} ]] && updates+=( "${line}|${update}" )
 
 		if [[ -h /etc/portage/package.accept_keywords/zzzz_"${tmp_ak}" ]]; then
@@ -476,7 +476,7 @@ debian_changes() {
 
 				pn="${x#*ehooks/}"; pn="${pn%/*}"
 				if [[ -n ${auvers[@]} ]]; then
-					ipn=$(equery -q l -p -F '$cpv|$mask2' "${pn}" | grep "\[32;01m" | tail -1 | sed "s/|.*$//")
+					ipn=$(equery -q l -p -F '$cpv|$mask2' "${pn}" | grep "|amd64$" | tail -1 | sed "s/|.*$//")
 					if [[ -z ${ipn} ]]; then
 						ipn=$(qlist -Iv "${pn}")
 						[[ -z ${ipn} ]] \
