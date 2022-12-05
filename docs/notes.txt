@@ -121,6 +121,9 @@ x11-libs/gtk+:2				# Support for dynamically loading overlay scrollbars, have th
 					#  gtk-shell-shows-menubar.patch
 x11-libs/gtk+:3				# Needed for global appmenu, fix firefox/thunderbird global submenus to be initially populated
 					#  Ubuntu patchset:
+					#  gtk-Rename-gtk-mkenums-headers.mak-to-gtk-sources.inc.patch
+					#  gtk-Makefile.am-Split-out-more-items.patch
+					#  gtk-sources.inc-Split-base-sources-in-two-parts.patch
 					#  bzg_gtkcellrenderer_grabbing_modifier.patch
 					#  ubuntu_gtk_custom_menu_items.patch
 					#  x-canonical-accel.patch
@@ -128,7 +131,7 @@ x11-libs/gtk+:3				# Needed for global appmenu, fix firefox/thunderbird global s
 					#  0001-gtkwindow-set-transparent-background-color.patch
 					#  unity-border-radius.patch
 					#  unity-headerbar-maximized-mode.patch
-x11-libs/libwnck			# Fix segfault in invalidate_icons (LP: #1990263)
+x11-libs/libwnck:3			# Fix segfault in invalidate_icons (LP: #1990263)
 x11-misc/lightdm			# Custom fixes for Xsession profile sourcing and multi-monitor display
 x11-misc/zim				# Add ubuntu-mono-{dark,light} and Yaru-dark tray icons
 x11-plugins/pidgin-libnotify		# Fix Unity messaging menu support

@@ -13,7 +13,6 @@ ehooks() {
 		"${S}"/debian/50-{greeter,guest}-wrapper.conf || die
 
 	insinto /etc/${PN}/${PN}.conf.d
-	doins "${EHOOKS_FILESDIR}"/50-display-setup.conf		# Executes lightdm-greeter-display-setup
 	doins "${S}"/debian/50-disable-log-backup.conf			# Use logrotate instead
 	doins "${S}"/debian/50-greeter-wrapper.conf			# Executes lightdm-greeter-session
 	doins "${S}"/debian/50-guest-wrapper.conf			# Executes lightdm-guest-session
@@ -21,13 +20,6 @@ ehooks() {
 
 	exeinto /usr/libexec
 	doexe "${S}"/debian/lightdm-greeter-session			# Handle extraneous dbus processes (eliminates 2nd nm-applet icon)
-	# script makes lightdm multi monitor sessions aware
-	# and enable first display as primary output
-	# all other monitors are aranged right of it in a row
-	#
-	# on 'unity-greeter' the login prompt will follow the mouse cursor
-	#
-	doexe "${EHOOKS_FILESDIR}"/lightdm-greeter-display-setup	# Handle multi-monitor setups
 
 	exeinto /usr/sbin
 	newexe "${EHOOKS_FILESDIR}"/Xsession lightdm-session		# Install our custom Xsession as /usr/sbin/lightdm-session

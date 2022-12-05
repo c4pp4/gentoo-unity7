@@ -415,6 +415,7 @@ debian_changes() {
 	local x="$1" && shift
 
 	[[ $(type -P equery) != "/usr/bin/equery" ]] && echo && eerror "'equery' tool from 'app-portage/gentoolkit' package not found!" && echo && exit 1
+	[[ $(type -P qlist) != "/usr/bin/qlist" ]] && echo && eerror "'qlist' tool from 'app-portage/portage-utils' package not found!" && echo && exit 1
 	check_path "$1"
 
 	local -a uvers=( $(get_uvers "$@") )

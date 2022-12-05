@@ -1,7 +1,7 @@
 ehooks() {
 	local \
-		blake=b03e7fe90f4805b6c1cf8f9afb805e50f6164ced4ce5548f224f0a022684595e4d95d1242d8e8ed503aaa9872af228b57bc79a7c7f4f8d3446a9e3513127570d \
-		uver=gtk+3.0_3.24.34-3ubuntu2
+		blake=1039fe9ade313d5192e9bd6588aea1e95637e0ad2a7a4ee26d8ab72c73a1d786a560ceb275293872eead2a2845734baa8ae75083dee0aefce92ab6c0819aa6d3 \
+		uver=gtk+3.0_3.24.34-5ubuntu1
 
 	source "${EHOOKS_PATH}"/templates/fetch_debian.template
 	fetch_debian "${blake}" "${uver}"
