@@ -86,12 +86,10 @@ RDEPEND="
 		|| (
 			media-gfx/shotwell
 			media-gfx/gthumb
-			media-gfx/gnome-photos
 		)
 		|| (
 			media-sound/rhythmbox
 			media-sound/audacious
-			media-sound/gnome-music
 		)
 		|| (
 			media-video/vlc
