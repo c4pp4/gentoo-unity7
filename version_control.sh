@@ -286,9 +286,10 @@ portage_updates() {
 			install -m 666 /dev/null /tmp/"${tmp_ak}" || exit 1
 			ln -fs /tmp/"${tmp_ak}" /etc/portage/package.accept_keywords/zzzz_"${tmp_ak}" || exit 1
 			echo "www-client/firefox::gentoo ~amd64" > /tmp/"${tmp_ak}"
+			update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "|~amd64$" | tail -1 | sed "s/|.*$//")
+		else
+			update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "|amd64$" | tail -1 | sed "s/|.*$//")
 		fi
-
-		update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "|amd64$" | tail -1 | sed "s/|.*$//")
 		[[ -n ${update} ]] && updates+=( "${line}|${update}" )
 
 		if [[ -h /etc/portage/package.accept_keywords/zzzz_"${tmp_ak}" ]]; then

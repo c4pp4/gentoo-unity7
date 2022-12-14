@@ -25,7 +25,7 @@
 >media-sound/rhythmbox-3.4.6
 >media-video/totem-43.0
 >sys-apps/accountsservice-22.08.8
->www-client/firefox-108
+>www-client/firefox-109
 >www-client/firefox-103:esr
 >x11-libs/gtk+-2.24.33-r2:2
 >x11-libs/gtk+-3.24.34-r1:3
