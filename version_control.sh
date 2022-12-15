@@ -545,9 +545,6 @@ update_packages() {
 			for frls in "${rls}"-updates "${rls}"-security "${rls}"; do
 				for rp in "${repos[@]}"; do
 					case ${name} in
-						indicator-evolution)
-							fixname="evolution-indicator"
-							;;
 						indicator-psensor)
 							fixname="psensor"
 							;;

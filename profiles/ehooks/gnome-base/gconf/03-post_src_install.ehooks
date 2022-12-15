@@ -1,5 +1,0 @@
-ehooks() {
-	# Install Ubuntu's gconf update tool #
-	exeinto /usr/bin
-	doexe "${S}/debian/update-gconf-defaults"
-}

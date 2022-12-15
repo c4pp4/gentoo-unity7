@@ -37,13 +37,6 @@ dev-libs/libappindicator		# Build with GTK2, see "Using portage tree libindicate
 games-board/iagno			# Disable headerbar quit button when not in GNOME
 games-puzzle/gnome-taquin		# Disable headerbar quit button when not in GNOME
 gnome-base/dconf-editor			# Disable headerbar quit button when not in GNOME
-gnome-base/gconf			# Install 'update-gconf-defaults' script - Ubuntu's gconf update tool
-					#  Ubuntu patchset:
-					#  05_nodisplay_autostart.patch
-					#  0001-gconf-gconf-value.h-Use-G_GNUC_-BEGIN_END-_DEPRECATI.patch
-					#  0001-Support-s-to-as-migrations-v2.patch
-					#  call-dbus_g_thread_init.patch
-					#  reduce-polling.patch
 gnome-base/gnome-desktop:3		# Adjust background color detection for Unity (04_compute_average_color.patch, tweak_color_computation.patch)
 gnome-base/gnome-menus			# Needed for some menu patches
 					#  Ubuntu patchset:
@@ -166,7 +159,7 @@ x11-terms/mate-terminal			# Set as default terminal under Unity, add style class
 ========================================================================
 * By design, some indicators or their features will not appear until they meet certain criteria
 ========================================================================
-	- indicator-messages	# Won't appear until a messaging type application is run first (eg. evolution (via indicator-evolution), pidgin)
+	- indicator-messages	# Won't appear until a messaging type application is run first (eg. evolution, mailnag (via mailnag-messagingmenu-plugin), pidgin)
 	- indicator-keyboard	# Won't appear until at least one input source is specified and 'Show current input source in menu bar' is checked in System Settings > Text Entry
 	- indicator-session	# Won't show username until 'Show my login name in the menu bar' is checked in System Settings > User Accounts
 					and then only if user has been added to /etc/passwd using useradd's '--comment' GECOS field
