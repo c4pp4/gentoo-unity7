@@ -1,5 +1,5 @@
 ## These are packages maintained via ehooks that must be checked before bump ##
->app-text/evince-43.0
+>app-text/evince-43.0-r1
 >dev-libs/glib-2.74.1-r1
 >games-board/iagno-3.38.1-r1
 >games-puzzle/gnome-taquin-3.38.1-r1
