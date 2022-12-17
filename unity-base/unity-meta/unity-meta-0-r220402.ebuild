@@ -79,10 +79,7 @@ RDEPEND="
 			media-gfx/eom
 			media-gfx/eog
 		)
-		|| (
-			mate-extra/mate-utils
-			media-gfx/gnome-screenshot
-		)
+		mate-extra/mate-utils
 		|| (
 			media-gfx/shotwell
 			media-gfx/gthumb
@@ -95,10 +92,7 @@ RDEPEND="
 			media-video/vlc
 			media-video/totem
 		)
-		|| (
-			x11-terms/mate-terminal
-			x11-terms/gnome-terminal
-		)
+		x11-terms/mate-terminal
 	)
 	extra? (
 		app-backup/deja-dup
@@ -111,10 +105,6 @@ RDEPEND="
 			gnome-extra/gnome-system-monitor
 		)
 		gnome-extra/gnome-weather
-		|| (
-			mate-extra/mate-utils
-			( app-dicts/gnome-dictionary sys-apps/baobab )
-		)
 		media-gfx/gnome-font-viewer
 		media-gfx/simple-scan
 		media-video/cheese

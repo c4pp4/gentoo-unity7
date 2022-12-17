@@ -94,6 +94,7 @@ PATCHES=(
 	"${FILESDIR}"/optional-colord-and-wacom.patch
 	"${FILESDIR}"/remove-nautilus-support.patch
 	"${FILESDIR}"/shortcut-alt-app.patch
+	"${FILESDIR}"/add-gerror.patch
 )
 
 src_prepare() {

@@ -15,7 +15,7 @@ SRC_URI=""
 LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="+fontconfig +libreoffice +terminal"
+IUSE="+fontconfig +libreoffice"
 RESTRICT="binchecks strip test"
 
 RDEPEND="fontconfig? ( media-libs/freetype:2[adobe-cff,cleartype-hinting,-infinality] )"

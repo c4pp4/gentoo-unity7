@@ -1,6 +1,6 @@
-From b22feb1cbc28d6b02e7e892be93bfff16a3c53cf Mon Sep 17 00:00:00 2001
+From 35c2c15b3ca997d7770d7a10237bd5aec95ddcf3 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Thu, 30 Sep 2021 21:19:16 +0200
+Date: Sat, 17 Dec 2022 20:41:26 +0100
 Subject: [PATCH 1/1] Use unity-control-center as the fallback
 
 Try to use unity-control-center as the fallback when gnome-control-center
@@ -8,17 +8,17 @@ is not available.
 
 Signed-off-by: c4pp4
 ---
- src/contacts-app.vala |  8 ++++++++
- src/meson.build       |  1 +
- src/xdg-desktop.vala  | 22 ++++++++++++++++++++++
- 3 files changed, 31 insertions(+)
+ src/contacts-preferences-window.vala |  8 ++++++++
+ src/meson.build                      |  1 +
+ src/xdg-desktop.vala                 | 12 ++++++++++++
+ 3 files changed, 21 insertions(+)
  create mode 100644 src/xdg-desktop.vala
 
-diff --git a/src/contacts-app.vala b/src/contacts-app.vala
-index b1adaf4..77d3952 100644
---- a/src/contacts-app.vala
-+++ b/src/contacts-app.vala
-@@ -143,8 +143,16 @@ public class Contacts.App : Gtk.Application {
+diff --git a/src/contacts-preferences-window.vala b/src/contacts-preferences-window.vala
+index 9c51210..2428a88 100644
+--- a/src/contacts-preferences-window.vala
++++ b/src/contacts-preferences-window.vala
+@@ -71,8 +71,16 @@ public class Contacts.PreferencesWindow : Adw.PreferencesWindow {
  
        proxy.call_sync ("Activate", param, DBusCallFlags.NONE, -1);
      } catch (Error e) {
@@ -34,12 +34,12 @@ index b1adaf4..77d3952 100644
 +      }
      }
    }
- 
+ }
 diff --git a/src/meson.build b/src/meson.build
-index d977638..08e5d31 100644
+index e17fe6c..4ee2318 100644
 --- a/src/meson.build
 +++ b/src/meson.build
-@@ -96,6 +96,7 @@ contacts_vala_sources = files(
+@@ -97,6 +97,7 @@ contacts_vala_sources = files(
    'contacts-type-combo.vala',
    'contacts-ui-state.vala',
    'main.vala',
@@ -49,7 +49,7 @@ index d977638..08e5d31 100644
  contacts_c_sources = [
 diff --git a/src/xdg-desktop.vala b/src/xdg-desktop.vala
 new file mode 100644
-index 0000000..ecaaa18
+index 0000000..c9d5623
 --- /dev/null
 +++ b/src/xdg-desktop.vala
 @@ -0,0 +1,12 @@
@@ -66,5 +66,5 @@ index 0000000..ecaaa18
 +    return false;
 +}
 -- 
-2.32.0
+2.38.2
 

@@ -1,3 +1,1 @@
-ehooks() {
-	ehooks_require terminal
-}
+../../templates/patches.template

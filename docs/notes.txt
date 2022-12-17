@@ -122,6 +122,7 @@ x11-libs/gtk+:3				# Needed for global appmenu, fix firefox/thunderbird global s
 					#  unity-border-radius.patch
 					#  unity-headerbar-maximized-mode.patch
 x11-libs/libwnck:3			# Fix segfault in invalidate_icons (LP: #1990263)
+x11-libs/vte:2.91			# Add the style context provider with FALLBACK priority; see x11-terms/{gnome,mate}-terminal
 x11-misc/lightdm			# Custom fixes for Xsession profile sourcing and multi-monitor display
 x11-misc/zim				# Add ubuntu-mono-{dark,light} and Yaru-dark tray icons
 x11-plugins/pidgin-libnotify		# Fix Unity messaging menu support
@@ -134,6 +135,7 @@ x11-plugins/pidgin-libnotify		# Fix Unity messaging menu support
 					#  replace-pidgin-action-requests.diff
 					#  ubuntu_notify_support.patch
 					#  messaging_menu.patch
+x11-terms/mate-terminal			# Set as default terminal under Unity, add style classes and CSS names to some of our widgets, use theme transparency, draw proper background under the scrollbar (https://bugzilla.gnome.org/show_bug.cgi?id=754796, LP #1493964)
 
 ========================================================================
 * Optional ehooks managed via unity-extra/ehooks USE flags:
@@ -149,9 +151,6 @@ media-fonts/takao-fonts			# Reduce fonts according to Ubuntu
 media-fonts/nanum			# Reduce fonts according to Ubuntu
 media-fonts/khmer			# Reduce fonts according to Ubuntu
 media-libs/fontconfig			# Adjust fonts configuration according to Ubuntu
-x11-libs/vte:2.91			# Add the style context provider with FALLBACK priority; see x11-terms/{gnome,mate}-terminal
-x11-terms/gnome-terminal		# Add style classes and CSS names to some of our widgets, use theme transparency, draw proper background under the scrollbar (https://bugzilla.gnome.org/show_bug.cgi?id=754796, LP #1493964)
-x11-terms/mate-terminal			# Set as default terminal under Unity, add style classes and CSS names to some of our widgets, use theme transparency, draw proper background under the scrollbar (https://bugzilla.gnome.org/show_bug.cgi?id=754796, LP #1493964)
 
 ========================================================================
 * By design, some indicators or their features will not appear until they meet certain criteria
