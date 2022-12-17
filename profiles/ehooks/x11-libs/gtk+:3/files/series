@@ -1,6 +1,3 @@
-gtk-Rename-gtk-mkenums-headers.mak-to-gtk-sources.inc.patch
-gtk-Makefile.am-Split-out-more-items.patch
-gtk-sources.inc-Split-base-sources-in-two-parts.patch
 bzg_gtkcellrenderer_grabbing_modifier.patch
 ubuntu_gtk_custom_menu_items.patch
 x-canonical-accel.patch
