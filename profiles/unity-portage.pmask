@@ -36,7 +36,11 @@
 >x11-terms/mate-terminal-1.26.0
 
 ## b.g.o #873679 ##
->app-i18n/ibus-1.5.26-r1
+>=app-i18n/ibus-1.5.27
+
+## Don't replace libnotify with GNotification ##
+>=gnome-extra/nm-applet-1.30.0
+>=net-libs/libnma-1.10.4
 
 ## These are packages maintained within the overlay that must not be emerged from the main portage tree ##
 dev-libs/libindicator::gentoo		## the latest version in the Gentoo tree is 12.10.1 (2012-09-19)
