@@ -1,88 +1,59 @@
-From 3c95ae3dda5d4ff15d0b9f7eb04f99c6edd38aea Mon Sep 17 00:00:00 2001
+From 97e124f8f23a0ff31cfed7223435e07bd40865c1 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Fri, 15 Jul 2022 20:00:48 +0200
+Date: Thu, 29 Dec 2022 20:53:41 +0100
 Subject: [PATCH 1/1] Find application when using shortcut
 
-Screenshot: mate-screenshot (default) or gnome-screenshot (alt).
-Calculator: mate-calc (default) or gnome-calculator (alt).
+Screenshot: mate-screenshot
+Calculator: mate-calc (default) or gnome-calculator (alt)
 
 Signed-off-by: c4pp4
 ---
- plugins/media-keys/gsd-media-keys-manager.c | 50 ++++++++++++++-------
- 1 file changed, 34 insertions(+), 16 deletions(-)
+ plugins/media-keys/gsd-media-keys-manager.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
 diff --git a/plugins/media-keys/gsd-media-keys-manager.c b/plugins/media-keys/gsd-media-keys-manager.c
-index f00c115..1724220 100644
+index f00c115..4167683 100644
 --- a/plugins/media-keys/gsd-media-keys-manager.c
 +++ b/plugins/media-keys/gsd-media-keys-manager.c
-@@ -2520,25 +2520,43 @@ static void
- do_screenshot_action (GsdMediaKeysManager *manager,
-                       MediaKeyType         type)
+@@ -2522,22 +2522,22 @@ do_screenshot_action (GsdMediaKeysManager *manager,
  {
--    switch (type){
--        case SCREENSHOT_KEY:
+     switch (type){
+         case SCREENSHOT_KEY:
 -            execute (manager, "gnome-screenshot", FALSE);
--            break;
-+        gchar           *app_cmd;
-+        GDesktopAppInfo *app_info;
-+
-+        app_cmd = g_strdup ("mate-screenshot");
-+        app_info = g_desktop_app_info_new ("mate-screenshot.desktop");
-+        if (app_info == NULL) {
-+                app_cmd = g_strdup ("gnome-screenshot");
-+                app_info = g_desktop_app_info_new ("org.gnome.Screenshot.desktop");
-+        }
-+
-+        if (app_info != NULL) {
-+                g_object_unref (app_info);
-+        } else {
-+                g_free (app_cmd);
-+                g_warning ("Could not find screenshot application");
-+                return;
-+        }
-+
-+        switch (type) {
++            execute (manager, "mate-screenshot", FALSE);
+             break;
          case WINDOW_SCREENSHOT_KEY:
 -            execute (manager, "gnome-screenshot --window", FALSE);
--            break;
-+                app_cmd = g_strconcat (app_cmd, " --window", NULL);
-+                break;
++            execute (manager, "mate-screenshot --window", FALSE);
+             break;
          case AREA_SCREENSHOT_KEY:
 -            execute (manager, "gnome-screenshot --area", FALSE);
--            break;
-+                app_cmd = g_strconcat (app_cmd, " --area", NULL);
-+                break;
++            execute (manager, "mate-screenshot --area", FALSE);
+             break;
          case SCREENSHOT_CLIP_KEY:
 -            execute (manager, "gnome-screenshot --clipboard", FALSE);
--            break;
-+                app_cmd = g_strconcat (app_cmd, " --clipboard", NULL);
-+                break;
++            execute (manager, "mate-screenshot --clipboard", FALSE);
+             break;
          case WINDOW_SCREENSHOT_CLIP_KEY:
 -            execute (manager, "gnome-screenshot --window --clipboard", FALSE);
--            break;
-+                app_cmd = g_strconcat (app_cmd, " --window --clipboard", NULL);
-+                break;
++            execute (manager, "mate-screenshot --window --clipboard", FALSE);
+             break;
          case AREA_SCREENSHOT_CLIP_KEY:
 -            execute (manager, "gnome-screenshot --area --clipboard", FALSE);
--    }
-+                app_cmd = g_strconcat (app_cmd, " --area --clipboard", NULL);
-+        }
-+
-+        execute (manager, app_cmd, FALSE);
-+        g_free (app_cmd);
++            execute (manager, "mate-screenshot --area --clipboard", FALSE);
+     }
  }
  
- static void
-@@ -2626,7 +2644,7 @@ do_action (GsdMediaKeysManager *manager,
+@@ -2626,7 +2626,7 @@ do_action (GsdMediaKeysManager *manager,
                  do_media_action (manager, timestamp);
                  break;
          case CALCULATOR_KEY:
 -                do_execute_desktop_or_desktop (manager, "org.gnome.Calculator.desktop", "gnome-calculator.desktop", timestamp);
-+                do_execute_desktop_or_desktop (manager, "org.gnome.Calculator.desktop", "mate-calc.desktop", timestamp);
++                do_execute_desktop_or_desktop (manager, "mate-calc.desktop", "org.gnome.Calculator.desktop", timestamp);
                  break;
          case PLAY_KEY:
                  return do_multimedia_player_action (manager, NULL, "Play");
-@@ -2706,7 +2724,7 @@ do_action (GsdMediaKeysManager *manager,
+@@ -2706,7 +2706,7 @@ do_action (GsdMediaKeysManager *manager,
                  do_keyboard_brightness_action (manager, type);
                  break;
          case BATTERY_KEY:
@@ -92,5 +63,5 @@ index f00c115..1724220 100644
          case SWITCH_INPUT_SOURCE_KEY:
          case SWITCH_INPUT_SOURCE_BACKWARD_KEY:
 -- 
-2.35.1
+2.38.2
 

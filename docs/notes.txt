@@ -122,7 +122,7 @@ x11-libs/gtk+:3				# Needed for global appmenu, fix firefox/thunderbird global s
 					#  unity-border-radius.patch
 					#  unity-headerbar-maximized-mode.patch
 x11-libs/libwnck:3			# Fix segfault in invalidate_icons (LP: #1990263)
-x11-libs/vte:2.91			# Add the style context provider with FALLBACK priority; see x11-terms/{gnome,mate}-terminal
+x11-libs/vte:2.91			# Add the style context provider with FALLBACK priority; see x11-terms/mate-terminal
 x11-misc/lightdm			# Custom fixes for Xsession profile sourcing and multi-monitor display
 x11-misc/zim				# Add ubuntu-mono-{dark,light} and Yaru-dark tray icons
 x11-plugins/pidgin-libnotify		# Fix Unity messaging menu support
