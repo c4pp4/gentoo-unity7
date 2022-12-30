@@ -1,7 +1,7 @@
 ## These are packages maintained via ehooks that must be checked before bump ##
 >app-i18n/ibus-1.5.27
 >app-text/evince-43.1-r1
->dev-libs/glib-2.74.3-r3
+>dev-libs/glib-2.74.4
 >games-board/iagno-3.38.1-r1
 >games-puzzle/gnome-taquin-3.38.1-r1
 >gnome-base/dconf-editor-43.0
