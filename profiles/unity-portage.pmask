@@ -38,10 +38,6 @@
 ## b.g.o #873679 ##
 >=app-i18n/ibus-1.5.27
 
-## Don't replace libnotify with GNotification ##
->=gnome-extra/nm-applet-1.30.0
->=net-libs/libnma-1.10.4
-
 ## These are packages maintained within the overlay that must not be emerged from the main portage tree ##
 dev-libs/libindicator::gentoo		## the latest version in the Gentoo tree is 12.10.1 (2012-09-19)
 x11-misc/notify-osd::gentoo		## the latest version in the Gentoo tree is 0.9.34 (2012-03-23)

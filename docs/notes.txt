@@ -62,7 +62,7 @@ gnome-base/gsettings-desktop-schemas	# Includes Unity7 user interface settings p
 gnome-extra/gnome-calendar		# Use unity-control-center as the fallback
 gnome-extra/gnome-contacts		# Use unity-control-center as the fallback
 gnome-extra/nemo			# Add Unity Launcher support, enable StartupNotify
-gnome-extra/nm-applet			# Shows nm-applet in indicator panel (Have-the-appindicator-enabled-by-default.patch)
+gnome-extra/nm-applet			# Show nm-applet in indicator panel (Have-the-appindicator-enabled-by-default.patch), show notifications via libnotify when in Unity
 gnome-extra/polkit-gnome		# Patched to have polkit-gnome-authentication-agent-1 xdg-autostart on Unity login
 					#  Ubuntu patchset:
 					#  0001-Select-the-current-user-to-authenticate-with-by-defa.patch
