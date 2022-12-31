@@ -1,0 +1,94 @@
+From: William Hua <william.hua@canonical.com>
+Date: Wed, 19 Mar 2014 14:08:29 +1300
+Last-Update: 2020-04-30
+Subject: Broadcast when panel properties are registered/updated
+
+Augment the panel service D-Bus interface so that external consumers
+can detect when the panel service properties are changed.
+Needed for Unity (indicator-keyboard)
+
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/1290881
+---
+ src/ibuspanelservice.c | 46 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 46 insertions(+)
+
+diff --git a/src/ibuspanelservice.c b/src/ibuspanelservice.c
+index 984cc89..a8e9298 100644
+--- a/src/ibuspanelservice.c
++++ b/src/ibuspanelservice.c
+@@ -160,8 +160,24 @@ static void      ibus_panel_service_panel_extension_received
+ 
+ G_DEFINE_TYPE (IBusPanelService, ibus_panel_service, IBUS_TYPE_SERVICE)
+ 
++/* Ubuntu-specific */
++#define UNITY_INTERFACE_PANEL "com.canonical.IBus.Panel.Private"
++
+ static const gchar introspection_xml[] =
+     "<node>"
++    /* Ubuntu-specific */
++    "  <interface name='" UNITY_INTERFACE_PANEL "'>"
++    "    <method name='ActivateProperty'>"
++    "      <arg direction='in' type='s' name='name' />"
++    "      <arg direction='in' type='u' name='state' />"
++    "    </method>"
++    "    <signal name='PropertiesRegistered'>"
++    "      <arg type='v' name='properties' />"
++    "    </signal>"
++    "    <signal name='PropertyUpdated'>"
++    "      <arg type='v' name='property' />"
++    "    </signal>"
++    "  </interface>"
+     "  <interface name='org.freedesktop.IBus.Panel'>"
+     /* Methods */
+     "    <method name='UpdatePreeditText'>"
+@@ -1101,6 +1117,20 @@ ibus_panel_service_service_method_call (IBusService           *service,
+ {
+     IBusPanelService *panel = IBUS_PANEL_SERVICE (service);
+ 
++    /* Ubuntu-specific */
++    if (g_strcmp0 (interface_name, UNITY_INTERFACE_PANEL) == 0) {
++        if (g_strcmp0 (method_name, "ActivateProperty") == 0) {
++            const gchar *name;
++            guint state;
++
++            g_variant_get (parameters, "(&su)", &name, &state);
++
++            ibus_panel_service_property_activate (panel, name, state);
++            g_dbus_method_invocation_return_value (invocation, NULL);
++            return;
++        }
++    }
++
+     if (g_strcmp0 (interface_name, IBUS_INTERFACE_PANEL) != 0) {
+         IBUS_SERVICE_CLASS (ibus_panel_service_parent_class)->
+                 service_method_call (service,
+@@ -1192,6 +1222,14 @@ ibus_panel_service_service_method_call (IBusService           *service,
+         g_signal_emit (panel, panel_signals[REGISTER_PROPERTIES], 0, prop_list);
+         _g_object_unref_if_floating (prop_list);
+         g_dbus_method_invocation_return_value (invocation, NULL);
++
++        /* Ubuntu-specific */
++        ibus_service_emit_signal ((IBusService *) panel,
++                                  NULL,
++                                  UNITY_INTERFACE_PANEL,
++                                  "PropertiesRegistered",
++                                  parameters,
++                                  NULL);
+         return;
+     }
+ 
+@@ -1203,6 +1241,14 @@ ibus_panel_service_service_method_call (IBusService           *service,
+         g_signal_emit (panel, panel_signals[UPDATE_PROPERTY], 0, property);
+         _g_object_unref_if_floating (property);
+         g_dbus_method_invocation_return_value (invocation, NULL);
++
++        /* Ubuntu-specific */
++        ibus_service_emit_signal ((IBusService *) panel,
++                                  NULL,
++                                  UNITY_INTERFACE_PANEL,
++                                  "PropertyUpdated",
++                                  parameters,
++                                  NULL);
+         return;
+     }
+ 

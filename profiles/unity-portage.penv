@@ -1,8 +1,6 @@
 ## These are packages maintained via ehooks fetching debian archive file ##
-app-i18n/ibus ehooks-network
 gnome-base/gnome-menus ehooks-network
 gnome-base/gnome-session ehooks-network
-gnome-base/gsettings-desktop-schemas ehooks-network
 gnome-extra/polkit-gnome ehooks-network
 media-sound/rhythmbox ehooks-network
 sys-apps/accountsservice ehooks-network

@@ -1,5 +1,0 @@
-ehooks() {
-	if ! use wayland; then
-		touch ui/gtk3/panel.vala || die
-	fi
-}

@@ -27,9 +27,7 @@ x11-themes/ubuntu-wallpapers::gentoo	# Version in the Gentoo tree doesn't contro
 app-accessibility/at-spi2-core		# Start 'accessibility bus' by default (https://wiki.debian.org/accessibility-devel)
 app-admin/system-config-printer		# Fix Unity Control Center icon and About dialog icon
 app-backup/deja-dup			# Make Deja Dup appear in unity-control-center
-app-i18n/ibus				# Patched for indicator-keyboard support
-					#  Ubuntu patchset:
-					#  ubuntu-forward-panel-properties.patch
+app-i18n/ibus				# Patched for indicator-keyboard support, fix b.g.o #873679
 app-text/evince				# Add traditional menu bar (https://bugzilla.gnome.org/show_bug.cgi?id=736419), add menu translations
 dev-cpp/gtest				# Install /usr/src/{gmock,gtest}/* source files lacking from main tree ebuild
 dev-libs/glib				# Patched to call gettext if .desktop file does not have inline translations, don't try DBusActivatable when in Unity user interface and fallback on Exec=
@@ -56,9 +54,7 @@ gnome-base/gnome-session		# Installs session files for launching Unity7 user int
 					#  ubuntu/add_sessionmigration.patch
 					#  ubuntu/dbus_request_shutdown.patch
 					#  revert_remove_gnome_session_properties.patch
-gnome-base/gsettings-desktop-schemas	# Includes Unity7 user interface settings patches
-					#  Ubuntu patchset:
-					#  ubuntu_lock-on-suspend.patch
+gnome-base/gsettings-desktop-schemas	# Add a new preference to lock the screen when the system suspends
 gnome-extra/gnome-calendar		# Use unity-control-center as the fallback
 gnome-extra/gnome-contacts		# Use unity-control-center as the fallback
 gnome-extra/nemo			# Add Unity Launcher support, enable StartupNotify
