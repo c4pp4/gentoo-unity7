@@ -105,9 +105,6 @@ www-client/firefox			# Latest version, add Unity menubar and desktop launcher wi
 www-client/firefox:esr			# ESR version, add Unity menubar and desktop launcher with quicklist and translations
 www-client/firefox-bin			# Add desktop launcher with quicklist and translations
 x11-libs/gtk+:2				# Support for dynamically loading overlay scrollbars, have the local menubars hidding under unity in favor of the unity ones
-					#  Ubuntu patchset:
-					#  100_overlay_scrollbar_loading.patch
-					#  gtk-shell-shows-menubar.patch
 x11-libs/gtk+:3				# Needed for global appmenu, fix firefox/thunderbird global submenus to be initially populated
 					#  Ubuntu patchset:
 					#  bzg_gtkcellrenderer_grabbing_modifier.patch
