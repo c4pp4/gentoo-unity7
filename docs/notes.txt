@@ -27,7 +27,7 @@ x11-themes/ubuntu-wallpapers::gentoo	# Version in the Gentoo tree doesn't contro
 app-accessibility/at-spi2-core		# Start 'accessibility bus' by default (https://wiki.debian.org/accessibility-devel)
 app-admin/system-config-printer		# Fix Unity Control Center icon and About dialog icon
 app-backup/deja-dup			# Make Deja Dup appear in unity-control-center
-app-i18n/ibus				# Patched for indicator-keyboard support, fix b.g.o #873679
+app-i18n/ibus				# Patched for indicator-keyboard support
 app-text/evince				# Add traditional menu bar (https://bugzilla.gnome.org/show_bug.cgi?id=736419), add menu translations
 dev-cpp/gtest				# Install /usr/src/{gmock,gtest}/* source files lacking from main tree ebuild
 dev-libs/glib				# Patched to call gettext if .desktop file does not have inline translations, don't try DBusActivatable when in Unity user interface and fallback on Exec=
