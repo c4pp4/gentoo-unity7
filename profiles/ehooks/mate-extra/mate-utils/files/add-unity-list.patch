@@ -17,7 +17,7 @@ index 873cf1a..ab9a8da 100644
  X-MATE-Bugzilla-Component=screenshot
  X-MATE-Bugzilla-OtherBinaries=mate-panel-screenshot
 +Actions=screen-shot;window-shot;area-shot;
-+X-GNOME-Gettext-Domain=gnome-screenshot
++X-GNOME-Gettext-Domain=mate-screenshot
 +
 +[Desktop Action screen-shot]
 +Name=Take a Screenshot of the Whole Screen

@@ -17,7 +17,7 @@ index cd6ba31..cd6d52d 100644
  Categories=System;GTK;Utility;TerminalEmulator;
  StartupNotify=true
 +Actions=new-window;
-+X-GNOME-Gettext-Domain=gnome-terminal
++X-GNOME-Gettext-Domain=mate-terminal
  
 +[Desktop Action new-window]
 +Name=New Window

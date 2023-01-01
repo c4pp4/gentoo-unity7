@@ -76,7 +76,6 @@ mail-client/thunderbird-bin		# Add desktop launcher with quicklist and translati
 media-fonts/ubuntu-font-family		# Add Ubuntu medium font (e.g. used by unity-indicators/indicator-keyboard)
 media-gfx/eog				# Add traditional menu bar (https://bugzilla.gnome.org/749976, https://bugs.debian.org/793445), add menu translations
 media-gfx/gnome-photos			# Use unity-control-center as the fallback
-media-gfx/gnome-screenshot		# Use Ubuntu help instead of GNOME help, don't use GtkHeaderBar, show the save dialog by default, don't try and use the GNOME Shell D-Bus interface, add quicklist area-shot option
 media-gfx/shotwell			# Patched for integration with Unity online accounts
 media-plugins/audacious-plugins		# Unity Shortcuts Plugin (former GNOME Shortcuts Plugin)
 media-sound/audacious			# Install GTK version as well
