@@ -637,7 +637,7 @@ update_scopes() {
 						filename=$(grep -H -- "${pattern}" "${ebuilds[@]}" | cut -d ":" -f 1)
 						if [[ ${filename} == *".ebuild"*".ebuild"* ]]; then
 							printf "\b\b%s\n\n" "... error!"
-							printf "%s\n\n" " ${color_red}*${color_norm} ${pkg}: multiple files with KEYWORDS=${pattern}"
+							printf "%s\n\n" " ${color_red}*${color_norm} unity-scopes/smart-scopes: multiple files with KEYWORDS=${pattern}"
 							exit 1
 						fi
 						if [[ -n ${filename} ]] && [[ $(grep -- "^setvar ${pkg%%|*}" "${filename}") == *"${uver}"*"${urev}"* ]]; then
@@ -712,7 +712,7 @@ update_languages() {
 						filename=$(grep -H -- "${pattern}" "${ebuilds[@]}" | cut -d ":" -f 1)
 						if [[ ${filename} == *".ebuild"*".ebuild"* ]]; then
 							printf "\b\b%s\n\n" "... error!"
-							printf "%s\n\n" " ${color_red}*${color_norm} ${pkg}: multiple files with KEYWORDS=${pattern}"
+							printf "%s\n\n" " ${color_red}*${color_norm} unity-base/unity-language-pack: multiple files with KEYWORDS=${pattern}"
 							exit 1
 						fi
 						if [[ -n ${filename} ]] && [[ $(grep -P -- "^setvar ${pkg%%|*}\t" "${filename}") == *"${ver} ${gver}"* ]]; then
