@@ -18,8 +18,8 @@ ehooks() {
 				-e '/msgid \"\"/,/^$/d' \
 				"${po_ext}" || die
 			cat "${po_ext}" >> "${po_orig}"
-			msguniq --use-first -o "${po_orig}" "${po_orig}" 2>&1	# ignore warning messages
-			msgfmt -o "${po_orig/.po/.gmo}" "${po_orig}" 2>&1	# ignore warning messages
+			msguniq --use-first -o "${po_orig}" "${po_orig}"
+			msgfmt -o "${po_orig/.po/.gmo}" "${po_orig}"
 		fi
 	done
 
