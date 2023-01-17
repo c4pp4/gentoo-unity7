@@ -1,3 +1,27 @@
 ehooks() {
+	einfo "  Merging available translations..."
+
+	local po_ext po_orig set
+	local -a po_files=( debian/po-up/*.po )
+
+	for po_ext in "${po_files[@]}"; do
+		po_orig=${po_ext/debian\/po-up/po}
+
+		if [[ -f ${po_orig} ]]; then
+			for set in ISO-8859-1 ISO-8859-2 EUC-JP; do
+				grep -iq "charset=${set}" "${po_ext}" \
+					&& iconv -f "${set}" -t UTF-8//TRANSLIT "${po_ext}" -o "${po_ext}"
+			done
+			sed -i \
+				-e '/^# /d' \
+				-e '/^#$/d' \
+				-e '/msgid \"\"/,/^$/d' \
+				"${po_ext}" || die
+			cat "${po_ext}" >> "${po_orig}"
+			msguniq --use-first -o "${po_orig}" "${po_orig}" 2>&1	# ignore warning messages
+			msgfmt -o "${po_orig/.po/.gmo}" "${po_orig}" 2>&1	# ignore warning messages
+		fi
+	done
+
 	eautoreconf
 }
