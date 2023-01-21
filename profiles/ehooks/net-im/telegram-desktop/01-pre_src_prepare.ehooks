@@ -1,12 +1,7 @@
 # Autostart delay #
 
 ehooks() {
-	local f=lib/xdg/org.${PN/-/.}
-
-	# Obsolete filename #
-	[[ -e lib/xdg/${PN/-}.desktop ]] && f=lib/xdg/${PN/-}
-
 	sed -i \
-		-e "/SingleWindow/a X-GNOME-Autostart-Delay=3" \
-		${f}.desktop || die
+		-e "/X-GNOME-SingleWindow/a X-GNOME-Autostart-Delay=3" \
+		lib/xdg/org.${PN/-/.}.desktop || die
 }
