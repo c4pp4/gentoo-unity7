@@ -4,4 +4,7 @@
 	<maintainer type="project">
 		<name>gentoo-unity7</name>
 	</maintainer>
+	<use>
+		<flag name="demo">Build demo application</flag>
+	</use>
 </pkgmetadata>
