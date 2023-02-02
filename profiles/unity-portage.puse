@@ -11,7 +11,7 @@ dev-libs/xapian-bindings python		# REQUIRED_USE flag
 dev-qt/qtgui:5 ibus
 dev-qt/qtmultimedia:5 widgets		# dev-python/PyQt5
 dev-util/cmake qt5
-gnome-base/gvfs fuse mtp
+gnome-base/gvfs fuse mtp samba
 gnome-extra/nm-applet appindicator
 media-libs/libcanberra gtk2
 media-libs/freetype harfbuzz		# x11-libs/pango

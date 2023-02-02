@@ -207,7 +207,8 @@ src_configure() {
 src_install() {
 	gnome2_src_install
 
-	# Remove libgnome-bluetooth.so symlink as is provided by net-wireless/gnome-bluetooth #
+	# Remove libgnome-bluetooth.so symlink #
+	# as it's provided by net-wireless/gnome-bluetooth #
 	rm "${ED}/usr/$(get_libdir)/libgnome-bluetooth.so" 2>/dev/null
 
 	# If a .desktop file does not have inline #

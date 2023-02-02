@@ -241,9 +241,12 @@ src_install() {
 	fowners root:polkitd /var/lib/polkit-1/localauthority/10-vendor.d/com.ubuntu.desktop.pkla
 
 	# Make 'unity-session.target' systemd user unit auto-start 'unity7.service' #
-	dosym -r $(systemd_get_userunitdir)/unity7.service $(systemd_get_userunitdir)/unity-session.target.requires/unity7.service
-	dosym -r $(systemd_get_userunitdir)/unity-settings-daemon.service $(systemd_get_userunitdir)/unity-session.target.wants/unity-settings-daemon.service
-	dosym -r $(systemd_get_userunitdir)/window-stack-bridge.service $(systemd_get_userunitdir)/unity-session.target.wants/window-stack-bridge.service
+	dosym -r $(systemd_get_userunitdir)/unity7.service \
+		$(systemd_get_userunitdir)/unity-session.target.requires/unity7.service
+	dosym -r $(systemd_get_userunitdir)/unity-settings-daemon.service \
+		$(systemd_get_userunitdir)/unity-session.target.wants/unity-settings-daemon.service
+	use hud && dosym -r $(systemd_get_userunitdir)/window-stack-bridge.service \
+		$(systemd_get_userunitdir)/unity-session.target.wants/window-stack-bridge.service
 
 	unity-panel-service_dosym() {
 		local x

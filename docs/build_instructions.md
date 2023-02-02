@@ -46,9 +46,10 @@
 
    `emerge -av unity-meta`
 
-   NOTE: Don't forget to start systemd services, such as [LightDM⬀][ldm], [NetworkManager⬀][nm] or [CUPS⬀][cups].
+   NOTE: Don't forget to start systemd services, such as [LightDM⬀][ldm], [NetworkManager⬀][nm], [CUPS⬀][cups] or [Bluetooth⬀][bt].
 
 [//]: # (LINKS)
+[bt]: https://wiki.gentoo.org/wiki/Bluetooth#systemd
 [cups]: https://wiki.gentoo.org/wiki/Printing#systemd
 [ehooks]: ehooks.md
 [ep]: https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Base#Choosing_the_right_profile
