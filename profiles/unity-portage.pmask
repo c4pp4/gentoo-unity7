@@ -1,11 +1,11 @@
 ## These are packages maintained via ehooks that must be checked before bump ##
 >app-i18n/ibus-1.5.27
 >app-text/evince-43.1-r1
->dev-libs/glib-2.74.4
+>dev-libs/glib-2.74.5
 >games-board/iagno-3.38.1-r1
 >games-puzzle/gnome-taquin-3.38.1-r1
 >gnome-base/dconf-editor-43.0
->gnome-base/gnome-desktop-43-r301:3
+>gnome-base/gnome-desktop-43.1-r300:3
 >gnome-base/gnome-menus-3.36.0-r1
 >gnome-base/gnome-session-43.0
 >gnome-base/gsettings-desktop-schemas-43.0
@@ -18,7 +18,7 @@
 >mail-client/thunderbird-103
 >mate-extra/mate-system-monitor-1.26.0
 >mate-extra/mate-utils-1.26.0
->media-gfx/eog-43.1-r1
+>media-gfx/eog-43.2
 >media-gfx/shotwell-0.30.17-r1
 >media-plugins/audacious-plugins-4.2-r1
 >media-sound/rhythmbox-3.4.6
