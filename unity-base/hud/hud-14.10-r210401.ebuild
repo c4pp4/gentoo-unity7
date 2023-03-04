@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
+DISTUTILS_OPTIONAL=1
 DISTUTILS_SINGLE_IMPL=1
 PYTHON_COMPAT=( python3_{9..11} )
 
@@ -18,6 +19,7 @@ LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="amd64"
 IUSE="doc test"
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
@@ -71,9 +73,20 @@ DEPEND="${COMMON_DEPEND}
 BDEPEND="
 	dev-util/intltool
 	virtual/pkgconfig
+
+	$(python_gen_cond_dep '
+		>=dev-python/setuptools-65.7.0[${PYTHON_USEDEP}]
+	')
+	${PYTHON_DEPS}
 "
 
 S="${S}${UVER}"
+
+wrap_distutils() {
+	pushd tools/hudkeywords >/dev/null || die
+		distutils-r1_${1}
+	popd >/dev/null || die
+}
 
 src_prepare() {
 	# As of focal 14.10+17.10.20170619-0ubuntu3, disable #
@@ -99,6 +112,7 @@ src_prepare() {
 		tools/hudkeywords/hudkeywords/cli.py || die
 
 	python_fix_shebang tools/hudkeywords
+	wrap_distutils ${FUNCNAME}
 
 	ubuntu-versionator_src_prepare
 }
@@ -115,21 +129,18 @@ src_configure() {
 		-Wno-dev
 	)
 	cmake_src_configure
+
+	wrap_distutils ${FUNCNAME}
 }
 
 src_compile() {
 	cmake_src_compile
-
-	pushd tools/hudkeywords >/dev/null || die
-		distutils-r1_src_compile
-	popd >/dev/null || die
+	wrap_distutils ${FUNCNAME}
 }
 
 src_install() {
 	cmake_src_install
 
-	pushd tools/hudkeywords >/dev/null || die
-		distutils-r1_src_install
-		python_optimize
-	popd >/dev/null || die
+	wrap_distutils ${FUNCNAME}
+	python_optimize
 }

@@ -15,7 +15,7 @@ SRC_URI=""
 LICENSE="metapackage"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="+battery bluetooth +cups +datetime java +keyboard mail paste sensors +session +sound weather"
+IUSE="+battery bluetooth +cups +datetime java +keyboard mail +notifications paste sensors +session +sound weather"
 RESTRICT="binchecks strip test"
 
 RDEPEND="
@@ -28,6 +28,7 @@ RDEPEND="
 	java? ( dev-java/jayatana )
 	keyboard? ( unity-indicators/indicator-keyboard )
 	mail? ( net-mail/mailnag[messagingmenu] )
+	notifications? ( unity-indicators/indicator-notifications )
 	paste? ( unity-extra/diodon )
 	sensors? ( unity-extra/indicator-psensor )
 	session? ( unity-indicators/indicator-session )

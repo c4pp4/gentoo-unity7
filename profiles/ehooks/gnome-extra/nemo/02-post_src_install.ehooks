@@ -1,7 +1,6 @@
 ehooks() {
 	sed -i \
 		-e "/StartupNotify/{s/false/true/}" \
-		-e "/StartupNotify/a X-Unity-IconBackgroundColor=#af4853" \
 		"${ED}/usr/share/applications/${PN}.desktop" || die
 
 	insinto /etc/xdg/autostart

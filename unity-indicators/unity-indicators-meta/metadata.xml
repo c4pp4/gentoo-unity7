@@ -10,6 +10,7 @@
 		<flag name="datetime">Date, time and calendar indicator</flag>
 		<flag name="keyboard">Keyboard layout indicator</flag>
 		<flag name="mail">Mail notification daemon integrated into messaging menu</flag>
+		<flag name="notifications">Collects recent messages sent with libnotify to a notification daemon</flag>
 		<flag name="paste">Copy/Paste clipboard indicator</flag>
 		<flag name="printer">Printer jobs indicator</flag>
 		<flag name="sensors">Hardware sensors indicator such as CPU temp</flag>

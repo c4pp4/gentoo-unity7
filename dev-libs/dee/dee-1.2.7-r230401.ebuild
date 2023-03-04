@@ -6,7 +6,7 @@ PYTHON_COMPAT=( python3_{9..11} )
 UBUNTU_EAUTORECONF="yes"
 
 UVER=+17.10.20170616
-UREV=7
+UREV=7build1
 
 inherit python-single-r1 vala ubuntu-versionator
 

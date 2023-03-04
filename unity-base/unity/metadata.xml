@@ -11,5 +11,7 @@
 			(it can lead to unclear build failures!)</flag>
 		<flag name="systray">Enable system tray support
 			in the notification area for all applications</flag>
+		<flag name="uwidgets">Plugin system for Unity to display
+			widgets on top of background</flag>
 	</use>
 </pkgmetadata>

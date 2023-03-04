@@ -52,9 +52,12 @@ src_install() {
 	insinto /usr/share/icons
 	doins -r LoginIcons ubuntu-mono-dark ubuntu-mono-light
 
-	## Add customized drop-down menu icon as "go-down-symbolic" ##
-	##   from Adwaita theme is too dark since v3.30 ##
+	## Add customized drop-down menu icon as "go-down-symbolic", ##
+	##   the one from Adwaita theme is too dark since v3.30 ##
 	doins -r "${FILESDIR}"/drop-down-icon/*
+
+	## Add {Amb,Rad}iance indicator-notifications icons ##
+	doins -r "${FILESDIR}"/indicator-notifications/*
 
 	insinto /usr/share/icons/suru
 	doins -r suru-icons/*
