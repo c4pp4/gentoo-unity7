@@ -24,7 +24,7 @@ COMMON_DEPEND="
 	>=x11-libs/gtk+-3.22:3[introspection]
 	>=x11-libs/libXtst-1.2.0
 
-	indicator? ( >=dev-libs/libappindicator-0.3.0:3 )
+	indicator? ( >=dev-libs/libayatana-appindicator-0.5.3 )
 	scope? ( >=unity-base/unity-7.1.0 )
 "
 RDEPEND="${COMMON_DEPEND}
@@ -41,16 +41,6 @@ DEPEND="${COMMON_DEPEND}
 
 	$(vala_depend)
 "
-
-src_prepare() {
-	# Revert dependency to deprecated appindicator #
-	sed -i \
-		-e "/appindicator_dep/{s/ayatana-//}" \
-		-e "/appindicator_dep/{s/0.5.3/0.3.0/}" \
-		meson.build || die
-
-	ubuntu-versionator_src_prepare
-}
 
 src_configure() {
 	local emesonargs=(

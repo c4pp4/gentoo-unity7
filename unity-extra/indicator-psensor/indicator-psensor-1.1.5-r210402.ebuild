@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
+GNOME2_EAUTORECONF="yes"
 
 UVER=
 UREV=1.3ubuntu2
@@ -21,7 +22,7 @@ IUSE="hddtemp nls"
 
 COMMON_DEPEND="
 	>=dev-libs/json-c-0.15
-	>=dev-libs/libappindicator-0.2.92:3
+	>=dev-libs/libayatana-appindicator-0.2.92
 	>=dev-libs/libatasmart-0.13
 	>=dev-libs/libunity-3.4.6:0=
 	>=gnome-base/libgtop-2.22.3:2=
@@ -53,11 +54,6 @@ S="${WORKDIR}/${MY_PN}-${PV}"
 MAKEOPTS="${MAKEOPTS} -j1"
 
 src_prepare() {
-	# Revert dependency to deprecated appindicator #
-	sed -i \
-		-e "s/ayatana-appindicator/#ayatana-appindicator/" \
-		"${WORKDIR}/debian/patches/series" || die
-
 	# Fix error: this ‘if’ clause does not guard... [-Werror=misleading-indentation] #
 	sed -i \
 		-e "/data->last_smart_update = t;/{s/^\t\t/\t/}" \
