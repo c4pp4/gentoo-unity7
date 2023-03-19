@@ -144,8 +144,6 @@ ubuntu-versionator_src_prepare() {
 		distutils-r1_src_prepare
 	elif declare -F gnome2_src_prepare 1>/dev/null; then
 		gnome2_src_prepare
-	elif declare -F xdg_src_prepare 1>/dev/null; then
-		xdg_src_prepare
 	else
 		default
 	fi

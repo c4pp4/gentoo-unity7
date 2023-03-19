@@ -33,5 +33,6 @@
 		<flag name="impish">Impish Indri wallpapers</flag>
 		<flag name="jammy">Jammy Jellyfish wallpapers</flag>
 		<flag name="kinetic">Kinetic Kudu wallpapers</flag>
+		<flag name="lunar">Lunar Lobster wallpapers</flag>
 	</use>
 </pkgmetadata>

@@ -4,12 +4,13 @@
 EAPI=8
 
 UVER=
-UREV=1
+UREV=0ubuntu1
 
 inherit meson xdg ubuntu-versionator
 
 DESCRIPTION="Yaru theme from the Ubuntu Community"
 HOMEPAGE="https://discourse.ubuntu.com/c/desktop/theme-refresh"
+SRC_URI="${UURL}-${UREV}.tar.xz"
 
 LICENSE="CC-BY-SA-4.0 GPL-3 LGPL-2.1 LGPL-3"
 SLOT="0"
@@ -28,7 +29,7 @@ BDEPEND="
 	dev-lang/sassc
 "
 
-S="${WORKDIR}/${P/-theme}"
+S="${WORKDIR}/${PN}-${UREV}"
 
 src_configure() {
 	local emesonargs=(
