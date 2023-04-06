@@ -122,6 +122,7 @@ S="${WORKDIR}/${PN}"
 PATCHES=(
 	"${FILESDIR}"/add-unity-version-xml.patch
 	"${FILESDIR}"/nemo-support-2304.patch
+	"${FILESDIR}"/revert-ubuntu-unity-changes.patch
 )
 
 wrap_distutils() {
@@ -260,8 +261,10 @@ src_install() {
 	insinto /usr/share/unity/icons
 	# Gentoo dash launcher icon #
 	doins "${FILESDIR}/branding/launcher_bfb.svg"
-	# Gentoo logo on lock-screen on multi head system
+	# Gentoo logo on lock-screen on multi head system #
 	doins "${FILESDIR}/branding/lockscreen_cof.png"
+	# Panel shadow #
+	doins "${FILESDIR}/panel_shadow.png"
 
 	exeinto /etc/X11/xinit/xinitrc.d/
 	doexe "${FILESDIR}/70im-config"			# Configure input method (xim/ibus)

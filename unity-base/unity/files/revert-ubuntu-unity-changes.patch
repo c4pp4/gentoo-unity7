@@ -1,0 +1,228 @@
+From 01feb62b6e76ea861ebb9d2034bb200d8574d450 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Fri, 7 Apr 2023 00:50:25 +0200
+Subject: [PATCH 1/1] Revert Ubuntu Unity changes
+
+Revert (buggy) panel transparency + panel shadow, panel padding, Dash
+launcher tooltip (missing 'online sources' text) and objects dragging.
+
+Signed-off-by: c4pp4
+---
+ launcher/BFBLauncherIcon.cpp          |  4 +-
+ launcher/Launcher.cpp                 | 73 +++++++++++++++++++++++++--
+ panel/PanelController.cpp             |  2 +-
+ panel/PanelIndicatorsView.cpp         |  1 -
+ plugins/unityshell/src/unityshell.cpp | 64 +++++++++++++++++++++++
+ 5 files changed, 137 insertions(+), 7 deletions(-)
+
+diff --git a/launcher/BFBLauncherIcon.cpp b/launcher/BFBLauncherIcon.cpp
+index eece73a..68ff72d 100644
+--- a/launcher/BFBLauncherIcon.cpp
++++ b/launcher/BFBLauncherIcon.cpp
+@@ -143,7 +143,9 @@ void BFBLauncherIcon::UpdateDefaultSearchText()
+ {
+     auto home_scope = reader_->GetScopeDataById("home.scope");
+ 
+-    tooltip_text = _("Search your computer");
++    tooltip_text = ((Settings::Instance().remote_content) ?
++                    _("Search your computer and online sources") :
++                    _("Search your computer"));
+ 
+     if (home_scope)
+     {
+diff --git a/launcher/Launcher.cpp b/launcher/Launcher.cpp
+index a4f880a..2388ee3 100644
+--- a/launcher/Launcher.cpp
++++ b/launcher/Launcher.cpp
+@@ -2806,16 +2806,81 @@ int Launcher::GetDragDelta() const
+ }
+ 
+ void Launcher::DndStarted(std::string const& data)
+-{ }
++{
++#ifdef USE_X11
++  SetDndQuirk();
++
++  dnd_data_.Fill(data.c_str());
++
++  auto const& uris = dnd_data_.Uris();
++  if (std::find_if(uris.begin(), uris.end(), [this] (std::string const& uri)
++                   {return DndIsSpecialRequest(uri);}) != uris.end())
++  {
++    steal_drag_ = true;
++
++    if (IsOverlayOpen())
++      SaturateIcons();
++  }
++  else
++  {
++    for (auto const& it : *model_)
++    {
++      if (it->ShouldHighlightOnDrag(dnd_data_))
++      {
++        it->SetQuirk(AbstractLauncherIcon::Quirk::DESAT, false, monitor());
++        it->SetQuirk(AbstractLauncherIcon::Quirk::UNFOLDED, true, monitor());
++      }
++      else
++      {
++        it->SetQuirk(AbstractLauncherIcon::Quirk::DESAT, true, monitor());
++        it->SetQuirk(AbstractLauncherIcon::Quirk::UNFOLDED, false, monitor());
++      }
++    }
++  }
++#endif
++}
+ 
+ void Launcher::DndFinished()
+-{ }
++{
++#ifdef USE_X11
++  UnsetDndQuirk();
++
++  data_checked_ = false;
++
++  DndReset();
++#endif
++}
+ 
+ void Launcher::SetDndQuirk()
+-{ }
++{
++#ifdef USE_X11
++  hide_machine_.SetQuirk(LauncherHideMachine::EXTERNAL_DND_ACTIVE, true);
++#endif
++}
+ 
+ void Launcher::UnsetDndQuirk()
+-{ }
++{
++#ifdef USE_X11
++
++  if (IsOverlayOpen() && !hovered_)
++  {
++    DesaturateIcons();
++  }
++  else
++  {
++    for (auto const& it : *model_)
++    {
++      it->SetQuirk(AbstractLauncherIcon::Quirk::DESAT, false, monitor());
++      it->SetQuirk(AbstractLauncherIcon::Quirk::UNFOLDED, false, monitor());
++    }
++  }
++
++
++  hide_machine_.SetQuirk(LauncherHideMachine::MT_DRAG_OUT, drag_out_delta_x_ >= DRAG_OUT_PIXELS - 90.0f);
++  hide_machine_.SetQuirk(LauncherHideMachine::EXTERNAL_DND_ACTIVE, false);
++  animation::SetValue(dnd_hide_animation_, animation::Direction::BACKWARD);
++#endif
++}
+ 
+ } // namespace launcher
+ } // namespace unity
+diff --git a/panel/PanelController.cpp b/panel/PanelController.cpp
+index c6496b7..f24eb46 100644
+--- a/panel/PanelController.cpp
++++ b/panel/PanelController.cpp
+@@ -66,7 +66,7 @@ Controller::Impl::Impl(Controller* parent, menu::Manager::Ptr const& indicators,
+   : parent_(parent)
+   , indicators_(indicators)
+   , edge_barriers_(edge_barriers)
+-  , opacity_(0.7f)
++  , opacity_(1.0f)
+   , opacity_maximized_toggle_(false)
+ {
+   UScreen* screen = UScreen::GetDefault();
+diff --git a/panel/PanelIndicatorsView.cpp b/panel/PanelIndicatorsView.cpp
+index 8bf3c80..20f0638 100644
+--- a/panel/PanelIndicatorsView.cpp
++++ b/panel/PanelIndicatorsView.cpp
+@@ -46,7 +46,6 @@ PanelIndicatorsView::PanelIndicatorsView()
+ {
+   opacity.DisableNotifications();
+   layout_->SetContentDistribution(nux::MAJOR_POSITION_END);
+-  layout_->SetLeftAndRightPadding(layout_->GetLeftPadding(), 6);
+   SetLayout(layout_);
+ 
+   LOG_DEBUG(logger) << "Indicators View Added: ";
+diff --git a/plugins/unityshell/src/unityshell.cpp b/plugins/unityshell/src/unityshell.cpp
+index 38f433a..ff739f6 100644
+--- a/plugins/unityshell/src/unityshell.cpp
++++ b/plugins/unityshell/src/unityshell.cpp
+@@ -3157,9 +3157,73 @@ bool UnityWindow::glDraw(const GLMatrix& matrix,
+ 
+   auto draw_panel_shadow = DrawPanelShadow::NO;
+ 
++  if (!(mask & PAINT_WINDOW_ON_TRANSFORMED_SCREEN_MASK))
++  {
++    Window active_window = screen->activeWindow();
++
++    if (G_UNLIKELY(window_type == CompWindowTypeDesktopMask))
++    {
++      uScreen->setPanelShadowMatrix(matrix);
++
++      if (active_window == 0 || active_window == window->id())
++      {
++        if (PluginAdapter::Default().IsWindowOnTop(window->id()))
++        {
++          draw_panel_shadow = DrawPanelShadow::OVER_WINDOW;
++        }
++        uScreen->is_desktop_active_ = true;
++      }
++    }
++    else
++    {
++      if (window->id() == active_window)
++      {
++        draw_panel_shadow = DrawPanelShadow::BELOW_WINDOW;
++        uScreen->is_desktop_active_ = false;
++
++        if (!(window_state & CompWindowStateMaximizedVertMask) &&
++            !(window_state & CompWindowStateFullscreenMask) &&
++            !(window_type & CompWindowTypeFullscreenMask))
++        {
++          auto const& output = uScreen->screen->currentOutputDev();
++          int monitor = uScreen->WM.MonitorGeometryIn(NuxGeometryFromCompRect(output));
++
++          if (window->y() - window->border().top < output.y() + uScreen->panel_style_.PanelHeight(monitor))
++          {
++            draw_panel_shadow = DrawPanelShadow::OVER_WINDOW;
++          }
++        }
++      }
++      else if (uScreen->menus_->integrated_menus())
++      {
++        draw_panel_shadow = DrawPanelShadow::BELOW_WINDOW;
++      }
++      else
++      {
++        if (uScreen->is_desktop_active_)
++        {
++          if (PluginAdapter::Default().IsWindowOnTop(window->id()))
++          {
++            draw_panel_shadow = DrawPanelShadow::OVER_WINDOW;
++            uScreen->panelShadowPainted = CompRegion();
++          }
++        }
++      }
++    }
++  }
++
++  if (locked)
++    draw_panel_shadow = DrawPanelShadow::NO;
++
++  if (draw_panel_shadow == DrawPanelShadow::BELOW_WINDOW)
++    uScreen->paintPanelShadow(region);
++
+   deco_win_->Draw(matrix, attrib, region, mask);
+   bool ret = gWindow->glDraw(matrix, attrib, region, mask);
+ 
++  if (draw_panel_shadow == DrawPanelShadow::OVER_WINDOW)
++    uScreen->paintPanelShadow(region);
++
+   return ret;
+ }
+ 
+-- 
+2.39.2
+
