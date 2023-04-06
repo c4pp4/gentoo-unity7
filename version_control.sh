@@ -737,7 +737,7 @@ update_languages() {
 							echo "Overlay:  ${name/-gnome}-${color_yellow}${lcl_ver:-new}${color_norm} (${rls})"
 							printf "%s" "Upstream: ${name/-gnome}-${color_green}${upstr_ver}${color_norm} (${rls})"
 							if [[ -n ${lcl_ver} ]]; then
-								sed -i "/^setvar ${pkg%%|*}\t/{s/${lcl_ver}/${upstr_ver}/}" "${filename}" 2>/dev/null \
+								sed -i "/^setvar ${pkg%%|*}\t/{s/\t${lcl_ver}/\t${upstr_ver}/}" "${filename}" 2>/dev/null \
 									&& printf "%s\n" "... ${color_blue}[ ${color_green}updated ${color_blue}]${color_norm}" \
 									|| printf "%s\n" "... ${color_blue}[ ${color_red}not updated ${color_blue}]${color_norm}"
 							else
@@ -748,7 +748,7 @@ update_languages() {
 							echo "Overlay:  ${name}-${color_yellow}${lcl_gver:-new}${color_norm} (${rls})"
 							printf "%s" "Upstream: ${name}-${color_green}${upstr_gver}${color_norm} (${rls})"
 							if [[ -n ${lcl_gver} ]]; then
-								sed -i "/^setvar ${pkg%%|*}\t/{s/${lcl_gver}/${upstr_gver}/}" "${filename}" 2>/dev/null \
+								sed -i "/^setvar ${pkg%%|*}\t/{s/ ${lcl_gver}/ ${upstr_gver}/}" "${filename}" 2>/dev/null \
 									&& printf "%s\n" "... ${color_blue}[ ${color_green}updated ${color_blue}]${color_norm}" \
 									|| printf "%s\n" "... ${color_blue}[ ${color_red}not updated ${color_blue}]${color_norm}"
 							else
