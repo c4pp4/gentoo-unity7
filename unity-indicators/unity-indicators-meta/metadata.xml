@@ -5,6 +5,7 @@
 		<name>gentoo-unity7</name>
 	</maintainer>
 	<use>
+		<flag name="appearance">Ubuntu Unity theme indicator</flag>
 		<flag name="battery">Battery power indicator</flag>
 		<flag name="bluetooth">Bluetooth settings and transfers indicator</flag>
 		<flag name="datetime">Date, time and calendar indicator</flag>

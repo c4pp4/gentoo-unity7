@@ -176,6 +176,12 @@ src_prepare() {
 		-e "s/prefer-light/default/" \
 		panels/appearance/cc-appearance-panel.c || die
 
+	# Revert button event background color #
+	sed -i \
+		-e "/GdkRGBA rgba/d" \
+		-e "/gtk_widget_override_background_color/d" \
+		shell/cc-shell-item-view.c || die
+
 	# Disable all language files as they can be incomplete #
 	#  due to being provided by Ubuntu's language-pack packages #
 	> po/LINGUAS

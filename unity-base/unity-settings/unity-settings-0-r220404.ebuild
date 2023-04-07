@@ -15,7 +15,7 @@ SRC_URI=""
 LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="+files lowgfx +music +photos +ubuntu-cursor +ubuntu-sounds +video yaru"
+IUSE="+files lowgfx +music +photos +ubuntu-cursor +ubuntu-sounds +video ubuntu-unity"
 RESTRICT="binchecks strip test"
 
 RDEPEND="
@@ -25,10 +25,7 @@ RDEPEND="
 
 	ubuntu-cursor? ( x11-themes/vanilla-dmz-xcursors )
 	ubuntu-sounds? ( x11-themes/ubuntu-sounds )
-	yaru? (
-		unity-indicators/unity-indicator-appearance
-		x11-themes/ubuntu-unity-backgrounds
-	)
+	ubuntu-unity? ( x11-themes/ubuntu-unity-backgrounds )
 "
 PDEPEND="unity-lenses/unity-lens-meta[files=,music=,photos=,video=]"
 
@@ -36,14 +33,14 @@ S="${FILESDIR}"
 
 src_install() {
 	local \
-		gschema="10_unity-settings.gschema.override" \
+		gschema="10_gentoo-unity.gschema.override" \
 		gschema_dir="/usr/share/glib-2.0/schemas"
 
 	insinto "${gschema_dir}"
-	newins "${FILESDIR}"/unity-settings.gsettings-override "${gschema}"
-	use yaru && newins "${FILESDIR}"/ubuntu-unity-yaru.gsettings-override 11_ubuntu-unity-yaru.gschema.override
+	newins "${FILESDIR}"/gentoo-unity.gsettings-override "${gschema}"
+	use ubuntu-unity && newins "${FILESDIR}"/ubuntu-unity.gsettings-override 11_ubuntu-unity.gschema.override
 
-	if use ubuntu-cursor || use yaru; then
+	if use ubuntu-cursor || use ubuntu-unity; then
 		# Do the following only if there is no file collision detected #
 		local index_dir="/usr/share/cursors/xorg-x11/default"
 		[[ -e "${EROOT}${index_dir}"/index.theme ]] \
@@ -57,7 +54,7 @@ src_install() {
 		sed -i "/cursor-theme/d" "${ED}${gschema_dir}/${gschema}" || die
 	fi
 
-	use yaru && [[ -f "${ED}${index_dir}"/index.theme ]] && \
+	use ubuntu-unity && [[ -f "${ED}${index_dir}"/index.theme ]] && \
 		( sed -i "s/DMZ-White/Yaru/" "${ED}${index_dir}"/index.theme || die )
 
 	use ubuntu-sounds || sed -i \

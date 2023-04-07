@@ -21,7 +21,7 @@
 - set the theme from **Ubuntu Unity** as a default one:
 
   ```
-  unity-base/unity-settings yaru
+  unity-base/unity-settings ubuntu-unity
   ```
 
 - enable **system tray** support for all applications:
