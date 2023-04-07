@@ -49,6 +49,11 @@ src_prepare() {
 		-e "/test ~username expansion/,+4 d" \
 		tests/unit/test-utils.vala || die
 
+	# Fix build against vala-0.56.4 #
+	sed -i \
+		-e '/public delegate bool AppFilterCallback/i \    [CCode (cheader_filename = "unity-package-search.h")]' \
+		vapi/unity-package-search.vapi || die
+
 	# Disable all language files as they can be incomplete #
 	#  due to being provided by Ubuntu's language-pack packages #
 	> po/LINGUAS
