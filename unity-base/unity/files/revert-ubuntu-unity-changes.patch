@@ -1,10 +1,10 @@
-From 01feb62b6e76ea861ebb9d2034bb200d8574d450 Mon Sep 17 00:00:00 2001
+From 3522688e1f158bdadc69ab53c10ef009565be881 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Fri, 7 Apr 2023 00:50:25 +0200
+Date: Fri, 7 Apr 2023 18:34:26 +0200
 Subject: [PATCH 1/1] Revert Ubuntu Unity changes
 
-Revert (buggy) panel transparency + panel shadow, panel padding, Dash
-launcher tooltip (missing 'online sources' text) and objects dragging.
+Disable (buggy) panel transparency, revert panel shadow, panel padding,
+launcher and dash icon size, online search tooltip and drag & drop.
 
 Signed-off-by: c4pp4
 ---
@@ -13,7 +13,9 @@ Signed-off-by: c4pp4
  panel/PanelController.cpp             |  2 +-
  panel/PanelIndicatorsView.cpp         |  1 -
  plugins/unityshell/src/unityshell.cpp | 64 +++++++++++++++++++++++
- 5 files changed, 137 insertions(+), 7 deletions(-)
+ plugins/unityshell/unityshell.xml.in  |  2 +-
+ unity-shared/DashStyle.cpp            | 51 ++++++++++++++-----
+ 7 files changed, 177 insertions(+), 20 deletions(-)
 
 diff --git a/launcher/BFBLauncherIcon.cpp b/launcher/BFBLauncherIcon.cpp
 index eece73a..68ff72d 100644
@@ -223,6 +225,134 @@ index 38f433a..ff739f6 100644
    return ret;
  }
  
+diff --git a/plugins/unityshell/unityshell.xml.in b/plugins/unityshell/unityshell.xml.in
+index 61afdea..3fdd5f3 100644
+--- a/plugins/unityshell/unityshell.xml.in
++++ b/plugins/unityshell/unityshell.xml.in
+@@ -419,7 +419,7 @@
+                 <option name="icon_size" type="int">
+                     <_short>Launcher Icon Size</_short>
+                     <_long>The size of the icons in the Launcher.</_long>
+-                    <default>44</default>
++                    <default>48</default>
+                     <min>8</min>
+                     <max>64</max>
+                     <precision>1</precision>
+diff --git a/unity-shared/DashStyle.cpp b/unity-shared/DashStyle.cpp
+index b0c3eac..a8ca838 100755
+--- a/unity-shared/DashStyle.cpp
++++ b/unity-shared/DashStyle.cpp
+@@ -374,8 +374,35 @@ Style::Impl::~Impl()
+ 
+ void Style::Impl::Refresh()
+ {
+-  text_width_ = 56;
+-  text_height_ = 12;
++  const char* const SAMPLE_MAX_TEXT = "Chromium Web Browser";
++
++  nux::CairoGraphics util_cg(CAIRO_FORMAT_ARGB32, 1, 1);
++  cairo_t* cr = util_cg.GetInternalContext();
++
++  auto const& font = theme::Settings::Get()->font();
++  PangoFontDescription* desc = ::pango_font_description_from_string(font.c_str());
++  ::pango_font_description_set_weight(desc, PANGO_WEIGHT_NORMAL);
++  ::pango_font_description_set_size(desc, 9 * PANGO_SCALE);
++
++  glib::Object<PangoLayout> layout(::pango_cairo_create_layout(cr));
++  ::pango_layout_set_font_description(layout, desc);
++  ::pango_layout_set_text(layout, SAMPLE_MAX_TEXT, -1);
++
++  PangoContext* cxt = ::pango_layout_get_context(layout);
++
++  GdkScreen* screen = ::gdk_screen_get_default();
++  ::pango_cairo_context_set_font_options(cxt, ::gdk_screen_get_font_options(screen));
++  ::pango_cairo_context_set_resolution(cxt, 96.0 * Settings::Instance().font_scaling());
++  ::pango_layout_context_changed(layout);
++
++  PangoRectangle log_rect;
++  ::pango_layout_get_pixel_extents(layout, NULL, &log_rect);
++  text_width_ = log_rect.width;
++  text_height_ = log_rect.height;
++
++  owner_->changed.emit();
++
++  pango_font_description_free(desc);
+ }
+ 
+ void Style::Impl::UpdateFormFactor(FormFactor form_factor)
+@@ -2214,33 +2241,33 @@ nux::Color const& Style::GetTextColor() const
+ 
+ RawPixel Style::GetTileGIconSize() const
+ {
+-  return 48;
++  return 64;
+ }
+ 
+ RawPixel Style::GetTileImageSize() const
+ {
+-  return 48;
++  return 96;
+ }
+ 
+ RawPixel Style::GetTileWidth() const
+ {
+-  return std::max(pimpl->text_width_, 106);
++  return std::max(pimpl->text_width_, 150);
+ }
+ 
+ RawPixel Style::GetTileHeight() const
+ {
+   return std::max(GetTileImageSize() + (pimpl->text_height_ * 2) + 15,
+-                  GetTileImageSize() + 80); // magic design numbers.
++                  GetTileImageSize() + 32); // magic design numbers.
+ }
+ 
+ RawPixel Style::GetTileIconHightlightHeight() const
+ {
+-  return 48;
++  return 106;
+ }
+ 
+ RawPixel Style::GetTileIconHightlightWidth() const
+ {
+-  return 48;
++  return 106;
+ }
+ 
+ RawPixel Style::GetHomeTileIconSize() const
+@@ -2341,7 +2368,7 @@ RawPixel Style::GetHSeparatorSize() const
+ 
+ RawPixel Style::GetFilterBarWidth() const
+ {
+-  return 250;
++  return 300;
+ }
+ 
+ RawPixel Style::GetFilterBarLeftPadding() const
+@@ -2396,7 +2423,7 @@ RawPixel Style::GetFilterHighlightPadding() const
+ 
+ RawPixel Style::GetSpaceBetweenFilterWidgets() const
+ {
+-  return 6;
++  return 12;
+ }
+ 
+ RawPixel Style::GetAllButtonHeight() const
+@@ -2476,12 +2503,12 @@ RawPixel Style::GetPlacesGroupTopSpace() const
+ 
+ RawPixel Style::GetPlacesGroupResultTopPadding() const
+ {
+-  return 19;
++  return 2;
+ }
+ 
+ RawPixel Style::GetPlacesGroupResultLeftPadding() const
+ {
+-  return 19;
++  return 25;
+ }
+ 
+ RawPixel Style::GetCategoryHeaderLeftPadding() const
 -- 
 2.39.2
 

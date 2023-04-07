@@ -269,6 +269,7 @@ src_install() {
 	local \
 		pofile msgid gcc_src ls_src x ylp_src \
 		u_po="unity.po" \
+		ul_po="unity.legacy" \
 		ucc_po="unity-control-center.po" \
 		gcc_po="gnome-control-center-2.0.po" \
 		ls_po="language-selector.po" \
@@ -302,6 +303,14 @@ src_install() {
 
 	for x in "${S}"/language-pack-gnome-*-base/data/*; do
 		cp "${S}"/po/"${x##*data/}".po "${x}"/LC_MESSAGES/session-shortcuts.po 2>/dev/null
+	done
+	rm -r "${S}"/po 2>/dev/null
+
+	# Add legacy translations for Unity
+	unpack "${FILESDIR}"/unity-translations-kinetic.tar.xz 1>/dev/null
+
+	for x in "${S}"/language-pack-gnome-*-base/data/*; do
+		cp "${S}"/po/"${x##*data/}".po "${x}"/LC_MESSAGES/"${ul_po}" 2>/dev/null
 	done
 	rm -r "${S}"/po 2>/dev/null
 
@@ -372,8 +381,22 @@ src_install() {
 			rm "${ylp_src}" 2>/dev/null
 		fi
 
-		# Rename Ubuntu Desktop
-		[[ ${pofile##*/} == ${u_po} ]] && ( sed -i -e "s/Ubuntu Desktop/Gentoo Unity⁷ Desktop/" -e "/Unity⁷/{n;s/Ubuntu/Gentoo Unity⁷/;}" "${pofile}" || die )
+		# Process translations for Unity
+		if [[ ${pofile##*/} == ${u_po} ]]; then
+			_progress_indicator
+
+			# Merge legacy translations
+			x="${pofile/${u_po}/${ul_po}}"
+			if [[ -f ${x} ]]; then
+				sed -i -e '/msgid \"\"/,/^$/d' "${x}"
+				cat "${x}" >> "${pofile}"
+				msguniq --use-first -o "${pofile}" "${pofile}" 2>/dev/null
+				rm "${x}"
+			fi
+
+			# Rename Ubuntu Desktop
+			sed -i -e "s/Ubuntu Desktop/Gentoo Unity⁷ Desktop/" -e "/Unity⁷/{n;s/Ubuntu/Gentoo Unity⁷/;}" "${pofile}" || die
+		fi
 
 		msgfmt -o "${pofile%.po}.mo" "${pofile}"
 		rm "${pofile}" 2>/dev/null

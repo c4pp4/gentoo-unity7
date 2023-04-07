@@ -2,4 +2,3 @@
 dev-libs/libcolumbus -pch
 unity-base/unity -pch
 unity-base/unity-api -pch
-gnome-base/gvfs -http

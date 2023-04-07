@@ -58,17 +58,18 @@ src_prepare() {
 				-delete || die
 	fi
 
+	python_fix_shebang src
+
 	ubuntu-versionator_src_prepare
 }
 
 src_install() {
 	distutils-r1_src_install
+	python_optimize
 
 	# Remove all installed language files as they can be incomplete #
 	#  due to being provided by Ubuntu's language-pack packages #
 	rm -rf "${ED}/usr/share/locale"
-
-	python_fix_shebang "${ED}"
 }
 
 pkg_postinst() {
