@@ -42,6 +42,7 @@ S="${WORKDIR}"
 PATCHES=(
 	"${FILESDIR}"/0002-productsearch.ubuntu.com-only-accepts-locale-string.patch
 	"${FILESDIR}"/fix-build-against-vala-0.56.patch
+	"${FILESDIR}"/remove-software-center-and-1kb-filter-option-and-fix-100kb.patch
 )
 
 src_configure() {

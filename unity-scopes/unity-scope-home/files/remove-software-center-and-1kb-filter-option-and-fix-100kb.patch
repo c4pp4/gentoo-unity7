@@ -1,0 +1,42 @@
+From ab5e60f77c0e29564f6273feaec2010b10b741d3 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sat, 8 Apr 2023 18:34:04 +0200
+Subject: [PATCH 1/1] Remove Software center and 1kB filter option and fix 100kB
+
+Signed-off-by: c4pp4
+---
+ data/master-scopes/applications.scope.in.in | 7 -------
+ data/master-scopes/files.scope.in.in        | 4 ++--
+ 2 files changed, 2 insertions(+), 9 deletions(-)
+
+diff --git a/data/master-scopes/applications.scope.in.in b/data/master-scopes/applications.scope.in.in
+index 6fc4f92..b02efb3 100644
+--- a/data/master-scopes/applications.scope.in.in
++++ b/data/master-scopes/applications.scope.in.in
+@@ -69,10 +69,3 @@ Type=filter-checkoption
+ SortType=display-name
+ OptionIDs=accessories;education;game;graphics;internet;fonts;office;media;customisation;accessibility;developer;science-and-engineering;scopes;system
+ _OptionNames=Accessories;Education;Games;Graphics;Internet;Fonts;Office;Media;Customisation;Accessibility;Developer;Science & Engineering;Dash plugins;System
+-
+-[Filter unity-sources]
+-_Name=Sources
+-Type=filter-checkoption
+-SortType=display-name
+-OptionIDs=local;usc
+-_OptionNames=Local apps;Software center
+diff --git a/data/master-scopes/files.scope.in.in b/data/master-scopes/files.scope.in.in
+index 89f736e..a6f8b9c 100644
+--- a/data/master-scopes/files.scope.in.in
++++ b/data/master-scopes/files.scope.in.in
+@@ -44,6 +44,6 @@ _OptionNames=Documents;Folders;Images;Audio;Videos;Presentations;Other;
+ [Filter size]
+ _Name=Size
+ Type=filter-multirange
+-OptionIDs=1KB;100KB;1MB;10MB;100MB;1GB;>1GB;
+-_OptionNames=1KB;100KB;1MB;10MB;100MB;1GB;>1GB;
++OptionIDs=100kB;1MB;10MB;100MB;1GB;>1GB;
++_OptionNames=100kB;1MB;10MB;100MB;1GB;>1GB;
+ 
+-- 
+2.39.2
+

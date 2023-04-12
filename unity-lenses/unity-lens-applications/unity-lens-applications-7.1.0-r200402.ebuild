@@ -41,7 +41,10 @@ BDEPEND="virtual/pkgconfig"
 
 S="${WORKDIR}"
 
-PATCHES=( "${FILESDIR}"/"${PN}"-fix-build-against-vala-0.52.patch )
+PATCHES=(
+	"${FILESDIR}"/fix-build-against-vala-0.52.patch
+	"${FILESDIR}"/remove-software-center-filter-option.patch
+)
 
 src_prepare() {
 	# Remove failed test #

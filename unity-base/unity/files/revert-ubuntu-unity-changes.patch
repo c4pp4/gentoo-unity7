@@ -1,22 +1,177 @@
-From 3522688e1f158bdadc69ab53c10ef009565be881 Mon Sep 17 00:00:00 2001
+From 844a9fc9ba6ec24c67dd7681a8243fdcabbae727 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Fri, 7 Apr 2023 18:34:26 +0200
+Date: Wed, 12 Apr 2023 10:26:27 +0200
 Subject: [PATCH 1/1] Revert Ubuntu Unity changes
 
-Disable (buggy) panel transparency, revert panel shadow, panel padding,
-launcher and dash icon size, online search tooltip and drag & drop.
+Revert panel transparency, shadow and padding, revert dash preview,
+dash and launcher icon size, online search tooltip, drag & drop,
+icon desaturation on hud activation.
 
 Signed-off-by: c4pp4
 ---
- launcher/BFBLauncherIcon.cpp          |  4 +-
- launcher/Launcher.cpp                 | 73 +++++++++++++++++++++++++--
- panel/PanelController.cpp             |  2 +-
- panel/PanelIndicatorsView.cpp         |  1 -
- plugins/unityshell/src/unityshell.cpp | 64 +++++++++++++++++++++++
- plugins/unityshell/unityshell.xml.in  |  2 +-
- unity-shared/DashStyle.cpp            | 51 ++++++++++++++-----
- 7 files changed, 177 insertions(+), 20 deletions(-)
+ dash/DashView.cpp                     | 129 ++++++++++-
+ launcher/BFBLauncherIcon.cpp          |   4 +-
+ launcher/Launcher.cpp                 | 312 +++++++++++++++++++++++++-
+ lockscreen/LockScreenPanel.cpp        |   4 +-
+ panel/PanelController.cpp             |   2 +-
+ panel/PanelIndicatorsView.cpp         |   1 -
+ panel/PanelView.cpp                   |   4 +-
+ plugins/unityshell/src/unityshell.cpp |  64 ++++++
+ plugins/unityshell/unityshell.xml.in  |   2 +-
+ unity-shared/DashStyle.cpp            |  51 ++++-
+ 10 files changed, 540 insertions(+), 33 deletions(-)
 
+diff --git a/dash/DashView.cpp b/dash/DashView.cpp
+index 0fd0597..f064616 100644
+--- a/dash/DashView.cpp
++++ b/dash/DashView.cpp
+@@ -232,12 +232,83 @@ void DashView::OnResultActivated(ResultView::ActivateType type, LocalResult cons
+ 
+ void DashView::BuildPreview(Preview::Ptr model)
+ {
+-  // Previews have been removed, so this function has been left blank until we eliminate all of the preview-related code.
++  if (!preview_displaying_)
++  {
++    StartPreviewAnimation();
++
++    content_view_->SetPresentRedirectedView(false);
++    preview_scope_view_ = active_scope_view_;
++    if (preview_scope_view_)
++    {
++      preview_scope_view_->ForceCategoryExpansion(stored_activated_unique_id_, true);
++      preview_scope_view_->EnableResultTextures(true);
++      preview_scope_view_->PushFilterExpansion(false);
++    }
++
++    if (!preview_container_)
++    {
++      preview_container_ = new previews::PreviewContainer();
++      preview_container_->SetRedirectRenderingToTexture(true);
++      AddChild(preview_container_.GetPointer());
++      preview_container_->SetParentObject(this);
++    }
++    preview_container_->Preview(model, previews::Navigation::NONE); // no swipe left or right
++    preview_container_->scale = scale();
++    preview_container_->SetGeometry(scopes_layout_->GetGeometry());
++    preview_displaying_ = true;
++
++    // connect to nav left/right signals to request nav left/right movement.
++    preview_container_->navigate_left.connect([this] () {
++      preview_navigation_mode_ = previews::Navigation::LEFT;
++
++      // sends a message to all result views, sending the the uri of the current preview result
++      // and the unique id of the result view that should be handling the results
++      ubus_manager_.SendMessage(UBUS_DASH_PREVIEW_NAVIGATION_REQUEST, g_variant_new("(ivs)", -1, g_variant_ref(last_activated_result_.Variant()), stored_activated_unique_id_.c_str()));
++    });
++
++    preview_container_->navigate_right.connect([this] () {
++      preview_navigation_mode_ = previews::Navigation::RIGHT;
++
++      // sends a message to all result views, sending the the uri of the current preview result
++      // and the unique id of the result view that should be handling the results
++      ubus_manager_.SendMessage(UBUS_DASH_PREVIEW_NAVIGATION_REQUEST, g_variant_new("(ivs)", 1, g_variant_ref(last_activated_result_.Variant()), stored_activated_unique_id_.c_str()));
++    });
++
++    preview_container_->request_close.connect([this] () { ClosePreview(); });
++  }
++  else
++  {
++    // got a new preview whilst already displaying, we probably clicked a navigation button.
++    preview_container_->Preview(model, preview_navigation_mode_); // TODO
++    preview_container_->scale = scale();
++  }
++
++  if (G_LIKELY(preview_state_machine_.left_results() > 0 && preview_state_machine_.right_results() > 0))
++    preview_container_->DisableNavButton(previews::Navigation::NONE);
++  else if (preview_state_machine_.left_results() > 0)
++    preview_container_->DisableNavButton(previews::Navigation::RIGHT);
++  else if (preview_state_machine_.right_results() > 0)
++    preview_container_->DisableNavButton(previews::Navigation::LEFT);
++  else
++    preview_container_->DisableNavButton(previews::Navigation::BOTH);
++
++  QueueDraw();
+ }
+ 
+ void DashView::ClosePreview()
+ {
+-  // Previews have been removed, so this function has been left blank until we eliminate all of the preview-related code.
++  if (preview_displaying_)
++  {
++    EndPreviewAnimation();
++
++    preview_displaying_ = false;
++  }
++
++  preview_navigation_mode_ = previews::Navigation::NONE;
++
++  // re-focus dash view component.
++  nux::GetWindowCompositor().SetKeyFocusArea(default_focus());
++  QueueDraw();
+ }
+ 
+ void DashView::StartPreviewAnimation()
+@@ -1021,7 +1092,59 @@ void DashView::DrawPreviewResultTextures(nux::GraphicsEngine& graphics_engine, b
+ }
+ 
+ void DashView::DrawPreview(nux::GraphicsEngine& graphics_engine, bool force_draw)
+-{ }
++{
++  if (animate_preview_value_ > 0.0f)
++  {
++    bool animating = animate_split_value_ != 1.0f || animate_preview_value_ < 1.0f;
++    bool preview_force_draw = force_draw || animating || IsFullRedraw();
++
++    if (preview_force_draw)
++      nux::GetPainter().PushBackgroundStack();
++
++    if (animate_preview_value_ < 1.0f && preview_container_->RedirectRenderingToTexture())
++    {
++      preview_container_->SetPresentRedirectedView(false);
++      preview_container_->ProcessDraw(graphics_engine, preview_force_draw);
++
++      unsigned int alpha, src, dest = 0;
++      graphics_engine.GetRenderStates().GetBlend(alpha, src, dest);
++      graphics_engine.GetRenderStates().SetBlend(true, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
++
++      nux::ObjectPtr<nux::IOpenGLBaseTexture> preview_texture = preview_container_->BackupTexture();
++      if (preview_texture)
++      {
++        nux::TexCoordXForm texxform;
++        texxform.FlipVCoord(true);
++        texxform.uoffset = 0.0f;
++        texxform.voffset = 0.0f;
++        texxform.SetTexCoordType(nux::TexCoordXForm::OFFSET_COORD);
++
++        nux::Geometry const& geo_preview = preview_container_->GetGeometry();
++        graphics_engine.QRP_1Tex
++        (
++          geo_preview.x,
++          geo_preview.y,
++          geo_preview.width,
++          geo_preview.height,
++          preview_texture,
++          texxform,
++          nux::Color(animate_preview_value_, animate_preview_value_, animate_preview_value_, animate_preview_value_)
++        );
++      }
++
++      preview_container_->SetPresentRedirectedView(true);
++
++      graphics_engine.GetRenderStates().SetBlend(alpha, src, dest);
++    }
++    else
++    {
++      preview_container_->ProcessDraw(graphics_engine, preview_force_draw);
++    }
++
++    if (preview_force_draw)
++      nux::GetPainter().PopBackgroundStack();
++  }
++}
+ 
+ void DashView::OnActivateRequest(GVariant* args)
+ {
 diff --git a/launcher/BFBLauncherIcon.cpp b/launcher/BFBLauncherIcon.cpp
 index eece73a..68ff72d 100644
 --- a/launcher/BFBLauncherIcon.cpp
@@ -33,10 +188,273 @@ index eece73a..68ff72d 100644
      if (home_scope)
      {
 diff --git a/launcher/Launcher.cpp b/launcher/Launcher.cpp
-index a4f880a..2388ee3 100644
+index a4f880a..fa7268d 100644
 --- a/launcher/Launcher.cpp
 +++ b/launcher/Launcher.cpp
-@@ -2806,16 +2806,81 @@ int Launcher::GetDragDelta() const
+@@ -1111,6 +1111,13 @@ void Launcher::OnOverlayShown(GVariant* data)
+ 
+     bg_effect_helper_.enabled = true;
+ 
++    // Don't desaturate icons if the mouse is over the launcher:
++    if (!hovered_)
++    {
++      LOG_DEBUG(logger) << "Desaturate on monitor " << monitor();
++      DesaturateIcons();
++    }
++
+     if (icon_under_mouse_)
+       icon_under_mouse_->HideTooltip();
+   }
+@@ -2760,22 +2767,242 @@ bool Launcher::DndIsSpecialRequest(std::string const& uri) const
+ }
+ 
+ void Launcher::ProcessDndEnter()
+-{ }
++{
++#ifdef USE_X11
++  SetStateMouseOverLauncher(true);
++
++  dnd_data_.Reset();
++  drag_action_ = nux::DNDACTION_NONE;
++  steal_drag_ = false;
++  data_checked_ = false;
++  dnd_hovered_icon_ = nullptr;
++  drag_edge_touching_ = false;
++  dnd_hide_animation_.Stop();
++#endif
++}
+ 
+ void Launcher::DndReset()
+-{ }
++{
++#ifdef USE_X11
++  dnd_data_.Reset();
++
++  bool is_overlay_open = IsOverlayOpen();
++
++  for (auto it : *model_)
++  {
++    auto icon_type = it->GetIconType();
++    bool desaturate = false;
++
++    if (icon_type != AbstractLauncherIcon::IconType::HOME &&
++        icon_type != AbstractLauncherIcon::IconType::HUD)
++    {
++      desaturate = is_overlay_open && !hovered_;
++    }
++
++    it->SetQuirk(AbstractLauncherIcon::Quirk::DESAT, desaturate, monitor());
++    it->SetQuirk(AbstractLauncherIcon::Quirk::UNFOLDED, false, monitor());
++  }
++
++  DndHoveredIconReset();
++#endif
++}
+ 
+ void Launcher::DndHoveredIconReset()
+-{ }
++{
++#ifdef USE_X11
++  SetActionState(ACTION_NONE);
++
++  if (steal_drag_ && dnd_hovered_icon_)
++  {
++    dnd_hovered_icon_->SetQuirk(AbstractLauncherIcon::Quirk::VISIBLE, false, monitor());
++    dnd_hovered_icon_->remove.emit(dnd_hovered_icon_);
++  }
++
++  if (!steal_drag_ && dnd_hovered_icon_)
++  {
++    dnd_hovered_icon_->SendDndLeave();
++    dnd_hovered_icon_->SetQuirk(AbstractLauncherIcon::Quirk::GLOW, false, monitor());
++  }
++
++  steal_drag_ = false;
++  drag_edge_touching_ = false;
++  dnd_hovered_icon_ = nullptr;
++#endif
++}
+ 
+ void Launcher::ProcessDndLeave()
+-{ }
++{
++#ifdef USE_X11
++  SetStateMouseOverLauncher(false);
++  DndHoveredIconReset();
++#endif
++}
+ 
+ void Launcher::ProcessDndMove(int x, int y, std::list<char*> mimes)
+-{ }
++{
++#ifdef USE_X11
++  if (!data_checked_)
++  {
++    const std::string uri_list = "text/uri-list";
++    data_checked_ = true;
++    dnd_data_.Reset();
++    auto& display = nux::GetWindowThread()->GetGraphicsDisplay();
++
++    // get the data
++    for (auto const& mime : mimes)
++    {
++      if (mime != uri_list)
++        continue;
++
++      dnd_data_.Fill(display.GetDndData(const_cast<char*>(uri_list.c_str())));
++      break;
++    }
++
++    // see if the launcher wants this one
++    auto const& uris = dnd_data_.Uris();
++    if (std::find_if(uris.begin(), uris.end(), [this] (std::string const& uri)
++                     {return DndIsSpecialRequest(uri);}) != uris.end())
++    {
++      steal_drag_ = true;
++    }
++
++    // only set hover once we know our first x/y
++    SetActionState(ACTION_DRAG_EXTERNAL);
++    SetStateMouseOverLauncher(true);
++  }
++
++  SetMousePosition(x - parent_->GetGeometry().x, y - parent_->GetGeometry().y);
++
++  if (options()->hide_mode != LAUNCHER_HIDE_NEVER)
++  {
++    if ((monitor() == 0 && !IsOverlayOpen() && mouse_position_.x == 0 && !drag_edge_touching_) &&
++        ((launcher_position_ == LauncherPosition::LEFT &&
++          mouse_position_.y <= (parent_->GetGeometry().height - icon_size_.CP(cv_) - 2 * SPACE_BETWEEN_ICONS.CP(cv_))) ||
++        (launcher_position_ == LauncherPosition::BOTTOM &&
++         mouse_position_.x <= (parent_->GetGeometry().width - icon_size_.CP(cv_) - 2 * SPACE_BETWEEN_ICONS.CP(cv_)))))
++    {
++      if (dnd_hovered_icon_)
++      {
++        dnd_hovered_icon_->SendDndLeave();
++        dnd_hovered_icon_->SetQuirk(AbstractLauncherIcon::Quirk::GLOW, false, monitor());
++      }
++
++      animation::StartOrReverse(dnd_hide_animation_, animation::Direction::FORWARD);
++      drag_edge_touching_ = true;
++    }
++    else if (drag_edge_touching_ &&
++             ((launcher_position_ == LauncherPosition::LEFT && mouse_position_.x != 0) ||
++              (launcher_position_ == LauncherPosition::BOTTOM && mouse_position_.y != 0)))
++    {
++      animation::StartOrReverse(dnd_hide_animation_, animation::Direction::BACKWARD);
++      drag_edge_touching_ = false;
++    }
++  }
++
++  EventLogic();
++  auto const& hovered_icon = MouseIconIntersection(mouse_position_.x, mouse_position_.y);
++
++  bool hovered_icon_is_appropriate = false;
++  if (hovered_icon)
++  {
++    if (hovered_icon->GetIconType() == AbstractLauncherIcon::IconType::TRASH)
++      steal_drag_ = false;
++
++    if (hovered_icon->position() == AbstractLauncherIcon::Position::FLOATING)
++      hovered_icon_is_appropriate = true;
++  }
++
++  if (steal_drag_)
++  {
++    drag_action_ = nux::DNDACTION_COPY;
++    if (!dnd_hovered_icon_ && hovered_icon_is_appropriate)
++    {
++      dnd_hovered_icon_ = new SpacerLauncherIcon(monitor());
++      model_->AddIcon(dnd_hovered_icon_);
++      model_->ReorderBefore(dnd_hovered_icon_, hovered_icon, true);
++    }
++    else if (dnd_hovered_icon_)
++    {
++      if (hovered_icon)
++      {
++        if (hovered_icon_is_appropriate)
++        {
++          model_->ReorderSmart(dnd_hovered_icon_, hovered_icon, true);
++        }
++        else
++        {
++          dnd_hovered_icon_->SetQuirk(AbstractLauncherIcon::Quirk::VISIBLE, false, monitor());
++          dnd_hovered_icon_->remove.emit(dnd_hovered_icon_);
++          dnd_hovered_icon_ = nullptr;
++        }
++      }
++    }
++  }
++  else
++  {
++    if (!drag_edge_touching_ && hovered_icon != dnd_hovered_icon_)
++    {
++      if (hovered_icon)
++      {
++        hovered_icon->SendDndEnter();
++        drag_action_ = hovered_icon->QueryAcceptDrop(dnd_data_);
++
++        if (drag_action_ != nux::DNDACTION_NONE)
++          hovered_icon->SetQuirk(AbstractLauncherIcon::Quirk::GLOW, true, monitor());
++      }
++      else
++      {
++        drag_action_ = nux::DNDACTION_NONE;
++      }
++
++      if (dnd_hovered_icon_)
++      {
++        dnd_hovered_icon_->SendDndLeave();
++        dnd_hovered_icon_->SetQuirk(AbstractLauncherIcon::Quirk::GLOW, false, monitor());
++      }
++
++      dnd_hovered_icon_ = hovered_icon;
++    }
++  }
++
++  bool accept;
++  if (drag_action_ != nux::DNDACTION_NONE)
++    accept = true;
++  else
++    accept = false;
++
++  SendDndStatus(accept, drag_action_, nux::Geometry(x, y, 1, 1));
++#endif
++}
+ 
+ void Launcher::ProcessDndDrop(int x, int y)
+-{ }
++{
++#ifdef USE_X11
++  if (steal_drag_)
++  {
++    for (auto const& uri : dnd_data_.Uris())
++    {
++      if (DndIsSpecialRequest(uri))
++        add_request.emit(uri, dnd_hovered_icon_);
++    }
++  }
++  else if (dnd_hovered_icon_ && drag_action_ != nux::DNDACTION_NONE)
++  {
++     if (IsOverlayOpen())
++       ubus_.SendMessage(UBUS_OVERLAY_CLOSE_REQUEST);
++
++    dnd_hovered_icon_->AcceptDrop(dnd_data_);
++  }
++
++  if (drag_action_ != nux::DNDACTION_NONE)
++    SendDndFinished(true, drag_action_);
++  else
++    SendDndFinished(false, drag_action_);
++
++  // reset our shiz
++  DndReset();
++#endif
++}
+ 
+ /*
+  * Returns the current selected icon if it is in keynavmode
+@@ -2806,16 +3033,81 @@ int Launcher::GetDragDelta() const
  }
  
  void Launcher::DndStarted(std::string const& data)
@@ -122,6 +540,21 @@ index a4f880a..2388ee3 100644
  
  } // namespace launcher
  } // namespace unity
+diff --git a/lockscreen/LockScreenPanel.cpp b/lockscreen/LockScreenPanel.cpp
+index b3087a5..e54e2f1 100644
+--- a/lockscreen/LockScreenPanel.cpp
++++ b/lockscreen/LockScreenPanel.cpp
+@@ -37,8 +37,8 @@ namespace lockscreen
+ {
+ namespace
+ {
+-const RawPixel PADDING = 14_em;
+-nux::Color BG_COLOR(0.1, 0.1, 0.1, 0.9);
++const RawPixel PADDING = 5_em;
++const nux::Color BG_COLOR(0.1, 0.1, 0.1, 0.4);
+ }
+ 
+ using namespace indicator;
 diff --git a/panel/PanelController.cpp b/panel/PanelController.cpp
 index c6496b7..f24eb46 100644
 --- a/panel/PanelController.cpp
@@ -147,6 +580,28 @@ index 8bf3c80..20f0638 100644
    SetLayout(layout_);
  
    LOG_DEBUG(logger) << "Indicators View Added: ";
+diff --git a/panel/PanelView.cpp b/panel/PanelView.cpp
+index 1a54ab1..fd492b6 100644
+--- a/panel/PanelView.cpp
++++ b/panel/PanelView.cpp
+@@ -58,7 +58,7 @@ PanelView::PanelView(MockableBaseWindow* parent, menu::Manager::Ptr const& menus
+   , opacity_maximized_toggle_(false)
+   , needs_geo_sync_(false)
+   , overlay_is_open_(false)
+-  , opacity_(0.7f)
++  , opacity_(1.0f)
+   , monitor_(0)
+   , stored_dash_width_(0)
+   , bg_effect_helper_(this)
+@@ -539,7 +539,7 @@ PanelView::UpdateBackground()
+ 
+   if (overlay_is_open_ || wm.IsScaleActive())
+   {
+-    // bg_layer_.reset(new nux::ColorLayer(wm.average_color(), true, rop));
++    bg_layer_.reset(new nux::ColorLayer(wm.average_color(), true, rop));
+   }
+   else
+   {
 diff --git a/plugins/unityshell/src/unityshell.cpp b/plugins/unityshell/src/unityshell.cpp
 index 38f433a..ff739f6 100644
 --- a/plugins/unityshell/src/unityshell.cpp
@@ -239,7 +694,7 @@ index 61afdea..3fdd5f3 100644
                      <max>64</max>
                      <precision>1</precision>
 diff --git a/unity-shared/DashStyle.cpp b/unity-shared/DashStyle.cpp
-index b0c3eac..a8ca838 100755
+index b0c3eac..4d7cdff 100755
 --- a/unity-shared/DashStyle.cpp
 +++ b/unity-shared/DashStyle.cpp
 @@ -374,8 +374,35 @@ Style::Impl::~Impl()
@@ -272,7 +727,7 @@ index b0c3eac..a8ca838 100755
 +  PangoRectangle log_rect;
 +  ::pango_layout_get_pixel_extents(layout, NULL, &log_rect);
 +  text_width_ = log_rect.width;
-+  text_height_ = log_rect.height;
++  text_height_ = log_rect.height + 4;
 +
 +  owner_->changed.emit();
 +

@@ -1,0 +1,130 @@
+From 4f5bd09ef7da9cf2f80d422d48f5641cae4593b8 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sat, 8 Apr 2023 18:14:59 +0200
+Subject: [PATCH 1/1] Remove Software center filter option
+
+Signed-off-by: c4pp4
+---
+ src/daemon.vala | 92 -------------------------------------------------
+ 1 file changed, 92 deletions(-)
+
+diff --git a/src/daemon.vala b/src/daemon.vala
+index 8ef3983..5457af3 100644
+--- a/src/daemon.vala
++++ b/src/daemon.vala
+@@ -263,24 +263,6 @@ namespace Unity.ApplicationsLens {
+         filters.add (filter);
+       }
+ 
+-      /* Sources */
+-      {
+-        var filter = new CheckOptionFilter ("unity-sources", _("Sources"));
+-        filter.sort_type = Unity.OptionsFilter.SortType.DISPLAY_NAME;
+-
+-        // TRANSLATORS: Please make sure this string is short enough to fit
+-        // into the filter button
+-        filter.add_option ("local", _("Local apps"));
+-        if (display_available_apps)
+-        {
+-          // TRANSLATORS: Please make sure this string is short enough to fit
+-          // into the filter button
+-          filter.add_option ("usc", _("Software center"));
+-        }
+-
+-        filters.add (filter);
+-      }
+-
+       return filters;
+     }
+ 
+@@ -852,17 +834,6 @@ namespace Unity.ApplicationsLens {
+       return true;
+     }
+ 
+-    private bool usc_apps_active ()
+-    {
+-      var filter = search_context.filter_state.get_filter_by_id ("unity-sources") as Unity.OptionsFilter;
+-      if (filter.filtering)
+-      {
+-        var option = filter.get_option ("usc");
+-        return option == null || option.active;
+-      }
+-      return true;
+-    }
+-
+     /* Returns TRUE if application is NOT installed */
+     public bool filter_cb (Unity.Package.PackageInfo pkginfo)
+     {
+@@ -961,69 +932,6 @@ namespace Unity.ApplicationsLens {
+ 
+       scope.purchase_info = new PurchaseInfoHelper ();
+ 
+-      /* If we don't have a search we display 6 random apps */
+-      if (usc_apps_active () && scope.display_available_apps && scope.pkgsearcher != null)
+-      {
+-        if (has_search)
+-        {
+-          timer.start ();
+-          var pkgresults = scope.pkgsearcher.search (
+-            pkg_search_string, 50, Unity.Package.SearchType.PREFIX,
+-            Unity.Package.Sort.BY_RELEVANCY);
+-          add_pkg_search_result (pkgresults, installed_uris, available_uris,
+-                                 result_set, Category.AVAILABLE,
+-                                 0, running_on_phablet);
+-          timer.stop ();
+-          debug ("Entry search listed %i Available apps in %fms for query: %s",
+-                 pkgresults.num_hits, timer.elapsed ()*1000, pkg_search_string);
+-        }
+-        else if (has_filter) /* Empty search string + active filters should get lots of results from selected categories */
+-        {
+-          timer.start ();
+-          string? filter_query = XapianUtils.prepare_pkg_search_string (search_string, type_filter);
+-
+-          var pkgresults = scope.pkgsearcher.get_apps (filter_query, MAX_APP_FOR_DOWNLOAD_FOR_EMPTY_QUERY, filter_cb);
+-          scope.purchase_info.from_pkgresults (pkgresults);
+-          add_pkg_search_result (pkgresults, installed_uris, available_uris, result_set, Category.AVAILABLE, MAX_APP_FOR_DOWNLOAD_FOR_EMPTY_QUERY, running_on_phablet);
+-          timer.stop ();
+-          debug ("Entry search listed %i Available apps in %fms",
+-                 pkgresults.num_hits, timer.elapsed ()*1000);
+-        }
+-        else
+-        {
+-          timer.start ();
+-
+-          uint hits = 0;
+-          try
+-          {
+-            Set<string> duplicates_lookup = new HashSet<string> ();
+-
+-            if (scope.sc_data_provider == null)
+-              scope.sc_data_provider = new SoftwareCenterDataCache (TOP_RATED_ITEMS_CACHE_LIFETIME);
+-
+-            var whats_new = yield scope.sc_data_provider.get_items_for_category ("unity-whats-new");
+-            var query = scope.purchase_info.create_pkgsearch_query (whats_new);
+-            var tmpresults = scope.pkgsearcher.get_by_exact_names (query);
+-            scope.purchase_info.from_pkgresults (tmpresults);
+-            hits = add_sc_category_results (whats_new, result_set, Category.AVAILABLE, ref duplicates_lookup, MAX_WHATS_NEW_APPS_FOR_EMPTY_QUERY);
+-
+-            var top_rated = yield scope.sc_data_provider.get_items_for_category ("unity-top-rated");
+-            query = scope.purchase_info.create_pkgsearch_query (top_rated);
+-            tmpresults = scope.pkgsearcher.get_by_exact_names (query);
+-            scope.purchase_info.from_pkgresults (tmpresults);
+-            hits += add_sc_category_results (top_rated, result_set, Category.AVAILABLE, ref duplicates_lookup, MAX_TOP_RATED_APPS_FOR_EMPTY_QUERY);
+-          }
+-          catch (GLib.Error e)
+-          {
+-            warning ("Failed to get top rated apps: %s", e.message);
+-          }
+-
+-          timer.stop ();
+-          debug ("Entry search listed %u top rated/new available apps in %fms",
+-                 hits, timer.elapsed ()*1000);
+-        }
+-      }
+-
+       /* XXX:
+       if (model.get_n_rows () == 0)
+       {
+-- 
+2.39.2
+

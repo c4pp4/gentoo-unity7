@@ -214,6 +214,21 @@ src_prepare() {
 		-e "s:/usr/lib/:/usr/$(get_libdir)/:" \
 		tools/compiz-profile-selector.in || die
 
+	# Use 12px font size for multirange filter option #
+	sed -i \
+		-e "/const int FONT_SIZE_PX/{s/10/12/}" \
+		dash/FilterMultiRangeButton.cpp || die
+
+	# Tweak preview width #
+	sed -i \
+		-e "/preview_width =/{s/770/700/}" \
+		unity-shared/PreviewStyle.cpp || die
+
+	# Fix warning: the address of ‘nux::Event::text’ will never be NULL #
+	sed -i \
+		-e "s/event->text && //" \
+		a11y/unity-util-accessible.cpp || die
+
 	python_fix_shebang tools
 
 	if use uwidgets; then

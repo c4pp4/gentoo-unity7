@@ -1,0 +1,87 @@
+From 154474a44ce78c7f62962289ba1d85e8aa7b4067 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sat, 8 Apr 2023 17:48:16 +0200
+Subject: [PATCH 1/1] Remove 1kB filter option
+
+Signed-off-by: c4pp4
+---
+ src/daemon.vala | 30 ++++++++++++------------------
+ 1 file changed, 12 insertions(+), 18 deletions(-)
+
+diff --git a/src/daemon.vala b/src/daemon.vala
+index 6c29819..462d1f2 100644
+--- a/src/daemon.vala
++++ b/src/daemon.vala
+@@ -174,7 +174,6 @@ namespace Unity.FilesLens {
+       {
+         var filter = new MultiRangeFilter ("size", _("Size"));
+ 
+-        filter.add_option ("1kB", _("1kB"));
+         filter.add_option ("100kB", _("100kB"));
+         filter.add_option ("1MB", _("1MB"));
+         filter.add_option ("10MB", _("10MB"));
+@@ -699,7 +698,6 @@ namespace Unity.FilesLens {
+       int64[] sizes =
+       {
+         0,
+-        1000,
+         100000,
+         1000000,
+         10000000,
+@@ -710,20 +708,18 @@ namespace Unity.FilesLens {
+ 
+       switch (min_opt.id)
+       {
+-        case "1kB":
+-          min_size = sizes[0]; break;
+         case "100kB":
+-          min_size = sizes[1]; break;
++          min_size = sizes[0]; break;
+         case "1MB":
+-          min_size = sizes[2]; break;
++          min_size = sizes[1]; break;
+         case "10MB":
+-          min_size = sizes[3]; break;
++          min_size = sizes[2]; break;
+         case "100MB":
+-          min_size = sizes[4]; break;
++          min_size = sizes[3]; break;
+         case "1GB":
+-          min_size = sizes[5]; break;
++          min_size = sizes[4]; break;
+         case ">1GB":
+-          min_size = sizes[6]; break;
++          min_size = sizes[5]; break;
+         default:
+           warn_if_reached ();
+           min_size = 0;
+@@ -732,20 +728,18 @@ namespace Unity.FilesLens {
+ 
+       switch (max_opt.id)
+       {
+-        case "1kB":
+-          max_size = sizes[1]; break;
+         case "100kB":
+-          max_size = sizes[2]; break;
++          max_size = sizes[1]; break;
+         case "1MB":
+-          max_size = sizes[3]; break;
++          max_size = sizes[2]; break;
+         case "10MB":
+-          max_size = sizes[4]; break;
++          max_size = sizes[3]; break;
+         case "100MB":
+-          max_size = sizes[5]; break;
++          max_size = sizes[4]; break;
+         case "1GB":
+-          max_size = sizes[6]; break;
++          max_size = sizes[5]; break;
+         case ">1GB":
+-          max_size = sizes[7]; break;
++          max_size = sizes[6]; break;
+         default:
+           warn_if_reached ();
+           max_size = int64.MAX;
+-- 
+2.39.2
+

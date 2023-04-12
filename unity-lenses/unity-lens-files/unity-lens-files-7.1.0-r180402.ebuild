@@ -11,7 +11,6 @@ inherit gnome2 ubuntu-versionator vala
 
 DESCRIPTION="File lens for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/unity-lens-files"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -37,6 +36,8 @@ DEPEND="${COMMON_DEPEND}
 BDEPEND="virtual/pkgconfig"
 
 S="${WORKDIR}"
+
+PATCHES=( "${FILESDIR}"/remove-1kb-filter-option.patch )
 
 src_prepare() {
 	# Disable all language files as they can be incomplete #

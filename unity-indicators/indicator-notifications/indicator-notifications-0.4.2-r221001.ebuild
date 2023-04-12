@@ -7,7 +7,7 @@ UBUNTU_EAUTORECONF="yes"
 UVER=
 UREV=0ubuntu1
 
-inherit ubuntu-versionator
+inherit gnome2 ubuntu-versionator
 
 DESCRIPTION="View recent notifications"
 HOMEPAGE="https://launchpad.net/recent-notifications"

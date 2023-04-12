@@ -10,7 +10,7 @@ MY_PN="nemo-fileroller"
 inherit meson ubuntu-versionator
 
 DESCRIPTION="Nemo engrampa integration"
-HOMEPAGE="https://projects.linuxmint.com/cinnamon/ https://github.com/linuxmint/nemo-extensions"
+HOMEPAGE="https://projects.linuxmint.com/cinnamon https://github.com/linuxmint/nemo-extensions"
 SRC_URI="${UURL/${PN}/${MY_PN}}.orig.tar.xz"
 
 LICENSE="GPL-2"

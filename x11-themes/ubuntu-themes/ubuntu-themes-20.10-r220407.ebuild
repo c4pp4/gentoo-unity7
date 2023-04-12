@@ -56,7 +56,7 @@ src_install() {
 	##   the one from Adwaita theme is too dark since v3.30 ##
 	doins -r "${FILESDIR}"/drop-down-icon/*
 
-	## Add {Amb,Rad}iance indicator-notifications icons ##
+	## Add Ambiance indicator-notifications icons ##
 	doins -r "${FILESDIR}"/indicator-notifications/*
 
 	insinto /usr/share/icons/suru

@@ -2,6 +2,6 @@
 
 ehooks() {
 	sed -i \
-		-e "/X-GNOME-SingleWindow/a X-GNOME-Autostart-Delay=3" \
+		-e "/X-GNOME-SingleWindow/a X-GNOME-Autostart-Delay=4" \
 		lib/xdg/org.${PN/-/.}.desktop || die
 }
