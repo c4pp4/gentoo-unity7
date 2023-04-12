@@ -1,0 +1,178 @@
+From b57504017a0e7e999071bb60ee1b22b32e20e9b1 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Thu, 13 Apr 2023 00:13:02 +0200
+Subject: [PATCH 1/1] Revert searching the dash legal notice
+
+Signed-off-by: c4pp4
+---
+ configure.ac                                 | 27 ++++++++-
+ panels/info/Makefile.am                      |  3 +
+ panels/info/cc-info-panel.c                  | 63 ++++++++++++++++++++
+ panels/info/searchingthedashlegalnotice.html |  1 +
+ 4 files changed, 92 insertions(+), 2 deletions(-)
+ create mode 100644 panels/info/searchingthedashlegalnotice.html
+
+diff --git a/configure.ac b/configure.ac
+index 435d8c8..cd50e22 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -143,8 +143,6 @@ PKG_CHECK_MODULES(APPEARANCE_PANEL, $COMMON_MODULES libxml-2.0 gnome-desktop-3.0
+ PKG_CHECK_MODULES(DATETIME_PANEL, $COMMON_MODULES timezonemap geonames
+                   polkit-gobject-1 >= $POLKIT_REQUIRED_VERSION)
+ PKG_CHECK_MODULES(DISPLAY_PANEL, $COMMON_MODULES libunity-settings-daemon x11)
+-PKG_CHECK_MODULES(INFO_PANEL, $COMMON_MODULES libgtop-2.0 gl x11
+-		  polkit-gobject-1 >= $POLKIT_REQUIRED_VERSION)
+ PKG_CHECK_MODULES(KEYBOARD_PANEL, $COMMON_MODULES
+                   gnome-desktop-3.0 >= $GNOME_DESKTOP_REQUIRED_VERSION
+                   x11)
+@@ -234,6 +232,31 @@ AS_IF([test "x$enable_bluetooth" = "xyes"],
+       ])
+ AM_CONDITIONAL(BUILD_BLUETOOTH, [test "x$have_bluetooth" = "xyes"])
+ 
++# Check for webkit2gtk
++INFO_BASE_MODULES="libgtop-2.0
++ gl
++ x11
++ polkit-gobject-1 >= $POLKIT_REQUIRED_VERSION"
++
++AC_ARG_ENABLE([webkit], [
++    AS_HELP_STRING([--disable-webkit], [disable webkit support])
++])
++AS_IF([test "x$enable_webkit" != "xno"], [
++    PKG_CHECK_MODULES([INFO_PANEL], [
++        $COMMON_MODULES
++        $INFO_BASE_MODULES
++        webkit2gtk-4.0
++    ], [
++        AC_DEFINE([BUILD_WEBKIT], [1], [
++            Show Legal Notice in info panel])
++    ])
++], [
++    PKG_CHECK_MODULES([INFO_PANEL], [
++        $COMMON_MODULES
++        $INFO_BASE_MODULES
++    ])
++])
++
+ # Check for NetworkManager ~1.2
+ PKG_CHECK_MODULES(NETWORK_MANAGER,
+                   libnm >= $NETWORK_MANAGER_REQUIRED_VERSION
+diff --git a/panels/info/Makefile.am b/panels/info/Makefile.am
+index b3865e3..3a0b979 100644
+--- a/panels/info/Makefile.am
++++ b/panels/info/Makefile.am
+@@ -46,6 +46,9 @@ libinfo_la_SOURCES =		\
+ libinfo_la_LIBADD = $(PANEL_LIBS) $(INFO_PANEL_LIBS)
+ libinfo_la_LDFLAGS = $(PANEL_LDFLAGS)
+ 
++legaldir = $(pkgdatadir)
++dist_legal_DATA = searchingthedashlegalnotice.html
++
+ uidir = $(pkgdatadir)/ui
+ dist_ui_DATA = info.ui GnomeLogoVerticalMedium.svg UnityLogo.png
+ 
+diff --git a/panels/info/cc-info-panel.c b/panels/info/cc-info-panel.c
+index d9c5083..23ebcf2 100644
+--- a/panels/info/cc-info-panel.c
++++ b/panels/info/cc-info-panel.c
+@@ -40,6 +40,10 @@
+ #include <GL/gl.h>
+ #include <GL/glx.h>
+ 
++#ifdef BUILD_WEBKIT
++#include <webkit2/webkit2.h>
++#endif /* BUILD_WEBKIT */
++
+ #include "hostname-helper.h"
+ #include "gsd-disk-space-helper.h"
+ 
+@@ -755,6 +759,55 @@ on_section_changed (GtkTreeSelection  *selection,
+   gtk_tree_path_free (path);
+ }
+ 
++#ifdef BUILD_WEBKIT
++static gboolean
++on_decide_policy (WebKitWebView             *web_view,
++                  WebKitPolicyDecision      *decision,
++                  WebKitPolicyDecisionType   decision_type,
++                  gpointer                   user_data)
++{
++    WebKitNavigationPolicyDecision *navigation_decision;
++    WebKitNavigationAction *navigation_action;
++    WebKitNavigationType navigation_type;
++    WebKitURIRequest *request;
++    const gchar *uri;
++
++    switch (decision_type)
++    {
++        case WEBKIT_POLICY_DECISION_TYPE_NAVIGATION_ACTION:
++            navigation_decision = WEBKIT_NAVIGATION_POLICY_DECISION(decision);
++            navigation_action = webkit_navigation_policy_decision_get_navigation_action (navigation_decision);
++            request = webkit_navigation_action_get_request (navigation_action);
++            navigation_type = webkit_navigation_action_get_navigation_type (navigation_action);
++
++            if (navigation_type == WEBKIT_NAVIGATION_TYPE_LINK_CLICKED)
++            {
++                uri = webkit_uri_request_get_uri (request);
++
++                webkit_policy_decision_ignore (decision);
++
++                gtk_show_uri (gtk_widget_get_screen (GTK_WIDGET (web_view)),
++                              uri, GDK_CURRENT_TIME, NULL);
++                return TRUE;
++            }
++        default:
++            return FALSE;
++    }
++}
++
++static void
++info_panel_setup_notice (CcInfoPanel  *self)
++{
++  WebKitWebView *webView = WEBKIT_WEB_VIEW (webkit_web_view_new());
++  webkit_web_view_load_uri(webView, "file:///usr/share/unity-control-center/searchingthedashlegalnotice.html");
++  g_signal_connect (G_OBJECT (webView), "decide-policy",
++                    G_CALLBACK (on_decide_policy), NULL);
++
++  gtk_notebook_append_page (GTK_NOTEBOOK (WID ("notebook")), GTK_WIDGET (webView), NULL);
++  gtk_widget_show_all (GTK_WIDGET (webView));
++}
++#endif /* BUILD_WEBKIT */
++
+ static void
+ default_app_changed (GtkAppChooserButton *button,
+                      CcInfoPanel         *self)
+@@ -1390,6 +1443,13 @@ info_panel_setup_selector (CcInfoPanel  *self)
+                       _("Removable Media"),
+                       -1);
+ 
++#ifdef BUILD_WEBKIT
++  gtk_list_store_append (model, &iter);
++  gtk_list_store_set (model, &iter, section_name_column,
++                      _("Legal Notice"),
++                      -1);
++#endif /* BUILD_WEBKIT */
++
+   g_signal_connect (selection, "changed",
+                     G_CALLBACK (on_section_changed), self);
+   on_section_changed (selection, self);
+@@ -1914,6 +1974,9 @@ cc_info_panel_init (CcInfoPanel *self)
+   info_panel_setup_overview (self);
+   info_panel_setup_default_apps (self);
+   info_panel_setup_media (self);
++#ifdef BUILD_WEBKIT
++  info_panel_setup_notice (self);
++#endif /* BUILD_WEBKIT */
+ }
+ 
+ void
+diff --git a/panels/info/searchingthedashlegalnotice.html b/panels/info/searchingthedashlegalnotice.html
+new file mode 100644
+index 0000000..4475053
+--- /dev/null
++++ b/panels/info/searchingthedashlegalnotice.html
+@@ -0,0 +1 @@
++<html><head><title>searching the dash legal notice</title><style type="text/css">ol{margin:0;padding:0}.c0{color:#000080;font-family:"Ubuntu";text-decoration:underline}.c8{list-style-type:disc;margin:0;padding:0}.c4{color:#1155cc;font-family:"Ubuntu";text-decoration:underline}.c10{max-width:499.5pt;background-color:#ffffff;padding:72pt 58.5pt 72pt 54pt}.c1{color:inherit;text-decoration:inherit}.c7{padding-left:0pt;margin-left:36pt}.c6{font-weight:bold}.c9{text-align:center}.c2{direction:ltr}.c5{font-family:"Ubuntu"}.c3{height:11pt}.title{padding-top:24pt;line-height:1.15;text-align:left;color:#000000;font-size:36pt;font-family:"Arial";font-weight:bold;padding-bottom:6pt}.subtitle{padding-top:18pt;line-height:1.15;text-align:left;color:#666666;font-style:italic;font-size:24pt;font-family:"Georgia";padding-bottom:4pt}li{color:#000000;font-size:11pt;font-family:"Arial"}p{color:#000000;font-size:11pt;margin:0;font-family:"Arial"}h1{padding-top:24pt;line-height:1.15;text-align:left;color:#000000;font-size:18pt;font-family:"Arial";font-weight:bold;padding-bottom:6pt}h2{padding-top:18pt;line-height:1.15;text-align:left;color:#000000;font-size:14pt;font-family:"Arial";font-weight:bold;padding-bottom:4pt}h3{padding-top:14pt;line-height:1.15;text-align:left;color:#666666;font-size:12pt;font-family:"Arial";font-weight:bold;padding-bottom:4pt}h4{padding-top:12pt;line-height:1.15;text-align:left;color:#666666;font-style:italic;font-size:11pt;font-family:"Arial";padding-bottom:2pt}h5{padding-top:11pt;line-height:1.15;text-align:left;color:#666666;font-size:10pt;font-family:"Arial";font-weight:bold;padding-bottom:2pt}h6{padding-top:10pt;line-height:1.15;text-align:left;color:#666666;font-style:italic;font-size:10pt;font-family:"Arial";padding-bottom:2pt}</style></head><body class="c10"><p class="c2 c9"><span class="c5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="c6 c5">Searching in the dash - Legal notice</span></p><p class="c2 c3"><span class="c6 c5"></span></p><p class="c2"><span class="c5">This search function is provided to you by Canonical Group Limited (Canonical). This legal notice applies to searching in the dash and incorporates the terms of Canonical&#39;s</span><span class="c0">&nbsp;</span><span class="c4"><a class="c1" href="http://www.canonical.com/legal">legal notice</a></span><span class="c0">&nbsp;</span><span class="c5">(and privacy policy). </span></p><p class="c2 c3"><span class="c5"></span></p><p class="c2"><span class="c6 c5">Collection and use of data</span></p><p class="c2"><span class="c5">When you enter a search term into the dash Ubuntu will search your Ubuntu computer and will record the search terms locally. </span></p><p class="c2 c3"><span class="c5"></span></p><p class="c2"><span class="c5">If you have opted in (see the &ldquo;Online Search&rdquo; section below), we will also send your keystrokes as a search term to productsearch.ubuntu.com and selected third parties so that we may complement your search results with online search results from such third parties including: Facebook, Twitter, BBC and Amazon. Canonical and these selected third parties will collect your search terms and use them to provide you with search results while using Ubuntu. </span></p><p class="c2 c3"><span class="c5"></span></p><p class="c2"><span class="c5">By searching in the dash you consent to:</span></p><p class="c2 c3"><span class="c5"></span></p><ol class="c8" start="1"><li class="c7 c2"><span class="c5">the collection and use of your search terms and IP address in this way; and</span></li><li class="c2 c7"><span class="c5">the storage of your search terms and IP address by Canonical and such selected third parties (if applicable).</span></li></ol><p class="c2 c3"><span class="c5"></span></p><p class="c2"><span class="c5">Canonical will only use your search terms and IP address in accordance with this legal notice and </span><span class="c4"><a class="c1" href="http://www.ubuntu.com/aboutus/privacypolicy">our privacy</a></span><span class="c4"><a class="c1" href="http://www.ubuntu.com/aboutus/privacypolicy">&nbsp;policy</a></span><span class="c5">.</span><span class="c5">&nbsp;Please see </span><span class="c4"><a class="c1" href="http://www.ubuntu.com/aboutus/privacypolicy">our privacy</a></span><span class="c4"><a class="c1" href="http://www.ubuntu.com/aboutus/privacypolicy">&nbsp;policy</a></span><span class="c5">&nbsp;</span><span class="c5">for further information about how Canonical protects your personal information. For information on how our selected third parties may use your information, please see their privacy policies.</span></p><p class="c2 c3"><span class="c5"></span></p><p class="c2"><span class="c6 c5">Online Search</span></p><p class="c2"><span class="c5">By default the dash doesn&rsquo;t send searches to third parties and you don&#39;t receive online search results. To enable this go to the Privacy panel and toggle the &lsquo;Include online search results&rsquo; option to on. The Privacy panel can be found in your System Settings or via a dash search. For a current list of our selected third parties, please see </span><span class="c4"><a class="c1" href="http://www.ubuntu.com/privacy-policy/third-parties">www.ubuntu.com/privacy-policy/third-parties</a></span><span class="c5">.</span></p><p class="c2 c3"><span class="c5"></span></p><p class="c2"><span class="c5 c6">Changes</span></p><p class="c2"><span class="c5">Although most changes are likely to be minor, Canonical may change this legal notice from time to time, and at Canonical&#39;s sole discretion. Please check this page from time to time for any changes to this legal notice as we will not be able to notify you directly.</span></p><p class="c2 c3"><span class="c5"></span></p><p class="c2"><span class="c6 c5">How to contact us</span></p><p class="c2"><span class="c5">Please submit any questions or comments about searching in the dash or this legal notice by contacting us at the following address: Canonical Group Ltd, 5th Floor, Blue Fin Building, 110 Southwark Street, London, England, SE1 0SU.</span></p></body></html>
+-- 
+2.39.2
+
