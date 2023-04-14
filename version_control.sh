@@ -629,46 +629,44 @@ update_scopes() {
 		urev="${pkg##*|}"
 		for rls in ${stable} ${dev}; do
 			for frls in "${rls}" "${rls}"-security "${rls}"-updates; do
-				for rp in ${repos[1]}; do
-					upstr_ver=$(grep -A 4 "^Package: ${name}$" /tmp/gentoo-unity7-sources-${rp}-${frls} | grep "Version: " | cut -d " " -f 2)
-					upstr_ver="${upstr_ver#*:}"
-					if [[ -n ${upstr_ver} ]]; then
-						[[ ${rls} == ${stable} ]] && pattern="\"amd64\"" || pattern="\"~amd64\""
-						filename=$(grep -H -- "${pattern}" "${ebuilds[@]}" | cut -d ":" -f 1)
-						if [[ ${filename} == *".ebuild"*".ebuild"* ]]; then
-							printf "\b\b%s\n\n" "... error!"
-							printf "%s\n\n" " ${color_red}*${color_norm} unity-scopes/smart-scopes: multiple files with KEYWORDS=${pattern}"
-							exit 1
-						fi
-						if [[ -n ${filename} ]] && [[ $(grep -- "^setvar ${pkg%%|*}" "${filename}") == *"${uver}"*"${urev}"* ]]; then
-							lcl_ver="${uver}-${urev}"
-							upstr_ver_prev="${upstr_ver}"
-						else
-							[[ ${lcl_ver} == ${upstr_ver} ]] && unset lcl_ver upstr_ver || unset lcl_ver
-							[[ ${upstr_ver_prev} == ${upstr_ver} ]] && unset upstr_ver
-							[[ -n ${filename} ]] && [[ ${rls} == ${dev} ]] && continue
-						fi
-						[[ -z ${lcl_ver} ]] && [[ -z ${upstr_ver} ]] && continue
-						[[ ${lcl_ver} == ${upstr_ver} ]] && continue
-						ctl=1
-						tput rc; tput el
-						echo "Overlay:  ${name}-${color_yellow}${lcl_ver:-none}${color_norm} (${rls})"
-						printf "%s" "Upstream: ${name}-${color_green}${upstr_ver}${color_norm} (${rls})"
-						if [[ -n ${lcl_ver} ]]; then
-							sed -i \
-								-e "/^setvar ${pkg%%|*}/{s/${uver}/${upstr_ver%-*}/}" \
-								-e "/^setvar ${pkg%%|*}/{s/${urev}/${upstr_ver#*-}/}" \
-								"${filename}" 2>/dev/null \
-								&& printf "%s\n" "... ${color_blue}[ ${color_green}updated ${color_blue}]${color_norm}" \
-								|| printf "%s\n" "... ${color_blue}[ ${color_red}not updated ${color_blue}]${color_norm}"
-						else
-							printf "\n"
-						fi
-						echo
-						tput sc
-						printf "%s" "Looking for updates ${indicator[${count}]}"
+				upstr_ver=$(grep -A 4 "^Package: ${name}$" /tmp/gentoo-unity7-sources-${repos[1]}-${frls} | grep "Version: " | cut -d " " -f 2)
+				upstr_ver="${upstr_ver#*:}"
+				if [[ -n ${upstr_ver} ]]; then
+					[[ ${rls} == ${stable} ]] && pattern="\"amd64\"" || pattern="\"~amd64\""
+					filename=$(grep -H -- "${pattern}" "${ebuilds[@]}" | cut -d ":" -f 1)
+					if [[ ${filename} == *".ebuild"*".ebuild"* ]]; then
+						printf "\b\b%s\n\n" "... error!"
+						printf "%s\n\n" " ${color_red}*${color_norm} unity-scopes/smart-scopes: multiple files with KEYWORDS=${pattern}"
+						exit 1
 					fi
-				done
+					if [[ -n ${filename} ]] && [[ $(grep -- "^setvar ${pkg%%|*}" "${filename}") == *"${uver}"*"${urev}"* ]]; then
+						lcl_ver="${uver}-${urev}"
+						upstr_ver_prev="${upstr_ver}"
+					else
+						[[ ${lcl_ver} == ${upstr_ver} ]] && unset lcl_ver upstr_ver || unset lcl_ver
+						[[ ${upstr_ver_prev} == ${upstr_ver} ]] && unset upstr_ver
+						[[ -n ${filename} ]] && [[ ${rls} == ${dev} ]] && continue
+					fi
+					[[ -z ${lcl_ver} ]] && [[ -z ${upstr_ver} ]] && continue
+					[[ ${lcl_ver} == ${upstr_ver} ]] && continue
+					ctl=1
+					tput rc; tput el
+					echo "Overlay:  ${name}-${color_yellow}${lcl_ver:-none}${color_norm} (${rls})"
+					printf "%s" "Upstream: ${name}-${color_green}${upstr_ver}${color_norm} (${rls})"
+					if [[ -n ${lcl_ver} ]]; then
+						sed -i \
+							-e "/^setvar ${pkg%%|*}/{s/${uver}/${upstr_ver%-*}/}" \
+							-e "/^setvar ${pkg%%|*}/{s/${urev}/${upstr_ver#*-}/}" \
+							"${filename}" 2>/dev/null \
+							&& printf "%s\n" "... ${color_blue}[ ${color_green}updated ${color_blue}]${color_norm}" \
+							|| printf "%s\n" "... ${color_blue}[ ${color_red}not updated ${color_blue}]${color_norm}"
+					else
+						printf "\n"
+					fi
+					echo
+					tput sc
+					printf "%s" "Looking for updates ${indicator[${count}]}"
+				fi
 			done
 		done
 	done
@@ -702,65 +700,61 @@ update_languages() {
 		ver=$(echo "${pkg}" | cut -d "|" -f 2)
 		gver=$(echo "${pkg}" | cut -d "|" -f 3)
 		for rls in ${stable} ${dev}; do
-			for frls in "${rls}" "${rls}"-security "${rls}"-updates; do
-				for rp in ${repos[0]}; do
-					upstr_ver=$(grep -A 4 "^Package: ${name/-gnome}$" /tmp/gentoo-unity7-sources-${rp}-${frls} | grep "Version: " | cut -d " " -f 2)
-					upstr_gver=$(grep -A 4 "^Package: ${name}$" /tmp/gentoo-unity7-sources-${rp}-${frls} | grep "Version: " | cut -d " " -f 2)
-					upstr_ver="${upstr_ver#*:}"; upstr_gver="${upstr_gver#*:}"
-					if [[ -n ${upstr_ver} || -n ${upstr_gver} ]]; then
-						[[ ${rls} == ${stable} ]] && pattern="\"amd64\"" || pattern="\"~amd64\""
-						filename=$(grep -H -- "${pattern}" "${ebuilds[@]}" | cut -d ":" -f 1)
-						if [[ ${filename} == *".ebuild"*".ebuild"* ]]; then
-							printf "\b\b%s\n\n" "... error!"
-							printf "%s\n\n" " ${color_red}*${color_norm} unity-base/unity-language-pack: multiple files with KEYWORDS=${pattern}"
-							exit 1
-						fi
-						if [[ -n ${filename} ]] && [[ $(grep -P -- "^setvar ${pkg%%|*}\t" "${filename}") == *"${ver} ${gver}"* ]]; then
-							lcl_ver="${ver}"
-							lcl_gver="${gver}"
-							upstr_ver_prev="${upstr_ver}"
-							upstr_gver_prev="${upstr_gver}"
-						else
-							[[ ${lcl_ver} == ${upstr_ver} ]] && unset lcl_ver upstr_ver || unset lcl_ver
-							[[ ${lcl_gver} == ${upstr_gver} ]] && unset lcl_gver upstr_gver || unset lcl_gver
-							[[ ${upstr_ver_prev} == ${upstr_ver} ]] && unset upstr_ver
-							[[ ${upstr_gver_prev} == ${upstr_gver} ]] && unset upstr_gver
-							[[ -n ${filename} ]] && [[ ${rls} == ${dev} ]] && continue
-						fi
-						[[ -z ${lcl_ver} ]] && [[ ${rls} == ${stable} ]] && continue
-						[[ -z ${lcl_ver} ]] && [[ -z ${upstr_ver} ]] && [[ -z ${lcl_gver} ]] && [[ -z ${upstr_gver} ]] && continue
-						[[ ${lcl_ver} == ${upstr_ver} ]] && [[ ${lcl_gver} == ${upstr_gver} ]] && continue
-						[[ ${lcl_ver#*+} -gt ${upstr_ver#*+} && ${lcl_gver#*+} -gt ${upstr_gver#*+} ]] && continue
-						ctl=1
-						tput rc; tput el
-						if [[ ${lcl_ver#*+} -lt ${upstr_ver#*+} ]]; then
-							echo "Overlay:  ${name/-gnome}-${color_yellow}${lcl_ver:-new}${color_norm} (${rls})"
-							printf "%s" "Upstream: ${name/-gnome}-${color_green}${upstr_ver}${color_norm} (${rls})"
-							if [[ -n ${lcl_ver} ]]; then
-								sed -i "/^setvar ${pkg%%|*}\t/{s/\t${lcl_ver}/\t${upstr_ver}/}" "${filename}" 2>/dev/null \
-									&& printf "%s\n" "... ${color_blue}[ ${color_green}updated ${color_blue}]${color_norm}" \
-									|| printf "%s\n" "... ${color_blue}[ ${color_red}not updated ${color_blue}]${color_norm}"
-							else
-								printf "\n"
-							fi
-						fi
-						if [[ ${lcl_gver#*+} -lt ${upstr_gver#*+} ]]; then
-							echo "Overlay:  ${name}-${color_yellow}${lcl_gver:-new}${color_norm} (${rls})"
-							printf "%s" "Upstream: ${name}-${color_green}${upstr_gver}${color_norm} (${rls})"
-							if [[ -n ${lcl_gver} ]]; then
-								sed -i "/^setvar ${pkg%%|*}\t/{s/ ${lcl_gver}/ ${upstr_gver}/}" "${filename}" 2>/dev/null \
-									&& printf "%s\n" "... ${color_blue}[ ${color_green}updated ${color_blue}]${color_norm}" \
-									|| printf "%s\n" "... ${color_blue}[ ${color_red}not updated ${color_blue}]${color_norm}"
-							else
-								printf "\n"
-							fi
-						fi
-						echo
-						tput sc
-						printf "%s" "Looking for updates ${indicator[${count}]}"
+			upstr_ver=$(grep -A 4 "^Package: ${name/-gnome}$" /tmp/gentoo-unity7-sources-${repos[0]}-${rls} | grep "Version: " | cut -d " " -f 2)
+			upstr_gver=$(grep -A 4 "^Package: ${name}$" /tmp/gentoo-unity7-sources-${repos[0]}-${rls} | grep "Version: " | cut -d " " -f 2)
+			upstr_ver="${upstr_ver#*:}"; upstr_gver="${upstr_gver#*:}"
+			if [[ -n ${upstr_ver} || -n ${upstr_gver} ]]; then
+				[[ ${rls} == ${stable} ]] && pattern="\"amd64\"" || pattern="\"~amd64\""
+				filename=$(grep -H -- "${pattern}" "${ebuilds[@]}" | cut -d ":" -f 1)
+				if [[ ${filename} == *".ebuild"*".ebuild"* ]]; then
+					printf "\b\b%s\n\n" "... error!"
+					printf "%s\n\n" " ${color_red}*${color_norm} unity-base/unity-language-pack: multiple files with KEYWORDS=${pattern}"
+					exit 1
+				fi
+				if [[ -n ${filename} ]] && [[ $(grep -P -- "^setvar ${pkg%%|*}\t" "${filename}") == *"${ver} ${gver}"* ]]; then
+					lcl_ver="${ver}"
+					lcl_gver="${gver}"
+					upstr_ver_prev="${upstr_ver}"
+					upstr_gver_prev="${upstr_gver}"
+				else
+					[[ ${lcl_ver} == ${upstr_ver} ]] && unset lcl_ver upstr_ver || unset lcl_ver
+					[[ ${lcl_gver} == ${upstr_gver} ]] && unset lcl_gver upstr_gver || unset lcl_gver
+					[[ ${upstr_ver_prev} == ${upstr_ver} ]] && unset upstr_ver
+					[[ ${upstr_gver_prev} == ${upstr_gver} ]] && unset upstr_gver
+					[[ -n ${filename} ]] && [[ ${rls} == ${dev} ]] && continue
+				fi
+				[[ -z ${lcl_ver} ]] && [[ ${rls} == ${stable} ]] && continue
+				[[ -z ${lcl_ver} ]] && [[ -z ${upstr_ver} ]] && [[ -z ${lcl_gver} ]] && [[ -z ${upstr_gver} ]] && continue
+				[[ ${lcl_ver} == ${upstr_ver} ]] && [[ ${lcl_gver} == ${upstr_gver} ]] && continue
+				[[ ${lcl_ver#*+} -gt ${upstr_ver#*+} && ${lcl_gver#*+} -gt ${upstr_gver#*+} ]] && continue
+				ctl=1
+				tput rc; tput el
+				if [[ ${lcl_ver#*+} -lt ${upstr_ver#*+} ]]; then
+					echo "Overlay:  ${name/-gnome}-${color_yellow}${lcl_ver:-new}${color_norm} (${rls})"
+					printf "%s" "Upstream: ${name/-gnome}-${color_green}${upstr_ver}${color_norm} (${rls})"
+					if [[ -n ${lcl_ver} ]]; then
+						sed -i "/^setvar ${pkg%%|*}\t/{s/\t${lcl_ver}/\t${upstr_ver}/}" "${filename}" 2>/dev/null \
+							&& printf "%s\n" "... ${color_blue}[ ${color_green}updated ${color_blue}]${color_norm}" \
+							|| printf "%s\n" "... ${color_blue}[ ${color_red}not updated ${color_blue}]${color_norm}"
+					else
+						printf "\n"
 					fi
-				done
-			done
+				fi
+				if [[ ${lcl_gver#*+} -lt ${upstr_gver#*+} ]]; then
+					echo "Overlay:  ${name}-${color_yellow}${lcl_gver:-new}${color_norm} (${rls})"
+					printf "%s" "Upstream: ${name}-${color_green}${upstr_gver}${color_norm} (${rls})"
+					if [[ -n ${lcl_gver} ]]; then
+						sed -i "/^setvar ${pkg%%|*}\t/{s/ ${lcl_gver}/ ${upstr_gver}/}" "${filename}" 2>/dev/null \
+							&& printf "%s\n" "... ${color_blue}[ ${color_green}updated ${color_blue}]${color_norm}" \
+							|| printf "%s\n" "... ${color_blue}[ ${color_red}not updated ${color_blue}]${color_norm}"
+					else
+						printf "\n"
+					fi
+				fi
+				echo
+				tput sc
+				printf "%s" "Looking for updates ${indicator[${count}]}"
+			fi
 		done
 	done
 	printf "\b\b%s\n\n" "... done!"

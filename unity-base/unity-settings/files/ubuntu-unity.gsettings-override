@@ -2,6 +2,7 @@
 
 [org.gnome.desktop.background:Unity]
 picture-uri = 'file:///usr/share/backgrounds/ubuntu-unity/ubuntu-unity-default.png'
+picture-uri-dark = 'file:///usr/share/backgrounds/ubuntu-unity/ubuntu-unity-default.png
 
 [org.gnome.desktop.interface:Unity]
 gtk-theme = 'Yaru-dark'
