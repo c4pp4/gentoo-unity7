@@ -5,7 +5,7 @@ EAPI=8
 
 UVER=+repack1
 UREV=1
-LSVER="0.219"
+LSVER="0.221"
 
 inherit font ubuntu-versionator
 

@@ -42,7 +42,7 @@ RDEPEND="${COMMON_DEPEND}
 	gnome-base/librsvg
 	>=sys-devel/gcc-5.2
 	>=sys-libs/glibc-2.29
-	>=x11-libs/cairo-1.10.0[svg]
+	>=x11-libs/cairo-1.10.0
 	x11-libs/gdk-pixbuf:2[introspection]
 	x11-libs/libX11
 	>=x11-libs/libXi-1.2.99.4
