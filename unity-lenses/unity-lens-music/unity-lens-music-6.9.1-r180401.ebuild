@@ -49,4 +49,4 @@ PDEPEND="
 
 S="${S}${UVER}"
 
-PATCHES=( "${FILESDIR}"/"${PN}"-fix-build-against-vala-0.48.patch )
+PATCHES=( "${FILESDIR}"/fix-build-against-vala-0.48.patch )

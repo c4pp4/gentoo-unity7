@@ -21,14 +21,12 @@ IUSE="debug nls"
 RDEPEND=">=sys-libs/glibc-2.7"
 DEPEND="nls? ( virtual/libintl )"
 
+PATCHES=(
+	"${FILESDIR}"/007-build.patch
+	"${FILESDIR}"/008-remove-pipe-from-CFLAGS.patch #362523
+)
+
 ft() { use $1 && echo true || echo false ; }
-
-src_prepare() {
-	eapply -p0 "${FILESDIR}"/${PN}-007-build.patch
-	eapply -p0 "${FILESDIR}"/${PN}-008-remove-pipe-from-CFLAGS.patch #362523
-
-	ubuntu-versionator_src_prepare
-}
 
 src_configure() {
 	export DEBUG=$(ft debug) V=true NLS=$(ft nls)

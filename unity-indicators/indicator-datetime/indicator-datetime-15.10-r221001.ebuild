@@ -62,7 +62,7 @@ S="${S}${UVER}"
 
 MAKEOPTS="${MAKEOPTS} -j1"
 
-PATCHES=( "${FILESDIR}"/"${PN}"-optional-eds_19.10.patch )
+PATCHES=( "${FILESDIR}"/optional-eds_19.10.patch )
 
 src_prepare() {
 	if use test; then

@@ -14,7 +14,7 @@ HOMEPAGE="https://wiki.ubuntu.com/Unity"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="+accessibility +bluetooth +colord +cups +fcitx +gnome-online-accounts +i18n +input_devices_wacom +kerberos +networkmanager +v4l wayland +webkit"
 RESTRICT="test"
 
@@ -102,17 +102,17 @@ PDEPEND="
 S="${WORKDIR}"
 
 PATCHES=(
-	"${FILESDIR}"/01_"${PN}"-langselector.patch # Based on g-c-c v3.24 Region & Language panel
+	"${FILESDIR}"/01-langselector.patch # Based on g-c-c v3.24 Region & Language panel
 	"${FILESDIR}"/02-optional-bt-colord-kerberos-wacom.patch
 	"${FILESDIR}"/03-revert-searching-the-dash-legal-notice.patch
 )
 
 src_prepare() {
-	use cups && eapply "${FILESDIR}"/"${PN}"-printers-fix_launcher.patch
+	use cups && eapply "${FILESDIR}"/printers-fix_launcher.patch
 
 	if use gnome-online-accounts; then
 		# Needed by gnome-extra/gnome-calendar #
-		eapply "${FILESDIR}"/"${PN}"-online-accounts-enable_passing_data.patch
+		eapply "${FILESDIR}"/online-accounts-enable_passing_data.patch
 
 		# Use .desktop Comment from g-c-c we can translate #
 		sed -i \

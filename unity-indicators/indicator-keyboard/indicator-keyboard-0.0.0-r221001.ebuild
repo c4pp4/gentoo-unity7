@@ -51,7 +51,7 @@ DEPEND="${COMMON_DEPEND}
 
 S="${S}${UVER}"
 
-PATCHES=( "${FILESDIR}"/"${PN}"-optional-fcitx.patch )
+PATCHES=( "${FILESDIR}"/optional-fcitx.patch )
 
 src_prepare() {
 	use charmap || ( sed -i \

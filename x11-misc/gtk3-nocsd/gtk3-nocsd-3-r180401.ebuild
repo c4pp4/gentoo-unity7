@@ -23,7 +23,7 @@ DEPEND="
 	x11-libs/gtk+:3[introspection]
 "
 
-PATCHES=( "${FILESDIR}"/"${PN}"-version-4.patch )
+PATCHES=( "${FILESDIR}"/version-4.patch )
 
 src_prepare() {
 	# Fix libdir (prefix and LD_PRELOAD) #

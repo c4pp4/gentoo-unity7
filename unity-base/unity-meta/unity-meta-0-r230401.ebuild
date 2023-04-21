@@ -95,7 +95,6 @@ RDEPEND="
 		x11-terms/mate-terminal
 	)
 	extra? (
-		app-backup/deja-dup
 		app-crypt/seahorse
 		gnome-base/dconf-editor
 		gnome-extra/gnome-calendar

@@ -15,7 +15,7 @@ HOMEPAGE="https://github.com/dglent/meteo-qt"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 RESTRICT="test"
 
 COMMON_DEPEND="

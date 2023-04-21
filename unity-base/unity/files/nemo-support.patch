@@ -1,6 +1,6 @@
-From 99e69b40f8fa2ac0578fc8c870a91e8f39f80579 Mon Sep 17 00:00:00 2001
+From 35cfaedb7191c3dd58a14962db7786f1effc2661 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Thu, 22 Sep 2022 02:15:22 +0200
+Date: Sat, 4 Mar 2023 08:18:22 +0100
 Subject: [PATCH 1/1] Add Nemo support and XUbuntuOpenLocationsXids
 
 Based on impish changes related to OpenWindowsWithLocations
@@ -9,9 +9,9 @@ and org.gnome.Nautilus.FileOperations2 (revert).
 Signed-off-by: c4pp4
 ---
  launcher/DeviceLauncherSection.cpp      |   4 +-
- launcher/FileManagerLauncherIcon.cpp    |   4 +-
+ launcher/FileManagerLauncherIcon.cpp    |   2 +-
  launcher/LauncherController.cpp         |   5 +-
- launcher/TrashLauncherIcon.cpp          |   4 +-
+ launcher/TrashLauncherIcon.cpp          |   2 +-
  unity-shared/ApplicationManager.h       |   3 -
  unity-shared/BamfApplicationManager.cpp |  25 ------
  unity-shared/BamfApplicationManager.h   |   2 -
@@ -19,7 +19,7 @@ Signed-off-by: c4pp4
  unity-shared/FileManager.h              |   5 +-
  unity-shared/GnomeFileManager.cpp       | 103 ++++++++----------------
  unity-shared/GnomeFileManager.h         |   4 +-
- 11 files changed, 45 insertions(+), 116 deletions(-)
+ 11 files changed, 43 insertions(+), 114 deletions(-)
 
 diff --git a/launcher/DeviceLauncherSection.cpp b/launcher/DeviceLauncherSection.cpp
 index 90b1203..bfc922d 100644
@@ -44,18 +44,9 @@ index 90b1203..bfc922d 100644
  {
    monitor_->volume_added.connect(sigc::mem_fun(this, &DeviceLauncherSection::OnVolumeAdded));
 diff --git a/launcher/FileManagerLauncherIcon.cpp b/launcher/FileManagerLauncherIcon.cpp
-index 019c550..0926997 100644
+index 7e1560a..0926997 100644
 --- a/launcher/FileManagerLauncherIcon.cpp
 +++ b/launcher/FileManagerLauncherIcon.cpp
-@@ -23,7 +23,7 @@
- #include <NuxCore/Logger.h>
- #include <UnityCore/DesktopUtilities.h>
- 
--#include "unity-shared/FileManager.h"
-+#include "unity-shared/GnomeFileManager.h"
- 
- namespace unity
- {
 @@ -40,7 +40,7 @@ const std::string DEFAULT_ICON = "system-file-manager";
  FileManagerLauncherIcon::FileManagerLauncherIcon(ApplicationPtr const& app, DeviceLauncherSection::Ptr const& dev, FileManager::Ptr const& fm)
    : WindowedLauncherIcon(IconType::APPLICATION)
@@ -82,18 +73,9 @@ index 3a38b5f..2f16a60 100644
      return new FileManagerLauncherIcon(app, device_section_);
    }
 diff --git a/launcher/TrashLauncherIcon.cpp b/launcher/TrashLauncherIcon.cpp
-index 15dc9a6..9c6502e 100644
+index edf5eea..9c6502e 100644
 --- a/launcher/TrashLauncherIcon.cpp
 +++ b/launcher/TrashLauncherIcon.cpp
-@@ -29,7 +29,7 @@
- 
- #include "QuicklistMenuItemLabel.h"
- #include "unity-shared/DesktopApplicationManager.h"
--#include "unity-shared/FileManager.h"
-+#include "unity-shared/GnomeFileManager.h"
- 
- namespace unity
- {
 @@ -45,7 +45,7 @@ namespace
  
  TrashLauncherIcon::TrashLauncherIcon(FileManager::Ptr const& fm)
@@ -188,17 +170,17 @@ index eac6d25..214b383 100644
    ApplicationPtr EnsureApplication(BamfView*) const;
    ApplicationWindowPtr EnsureWindow(BamfView*) const;
 diff --git a/unity-shared/CMakeLists.txt b/unity-shared/CMakeLists.txt
-index eddc807..b0ac7b1 100644
+index 673c7dd..b0ac7b1 100644
 --- a/unity-shared/CMakeLists.txt
 +++ b/unity-shared/CMakeLists.txt
-@@ -30,7 +30,6 @@ set (UNITY_SHARED_SOURCES
-      DesktopApplicationManager.cpp
-      EMConverter.cpp
+@@ -32,7 +32,6 @@ set (UNITY_SHARED_SOURCES
       ExpanderView.cpp
--     FileManager.cpp
       GnomeFileManager.cpp
       FontSettings.cpp
+-     FileManager.cpp
       GraphicsUtils.cpp
+      IMTextEntry.cpp
+      IconLoader.cpp
 @@ -46,7 +45,6 @@ set (UNITY_SHARED_SOURCES
       LayoutSystem.cpp
       LineSeparator.cpp
@@ -208,7 +190,7 @@ index eddc807..b0ac7b1 100644
       OverlayScrollView.cpp
       OverlayWindowButtons.cpp
 diff --git a/unity-shared/FileManager.h b/unity-shared/FileManager.h
-index bb636d4..1b2fcb6 100644
+index 6b802c6..1502c21 100644
 --- a/unity-shared/FileManager.h
 +++ b/unity-shared/FileManager.h
 @@ -45,10 +45,9 @@ public:
@@ -225,7 +207,7 @@ index bb636d4..1b2fcb6 100644
    virtual std::string LocationForWindow(ApplicationWindowPtr const&) const = 0;
  
 diff --git a/unity-shared/GnomeFileManager.cpp b/unity-shared/GnomeFileManager.cpp
-index bd2a051..4b1531f 100644
+index bd2a051..9b31b56 100644
 --- a/unity-shared/GnomeFileManager.cpp
 +++ b/unity-shared/GnomeFileManager.cpp
 @@ -32,15 +32,13 @@ namespace unity
@@ -243,7 +225,7 @@ index bd2a051..4b1531f 100644
 -
 -const std::string GTK_WINDOW_PATH_PROPERTY = "_GTK_WINDOW_OBJECT_PATH";
 +const std::string NEMO_NAME = "org.Nemo";
-+const std::string NEMO_PATH = "/org/Nemo";
++const std::string NEMO_FILE_OPS_PATH = "/org/Nemo";
  }
  
  struct GnomeFileManager::Impl
@@ -265,7 +247,7 @@ index bd2a051..4b1531f 100644
      auto flags = static_cast<GDBusProxyFlags>(G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES|G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS);
 -    return std::make_shared<glib::DBusProxy>(NAUTILUS_NAME, NAUTILUS_FILE_OPS_PATH,
 -                                             "org.gnome.Nautilus.FileOperations2",
-+    return std::make_shared<glib::DBusProxy>(NEMO_NAME, NEMO_PATH,
++    return std::make_shared<glib::DBusProxy>(NEMO_NAME, NEMO_FILE_OPS_PATH,
 +                                             "org.Nemo.FileOperations",
                                               G_BUS_TYPE_SESSION, flags);
    }
@@ -461,7 +443,7 @@ index bd2a051..4b1531f 100644
    }
  
 diff --git a/unity-shared/GnomeFileManager.h b/unity-shared/GnomeFileManager.h
-index b9c3dd8..8f3b3c3 100644
+index 6fa53a6..4500a2b 100644
 --- a/unity-shared/GnomeFileManager.h
 +++ b/unity-shared/GnomeFileManager.h
 @@ -35,9 +35,9 @@ public:
@@ -477,5 +459,5 @@ index b9c3dd8..8f3b3c3 100644
    WindowList WindowsForLocation(std::string const& location) const;
    std::string LocationForWindow(ApplicationWindowPtr const&) const;
 -- 
-2.35.1
+2.39.2
 

@@ -15,7 +15,7 @@ SRC_URI="${UURL}-${UREV}.tar.xz"
 
 LICENSE="GPL-2 LGPL-2.1 MIT"
 SLOT="0/$(usub)"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="gles2 mate"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="test"
