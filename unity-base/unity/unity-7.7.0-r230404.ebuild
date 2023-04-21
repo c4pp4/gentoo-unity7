@@ -7,7 +7,7 @@ DISTUTILS_SINGLE_IMPL=1
 PYTHON_COMPAT=( python3_{10..11} )
 
 UVER=+23.04.20230222.2
-UREV=0ubuntu1
+UREV=0ubuntu2
 
 inherit gnome2 distutils-r1 cmake pam systemd ubuntu-versionator
 
@@ -117,7 +117,7 @@ BDEPEND="
 	)
 "
 
-S="${WORKDIR}/${PN}"
+S="${S}${UVER}"
 
 PATCHES=(
 	"${FILESDIR}"/add-unity-version-xml.patch
