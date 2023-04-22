@@ -86,5 +86,8 @@ src_install() {
 	dosym -r /usr/share/themes/Yaru-dark/gtk-4.0 /usr/share/themes/Ambiance/gtk-4.0
 	dosym -r /usr/share/themes/Yaru/gtk-4.0 /usr/share/themes/Radiance/gtk-4.0
 
+	## Fallback color-scheme = 'prefer-dark' to Ambiance theme ##
+	dosym -r /usr/share/themes/Ambiance/gtk-3.20/gtk.css /usr/share/themes/Ambiance/gtk-3.20/gtk-dark.css
+
 	einstalldocs
 }

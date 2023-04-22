@@ -29,6 +29,7 @@ selection-menu-open-as-root = false
 
 [org.gnome.desktop.interface:Unity]
 gtk-theme = 'Ambiance'
+color-scheme = 'prefer-dark'
 icon-theme = 'ubuntu-mono-dark'
 cursor-theme = 'DMZ-White'
 font-name = 'Ubuntu 11'

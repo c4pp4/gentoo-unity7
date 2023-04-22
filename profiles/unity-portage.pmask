@@ -14,6 +14,7 @@
 >gnome-extra/nemo-5.2.4-r1
 >gnome-extra/nm-applet-1.30.0-r2
 >gnome-extra/polkit-gnome-0.105-r2
+>gui-libs/libadwaita-1.2.3
 >gui-libs/libhandy-1.8.2
 >mail-client/thunderbird-103
 >mate-extra/mate-system-monitor-1.26.0

@@ -16,6 +16,8 @@
 		<flag name="extra">Install Unity extra applications</flag>
 		<flag name="fonts">Install additional fonts</flag>
 		<flag name="games">Install games</flag>
+		<flag name="gnome">Install Gnome extra applications depending on
+			<pkg>gui-libs/libadwaita</pkg> (theming is not fully supported)</flag>
 		<flag name="xdm">Use a display manager, defaults to
 			<pkg>x11-misc/lightdm</pkg> and
 			<pkg>unity-extra/unity-greeter</pkg></flag>

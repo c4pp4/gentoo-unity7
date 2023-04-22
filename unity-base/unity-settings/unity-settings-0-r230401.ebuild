@@ -65,9 +65,6 @@ src_install() {
 		"\n[com.canonical.Unity:Unity]\nlowgfx = true" \
 		>> "${ED}${gschema_dir}/${gschema}"
 
-	exeinto /etc/X11/xinit/xinitrc.d
-	doexe "${FILESDIR}/95unity-gtk-theme"
-
 	# Scopes: files, music, photos, video #
 	local \
 		dash="'files.scope','video.scope','music.scope','photos.scope'," \

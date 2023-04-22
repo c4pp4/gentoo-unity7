@@ -1,0 +1,7 @@
+ehooks() {
+	# Make Deja Dup appear in unity-control-center #
+	sed -i \
+		-e "/Exec/{s/ %u//}" \
+		-e "/Categories/{s/X-GNOME-Utilities/Settings;X-GNOME-SystemSettings;X-Unity-Settings-Panel\nX-Unity-Settings-Panel=deja-dup/}" \
+		data/app.desktop.in || die
+}

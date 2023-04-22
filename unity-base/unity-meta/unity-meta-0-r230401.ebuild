@@ -15,7 +15,8 @@ SRC_URI=""
 LICENSE="metapackage"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="+accessibility +apps chat +core +extra +fonts +games +xdm"
+IUSE="+accessibility +apps chat +core +extra +fonts +games gnome +xdm"
+REQUIRED_USE="gnome? ( extra )"
 RESTRICT="binchecks strip test"
 
 RDEPEND="
@@ -97,14 +98,10 @@ RDEPEND="
 	extra? (
 		app-crypt/seahorse
 		gnome-base/dconf-editor
-		gnome-extra/gnome-calendar
-		gnome-extra/gnome-contacts
 		|| (
 			mate-extra/mate-system-monitor
 			gnome-extra/gnome-system-monitor
 		)
-		gnome-extra/gnome-weather
-		media-gfx/gnome-font-viewer
 		media-gfx/simple-scan
 		media-video/cheese
 		net-misc/remmina
@@ -113,12 +110,18 @@ RDEPEND="
 		sys-apps/gnome-disk-utility
 		unity-base/unity-control-center[gnome-online-accounts]
 		unity-extra/unity-tweak-tool
-		|| (
-			unity-indicators/indicator-keyboard[charmap]
-			gnome-extra/gnome-characters
-		)
+		unity-indicators/indicator-keyboard[charmap]
 		unity-indicators/indicator-power[powerman]
 		unity-indicators/indicator-session[help]
+
+		gnome? (
+			app-backup/deja-dup
+			gnome-extra/gnome-calendar
+			gnome-extra/gnome-characters
+			gnome-extra/gnome-contacts
+			gnome-extra/gnome-weather
+			media-gfx/gnome-font-viewer
+		)
 	)
 	fonts? (
 		media-fonts/droid

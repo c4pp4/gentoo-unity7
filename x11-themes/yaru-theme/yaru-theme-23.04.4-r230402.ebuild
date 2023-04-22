@@ -33,6 +33,7 @@ S="${WORKDIR}/${PN}-${UREV}"
 
 src_configure() {
 	local emesonargs=(
+		-Dgnome-shell-user-themes-support=$(usex gnome-shell enabled disabled)
 		-Dgtk=true
 		-Dgtksourceview=true
 		-Dicons=true
