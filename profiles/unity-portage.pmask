@@ -1,6 +1,11 @@
 ## These are packages maintained via ehooks that must be checked before bump ##
+>app-accessibility/at-spi2-core-2.46.0
+>app-admin/system-config-printer-1.5.18
+>app-backup/deja-dup-43.4-r1
 >app-i18n/ibus-1.5.27
+>app-office/libreoffice-7.4.4.2
 >app-text/evince-43.1-r1
+>dev-cpp/gtest-1.11.0
 >dev-libs/glib-2.74.6
 >games-board/iagno-3.38.1-r1
 >games-puzzle/gnome-taquin-3.38.1-r1
@@ -14,6 +19,7 @@
 >gnome-extra/nemo-5.2.4-r1
 >gnome-extra/nm-applet-1.30.0-r2
 >gnome-extra/polkit-gnome-0.105-r2
+>gnome-extra/yelp-42.2-r1
 >gui-libs/libadwaita-1.2.3
 >gui-libs/libhandy-1.8.2
 >mail-client/thunderbird-103
@@ -24,7 +30,10 @@
 >media-plugins/audacious-plugins-4.2-r2
 >media-sound/rhythmbox-3.4.6
 >media-video/totem-43.0
+>net-im/pidgin-2.14.12
+>net-im/telegram-desktop-4.6.5
 >sys-apps/accountsservice-22.08.8-r1
+>www-client/chromium-112.0.5615.165
 >www-client/firefox-113
 >www-client/firefox-103:esr
 >x11-libs/gtk+-2.24.33-r2:2

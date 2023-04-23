@@ -1,5 +1,3 @@
 ehooks() {
-	sed -i \
-		-e "s/Unity;//" \
-		"${PN}.desktop.in"
+	sed -i "s/Unity;//" "${PN}.desktop.in" || die
 }

@@ -91,7 +91,7 @@ get_installed_packages() {
 }
 
 get_slot() {
-	[[ $1 == *":"+([0-9.]) ]] && echo "${1##*:}" || echo ""
+	[[ $1 == *":"+([0-9.esr]) ]] && echo "${1##*:}" || echo ""
 }
 
 find_flag_changes() {
@@ -99,7 +99,7 @@ find_flag_changes() {
 		reset="$1" \
 		sys_db="/var/db/pkg/" \
 		ts_file="/etc/ehooks/timestamps" \
-		flag line n sys_date ts x
+		flag line n slot sys_date ts x
 
 	local -a result
 
@@ -146,7 +146,7 @@ find_tree_changes() {
 	local \
 		reset="$1" \
 		sys_db="/var/db/pkg/" \
-		f m n x
+		f m n slot x
 
 	local -a \
 		subdirs=( $(get_ehooks_subdirs) ) \
@@ -258,7 +258,7 @@ portage_updates() {
 		main_repo="$(portageq get_repo_path / gentoo)" \
 		tmp_um=ehooks-punmask.tmp \
 		tmp_ak=ehooks-paccept_keywords.tmp \
-		line new_pkg old_pkg pmask start_reading update x y
+		line new_pkg old_pkg pmask slot start_reading update x y
 
 	local -a updates
 
@@ -281,11 +281,13 @@ portage_updates() {
 		[[ -n ${start_reading} ]] && [[ ${line} == "#"* ]] && break
 		echo "${line}" > /tmp/"${tmp_um}"
 
-		if [[ ${line} == ">www-client/firefox"* ]] && [[ ${line} != *":esr" ]] ; then
+		if [[ ${line} == ">www-client/firefox"* ]] && [[ ${line} != *":esr" ]]; then
 			## Temporarily accept_keywords www-client/firefox.
 			install -m 666 /dev/null /tmp/"${tmp_ak}" || exit 1
 			ln -fs /tmp/"${tmp_ak}" /etc/portage/package.accept_keywords/zzzz_"${tmp_ak}" || exit 1
 			echo "www-client/firefox::gentoo ~amd64" > /tmp/"${tmp_ak}"
+			update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "|~amd64$" | tail -1 | sed "s/|.*$//")
+		elif [[ ${line} == ">app-backup/deja-dup"* ]]; then
 			update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "|~amd64$" | tail -1 | sed "s/|.*$//")
 		else
 			update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "|amd64$" | tail -1 | sed "s/|.*$//")
@@ -319,11 +321,11 @@ portage_updates() {
 		echo
 		for x in "${updates[@]}"; do
 			## Format: ">old_pkg:slot|new_pkg".
-			old_pkg="${x%|*}"; old_pkg="${old_pkg#>}"; old_pkg="${old_pkg%:*}"
+			old_pkg="${x%|*}"; old_pkg="${old_pkg#>}"; slot=$(get_slot "${old_pkg}"); old_pkg="${old_pkg%:*}"
 			new_pkg="${x#*|}"
 			echo " * Update to ${color_yellow}${new_pkg}${color_norm} (old pmask entry: ${color_bold}>${old_pkg}${color_norm})"
-			printf "%s" " * Test command 'EHOOKS_PATH=${pmask%/*}/ehooks ebuild \$(portageq get_repo_path / gentoo)/${new_pkg%-[0-9]*}/${new_pkg#*/}.ebuild clean prepare'${color_blink}...${color_norm}"
-			if EHOOKS_PATH="${pmask%/*}/ehooks" ebuild "${main_repo}/${new_pkg%-[0-9]*}/${new_pkg#*/}".ebuild clean prepare 1>/dev/null; then
+			printf "%s" " * Test command 'EHOOKS_PATH=${pmask%/*}/ehooks ebuild \$(portageq get_repo_path / gentoo)/${new_pkg%-[0-9]*}/${new_pkg#*/}.ebuild clean prepare clean'${color_blink}...${color_norm}"
+			if EHOOKS_PATH="${pmask%/*}/ehooks" ebuild "${main_repo}/${new_pkg%-[0-9]*}/${new_pkg#*/}".ebuild clean prepare clean 1>/dev/null; then
 				printf "\b\b\b%s\n" "... ${color_blue}[ ${color_green}passed ${color_blue}]${color_norm}"
 				if [[ ${new_pkg} == "www-client/firefox"* ]]; then
 					y="${new_pkg#*firefox-}"; y="${y%%.*}"; y=$((y + 1))
@@ -333,7 +335,11 @@ portage_updates() {
 					y="${new_pkg#*thunderbird-}"; y="${y%%.*}"; y=$((y + 1))
 					new_pkg="mail-client/thunderbird-${y}"
 				fi
-				sed -i "s:${old_pkg}:${new_pkg}:" "${pmask}" 2>/dev/null \
+				if [[ -n ${slot} ]]; then
+					old_pkg="${old_pkg}:${slot}"
+					new_pkg="${new_pkg}:${slot}"
+				fi
+				sed -i "s|${old_pkg}$|${new_pkg}|" "${pmask}" 2>/dev/null \
 					&& echo " ${color_green}*${color_norm} New pmask entry: >${new_pkg}... ${color_blue}[ ${color_green}updated ${color_blue}]${color_norm}" \
 					|| echo " ${color_red}*${color_norm} New pmask entry: >${new_pkg}... ${color_blue}[ ${color_red}not updated ${color_blue}]${color_norm}"
 			else

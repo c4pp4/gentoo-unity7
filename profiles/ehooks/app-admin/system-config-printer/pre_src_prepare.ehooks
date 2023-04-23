@@ -1,12 +1,13 @@
 ehooks() {
-	echo "NotShowIn=Unity;" \
-		>> "${PN}.desktop.in"
+	[[ -e ${PN}.desktop.in ]] \
+		&& echo "NotShowIn=Unity;" >> "${PN}.desktop.in" \
+		|| die
 
 	sed -i \
 		-e "s:\(NotShowIn=KDE;GNOME;Cinnamon;\):\1Unity;:" \
-		"print-applet.desktop.in"
+		"print-applet.desktop.in" || die
 
 	sed -i \
 		-e "s:\(self.AboutDialog.set_\)\(icon_name('printer\):\1logo_\21:" \
-		"${PN}.py"
+		"${PN}.py" || die
 }

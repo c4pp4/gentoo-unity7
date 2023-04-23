@@ -3,5 +3,5 @@ ehooks() {
 	#   integrate, not be a special little snowflake.
 	sed -i \
 		-e "/bool GetCustomFramePrefDefault/a return false;" \
-		ui/base/x/x11_util.cc
+		ui/base/x/x11_util.cc || die
 }
