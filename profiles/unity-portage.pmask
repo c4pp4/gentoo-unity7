@@ -5,7 +5,7 @@
 >app-i18n/ibus-1.5.27
 >app-office/libreoffice-7.4.4.2
 >app-text/evince-43.1-r1
->dev-cpp/gtest-1.11.0
+>dev-cpp/gtest-1.13.0
 >dev-libs/glib-2.74.6
 >games-board/iagno-3.38.1-r1
 >games-puzzle/gnome-taquin-3.38.1-r1
