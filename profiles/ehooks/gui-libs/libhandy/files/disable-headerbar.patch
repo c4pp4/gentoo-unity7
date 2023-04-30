@@ -12,7 +12,7 @@ diff --git a/src/hdy-header-bar.c b/src/hdy-header-bar.c
 index 9d455e1..7734272 100644
 --- a/src/hdy-header-bar.c
 +++ b/src/hdy-header-bar.c
-@@ -2567,6 +2567,32 @@ hdy_header_bar_set_custom_title (HdyHeaderBar *self,
+@@ -2567,6 +2567,37 @@ hdy_header_bar_set_custom_title (HdyHeaderBar *self,
    g_object_notify_by_pspec (G_OBJECT (self), props[PROP_CUSTOM_TITLE]);
  }
  
@@ -20,9 +20,14 @@ index 9d455e1..7734272 100644
 +disable_headerbar ()
 +{
 +  const gchar *desktop_name_list;
++  const gchar *gtk_csd_env;
 +  gchar **names;
 +  gboolean in_list = FALSE;
 +  gint i;
++
++  gtk_csd_env = g_getenv ("GTK_CSD");
++  if (!gtk_csd_env)
++    return FALSE;
 +
 +  desktop_name_list = g_getenv ("XDG_CURRENT_DESKTOP");
 +  if (!desktop_name_list)
@@ -36,7 +41,7 @@ index 9d455e1..7734272 100644
 +    }
 +  g_strfreev (names);
 +
-+  if ((!in_list) && (strcmp (g_getenv ("GTK_CSD"), "0") == 0))
++  if ((!in_list) && (strcmp (gtk_csd_env, "0") == 0))
 +    return TRUE;
 +  else
 +    return FALSE;

@@ -85,12 +85,12 @@ index f2bb4d4..3ce2486 100644
 +
 +  g_assert (self->yaru_accent == NULL);
 +
-+  if (g_str_has_prefix (theme_name, "Yaru") ||
-+      g_str_has_suffix (theme_name, "iance") ) {
-+    if (g_str_equal (theme_name, "Yaru") ||
-+        g_str_equal (theme_name, "Radiance") ||
-+        g_str_equal (theme_name, "Ambiance") ||
-+        g_str_equal (theme_name, "Yaru-dark")) {
++  if (g_str_has_suffix (theme_name, "iance") ||
++      g_str_has_prefix (theme_name, "Yaru") ) {
++    if (g_str_equal (theme_name, "Ambiance") ||
++        g_str_equal (theme_name, "Yaru-dark") ||
++        g_str_equal (theme_name, "Yaru") ||
++        g_str_equal (theme_name, "Radiance")) {
 +      self->yaru_accent = g_strdup ("default");
 +    } else {
 +      g_auto (GStrv) theme_variant = NULL;
