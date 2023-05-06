@@ -7,7 +7,7 @@ GNOME2_LA_PUNT="yes"
 PYTHON_COMPAT=( python3_{10..11} )
 
 UVER=+18.10.20180918
-UREV=0ubuntu3
+UREV=0ubuntu5
 
 inherit gnome2 python-single-r1 ubuntu-versionator vala
 
