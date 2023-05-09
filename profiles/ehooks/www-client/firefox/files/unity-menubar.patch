@@ -121,7 +121,7 @@
 +}
 +
  toolbarspring {
-   -moz-box-flex: 1000;
+   flex: 1000 1000;
  }
 --- a/widget/gtk/moz.build
 +++ b/widget/gtk/moz.build

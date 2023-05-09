@@ -56,7 +56,7 @@ COMMON_DEPEND="
 		>=net-misc/networkmanager-1.2.0
 	)
 	v4l? ( >=media-video/cheese-3.18.0 )
-	webkit? ( >=net-libs/webkit-gtk-2.15.1:4 )
+	webkit? ( >=net-libs/webkit-gtk-2.15.1:4.1 )
 "
 RDEPEND="${COMMON_DEPEND}
 	app-text/iso-codes

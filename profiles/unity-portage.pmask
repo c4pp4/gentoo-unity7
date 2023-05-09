@@ -27,14 +27,14 @@
 >mate-extra/mate-utils-1.26.0
 >media-gfx/eog-44.1
 >media-gfx/shotwell-0.32.0
->media-plugins/audacious-plugins-4.2-r2
+>media-plugins/audacious-plugins-4.3
 >media-sound/rhythmbox-3.4.6-r2
 >media-video/totem-43.0
 >net-im/pidgin-2.14.12
 >net-im/telegram-desktop-4.6.5
 >sys-apps/accountsservice-22.08.8-r1
 >www-client/chromium-112.0.5615.165
->www-client/firefox-113
+>www-client/firefox-114
 >www-client/firefox-103:esr
 >x11-libs/gtk+-2.24.33-r2:2
 >x11-libs/gtk+-3.24.37:3
@@ -50,3 +50,6 @@ dev-libs/libindicator::gentoo		## the latest version in the Gentoo tree is 12.10
 x11-misc/notify-osd::gentoo		## the latest version in the Gentoo tree is 0.9.34 (2012-03-23)
 x11-themes/notify-osd-icons::gentoo	## the latest version in the Gentoo tree is 0.7 (2010-11-15)
 x11-themes/ubuntu-wallpapers::gentoo	## version in the Gentoo tree doesn't control download size via USE flags
+
+## Keep legacy icons ##
+>x11-themes/adwaita-icon-theme-44::gentoo

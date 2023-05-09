@@ -46,7 +46,13 @@
 
    `emerge -av unity-meta`
 
-   NOTE: Don't forget to start systemd services, such as [LightDM⬀][ldm], [NetworkManager⬀][nm], [CUPS⬀][cups] or [Bluetooth⬀][bt].
+#
+
+NOTES:
+
+- Don't forget to start systemd services, such as [LightDM⬀][ldm], [NetworkManager⬀][nm], [CUPS⬀][cups] or [Bluetooth⬀][bt].
+
+- If you switch the default Python target, you **must** update `sys-apps/portage` before any other packages.
 
 [//]: # (LINKS)
 [bt]: https://wiki.gentoo.org/wiki/Bluetooth#systemd
