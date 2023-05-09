@@ -1,6 +1,8 @@
 ## ehooks patching system.
 if [[ ${EBUILD_PHASE} == "setup" ]]; then
-	REPO_ROOT="$(portageq get_repo_path / gentoo-unity7)"
+	portageq get_repo_path / gentoo-unity7 >/dev/null 2>&1 \
+		&& REPO_ROOT="$(portageq get_repo_path / gentoo-unity7)" \
+		|| die "portageq: gentoo-unity7 repo path not found. If you have recently updated sys-apps/portage then you should re-run 'emerge -avuDU --with-bdeps=y @world' to catch any updates."
 
 	local -a EHOOKS_SOURCE=()
 
