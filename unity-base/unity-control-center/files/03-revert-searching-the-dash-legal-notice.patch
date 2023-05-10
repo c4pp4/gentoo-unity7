@@ -42,7 +42,7 @@ index 435d8c8..cd50e22 100644
 +    PKG_CHECK_MODULES([INFO_PANEL], [
 +        $COMMON_MODULES
 +        $INFO_BASE_MODULES
-+        webkit2gtk-4.0
++        webkit2gtk-4.1
 +    ], [
 +        AC_DEFINE([BUILD_WEBKIT], [1], [
 +            Show Legal Notice in info panel])

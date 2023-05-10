@@ -1,0 +1,46 @@
+From f153553e4aeccf028a705374d238b83163d55e86 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pablo=20Correa=20G=C3=B3mez?= <ablocorrea@hotmail.com>
+Date: Sun, 27 Nov 2022 16:25:49 +0100
+Subject: [PATCH] REVERT ev-window: Remove unused ev_window_get_bookmarks_menu
+ function
+
+---
+ shell/ev-window.c | 12 ------------
+ shell/ev-window.h |  1 -
+ 2 files changed, 13 deletions(-)
+
+diff --git a/shell/ev-window.c b/shell/ev-window.c
+index d8cdb2aa7..616161a3d 100644
+--- a/shell/ev-window.c
++++ b/shell/ev-window.c
+@@ -7886,6 +7886,18 @@
+ #endif
+ }
+ 
++GMenuModel *
++ev_window_get_bookmarks_menu (EvWindow *ev_window)
++{
++	EvWindowPrivate *priv;
++
++	g_return_val_if_fail (EV_WINDOW (ev_window), NULL);
++
++	priv = GET_PRIVATE (ev_window);
++
++	return G_MENU_MODEL (priv->bookmarks_menu);
++}
++
+ EvDocumentModel *
+ ev_window_get_document_model (EvWindow *ev_window)
+ {
+diff --git a/shell/ev-window.h b/shell/ev-window.h
+index 2a70fbaf4..40171a929 100644
+--- a/shell/ev-window.h
++++ b/shell/ev-window.h
+@@ -89,6 +89,7 @@
+                                                           int             first_page,
+                                                           int		 last_page);
+ const gchar    *ev_window_get_dbus_object_path           (EvWindow       *ev_window);
++GMenuModel     *ev_window_get_bookmarks_menu             (EvWindow       *ev_window);
+ EvDocumentModel *ev_window_get_document_model            (EvWindow       *ev_window);
+ void            ev_window_focus_view                     (EvWindow       *ev_window);
+ HdyHeaderBar   *ev_window_get_toolbar                    (EvWindow       *ev_window);
