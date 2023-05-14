@@ -36,7 +36,7 @@
 >www-client/chromium-112.0.5615.165
 >www-client/firefox-114
 >www-client/firefox-103:esr
->x11-libs/gtk+-2.24.33-r2:2
+>x11-libs/gtk+-2.24.33-r3:2
 >x11-libs/gtk+-3.24.37:3
 >x11-libs/libwnck-43.0-r1:3
 >x11-libs/vte-0.72.1:2.91
