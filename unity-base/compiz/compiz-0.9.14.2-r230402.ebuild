@@ -100,6 +100,11 @@ src_prepare() {
 		-e 's:!(class=chromium-browser):!(class=chromium-browser) \&amp; !(class=Chromium-browser-chromium) \&amp; !(class=Google-chrome) \&amp; !(class=Kodi):' \
 		plugins/composite/composite.xml.in || die
 
+	# Adjust Expo offsets #
+	echo -e \
+		"\n[org.compiz.expo]\ny-offset = 35\ny-bottom-offset = 5" \
+		>> debian/compiz-gnome.gsettings-override
+
 	# Disable recompiling GSettings schemas inside sandbox #
 	sed -i \
 		-e "/# Recompile GSettings Schemas/,+6 d" \
