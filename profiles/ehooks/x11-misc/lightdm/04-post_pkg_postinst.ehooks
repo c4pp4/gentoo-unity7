@@ -1,4 +1,5 @@
 ehooks() {
+	ewarn
 	ewarn "ehooks: please ignore 'QA Notice' related to tmpfiles"
 	einfo "Calling tmpfiles_process()..."
 	############# tmpfiles_process from tmpfiles.eclass ############
