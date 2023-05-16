@@ -1,0 +1,57 @@
+From c8229ae461c4e0e2d3264623c02ab7a6540d6b96 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Tue, 16 May 2023 14:09:13 +0200
+Subject: [PATCH 1/1] Populate Firefox/Thunderbird global submenus
+
+Signed-off-by: c4pp4
+---
+ gtk/gtkmenu.c | 26 +++++++++++++++++++++++++-
+ 1 file changed, 25 insertions(+), 1 deletion(-)
+
+diff --git a/gtk/gtkmenu.c b/gtk/gtkmenu.c
+index eac972b..1fd4943 100644
+--- a/gtk/gtkmenu.c
++++ b/gtk/gtkmenu.c
+@@ -1388,6 +1388,29 @@ gtk_menu_init (GtkMenu *menu)
+   gtk_css_node_set_state (bottom_arrow_node, gtk_css_node_get_state (widget_node));
+ }
+ 
++static gboolean
++in_desktop (const gchar *name)
++{
++  const gchar *desktop_name_list;
++  gchar **names;
++  gboolean in_list = FALSE;
++  gint i;
++
++  desktop_name_list = g_getenv ("XDG_CURRENT_DESKTOP");
++  if (!desktop_name_list)
++    return FALSE;
++
++  names = g_strsplit (desktop_name_list, ":", -1);
++  for (i = 0; names[i] && !in_list; i++)
++    if (strcmp (names[i], name) == 0) {
++      in_list = TRUE;
++      break;
++    }
++  g_strfreev (names);
++
++  return in_list;
++}
++
+ static void
+ moved_to_rect_cb (GdkWindow          *window,
+                   const GdkRectangle *flipped_rect,
+@@ -1398,7 +1421,8 @@ moved_to_rect_cb (GdkWindow          *window,
+ {
+   GtkMenuPrivate *priv = menu->priv;
+ 
+-  gtk_window_fixate_size (GTK_WINDOW (priv->toplevel));
++  if (!in_desktop("Unity"))
++    gtk_window_fixate_size (GTK_WINDOW (priv->toplevel));
+ 
+   if (!priv->emulated_move_to_rect)
+     g_signal_emit (menu,
+-- 
+2.39.3
+
