@@ -100,9 +100,9 @@ src_prepare() {
 		-e 's:!(class=chromium-browser):!(class=chromium-browser) \&amp; !(class=Chromium-browser-chromium) \&amp; !(class=Google-chrome) \&amp; !(class=Kodi):' \
 		plugins/composite/composite.xml.in || die
 
-	# Adjust Expo offsets #
+	# Set Expo y-offset according to Unity panel height #
 	echo -e \
-		"\n[org.compiz.expo]\ny-offset = 35\ny-bottom-offset = 5" \
+		"\n[org.compiz.expo]\ny-offset = 30" \
 		>> debian/compiz-gnome.gsettings-override
 
 	# Disable recompiling GSettings schemas inside sandbox #
