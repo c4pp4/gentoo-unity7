@@ -1,8 +1,0 @@
-ehooks() {
-	local \
-		blake=4a6e2179b6c4f05d7a74084faa4ab401c385569e4c38650a73849c71f7176c2cf61270c85786299aff6251035a2352be3b2e7aca86159e98418765234810e907 \
-		uver=accountsservice_22.08.8-1ubuntu7
-
-	source "${EHOOKS_PATH}"/templates/fetch_debian.template
-	fetch_debian "${blake}" "${uver}"
-}

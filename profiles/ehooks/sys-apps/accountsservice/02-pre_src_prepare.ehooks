@@ -1,7 +1,0 @@
-ehooks() {
-	# Fix rejected patch snippet #
-	sed -i \
-		-e "/static gboolean is_in_pam_environment/,+1 d" \
-		-e "/user_update_system_account_property/{s/-634,6 +705,51/-634,4 +705,49/}" \
-		"${S}/debian/patches/0016-add-input-sources-support.patch" || die
-}

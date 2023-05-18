@@ -94,7 +94,6 @@ net-libs/libsoup:2.4			# Portage tree version forces '--without-gnome' and has r
 sys-apps/accountsservice		# Requires patching for SetInputSources as needed by unity-indicators/indicator-keyboard and u-c-c text entry settings
 					#  Ubuntu patchset:
 					#  0001-formats-locale-property.patch
-					#  0007-add-lightdm-support.patch
 					#  0011-add-background-file-support.patch
 					#  0012-add-keyboard-layout-support.patch
 					#  0016-add-input-sources-support.patch

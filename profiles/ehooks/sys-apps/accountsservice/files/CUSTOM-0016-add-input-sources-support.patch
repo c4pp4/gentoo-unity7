@@ -1,0 +1,405 @@
+From 95b583d3b364d0c3f9fd7a2a034b12e3ddbe178c Mon Sep 17 00:00:00 2001
+From: William Hua <william@attente.ca>
+Date: Fri, 26 Jul 2013 10:10:11 -0400
+Subject: [PATCH 10/12] Store input sources in user objects.
+
+---
+ data/org.freedesktop.Accounts.User.xml |  45 +++++++
+ src/libaccountsservice/act-user.c      |  58 +++++++++
+ src/libaccountsservice/act-user.h      |   3 +
+ src/user.c                             | 170 +++++++++++++++++++++++++
+ 4 files changed, 276 insertions(+)
+
+diff --git a/data/org.freedesktop.Accounts.User.xml b/data/org.freedesktop.Accounts.User.xml
+index 91ac609..e17f2d6 100644
+--- a/data/org.freedesktop.Accounts.User.xml
++++ b/data/org.freedesktop.Accounts.User.xml
+@@ -226,6 +226,41 @@
+     </doc:doc>
+   </method>
+ 
++  <method name="SetInputSources">
++    <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
++    <arg name="sources" direction="in" type="aa{ss}">
++      <doc:doc>
++        <doc:summary>
++          A list of input sources.
++        </doc:summary>
++      </doc:doc>
++    </arg>
++    <doc:doc>
++      <doc:description>
++        <doc:para>
++          Sets the user's input sources.
++        </doc:para>
++      </doc:description>
++      <doc:permission>
++        The caller needs one of the following PolicyKit authorizations:
++        <doc:list>
++          <doc:item>
++            <doc:term>org.freedesktop.accounts.change-own-user-data</doc:term>
++            <doc:definition>To change his own input sources</doc:definition>
++          </doc:item>
++          <doc:item>
++            <doc:term>org.freedesktop.accounts.user-administration</doc:term>
++            <doc:definition>To change the input sources of another user</doc:definition>
++          </doc:item>
++        </doc:list>
++      </doc:permission>
++      <doc:errors>
++        <doc:error name="org.freedesktop.Accounts.Error.PermissionDenied">if the caller lacks the appropriate PolicyKit authorization</doc:error>
++        <doc:error name="org.freedesktop.Accounts.Error.Failed">if the operation failed</doc:error>
++      </doc:errors>
++    </doc:doc>
++  </method>
++
+   <method name="SetXSession">
+     <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+     <annotation name="org.freedesktop.DBus.GLib.CSymbol" value="user_set_x_session"/>
+@@ -950,6 +985,16 @@
+     </doc:doc>
+   </property>
+ 
++  <property name="InputSources" type="aa{ss}" access="read">
++    <doc:doc>
++      <doc:description>
++        <doc:para>
++          The user's input sources.
++        </doc:para>
++      </doc:description>
++    </doc:doc>
++  </property>
++
+   <property name="XSession" type="s" access="read">
+     <doc:doc>
+       <doc:description>
+diff --git a/src/libaccountsservice/act-user.c b/src/libaccountsservice/act-user.c
+index 749c7b5..b1a8665 100644
+--- a/src/libaccountsservice/act-user.c
++++ b/src/libaccountsservice/act-user.c
+@@ -95,6 +95,7 @@ enum
+         PROP_ICON_FILE,
+         PROP_LANGUAGE,
+         PROP_FORMATS_LOCALE,
++        PROP_INPUT_SOURCES,
+         PROP_X_SESSION,
+         PROP_IS_LOADED
+ };
+@@ -422,6 +423,14 @@ act_user_class_init (ActUserClass *class)
+                                                               "User's regional formats.",
+                                                               NULL,
+                                                               G_PARAM_READABLE));
++        g_object_class_install_property (gobject_class,
++                                         PROP_INPUT_SOURCES,
++                                         g_param_spec_variant ("input-sources",
++                                                               "Input sources",
++                                                               "User's input sources.",
++                                                               G_VARIANT_TYPE ("aa{ss}"),
++                                                               NULL,
++                                                               G_PARAM_READABLE));
+         g_object_class_install_property (gobject_class,
+                                          PROP_X_SESSION,
+                                          g_param_spec_string ("x-session",
+@@ -1140,6 +1149,25 @@ act_user_get_formats_locale (ActUser *user)
+         return accounts_user_get_formats_locale (user->accounts_proxy);
+ }
+ 
++/**
++ * act_user_get_input_sources:
++ * @user: a #ActUser
++ *
++ * Returns the input sources of @user.
++ *
++ * Returns: (transfer none): a list of input sources
++ */
++GVariant *
++act_user_get_input_sources (ActUser *user)
++{
++        g_return_val_if_fail (ACT_IS_USER (user), NULL);
++
++        if (user->accounts_proxy == NULL)
++                return NULL;
++
++        return accounts_user_get_input_sources (user->accounts_proxy);
++}
++
+ /**
+  * act_user_get_x_session:
+  * @user: a #ActUser
+@@ -1584,6 +1612,36 @@ act_user_set_email (ActUser    *user,
+         }
+ }
+ 
++/**
++ * act_user_set_input_sources:
++ * @user: the user object to alter.
++ * @sources: a list of input sources
++ *
++ * Assigns new input sources for @user.
++ *
++ * Note this function is synchronous and ignores errors.
++ **/
++void
++act_user_set_input_sources (ActUser  *user,
++                            GVariant *sources)
++{
++        g_autoptr(GError) error = NULL;
++
++        g_return_if_fail (ACT_IS_USER (user));
++        g_return_if_fail (ACCOUNTS_IS_USER (user->accounts_proxy));
++        g_return_if_fail (g_variant_is_of_type (sources, G_VARIANT_TYPE ("aa{ss}")));
++
++        if (!accounts_user_call_set_input_sources_sync (user->accounts_proxy,
++                                                        sources,
++                                                        G_DBUS_CALL_FLAGS_ALLOW_INTERACTIVE_AUTHORIZATION,
++                                                       -1,
++                                                        NULL,
++                                                        &error)) {
++                g_warning ("SetInputSources call failed: %s", error->message);
++                return;
++        }
++}
++
+ /**
+  * act_user_set_language:
+  * @user: the user object to alter.
+diff --git a/src/libaccountsservice/act-user.h b/src/libaccountsservice/act-user.h
+index c39a66a..f992d63 100644
+--- a/src/libaccountsservice/act-user.h
++++ b/src/libaccountsservice/act-user.h
+@@ -75,6 +75,7 @@ const char *act_user_get_icon_file (ActUser *user);
+ const char *act_user_get_language (ActUser *user);
+ const char * const *act_user_get_languages (ActUser *user);
+ const char *act_user_get_formats_locale (ActUser *user);
++GVariant   *act_user_get_input_sources (ActUser *user);
+ const char *act_user_get_x_session (ActUser *user);
+ const char *act_user_get_session (ActUser *user);
+ const char *act_user_get_session_type (ActUser *user);
+@@ -112,6 +113,8 @@ void           act_user_set_formats_locale (ActUser    *user,
+                                             const char *formats_locale);
+ void           act_user_set_background_file (ActUser    *user,
+                                              const char *background_file);
++void           act_user_set_input_sources (ActUser  *user,
++                                           GVariant *sources);
+ void           act_user_set_email (ActUser    *user,
+                                    const char *email);
+ void           act_user_set_x_session (ActUser    *user,
+diff --git a/src/user.c b/src/user.c
+index 83e243c..704cb63 100644
+--- a/src/user.c
++++ b/src/user.c
+@@ -406,6 +406,75 @@ user_update_from_template (User *user)
+         user->template_loaded = key_file_loaded;
+ }
+ 
++static gint
++intcmp (gconstpointer a,
++        gconstpointer b,
++        gpointer      user_data)
++{
++        return GPOINTER_TO_INT (a) - GPOINTER_TO_INT (b);
++}
++
++static GVariant *
++key_file_get_input_sources (GKeyFile *key_file)
++{
++        GVariantBuilder builder;
++        GSequence *indices;
++        GSequenceIter *indices_iter;
++        gchar **groups;
++        gchar **groups_iter;
++
++        indices = g_sequence_new (NULL);
++        groups = g_key_file_get_groups (key_file, NULL);
++
++        for (groups_iter = groups; *groups_iter; groups_iter++) {
++                if (g_str_has_prefix (*groups_iter, "InputSource") && (*groups_iter)[11]) {
++                        gchar *end;
++                        guint64 index;
++
++                        index = g_ascii_strtoull (*groups_iter + 11, &end, 0);
++
++                        if (!*end)
++                                g_sequence_insert_sorted (indices, GINT_TO_POINTER (index), intcmp, NULL);
++                }
++        }
++
++        g_strfreev (groups);
++
++        g_variant_builder_init (&builder, G_VARIANT_TYPE ("aa{ss}"));
++
++        indices_iter = g_sequence_get_begin_iter (indices);
++
++        while (!g_sequence_iter_is_end (indices_iter)) {
++                guint index;
++                gchar *group;
++                gchar **keys;
++                gchar **keys_iter;
++
++                g_variant_builder_open (&builder, G_VARIANT_TYPE ("a{ss}"));
++
++                index = GPOINTER_TO_UINT (g_sequence_get (indices_iter));
++                group = g_strdup_printf ("InputSource%u", index);
++                keys = g_key_file_get_keys (key_file, group, NULL, NULL);
++
++                for (keys_iter = keys; *keys_iter; keys_iter++) {
++                        gchar *value = g_key_file_get_string (key_file, group, *keys_iter, NULL);
++                        g_variant_builder_add (&builder, "{ss}", *keys_iter, value);
++                        g_free (value);
++                }
++
++                g_strfreev (keys);
++                g_free (group);
++
++                g_variant_builder_close (&builder);
++
++                indices_iter = g_sequence_iter_next (indices_iter);
++        }
++
++        g_sequence_free (indices);
++
++        return g_variant_ref_sink (g_variant_builder_end (&builder));
++}
++
+ void
+ user_update_from_pwent (User          *user,
+                         struct passwd *pwent,
+@@ -548,6 +617,8 @@ user_update_from_keyfile (User     *user,
+                 g_clear_pointer (&s, g_free);
+         }
+ 
++        accounts_user_set_input_sources (ACCOUNTS_USER (user), key_file_get_input_sources (keyfile));
++
+         s = g_key_file_get_string (keyfile, "User", "XSession", NULL);
+         if (s != NULL) {
+                 accounts_user_set_xsession (ACCOUNTS_USER (user), s);
+@@ -660,6 +731,51 @@ user_update_system_account_property (User    *user,
+         accounts_user_set_system_account (ACCOUNTS_USER (user), system);
+ }
+ 
++static void
++key_file_set_input_sources (GKeyFile *key_file,
++                            GVariant *input_sources)
++{
++        gchar **groups;
++        gchar **groups_iter;
++        GVariantIter sources;
++        GVariantIter *source;
++        guint i;
++
++        /* Remove all groups matching regex "InputSource\d+". */
++
++        groups = g_key_file_get_groups (key_file, NULL);
++
++        for (groups_iter = groups; *groups_iter; groups_iter++) {
++                if (g_str_has_prefix (*groups_iter, "InputSource")) {
++                        for (i = 11; g_ascii_isdigit ((*groups_iter)[i]); i++);
++
++                        if (i > 11 && !(*groups_iter)[i])
++                                g_key_file_remove_group (key_file, *groups_iter, NULL);
++                }
++        }
++
++        g_strfreev (groups);
++
++        /* Write all input sources to key file. */
++
++        g_variant_iter_init (&sources, input_sources);
++
++        for (i = 0; g_variant_iter_next (&sources, "a{ss}", &source); i++) {
++                gchar *group;
++                const gchar *key;
++                const gchar *value;
++
++                group = g_strdup_printf ("InputSource%u", i);
++
++                while (g_variant_iter_next (source, "{&s&s}", &key, &value))
++                        g_key_file_set_string (key_file, group, key, value);
++
++                g_free (group);
++
++                g_variant_iter_free (source);
++        }
++}
++
+ static void
+ user_save_to_keyfile (User     *user,
+                       GKeyFile *keyfile)
+@@ -689,6 +805,9 @@ user_save_to_keyfile (User     *user,
+         if (accounts_user_get_formats_locale (ACCOUNTS_USER (user)))
+                 g_key_file_set_string (keyfile, "User", "FormatsLocale", accounts_user_get_formats_locale (ACCOUNTS_USER (user)));
+ 
++        if (accounts_user_get_input_sources (ACCOUNTS_USER (user)))
++                key_file_set_input_sources (keyfile, accounts_user_get_input_sources (ACCOUNTS_USER (user)));
++
+         if (accounts_user_get_xsession (ACCOUNTS_USER (user)))
+                 g_key_file_set_string (keyfile, "User", "XSession", accounts_user_get_xsession (ACCOUNTS_USER (user)));
+ 
+@@ -1651,6 +1770,56 @@ user_set_formats_locale (AccountsUser          *auser,
+         return TRUE;
+ }
+ 
++static void
++user_change_input_sources_authorized_cb (Daemon                *daemon,
++                                         User                  *user,
++                                         GDBusMethodInvocation *context,
++                                         gpointer               data)
++
++{
++        GVariant *sources = data;
++
++        if (sources != accounts_user_get_input_sources (ACCOUNTS_USER (user)) &&
++            (!sources || !accounts_user_get_input_sources (ACCOUNTS_USER (user)) ||
++             !g_variant_equal (sources, accounts_user_get_input_sources (ACCOUNTS_USER (user))))) {
++                accounts_user_set_input_sources (ACCOUNTS_USER (user), sources);
++
++                save_extra_data (user);
++        }
++
++        accounts_user_complete_set_input_sources (ACCOUNTS_USER (user), context);
++}
++
++static gboolean
++user_set_input_sources (AccountsUser          *auser,
++                        GDBusMethodInvocation *context,
++                        GVariant              *sources)
++{
++        User *user = (User*)auser;
++        int uid;
++        const gchar *action_id;
++
++        if (!get_caller_uid (context, &uid)) {
++                throw_error (context, ERROR_FAILED, "identifying caller failed");
++                return FALSE;
++        }
++
++        if (accounts_user_get_uid (ACCOUNTS_USER (user)) == (uid_t) uid)
++                action_id = "org.freedesktop.accounts.change-own-user-data";
++        else
++                action_id = "org.freedesktop.accounts.user-administration";
++
++        daemon_local_check_auth (user->daemon,
++                                 user,
++                                 action_id,
++                                 user_change_input_sources_authorized_cb,
++                                 context,
++                                 sources ? g_variant_ref (sources) : NULL,
++                                 sources ? (GDestroyNotify) g_variant_unref : NULL);
++
++        return TRUE;
++}
++
+ static void
+ user_change_x_session_authorized_cb (Daemon                *daemon,
+                                      User                  *user,
+@@ -2918,6 +3087,7 @@ user_accounts_user_iface_init (AccountsUserIface *iface)
+         iface->handle_set_icon_file = user_set_icon_file;
+         iface->handle_set_language = user_set_language;
+         iface->handle_set_languages = user_set_languages;
++        iface->handle_set_input_sources = user_set_input_sources;
+         iface->handle_set_location = user_set_location;
+         iface->handle_set_locked = user_set_locked;
+         iface->handle_set_password = user_set_password;
+-- 
+2.39.3
+
