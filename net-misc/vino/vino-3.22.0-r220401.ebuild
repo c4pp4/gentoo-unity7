@@ -17,7 +17,7 @@ SRC_URI="${UURL}.orig.tar.xz
 LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="crypt debug gnome-keyring ipv6 jpeg ssl +telepathy zeroconf +zlib"
+IUSE="crypt debug keyring ipv6 jpeg ssl +telepathy zeroconf +zlib"
 REQUIRED_USE="jpeg? ( zlib )"
 RESTRICT="test"
 
@@ -35,7 +35,7 @@ COMMON_DEPEND="
 	x11-libs/libXtst
 
 	crypt? ( >=dev-libs/libgcrypt-1.8.0:0= )
-	gnome-keyring? ( >=app-crypt/libsecret-0.7 )
+	keyring? ( >=app-crypt/libsecret-0.7 )
 	jpeg? ( virtual/jpeg:0= )
 	ssl? ( >=net-libs/gnutls-3.6.14:= )
 	telepathy? (
@@ -65,7 +65,7 @@ src_configure() {
 		$(use_enable ipv6)
 		$(use_with crypt gcrypt)
 		$(usev debug --enable-debug=yes)
-		$(use_with gnome-keyring secret)
+		$(use_with keyring secret)
 		$(use_with jpeg)
 		$(use_with ssl gnutls)
 		$(use_with telepathy)
