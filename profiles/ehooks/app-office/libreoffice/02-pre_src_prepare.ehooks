@@ -8,6 +8,16 @@ ehooks() {
 
 		## Add Tango icon theme.
 		mv "${WORKDIR}"/tango icon-themes
+		## Fix filenames.
+		pushd icon-themes/tango/svx/res/symphony >/dev/null || die
+			mv 'decrease font.png' decrease_font.png
+			mv 'enlarge font.png' enlarge_font.png
+			mv 'no color.png' no_color.png
+			mv 'spacing_very loose.png' spacing_very_loose.png
+			mv 'spacing_very loose_s.png' spacing_very_loose_s.png
+			mv 'spacing_very tight.png' spacing_very_tight.png
+			mv 'spacing_very tight_s.png' spacing_very_tight_s.png
+		popd >/dev/null || die
 
 		## Configure with Human icon theme.
 		sed -i \

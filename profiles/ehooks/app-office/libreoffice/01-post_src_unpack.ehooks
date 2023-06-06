@@ -1,5 +1,7 @@
 ## human-icon-theme.tar.xz downloaded from:
 ## https://github.com/LibreOffice/core/tree/3498ed37527b7af795f00dc6a55c11e65a313186/icon-themes/human
+## tango-icon-theme.tar.xz downloaded from:
+## https://github.com/LibreOffice/core/tree/be8020ff18f8971df091057ee4d8b4d06ecf61eb/icon-themes/tango
 
 ehooks() {
 	ehooks_use libreoffice \
