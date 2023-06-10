@@ -16,7 +16,7 @@
 >gnome-base/gsettings-desktop-schemas-44.0
 >gnome-extra/gnome-calendar-44.1
 >gnome-extra/gnome-contacts-44.0
->gnome-extra/nemo-5.6.1
+>gnome-extra/nemo-5.6.5
 >gnome-extra/nm-applet-1.32.0
 >gnome-extra/polkit-gnome-0.105-r2
 >gnome-extra/yelp-42.2-r1
@@ -34,7 +34,7 @@
 >net-im/telegram-desktop-4.8.1-r2
 >sys-apps/accountsservice-23.13.9
 >www-client/chromium-113.0.5672.126
->www-client/firefox-114
+>www-client/firefox-115
 >www-client/firefox-103:esr
 >x11-libs/gtk+-2.24.33-r3:2
 >x11-libs/gtk+-3.24.37:3
