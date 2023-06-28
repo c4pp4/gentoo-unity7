@@ -13,7 +13,7 @@ dev-qt/qtmultimedia:5 widgets		# dev-python/PyQt5
 dev-util/cmake qt5
 gnome-base/gvfs fuse mtp samba
 gnome-extra/nm-applet appindicator
-dev-libs/sexp static-libs		# mail-client/thunderbird
+dev-libs/sexpp static-libs		# mail-client/thunderbird
 media-libs/libcanberra gtk2
 media-libs/freetype harfbuzz		# x11-libs/pango
 media-libs/libvpx postproc		# mail-client/thunderbird, www-client/firefox
