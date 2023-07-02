@@ -1,10 +1,10 @@
 ## These are packages maintained via ehooks that must be checked before bump ##
 >app-accessibility/at-spi2-core-2.48.0
 >app-admin/system-config-printer-1.5.18-r1
->app-backup/deja-dup-43.4-r2
+>app-backup/deja-dup-44.2
 >app-i18n/ibus-1.5.27
 >app-office/libreoffice-7.5.3.2
->app-text/evince-44.1
+>app-text/evince-44.2
 >dev-cpp/gtest-1.13.0
 >dev-libs/glib-2.76.2
 >games-board/iagno-3.38.1-r1
@@ -33,7 +33,7 @@
 >net-im/pidgin-2.14.12
 >net-im/telegram-desktop-4.8.1-r2
 >sys-apps/accountsservice-23.13.9
->www-client/chromium-114.0.5735.133
+>www-client/chromium-114.0.5735.198
 >www-client/firefox-115
 >www-client/firefox-103:esr
 >x11-libs/gtk+-2.24.33-r3:2
