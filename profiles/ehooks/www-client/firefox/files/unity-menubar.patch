@@ -5206,7 +5206,7 @@
 +
  EXPORTS.mozilla += [
      "BasicEvents.h",
-     "ColorScheme.h",
+     "ClipboardWriteRequestChild.h",
 --- /dev/null
 +++ b/widget/nsINativeMenuService.h
 @@ -0,0 +1,39 @@
