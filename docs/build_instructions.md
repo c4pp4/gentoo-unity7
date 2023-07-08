@@ -2,18 +2,11 @@
 
 1. **Switch to** [systemd⬀][sysd] init system.
 
-2. **Add the overlay** using [eselect-repository⬀][erepo] module or [layman⬀][lay] tool:
-   - eselect-repository:
+2. **Add the overlay** using [eselect-repository⬀][erepo] module:
 
-     `eselect repository add gentoo-unity7 git https://github.com/c4pp4/gentoo-unity7.git`
-     <br/>
-     `emaint sync -r gentoo-unity7`
-
-   - layman (deprecated):
-
-     `layman -o https://raw.githubusercontent.com/c4pp4/gentoo-unity7/master/repositories.xml -f -a gentoo-unity7`
-
-     NOTE: Copy `repositories.xml` file into `/etc/layman/overlays` directory to suppress warning when updating the overlay that says *overlay could not be found in the remote lists*.
+   `eselect repository add gentoo-unity7 git https://github.com/c4pp4/gentoo-unity7.git`
+   <br/>
+   `emaint sync -r gentoo-unity7`
 
 3. **Select** `gentoo-unity7:amd64/17.1/desktop/unity/systemd (stable)` [profile⬀][ep] listed with:
 
@@ -60,7 +53,6 @@ NOTES:
 [ehooks]: ehooks.md
 [ep]: https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Base#Choosing_the_right_profile
 [erepo]: https://wiki.gentoo.org/wiki/Eselect/Repository
-[lay]: https://wiki.gentoo.org/wiki/Layman
 [ldm]: https://wiki.gentoo.org/wiki/LightDM#systemd
 [nm]: https://wiki.gentoo.org/wiki/NetworkManager#systemd
 [sysd]: https://wiki.gentoo.org/wiki/Systemd
