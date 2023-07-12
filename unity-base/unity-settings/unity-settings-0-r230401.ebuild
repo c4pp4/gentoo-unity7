@@ -44,7 +44,7 @@ src_install() {
 		# Do the following only if there is no file collision detected #
 		local index_dir="/usr/share/cursors/xorg-x11/default"
 		[[ -e "${EROOT}${index_dir}"/index.theme ]] \
-			&& local index_owner=$(portageq owners "${EROOT}/" "${EROOT}${index_dir}"/index.theme 2>/dev/null | grep "${CATEGORY}/${PN}-[0-9]" 2>/dev/null)
+			&& local index_owner=$("${PORTAGE_QUERY_TOOL}" owners "${EROOT}/" "${EROOT}${index_dir}"/index.theme 2>/dev/null | grep "${CATEGORY}/${PN}-[0-9]" 2>/dev/null)
 		# Pass when not null or unset #
 		if [[ -n "${index_owner-unset}" ]]; then
 			insinto "${index_dir}"

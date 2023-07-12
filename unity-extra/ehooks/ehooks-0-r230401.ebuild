@@ -52,7 +52,7 @@ src_install() {
 
 		## Find out if there is USE flag change.
 		use "${x}" && pkg_flag=1 || pkg_flag=0
-		portageq has_version / unity-extra/ehooks["${x}"] && sys_flag=1 || sys_flag=0
+		"${PORTAGE_QUERY_TOOL}" has_version / unity-extra/ehooks["${x}"] && sys_flag=1 || sys_flag=0
 		[[ ${pkg_flag} -eq ${sys_flag} ]] || change="yes"
 
 		## Get ehooks containing USE flag.
@@ -119,15 +119,18 @@ pkg_postinst() {
 		color_norm=$(tput sgr0) \
 		fn="get_subdirs get_repo_root get_ehooks_subdirs get_installed_packages get_slot find_flag_changes find_tree_changes ehooks_changes" \
 		prev_shopt=$(shopt -p nullglob) \
-		x="$(portageq get_repo_path / gentoo-unity7)"/version_control.sh
+		x=$("${PORTAGE_QUERY_TOOL}" get_repo_path / gentoo-unity7)/version_control.sh
 
 	shopt -s nullglob
 	local -a cfg_files=( "${EROOT}"/etc/ehooks/._cfg*timestamps )
 	${prev_shopt}
 
-	source <(awk "/^(${fn// /|})(\(\)|=\(\$)/ { p = 1 } p { print } /(^(}|\))|; })\$/ { p = 0 }" ${x} 2>/dev/null)
+	source <(awk "/^(${fn// /|})(\(\)|=\(\$)/ { p = 1 } p { print } /(^(}|\))|; })\$/ { p = 0 }" "${x}" 2>/dev/null)
 	cfg_files=( ${cfg_files[@]##*/} )
 	[[ -n ${cfg_files[@]} ]] && source <(declare -f find_flag_changes | sed -e "/ts_file=/{s/timestamps/${cfg_files[-1]}/}")
+	for x in get_repo_root find_flag_changes find_tree_changes; do
+		source <(declare -f "${x}" | sed 's:portageq:"${PORTAGE_QUERY_TOOL}":')
+	done
 	ehooks_changes
 
 	for x in ${fn}; do

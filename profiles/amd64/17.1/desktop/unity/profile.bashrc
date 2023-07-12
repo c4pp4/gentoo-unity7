@@ -1,8 +1,13 @@
 ## ehooks patching system.
 if [[ ${EBUILD_PHASE} == "setup" ]]; then
-	portageq get_repo_path / gentoo-unity7 >/dev/null 2>&1 \
-		&& REPO_ROOT="$(portageq get_repo_path / gentoo-unity7)" \
-		|| die "portageq: gentoo-unity7 repo path not found. If you have recently updated sys-apps/portage then you should re-run 'emerge -avuDU --with-bdeps=y @world' to catch any updates."
+	PORTAGE_QUERY_TOOL=portageq
+
+	[[ -e "${PORTAGE_BIN_PATH}"/portageq-wrapper ]] && PORTAGE_QUERY_TOOL="${PORTAGE_BIN_PATH}"/portageq-wrapper
+	if "${PORTAGE_QUERY_TOOL}" get_repo_path / gentoo-unity7 >/dev/null 2>&1; then
+		REPO_ROOT=$("${PORTAGE_QUERY_TOOL}" get_repo_path / gentoo-unity7)
+	else
+		die "portageq: gentoo-unity7 repo path not found. If you have recently updated sys-apps/portage then you should re-run 'emerge -avuDU --with-bdeps=y @world' to catch any updates."
+	fi
 
 	local -a EHOOKS_SOURCE=()
 
@@ -34,12 +39,12 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 
 	## Define function to check if USE flag is declared.
 	ehooks_use() {
-		return $(portageq has_version / unity-extra/ehooks["$1"])
+		return $("${PORTAGE_QUERY_TOOL}" has_version / unity-extra/ehooks["$1"])
 	}
 
 	## Define function to skip all related ehooks if USE flag is not declared.
 	ehooks_require() {
-		if ! portageq has_version / unity-extra/ehooks["$1"]; then
+		if ! "${PORTAGE_QUERY_TOOL}" has_version / unity-extra/ehooks["$1"]; then
 			echo " * USE flag '$1' not declared: skipping related ehooks..."
 			exit ${SKIP_CODE}
 		fi
@@ -107,7 +112,7 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 			if ! declare -F eautoreconf 1>/dev/null; then
 				local eautoreconf_names="eautoreconf _at_uses_pkg _at_uses_autoheader _at_uses_automake _at_uses_gettext _at_uses_glibgettext _at_uses_intltool _at_uses_gtkdoc _at_uses_gnomedoc _at_uses_libtool _at_uses_libltdl eaclocal_amflags eaclocal _elibtoolize eautoheader eautoconf eautomake autotools_env_setup autotools_run_tool ALL_AUTOTOOLS_MACROS autotools_check_macro autotools_check_macro_val _autotools_m4dir_include autotools_m4dir_include autotools_m4sysdir_include gnuconfig_findnewest elibtoolize tc-getLD tc-getPROG _tc-getPROG"
 
-				x="$(portageq get_repo_path / gentoo)/eclass"
+				x=$("${PORTAGE_QUERY_TOOL}" get_repo_path / gentoo)/eclass
 				local -a fn_source=(
 					"${x}/autotools.eclass"
 					"${x}/libtool.eclass"
