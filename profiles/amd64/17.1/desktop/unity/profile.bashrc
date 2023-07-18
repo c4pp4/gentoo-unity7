@@ -18,7 +18,7 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 		pkg \
 		basedir="${REPO_ROOT}"/profiles/ehooks
 
-	for pkg in ${CATEGORY}/{${P}-${PR},${P},${P%.*},${P%.*.*},${PN}}{:${SLOT%/*},}; do
+	for pkg in generic ${CATEGORY}/{${P}-${PR},${P},${P%.*},${P%.*.*},${PN}}{:${SLOT%/*},}; do
 		if [[ -d ${EHOOKS_PATH:=${basedir}}/${pkg} ]]; then
 			true
 		elif [[ -d ${basedir}/${pkg} ]]; then
@@ -29,9 +29,9 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 
 		local prev_shopt=$(shopt -p nullglob)
 		shopt -s nullglob
-		EHOOKS_SOURCE=( "${EHOOKS_PATH}/${pkg}"/*.ehooks )
+		EHOOKS_SOURCE+=( "${EHOOKS_PATH}/${pkg}"/*.ehooks )
 		${prev_shopt}
-		break
+		[[ ${pkg} != "generic" ]] && break
 	done
 
 	## Process EHOOKS_SOURCE.
@@ -85,7 +85,7 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 		declare -F ehooks 1>/dev/null \
 			&& ( echo "ehooks: function name collision" > "${log}" && die "$(<${log})" )
 
-		echo "${color_red}${color_bold}>>> Loading gentoo-unity7 ehooks${color_norm} from ${EHOOKS_SOURCE[0]%/*} ..."
+		echo "${color_red}${color_bold}>>> Loading gentoo-unity7 ehooks ...${color_norm}"
 		for x in "${EHOOKS_SOURCE[@]}"; do
 
 		## Process current phase.
@@ -101,7 +101,7 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 		declare -F ehooks 1>/dev/null \
 			|| ( echo "ehooks: function not found" > "${log}" && die "$(<${log})" )
 
-		einfo "Processing ${x##*/} ..."
+		einfo "Processing ${x} ..."
 
 		local EHOOKS_FILESDIR=${x%/*}/files
 

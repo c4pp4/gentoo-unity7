@@ -138,6 +138,11 @@
    - own empty directory **disables** overlay's directory of the same name
    - e.g. **/home/ehooks/app-arch/file-roller** overrides or disables **gentoo-unity7/profiles/ehooks/app-arch/file-roller**
 
+- **Generic ehooks:**
+  - it's possible to use ehooks to be applied to every package
+  - create **generic** directory and place all desired ehooks inside
+  - e.g. create `/home/ehooks/generic` directory in case `EHOOKS_PATH="/home/ehooks"`
+
 - **Using debian archive file:**
    - e.g. we need to process `gnome-session_42.0-1ubuntu3.debian.tar.xz` debian archive file
    - create `01-post_src_unpack.ehooks` file to download debian archive file:
