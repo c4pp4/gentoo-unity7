@@ -1,0 +1,143 @@
+From 7e685b737af83b7286f5679628967ae56e7679d4 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Emilio=20Cobos=20=C3=81lvarez?= <emilio@crisal.io>
+Date: Wed, 17 May 2023 16:59:24 +0000
+Subject: [PATCH] REVERT: Bug 1363754 - Disable NSCAP_FEATURE_USE_BASE. r=smaug
+
+This is a relatively small code size regression (130k on windows and
+macOS, 180k on Linux), for a few high confidence improvements in
+speedometer 3. See link in the bug.
+
+If this sticks, we can actually clean up a bunch of code, and eventually
+unify RefPtr and nsCOMPtr. But I want this to be on the tree for a while
+before doing more aggressive refactorings / actually removing the code.
+
+Differential Revision: https://phabricator.services.mozilla.com/D178267
+---
+ servo/components/style/gecko/media_queries.rs        |  2 +-
+ servo/components/style/gecko/wrapper.rs              |  6 +++---
+ .../style/gecko_bindings/sugar/ns_com_ptr.rs         | 12 +++++++++++-
+ servo/components/style/stylesheets/mod.rs            |  8 ++++++--
+ servo/ports/geckolib/error_reporter.rs               |  2 +-
+ xpcom/base/nsCOMPtr.h                                |  2 +-
+ 6 files changed, 23 insertions(+), 9 deletions(-)
+
+diff --git a/servo/components/style/gecko/media_queries.rs b/servo/components/style/gecko/media_queries.rs
+index f27d78fd93..5852e3f5b7 100644
+--- a/servo/components/style/gecko/media_queries.rs
++++ b/servo/components/style/gecko/media_queries.rs
+@@ -73,7 +73,7 @@ impl fmt::Debug for Device {
+ 
+         let mut doc_uri = nsCString::new();
+         unsafe {
+-            bindings::Gecko_nsIURI_Debug((*self.document()).mDocumentURI.raw(), &mut doc_uri)
++            bindings::Gecko_nsIURI_Debug((*self.document()).mDocumentURI.raw::<structs::nsIURI>(), &mut doc_uri)
+         };
+ 
+         f.debug_struct("Device")
+diff --git a/servo/components/style/gecko/wrapper.rs b/servo/components/style/gecko/wrapper.rs
+index 8c9ba40f93..2cb405a2df 100644
+--- a/servo/components/style/gecko/wrapper.rs
++++ b/servo/components/style/gecko/wrapper.rs
+@@ -413,7 +413,7 @@ impl<'ln> TNode for GeckoNode<'ln> {
+         unsafe {
+             self.0
+                 .mFirstChild
+-                .raw()
++                .raw::<nsIContent>()
+                 .as_ref()
+                 .map(GeckoNode::from_content)
+         }
+@@ -428,7 +428,7 @@ impl<'ln> TNode for GeckoNode<'ln> {
+     fn prev_sibling(&self) -> Option<Self> {
+         unsafe {
+             let prev_or_last = GeckoNode::from_content(self.0.mPreviousOrLastSibling.as_ref()?);
+-            if prev_or_last.0.mNextSibling.raw().is_null() {
++            if prev_or_last.0.mNextSibling.raw::<nsIContent>().is_null() {
+                 return None;
+             }
+             Some(prev_or_last)
+@@ -440,7 +440,7 @@ impl<'ln> TNode for GeckoNode<'ln> {
+         unsafe {
+             self.0
+                 .mNextSibling
+-                .raw()
++                .raw::<nsIContent>()
+                 .as_ref()
+                 .map(GeckoNode::from_content)
+         }
+diff --git a/servo/components/style/gecko_bindings/sugar/ns_com_ptr.rs b/servo/components/style/gecko_bindings/sugar/ns_com_ptr.rs
+index 1c54541bd8..10f7604647 100644
+--- a/servo/components/style/gecko_bindings/sugar/ns_com_ptr.rs
++++ b/servo/components/style/gecko_bindings/sugar/ns_com_ptr.rs
+@@ -6,10 +6,20 @@
+ 
+ use crate::gecko_bindings::structs::nsCOMPtr;
+ 
++#[cfg(feature = "gecko_debug")]
+ impl<T> nsCOMPtr<T> {
+     /// Get this pointer as a raw pointer.
+     #[inline]
+-    pub fn raw(&self) -> *mut T {
++    pub fn raw<U>(&self) -> *mut T {
+         self.mRawPtr
+     }
+ }
++
++#[cfg(not(feature = "gecko_debug"))]
++impl nsCOMPtr {
++    /// Get this pointer as a raw pointer.
++    #[inline]
++    pub fn raw<T>(&self) -> *mut T {
++        self._base.mRawPtr as *mut _
++    }
++}
+diff --git a/servo/components/style/stylesheets/mod.rs b/servo/components/style/stylesheets/mod.rs
+index 800ebee12f..1e197d8334 100644
+--- a/servo/components/style/stylesheets/mod.rs
++++ b/servo/components/style/stylesheets/mod.rs
+@@ -225,10 +225,14 @@ impl fmt::Debug for UrlExtraData {
+         formatter
+             .debug_struct("URLExtraData")
+             .field("chrome_rules_enabled", &self.chrome_rules_enabled())
+-            .field("base", &DebugURI(self.as_ref().mBaseURI.raw()))
++            .field("base", &DebugURI(self.as_ref().mBaseURI.raw::<structs::nsIURI>()))
+             .field(
+                 "referrer",
+-                &DebugReferrerInfo(self.as_ref().mReferrerInfo.raw()),
++                &DebugReferrerInfo(
++                    self.as_ref()
++                        .mReferrerInfo
++                        .raw::<structs::nsIReferrerInfo>(),
++                ),
+             )
+             .finish()
+     }
+diff --git a/servo/ports/geckolib/error_reporter.rs b/servo/ports/geckolib/error_reporter.rs
+index b943973093..85702d5ac1 100644
+--- a/servo/ports/geckolib/error_reporter.rs
++++ b/servo/ports/geckolib/error_reporter.rs
+@@ -48,7 +48,7 @@ impl ErrorReporter {
+         let uri = unsafe {
+             extra_data
+                 .as_ref()
+-                .map(|d| d.mBaseURI.raw())
++                .map(|d| d.mBaseURI.raw::<nsIURI>())
+                 .unwrap_or(ptr::null_mut())
+         };
+ 
+diff --git a/xpcom/base/nsCOMPtr.h b/xpcom/base/nsCOMPtr.h
+index ba4dfbea9f..d5a1875d86 100644
+--- a/xpcom/base/nsCOMPtr.h
++++ b/xpcom/base/nsCOMPtr.h
+@@ -47,7 +47,7 @@
+ #  pragma warning(disable : 4514)
+ #endif
+ 
+-// #define NSCAP_FEATURE_USE_BASE
++#define NSCAP_FEATURE_USE_BASE
+ 
+ #ifdef DEBUG
+ #  define NSCAP_FEATURE_TEST_DONTQUERY_CASES
+-- 
+2.41.0
+

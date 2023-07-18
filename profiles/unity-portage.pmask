@@ -31,7 +31,7 @@
 >media-sound/rhythmbox-3.4.7-r2
 >media-video/totem-43.0
 >net-im/pidgin-2.14.12
->net-im/telegram-desktop-4.8.1-r2
+>net-im/telegram-desktop-4.8.1-r3
 >sys-apps/accountsservice-23.13.9
 >www-client/chromium-114.0.5735.198
 >www-client/firefox-116
@@ -39,7 +39,7 @@
 >x11-libs/gtk+-2.24.33-r3:2
 >x11-libs/gtk+-3.24.38:3
 >x11-libs/libwnck-43.0-r1:3
->x11-libs/vte-0.72.1:2.91
+>x11-libs/vte-0.72.2:2.91
 >x11-misc/lightdm-1.32.0-r2
 >x11-misc/zim-0.75.1
 >x11-plugins/pidgin-libnotify-0.14-r1
