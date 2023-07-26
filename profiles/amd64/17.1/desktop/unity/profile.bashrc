@@ -1,7 +1,7 @@
 ## ehooks patching system.
 if [[ ${EBUILD_PHASE} == "setup" ]]; then
+	## Get gentoo-unity7 repo path via portageq tool.
 	PORTAGE_QUERY_TOOL=portageq
-
 	[[ -e "${PORTAGE_BIN_PATH}"/portageq-wrapper ]] && PORTAGE_QUERY_TOOL="${PORTAGE_BIN_PATH}"/portageq-wrapper
 	if "${PORTAGE_QUERY_TOOL}" get_repo_path / gentoo-unity7 >/dev/null 2>&1; then
 		REPO_ROOT=$("${PORTAGE_QUERY_TOOL}" get_repo_path / gentoo-unity7)
@@ -75,7 +75,7 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 			eerror "Warning!"
 			eerror
 			eerror "Patches from gentoo-unity7 overlay will be applied to ${CATEGORY}/${PN} and some other packages from the Gentoo tree via ehooks patching system."
-			eerror "For more details, see gentoo-unity7/docs/ehooks.md - Chapter I."
+			eerror "For more details, see ${REPO_ROOT}/docs/ehooks.md - Chapter I."
 			eerror "Set EHOOKS_ACCEPT=\"yes\" in make.conf to confirm you agree with it."
 			eerror
 			echo "Acceptance needed" > "${log}"
@@ -220,4 +220,14 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 	} ## End of pre_pkg_setup function.
 
 fi ## End of setup phase.
+
+## Check for {pre,post} function name collision with ehooks patching system.
+if [[ ${EBUILD_PHASE} == "unpack" ]]; then
+	local x
+	local -a EHOOKS_FUNC=()
+	for x in {pre,post}_pkg_{setup,preinst,postinst} {pre,post}_src_{unpack,prepare,configure,compile,install}; do
+		! declare -F ${x} 1>/dev/null || declare -f ${x} | grep -q "ehooks_apply" || EHOOKS_FUNC+=( "'${x}'," )
+	done
+	[[ -n ${EHOOKS_FUNC[@]} ]] && EHOOKS_FUNC[-1]="${EHOOKS_FUNC[-1]%,}" && die "ehooks: function name collision. If you have ${EHOOKS_FUNC[@]} inside '${EROOT}/etc/portage/bashrc', use generic ehooks instead.\nFor more details, see ${REPO_ROOT}/docs/ehooks.md - Chapter II. - Generic ehooks."
+fi
 ## End of ehooks patching system.
