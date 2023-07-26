@@ -9,14 +9,12 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 		die "portageq: gentoo-unity7 repo path not found. If you have recently updated sys-apps/portage then you should re-run 'emerge -avuDU --with-bdeps=y @world' to catch any updates."
 	fi
 
-	local -a EHOOKS_SOURCE=()
-
-	## Define function to look for ehooks in setup phase.
-	pre_pkg_setup() {
-
+	## Look for ehooks in setup phase.
 	local \
 		pkg \
 		basedir="${REPO_ROOT}"/profiles/ehooks
+
+	EHOOKS_SOURCE=()
 
 	for pkg in generic ${CATEGORY}/{${P}-${PR},${P},${P%.*},${P%.*.*},${PN}}{:${SLOT%/*},}; do
 		if [[ -d ${EHOOKS_PATH:=${basedir}}/${pkg} ]]; then
@@ -34,9 +32,6 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 		[[ ${pkg} != "generic" ]] && break
 	done
 
-	## Process EHOOKS_SOURCE.
-	if [[ -n ${EHOOKS_SOURCE[@]} ]]; then
-
 	## Define function to check if USE flag is declared.
 	ehooks_use() {
 		return $("${PORTAGE_QUERY_TOOL}" has_version / unity-extra/ehooks["$1"])
@@ -52,6 +47,9 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 
 	## Define function to apply ehooks.
 	ehooks_apply() {
+		## Process EHOOKS_SOURCE.
+		if [[ ${EHOOKS_SOURCE[@]} == *"${FUNCNAME[1]}"* ]]; then
+
 		local \
 			x \
 			log="${T}/ehooks.log" \
@@ -179,55 +177,34 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 		## Sanitize 'die' command.
 		source <(declare -f die | sed "/ehooks/d")
 
+		fi ## End of processing EHOOKS_SOURCE.
 	} ## End of ehooks_apply function.
 
-	## Apply ehooks intended for setup phase.
-	[[ ${EHOOKS_SOURCE[@]} == *"pre_pkg_setup"* ]] \
-		&& ehooks_apply
-	[[ ${EHOOKS_SOURCE[@]} == *"post_pkg_setup"* ]] \
-		&& post_pkg_setup() { ehooks_apply; }
-	[[ ${EHOOKS_SOURCE[@]} == *"pre_src_unpack"* ]] \
-		&& pre_src_unpack() { ehooks_apply; }
-	[[ ${EHOOKS_SOURCE[@]} == *"post_src_unpack"* ]] \
-		&& post_src_unpack() { ehooks_apply; }
-	[[ ${EHOOKS_SOURCE[@]} == *"pre_src_prepare"* ]] \
-		&& pre_src_prepare() { ehooks_apply; }
-	[[ ${EHOOKS_SOURCE[@]} == *"post_src_prepare"* ]] \
-		&& post_src_prepare() { ehooks_apply; }
-	[[ ${EHOOKS_SOURCE[@]} == *"pre_src_configure"* ]] \
-		&& pre_src_configure() { ehooks_apply; }
-	[[ ${EHOOKS_SOURCE[@]} == *"post_src_configure"* ]] \
-		&& post_src_configure() { ehooks_apply; }
-	[[ ${EHOOKS_SOURCE[@]} == *"pre_src_compile"* ]] \
-		&& pre_src_compile() { ehooks_apply; }
-	[[ ${EHOOKS_SOURCE[@]} == *"post_src_compile"* ]] \
-		&& post_src_compile() { ehooks_apply; }
-	[[ ${EHOOKS_SOURCE[@]} == *"pre_src_install"* ]] \
-		&& pre_src_install() { ehooks_apply; }
-	[[ ${EHOOKS_SOURCE[@]} == *"post_src_install"* ]] \
-		&& post_src_install() { ehooks_apply; }
-	[[ ${EHOOKS_SOURCE[@]} == *"pre_pkg_preinst"* ]] \
-		&& pre_pkg_preinst() { ehooks_apply; }
-	[[ ${EHOOKS_SOURCE[@]} == *"post_pkg_preinst"* ]] \
-		&& post_pkg_preinst() { ehooks_apply; }
-	[[ ${EHOOKS_SOURCE[@]} == *"pre_pkg_postinst"* ]] \
-		&& pre_pkg_postinst() { ehooks_apply; }
-	[[ ${EHOOKS_SOURCE[@]} == *"post_pkg_postinst"* ]] \
-		&& post_pkg_postinst() { ehooks_apply; }
-
-	fi ## End of processing EHOOKS_SOURCE.
-
-	} ## End of pre_pkg_setup function.
-
+	pre_pkg_setup() { ehooks_apply; }
+	post_pkg_setup() { ehooks_apply; }
+	pre_src_unpack() { ehooks_apply; }
+	post_src_unpack() { ehooks_apply; }
+	pre_src_prepare() { ehooks_apply; }
+	post_src_prepare() { ehooks_apply; }
+	pre_src_configure() { ehooks_apply; }
+	post_src_configure() { ehooks_apply; }
+	pre_src_compile() { ehooks_apply; }
+	post_src_compile() { ehooks_apply; }
+	pre_src_install() { ehooks_apply; }
+	post_src_install() { ehooks_apply; }
+	pre_pkg_preinst() { ehooks_apply; }
+	post_pkg_preinst() { ehooks_apply; }
+	pre_pkg_postinst() { ehooks_apply; }
+	post_pkg_postinst() { ehooks_apply; }
 fi ## End of setup phase.
 
 ## Check for {pre,post} function name collision with ehooks patching system.
-if [[ ${EBUILD_PHASE} == "unpack" ]]; then
+if [[ -n ${EBUILD_PHASE} ]]; then
 	local x
 	local -a EHOOKS_FUNC=()
 	for x in {pre,post}_pkg_{setup,preinst,postinst} {pre,post}_src_{unpack,prepare,configure,compile,install}; do
 		! declare -F ${x} 1>/dev/null || declare -f ${x} | grep -q "ehooks_apply" || EHOOKS_FUNC+=( "'${x}'," )
 	done
-	[[ -n ${EHOOKS_FUNC[@]} ]] && EHOOKS_FUNC[-1]="${EHOOKS_FUNC[-1]%,}" && die "ehooks: function name collision. If you have ${EHOOKS_FUNC[@]} inside '${EROOT}/etc/portage/bashrc', use generic ehooks instead.\nFor more details, see ${REPO_ROOT}/docs/ehooks.md - Chapter II. - Generic ehooks."
+	[[ -n ${EHOOKS_FUNC[@]} ]] && EHOOKS_FUNC[-1]="${EHOOKS_FUNC[-1]%,}" && die "ehooks: function name collision\n  If you have ${EHOOKS_FUNC[@]} inside '${EROOT}/etc/portage/bashrc', call 'ehooks_apply' function inside it or use generic ehooks instead.\n  For more details about generic ehooks, see ${REPO_ROOT}/docs/ehooks.md - Chapter II. - Generic ehooks."
 fi
 ## End of ehooks patching system.
