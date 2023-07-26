@@ -2,9 +2,9 @@
 
 1. **Switch to** [systemd⬀][sysd] init system.
 
-2. **Add the overlay** using [eselect-repository⬀][erepo] module:
+2. **Add the overlay** using [eselect-repository⬀][erepo] module and synchronize it:
 
-   `eselect repository add gentoo-unity7 git https://github.com/c4pp4/gentoo-unity7.git`
+   `eselect repository add gentoo-unity7`
    <br/>
    `emaint sync -r gentoo-unity7`
 
