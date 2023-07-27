@@ -114,8 +114,8 @@ find_flag_changes() {
 
 		pkg=( $(get_installed_packages "${x%:*}") )
 		for n in "${pkg[@]}"; do
-			## Try another package if slots differ.
-			[[ -z ${slot} ]] || grep -Fqsx "${slot}" "${n}/SLOT" || continue
+			## Try another package if slot differs.
+			grep -Fqsx "${slot:-0}" "${n}/SLOT" || continue
 
 			## Try another package if modification time is newer or equal to ehooks USE flag change time.
 			sys_date=$(date -r "${n}" "+%s")
@@ -162,8 +162,8 @@ find_tree_changes() {
 
 		pkg=( $(get_installed_packages "${m}") )
 		for n in "${pkg[@]}"; do
-			## Try another package if slots differ.
-			[[ -z ${slot} ]] || grep -Fqsx "${slot}" "${n}/SLOT" || continue
+			## Try another package if slot differs.
+			grep -Fqsx "${slot:-0}" "${n}/SLOT" || continue
 
 			## Try another package if modification time is newer or equal to ehooks (sub)directory time.
 			sys_date=$(date -r "${n}" "+%s")
