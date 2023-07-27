@@ -1,3 +1,5 @@
+[![Preview of Gentoo Unity⁷ Desktop][preview_image]][preview_image_url]
+
 # Gentoo Unity⁷ Desktop
 
 A Gentoo overlay to build the Unity7 user interface.
@@ -23,6 +25,8 @@ A Gentoo overlay to build the Unity7 user interface.
 [ftlr]: profiles/ehooks/www-client/firefox/files
 [fork]: https://github.com/shiznix/unity-gentoo
 [pak]: profiles/unity-portage.paccept_keywords
+[preview_image]: https://github.com/c4pp4/gentoo-unity7/blob/master/docs/assets/preview.png "Preview of Gentoo Unity⁷ Desktop"
+[preview_image_url]: https://raw.githubusercontent.com/c4pp4/gentoo-unity7/master/docs/assets/preview.png
 [tg]: https://t.me/gentoo_unity7
 [tips]: docs/use_flag_tips.md
 [uris]: docs/source_uris.md
