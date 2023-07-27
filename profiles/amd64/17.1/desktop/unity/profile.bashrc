@@ -199,7 +199,7 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 fi ## End of setup phase.
 
 ## Check for {pre,post} function name collision with ehooks patching system.
-if [[ -n ${EBUILD_PHASE} ]]; then
+if [[ ${EBUILD_PHASE} == "unpack" ]]; then
 	local x
 	local -a EHOOKS_FUNC=()
 	for x in {pre,post}_pkg_{setup,preinst,postinst} {pre,post}_src_{unpack,prepare,configure,compile,install}; do

@@ -18,7 +18,7 @@ LICENSE="LGPL-3"
 SLOT="0"
 KEYWORDS="amd64"
 IUSE="coverage test"
-REQUIRED_USE=" coverage? ( test ) test? ( ${PYTHON_REQUIRED_USE} )"
+REQUIRED_USE="coverage? ( test ) test? ( ${PYTHON_REQUIRED_USE} )"
 RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
