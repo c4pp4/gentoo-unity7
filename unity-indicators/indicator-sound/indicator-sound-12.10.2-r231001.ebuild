@@ -67,7 +67,7 @@ S="${WORKDIR}"
 MAKEOPTS="${MAKEOPTS} -j1"
 
 src_prepare() {
-	# Disable tests #
+	# Make test optional #
 	use test || sed -i \
 		-e "s/TEST REQUIRED/TEST QUIET/" \
 		-e "/enable_testing()/d" \

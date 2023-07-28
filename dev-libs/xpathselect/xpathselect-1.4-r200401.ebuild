@@ -30,6 +30,7 @@ DEPEND="
 S="${S}${UVER}"
 
 src_prepare() {
+	# Make test optional #
 	use test || sed -i '/add_subdirectory(test)/d' CMakeLists.txt || die
 
 	ubuntu-versionator_src_prepare

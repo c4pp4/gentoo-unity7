@@ -45,7 +45,6 @@ MAKEOPTS="${MAKEOPTS} -j1"
 
 src_prepare() {
 	# Make test optional #
-	# Disable tests #
 	use test || sed -i \
 		-e "/enable_testing()/d" \
 		-e "/add_subdirectory(tests)/d" \

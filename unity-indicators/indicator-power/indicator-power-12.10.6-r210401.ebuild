@@ -67,7 +67,7 @@ src_prepare() {
 	#  due to being provided by Ubuntu's language-pack packages #
 	sed -i "/add_subdirectory(po)/d" CMakeLists.txt || die
 
-	# Disable tests #
+	# Make test optional #
 	use test || sed -i \
 		-e "/enable_testing()/d" \
 		-e "/add_subdirectory(tests)/d" \

@@ -67,7 +67,7 @@ src_prepare() {
 			src/service.c || die
 	fi
 
-	# Disable tests #
+	# Make test optional #
 	use test || sed -i \
 		-e "/enable_testing ()/d" \
 		-e "/add_subdirectory (tests)/d" \

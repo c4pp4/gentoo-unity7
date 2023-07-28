@@ -72,6 +72,7 @@ src_prepare() {
 			-e "/^add_eds_ics_test_by_name/d" \
 			tests/CMakeLists.txt || die
 	else
+		# Make test optional #
 		sed -i \
 			-e "/enable_testing()/d" \
 			-e "/add_subdirectory(tests)/d" \
