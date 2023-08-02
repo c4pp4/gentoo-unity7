@@ -205,6 +205,6 @@ if [[ ${EBUILD_PHASE} == "unpack" ]]; then
 	for x in {pre,post}_pkg_{setup,preinst,postinst} {pre,post}_src_{unpack,prepare,configure,compile,install}; do
 		! declare -F ${x} 1>/dev/null || declare -f ${x} | grep -q "ehooks_apply" || EHOOKS_FUNC+=( "'${x}'," )
 	done
-	[[ -n ${EHOOKS_FUNC[@]} ]] && EHOOKS_FUNC[-1]="${EHOOKS_FUNC[-1]%,}" && die "ehooks: function name collision\n  If you have ${EHOOKS_FUNC[@]} inside '${EROOT}/etc/portage/bashrc', call 'ehooks_apply' function inside it or use generic ehooks instead.\n  For more details about generic ehooks, see ${REPO_ROOT}/docs/ehooks.md - Chapter II. - Generic ehooks."
+	[[ -n ${EHOOKS_FUNC[@]} ]] && EHOOKS_FUNC[-1]="${EHOOKS_FUNC[-1]%,}" && die "ehooks: function name collision\n  If you have ${EHOOKS_FUNC[@]} inside '${EROOT}/etc/portage/bashrc', call 'ehooks_apply' function inside it or use generic ehooks instead.\n  For more details, see ${REPO_ROOT}/docs/ehooks.md - Chapter II. - Generic ehooks."
 fi
 ## End of ehooks patching system.

@@ -141,7 +141,15 @@
 - **Generic ehooks:**
   - it's possible to use ehooks to be applied to every package
   - create **generic** directory and place all desired ehooks inside
-  - e.g. create `/home/ehooks/generic` directory in case `EHOOKS_PATH="/home/ehooks"`
+  - e.g. create `/home/ehooks/generic` directory in case of `EHOOKS_PATH="/home/ehooks"`
+  - if you have [/etc/portage/bashrc⬀][bashrc] file and {pre,post}_${EBUILD_PHASE_FUNC} function in it (phase: setup, unpack, prepare, configure, compile, install, preinst or postinst), call **ehooks_apply** function inside each, e.g. if you defined pre_src_prepare function:
+     ```
+     pre_src_prepare() {
+       [YOUR COMMANDS...]
+       ehooks_apply
+       [YOUR COMMANDS...]
+     }
+     ```
 
 - **Using debian archive file:**
    - e.g. we need to process `gnome-session_42.0-1ubuntu3.debian.tar.xz` debian archive file
@@ -164,6 +172,7 @@
      `ln -s ../../templates/patches.template 02-pre_src_prepare.ehooks`
 
 [//]: # (LINKS)
+[bashrc]: https://wiki.gentoo.org/wiki//etc/portage/bashrc
 [code]: ../profiles/amd64/17.1/desktop/unity/profile.bashrc
 [efn]: https://devmanual.gentoo.org/function-reference/index.html
 [ehooks]: ../profiles/ehooks
