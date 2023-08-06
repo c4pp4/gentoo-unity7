@@ -33,7 +33,7 @@
 >net-im/pidgin-2.14.12
 >net-im/telegram-desktop-4.8.1-r3
 >sys-apps/accountsservice-23.13.9
->www-client/chromium-115.0.5790.102
+>www-client/chromium-115.0.5790.170
 >www-client/firefox-117
 >www-client/firefox-103:esr
 >x11-libs/gtk+-2.24.33-r3:2
