@@ -10,6 +10,11 @@
 # Exports portage base functions used by ebuilds written for packages using
 # the gentoo-unity7 framework.
 
+case ${EAPI} in
+	8) ;;
+	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
+esac
+
 # @ECLASS-VARIABLE: UBUNTU_EAUTORECONF
 # @DEFAULT_UNSET
 # @DESCRIPTION:
@@ -17,11 +22,6 @@
 UBUNTU_EAUTORECONF=${UBUNTU_EAUTORECONF:-""}
 
 [[ ${UBUNTU_EAUTORECONF} == "yes" ]] && inherit autotools
-
-case "${EAPI:-0}" in
-	8) EXPORT_FUNCTIONS pkg_setup src_prepare pkg_postinst ;;
-	*) die "EAPI=${EAPI:-0} is not supported" ;;
-esac
 
 # Set base sane vala version for all packages requiring vala, override
 # in ebuild if or when specific higher/lower versions are needed
@@ -96,6 +96,20 @@ ubuntu-versionator_pkg_setup() {
 	declare -F python-single-r1_pkg_setup 1>/dev/null && python-single-r1_pkg_setup
 }
 
+# @FUNCTION: ubuntu-versionator_src_unpack
+# @DESCRIPTION:
+# Relocate the sources in src_unpack as S=WORKDIR is deprecated
+# for cmake.eclass.
+ubuntu-versionator_src_unpack() {
+	debug-print-function ${FUNCNAME} "$@"
+
+	if [[ -n ${A} ]]; then
+		mkdir -p ${S}
+		cd ${S}
+		unpack ${A}
+	fi
+}
+
 # @FUNCTION: ubuntu-versionator_src_prepare
 # @DESCRIPTION:
 # Apply common src_prepare tasks such as patching and vala setting.
@@ -110,7 +124,8 @@ ubuntu-versionator_src_prepare() {
 		x
 
 	# Apply Ubuntu diff file if present #
-	local diff_file="${WORKDIR}/${PN}_${PV}${UVER}-${UREV}.diff"
+	local diff_file="${PN}_${PV}${UVER}-${UREV}.diff"
+	[[ -f ${WORKDIR}/${diff_file} ]] && diff_file="${WORKDIR}/${diff_file}"
 	if [[ -f ${diff_file} ]]; then
 		echo "${color_bold}>>> Processing Ubuntu diff file${color_norm} ..."
 		eapply "${diff_file}"
@@ -118,11 +133,10 @@ ubuntu-versionator_src_prepare() {
 	fi
 
 	# Apply Ubuntu patchset if one is present #
-	local upatch_dir
+	local upatch_dir="debian/patches"
 	local -a upatches
-	[[ -f ${WORKDIR}/debian/patches/series ]] && upatch_dir="${WORKDIR}/debian/patches"
-	[[ -f debian/patches/series ]] && upatch_dir="debian/patches"
-	if [[ -d ${upatch_dir} ]]; then
+	[[ -f ${WORKDIR}/${upatch_dir}/series ]] && upatch_dir="${WORKDIR}/debian/patches"
+	if [[ -f ${upatch_dir}/series ]]; then
 		for x in $(grep -v \# "${upatch_dir}/series"); do
 			upatches+=( "${upatch_dir}/${x}" )
 		done
@@ -166,3 +180,5 @@ ubuntu-versionator_pkg_postinst() {
 
 	[[ -x $(type -p bamf-index-create) ]] && bamf-index-create triggered
 }
+
+EXPORT_FUNCTIONS pkg_setup src_prepare pkg_postinst

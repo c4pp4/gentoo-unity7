@@ -59,9 +59,11 @@ DEPEND="${COMMON_DEPEND}
 "
 BDEPEND="dev-util/intltool"
 
-S="${WORKDIR}"
-
 MAKEOPTS="${MAKEOPTS} -j1"
+
+src_unpack() {
+	ubuntu-versionator_src_unpack
+}
 
 src_prepare() {
 	# Disable tests #

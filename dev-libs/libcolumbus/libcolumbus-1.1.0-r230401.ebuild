@@ -45,10 +45,13 @@ S="${S}${UVER}"
 src_prepare() {
 	python_fix_shebang .
 
-	mv "${WORKDIR}/${PN}_${PV}${UVER}-${UREV}.diff" .
+	local diff_file="${WORKDIR}/${PN}_${PV}${UVER}-${UREV}.diff"
+	mv "${diff_file}" "${diff_file}.ignore"
+
 	ubuntu-versionator_src_prepare
+
 	echo "$(tput bold)>>> Processing Ubuntu diff file$(tput sgr0) ..."
-	eapply "${PN}_${PV}${UVER}-${UREV}.diff"
+	eapply "${diff_file}.ignore"
 	echo "$(tput bold)>>> Done.$(tput sgr0)"
 }
 

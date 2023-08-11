@@ -44,7 +44,9 @@ BDEPEND="
 	doc? ( app-doc/doxygen[dot] )
 "
 
-S="${WORKDIR}"
+src_unpack() {
+	ubuntu-versionator_src_unpack
+}
 
 src_prepare() {
 	if use doc; then
