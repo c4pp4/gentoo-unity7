@@ -5,36 +5,38 @@ EAPI=8
 PYTHON_COMPAT=( python3_{10..12} )
 
 UVER=
-UREV=1
+UREV=2
 
 inherit cmake python-single-r1 ubuntu-versionator
 
-DESCRIPTION="Library to facilitate testing DBus interactions in Qt applications"
-HOMEPAGE="https://launchpad.net/libqtdbustest"
+DESCRIPTION="Qt Bindings for python-dbusmock"
+HOMEPAGE="https://launchpad.net/libqtdbusmock"
 SRC_URI="${UURL}.orig.tar.gz
 	${UURL}-${UREV}.debian.tar.xz"
 
-LICENSE="LGPL-3"
+LICENSE="GPL-3 LGPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="coverage test"
-REQUIRED_USE="coverage? ( test ) test? ( ${PYTHON_REQUIRED_USE} )"
+REQUIRED_USE="${PYTHON_REQUIRED_USE} coverage? ( test )"
 RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
+	>=dev-libs/libqtdbustest-0.2[${PYTHON_SINGLE_USEDEP}]
 	>=dev-qt/qtcore-5.15.1:5
 	>=dev-qt/qtdbus-5.0.2:5
-	>=dev-qt/qttest-5.0.2:5
+	dev-qt/qttest:5
+
+	${PYTHON_DEPS}
+	$(python_gen_cond_dep '>=dev-python/python-dbusmock-0.16[${PYTHON_USEDEP}]')
 "
 RDEPEND="${COMMON_DEPEND}
-	gnome-base/gvfs
-	sys-apps/dbus
-	>=sys-devel/gcc-5.2
+	>=sys-devel/gcc-4.1.1
 	>=sys-libs/glibc-2.14
 "
 DEPEND="${COMMON_DEPEND}
 	>=dev-util/cmake-extras-1.5
-	sys-apps/dbus
+	net-misc/networkmanager
 
 	test? (
 		dev-cpp/gtest
@@ -43,9 +45,6 @@ DEPEND="${COMMON_DEPEND}
 			dev-util/gcovr
 			dev-util/lcov
 		)
-
-		${PYTHON_DEPS}
-		$(python_gen_cond_dep 'dev-python/python-dbusmock[${PYTHON_USEDEP}]')
 	)
 "
 BDEPEND="
@@ -54,18 +53,17 @@ BDEPEND="
 "
 
 src_prepare() {
-	if use test; then
-		# Enforce usage of the configured version of Python #
-		sed -i \
-			-e "s:/usr/bin/python3:/usr/bin/${EPYTHON}:" \
-			tests/libqtdbustest/Test{DBusTestRunner,QProcessDBusService}.cpp || die
-	else
-		# Make test optional #
-		use test || sed -i \
-			-e "/enable_testing()/d" \
-			-e "/add_subdirectory(tests)/d" \
-			CMakeLists.txt || die
-	fi
+	# Enforce usage of the configured version of Python #
+	sed -i \
+		-e "s:python3:${EPYTHON}:" \
+		tests/libqtdbusmock/TestDBusMock.cpp \
+		src/libqtdbusmock/DBusMock.cpp || die
+
+	# Make test optional #
+	use test || sed -i \
+		-e "/enable_testing()/d" \
+		-e "/add_subdirectory(tests)/d" \
+		CMakeLists.txt || die
 
 	ubuntu-versionator_src_prepare
 }
