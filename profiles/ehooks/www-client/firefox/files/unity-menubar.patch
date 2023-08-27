@@ -105,8 +105,8 @@
 +pref("ui.use_unity_menubar", true);
 +#endif
  
- // min font device pixel size at which to turn on high quality
- pref("browser.display.auto_quality_min_font_size", 20);
+ // See http://whatwg.org/specs/web-apps/current-work/#ping
+ pref("browser.send_pings", false);
 --- a/toolkit/content/xul.css
 +++ b/toolkit/content/xul.css
 @@ -229,6 +229,13 @@ toolbox {
@@ -4426,7 +4426,7 @@
 +    static void RemoveUpdateBlocker();
 +
 +    nsCOMPtr<nsIContent> mRootNode;
-+    mozilla::dom::Document *mDocument;
++    nsCOMPtr<mozilla::dom::Document> mDocument;
 +    nsIContent *mLastSource;
 +    nsNativeMenuChangeObserver *mLastTarget;
 +    nsTArray<mozilla::UniquePtr<MutationRecord> > mPendingMutations;
@@ -5266,3 +5266,20 @@
  // {F6CD4F21-53AF-11d2-8DC4-00609703C14E}
  #define NS_POPUPMENU_CID                           \
    {                                                \
+--- a/xpcom/base/nsCOMPtr.h
++++ b/xpcom/base/nsCOMPtr.h
+@@ -815,10 +815,10 @@
+                                  const nsIID& aIID) {
+   // Allow QIing to nsISupports from nsISupports as a special-case, since
+   // SameCOMIdentity uses it.
+-  static_assert(
+-      std::is_same_v<T, nsISupports> ||
+-          !(std::is_same_v<T, U> || std::is_base_of<T, U>::value),
+-      "don't use do_QueryInterface for compile-time-determinable casts");
++  // static_assert(
++  //     std::is_same_v<T, nsISupports> ||
++  //         !(std::is_same_v<T, U> || std::is_base_of<T, U>::value),
++  //     "don't use do_QueryInterface for compile-time-determinable casts");
+   void* newRawPtr;
+   if (NS_FAILED(aQI(aIID, &newRawPtr))) {
+     newRawPtr = nullptr;

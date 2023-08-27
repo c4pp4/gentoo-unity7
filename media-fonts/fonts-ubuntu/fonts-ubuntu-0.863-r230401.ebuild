@@ -9,7 +9,7 @@ UREV=0ubuntu3
 
 inherit font ubuntu-versionator
 
-DESCRIPTION="Set of matching libre/open fonts funded by Canonical"
+DESCRIPTION="The Ubuntu variable font with adjustable weight and width axes."
 HOMEPAGE="https://design.ubuntu.com/font/"
 SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
 
