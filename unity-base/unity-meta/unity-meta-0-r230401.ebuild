@@ -30,7 +30,7 @@ RDEPEND="
 
 	accessibility? (
 		app-accessibility/at-spi2-atk
-		app-accessibility/at-spi2-core
+		app-accessibility/at-spi2-core:2
 		app-accessibility/onboard
 		app-accessibility/orca
 	)
@@ -78,7 +78,7 @@ RDEPEND="
 		)
 		|| (
 			media-gfx/eom
-			media-gfx/eog
+			media-gfx/eog:1
 		)
 		mate-extra/mate-utils
 		|| (

@@ -20,7 +20,7 @@ KEYWORDS="amd64"
 RESTRICT="test"
 
 RDEPEND="
-	>=dev-libs/libappindicator-0.1[introspection]
+	>=dev-libs/libappindicator-0.1:3[introspection]
 	sys-power/cpufrequtils
 
 	${PYTHON_DEPS}

@@ -18,7 +18,7 @@ IUSE="+system-wide"
 RESTRICT="mirror test"
 
 RDEPEND="
-	>=dev-libs/glib-2.40.0
+	>=dev-libs/glib-2.40.0:2
 	>=dev-libs/libdbusmenu-16.04.0
 	>=virtual/jdk-1.7.0
 	>=x11-libs/libxkbcommon-0.5.0
