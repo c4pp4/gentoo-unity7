@@ -93,6 +93,7 @@ ubuntu-versionator_pkg_setup() {
 	[[ "$(readlink /etc/portage/make.profile)" == *"gentoo-unity7"* ]] \
 		|| die "Invalid profile detected, please select gentoo-unity7 profile shown in 'eselect profile list'."
 
+	declare -F font_pkg_setup 1>/dev/null && font_pkg_setup
 	declare -F python-single-r1_pkg_setup 1>/dev/null && python-single-r1_pkg_setup
 }
 
@@ -171,6 +172,8 @@ ubuntu-versionator_src_prepare() {
 # bamf-2.index file of every package to capture all *.desktop files.
 ubuntu-versionator_pkg_postinst() {
 	debug-print-function ${FUNCNAME} "$@"
+
+	declare -F font_pkg_postinst 1>/dev/null && font_pkg_postinst
 
 	if declare -F gnome2_pkg_postinst 1>/dev/null; then
 		gnome2_pkg_postinst

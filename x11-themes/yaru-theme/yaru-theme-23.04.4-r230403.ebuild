@@ -32,6 +32,11 @@ BDEPEND="
 S="${WORKDIR}/${PN}-${UREV}"
 
 src_configure() {
+	# Fix mate-terminal background color #
+	sed -i \
+		-e '/vte-terminal {/{n;s/$_mate_terminal_bg_color/#300A24/}' \
+		gtk/src/default/gtk-3.0/apps/_mate-terminal.scss || die
+
 	local emesonargs=(
 		-Dgnome-shell-user-themes-support=$(usex gnome-shell enabled disabled)
 		-Dgtk=true

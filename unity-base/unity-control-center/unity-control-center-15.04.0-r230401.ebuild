@@ -82,7 +82,10 @@ DEPEND="${COMMON_DEPEND}
 	dev-libs/libxslt
 	dev-util/gtk-doc
 	gnome-base/gnome-common
-	media-fonts/ubuntu-font-family
+	|| (
+		media-fonts/fonts-ubuntu
+		media-fonts/ubuntu-font-family
+	)
 	>=sys-apps/dbus-0.32
 	>=x11-libs/libXft-2.1.2
 	x11-libs/libxkbfile

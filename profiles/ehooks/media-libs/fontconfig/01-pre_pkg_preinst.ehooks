@@ -8,13 +8,14 @@ ehooks() {
 	local -a \
 		f_remove=() \
 		files=(
+			09-autohint-if-no-hinting.conf
 			10-autohint.conf
 			10-hinting-full.conf
 			10-hinting-medium.conf
 			10-hinting-none.conf
-			10-no-sub-pixel.conf
+			10-no-antialias.conf
 			10-sub-pixel-bgr.conf
-			10-sub-pixel-rgb.conf
+			10-sub-pixel-none.conf
 			10-sub-pixel-vbgr.conf
 			10-sub-pixel-vrgb.conf
 			10-unhinted.conf

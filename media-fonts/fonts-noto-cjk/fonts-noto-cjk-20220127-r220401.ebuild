@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
+FONT_PN="noto"
 
 UVER=+repack1
 UREV=1
@@ -9,9 +10,8 @@ LSVER="0.221"
 
 inherit font ubuntu-versionator
 
-DESCRIPTION=" No Tofu CJK font families with large Unicode coverage"
+DESCRIPTION="'No Tofu' CJK font families with large Unicode coverage"
 HOMEPAGE="https://github.com/googlei18n/noto-cjk"
-
 SRC_URI="${UURL}.orig.tar.xz
 	${UURL}-${UREV}.debian.tar.xz
 	${UURL%/*}/language-selector_${LSVER}.tar.xz"
@@ -24,10 +24,13 @@ RESTRICT="binchecks strip test"
 
 RDEPEND="!media-fonts/noto-cjk"
 
-S="${WORKDIR}"
+S="${WORKDIR}/noto-cjk"
 
-FONT_S="${S}"
 FONT_SUFFIX="ttc"
+FONT_S=(
+	"${S}/Sans/OTC"
+	"${S}/Serif/OTC"
+)
 FONT_CONF=(
 	"${WORKDIR}"/debian/70-"${PN}".conf
 	"${WORKDIR}"/language-selector/fontconfig/30-cjk-aliases.conf
@@ -43,25 +46,25 @@ FONT_CONF=(
 )
 
 src_install() {
-	default
+	if use extra; then
+		FONT_S+=(
+			"${S}/Sans/Variable/OTC"
+			"${S}/Serif/Variable/OTC"
+		)
+	else
+		find "${WORKDIR}" -type f -name "*.ttc" \
+			! -name "*CJK-Regular.ttc" \
+			! -name "*CJK-Bold.ttc" \
+				-delete || die
+	fi
 
-	use extra || find "${WORKDIR}" -type f -name "*.ttc" \
-		! -name "*CJK-Regular.ttc" \
-		! -name "*CJK-Bold.ttc" \
-			-delete
-
-	mv "${WORKDIR}"/"${PN/fonts-}"/{Sans,Serif}/OTC/* "${WORKDIR}"
 	font_src_install
 
-	local \
-		symlink_dir="/etc/fonts/conf.d" \
-		f
-
 	einfo "Creating fontconfig configuration symlinks ..."
-	dodir "${symlink_dir}"
+	local f
 	for f in "${ED}"/etc/fonts/conf.avail/*; do
 		f=${f##*/}
 		echo " * ${f}"
-		dosym -r "/etc/fonts/conf.avail/${f}" "${symlink_dir}/${f}"
+		dosym -r /etc/fonts/conf.avail/"${f}" /etc/fonts/conf.d/"${f}"
 	done
 }

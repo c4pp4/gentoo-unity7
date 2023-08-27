@@ -54,7 +54,10 @@ DEPEND="${COMMON_DEPEND}
 	>=app-eselect/eselect-lightdm-0.1
 	gnome-base/gnome-common
 	gnome-base/gnome-desktop:3=
-	media-fonts/ubuntu-font-family
+	|| (
+		media-fonts/fonts-ubuntu
+		media-fonts/ubuntu-font-family
+	)
 	media-libs/freetype:2
 	sys-apps/dbus[X]
 	x11-libs/pixman

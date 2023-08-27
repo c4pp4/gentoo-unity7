@@ -19,7 +19,10 @@ IUSE="+files lowgfx +music +photos +ubuntu-cursor +ubuntu-sounds +video ubuntu-u
 RESTRICT="binchecks strip test"
 
 RDEPEND="
-	media-fonts/ubuntu-font-family
+	|| (
+		media-fonts/fonts-ubuntu
+		media-fonts/ubuntu-font-family
+	)
 	x11-themes/ubuntu-themes
 	x11-themes/ubuntu-wallpapers
 
@@ -27,6 +30,7 @@ RDEPEND="
 	ubuntu-sounds? ( x11-themes/ubuntu-sounds )
 	ubuntu-unity? ( x11-themes/ubuntu-unity-backgrounds )
 "
+
 PDEPEND="unity-lenses/unity-lens-meta[files=,music=,photos=,video=]"
 
 S="${FILESDIR}"
