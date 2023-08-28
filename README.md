@@ -4,7 +4,6 @@
 
 A Gentoo overlay to build the Unity7 user interface.
 
-- [Take a look⬀][yt]
 - [Build instructions][build]
 - [USE flag tips][tips]
 - [Source URIs][uris]
@@ -31,4 +30,3 @@ A Gentoo overlay to build the Unity7 user interface.
 [tips]: docs/use_flag_tips.md
 [uris]: docs/source_uris.md
 [wiki]: https://en.wikipedia.org/wiki/Unity_(user_interface)
-[yt]: https://youtu.be/MVXhgwiOZrc
