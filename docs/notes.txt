@@ -24,19 +24,19 @@ x11-themes/ubuntu-wallpapers::gentoo	# Version in the Gentoo tree doesn't contro
 ========================================================================
 * Reasons for maintaining ehooks:
 ========================================================================
-app-accessibility/at-spi2-core		# Start 'accessibility bus' by default (https://wiki.debian.org/accessibility-devel)
+app-accessibility/at-spi2-core:2	# Start 'accessibility bus' by default (https://wiki.debian.org/accessibility-devel)
 app-admin/system-config-printer		# Fix Unity Control Center icon and About dialog icon
 app-backup/deja-dup			# Make Deja Dup appear in unity-control-center
 app-i18n/ibus				# Patched for indicator-keyboard support
 app-text/evince				# Add traditional menu bar (https://bugzilla.gnome.org/show_bug.cgi?id=736419), add menu translations
 dev-cpp/gtest				# Install /usr/src/{gmock,gtest}/* source files lacking from main tree ebuild
-dev-libs/glib				# Patched to call gettext if .desktop file does not have inline translations, don't try DBusActivatable when in Unity user interface and fallback on Exec=
-dev-libs/libappindicator		# Build with GTK2, see "Using portage tree libindicate packages" item above
+dev-libs/glib:2				# Patched to call gettext if .desktop file does not have inline translations, don't try DBusActivatable when in Unity user interface and fallback on Exec=
+dev-libs/libappindicator:3		# Build with GTK2, see "Using portage tree libindicate packages" item above
 games-board/iagno			# Disable headerbar quit button when not in GNOME
 games-puzzle/gnome-taquin		# Disable headerbar quit button when not in GNOME
 gnome-base/dconf-editor			# Disable headerbar quit button when not in GNOME
 gnome-base/gnome-desktop:3		# Adjust background color detection for Unity (04_compute_average_color.patch, tweak_color_computation.patch)
-gnome-base/gnome-menus			# Needed for some menu patches
+gnome-base/gnome-menus:3		# Needed for some menu patches
 					#  Ubuntu patchset:
 					#  04_fix-other.patch
 					#  08_settings-menus.patch
@@ -68,14 +68,14 @@ gnome-extra/polkit-gnome		# Patched to have polkit-gnome-authentication-agent-1 
 					#  04-autorestart.patch
 					#  06-authentication-failure-string.patch
 gnome-extra/yelp			# Only show desktop launcher in Gnome as we have own launcher
-gui-libs/libadwaita			# Support Yaru accent colors
-gui-libs/libhandy			# Disable headerbar close button when not in GNOME
+gui-libs/libadwaita:1			# Support Yaru accent colors
+gui-libs/libhandy:1			# Disable headerbar close button when not in GNOME
 mate-extra/mate-system-monitor		# Add Unity branding when in Unity
 mate-extra/mate-utils			# mate-screenshot: add quicklist options and use ubuntu help when in Unity
 mail-client/thunderbird			# Add Unity menubar and desktop launcher with quicklist and translations
 mail-client/thunderbird-bin		# Add desktop launcher with quicklist and translations
 media-fonts/ubuntu-font-family		# Add Ubuntu medium font (e.g. used by unity-indicators/indicator-keyboard)
-media-gfx/eog				# Add traditional menu bar (https://bugzilla.gnome.org/749976, https://bugs.debian.org/793445), add menu translations
+media-gfx/eog:1				# Add traditional menu bar (https://bugzilla.gnome.org/749976, https://bugs.debian.org/793445), add menu translations
 media-gfx/gnome-photos			# Use unity-control-center as the fallback
 media-gfx/shotwell			# Patched for integration with Unity online accounts
 media-plugins/audacious-plugins		# Unity Shortcuts Plugin (former GNOME Shortcuts Plugin)
@@ -100,7 +100,7 @@ sys-apps/accountsservice		# Requires patching for SetInputSources as needed by u
 sys-apps/dbus				# Don't run dbuslaunch when DESKTOP_SESSION is unity (fix systemd startx problem)
 sys-auth/polkit-pkla-compat		# Fix localstatedir path (/var/lib)
 www-client/chromium			# Required to support Unity Launcher icon effects (no duplicate icons, quicklist menu, progress bar, window title bar fixes etc.)
-www-client/firefox			# Latest version, add Unity menubar and desktop launcher with quicklist and translations
+www-client/firefox:rapid		# Latest version, add Unity menubar and desktop launcher with quicklist and translations
 www-client/firefox:esr			# ESR version, add Unity menubar and desktop launcher with quicklist and translations
 www-client/firefox-bin			# Add desktop launcher with quicklist and translations
 x11-libs/gtk+:2				# Support for dynamically loading overlay scrollbars, have the local menubars hidding under unity in favor of the unity ones
@@ -142,7 +142,7 @@ media-fonts/droid			# Reduce fonts according to Ubuntu
 media-fonts/takao-fonts			# Reduce fonts according to Ubuntu
 media-fonts/nanum			# Reduce fonts according to Ubuntu
 media-fonts/khmer			# Reduce fonts according to Ubuntu
-media-libs/fontconfig			# Adjust fonts configuration according to Ubuntu
+media-libs/fontconfig:1.0		# Adjust fonts configuration according to Ubuntu
 
 ========================================================================
 * By design, some indicators or their features will not appear until they meet certain criteria
