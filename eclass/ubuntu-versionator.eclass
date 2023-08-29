@@ -100,15 +100,13 @@ ubuntu-versionator_pkg_setup() {
 # @FUNCTION: ubuntu-versionator_src_unpack
 # @DESCRIPTION:
 # Relocate the sources in src_unpack as S=WORKDIR is deprecated
-# for cmake.eclass.
+# for cmake.eclass (see b.g.o #889420).
 ubuntu-versionator_src_unpack() {
 	debug-print-function ${FUNCNAME} "$@"
 
-	if [[ -n ${A} ]]; then
-		mkdir -p ${S}
-		cd ${S}
-		unpack ${A}
-	fi
+	mkdir -p ${S} || die
+	cd ${S} || die
+	default
 }
 
 # @FUNCTION: ubuntu-versionator_src_prepare
