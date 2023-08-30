@@ -18,7 +18,7 @@ KEYWORDS="amd64"
 IUSE="+fontconfig +libreoffice"
 RESTRICT="binchecks strip test"
 
-RDEPEND="fontconfig? ( media-libs/freetype:2[adobe-cff,cleartype-hinting,-infinality] )"
+RDEPEND="fontconfig? ( media-libs/freetype:2[adobe-cff,cleartype-hinting] )"
 DEPEND="unity-base/unity-build-env"
 
 S="${WORKDIR}"
@@ -67,15 +67,15 @@ src_install() {
 			m=${m#*/ehooks/}
 
 			## Get ${SLOT}.
-			[[ ${m} == *":"+([0-9.]) ]] && slot=${m#*:} || slot=""
+			[[ ${m} == *":"* ]] && slot=${m#*:} || slot=""
 			m=${m%:*}
 
 			## Skip if timestamp already exists.
-			grep -Fq "${m}|${x}" timestamps && continue
+			grep -Fq "${m}${slot:+:${slot}}|${x}" timestamps && continue
 
 			## Copy timestamp or create a new one.
-			! grep -Fs "${m}|${x}" timestamps.old >> timestamps \
-				&& echo "${m}|${x}|$(use ${x} && echo ${timestamp} || echo 0000000000)|0000000000" >> timestamps \
+			! grep -Fs "${m}${slot:+:${slot}}|${x}" timestamps.old >> timestamps \
+				&& echo "${m}${slot:+:${slot}}|${x}|$(use ${x} && echo ${timestamp} || echo 0000000000)|0000000000" >> timestamps \
 				&& continue
 
 			## Skip if there is no USE flag change.
@@ -89,14 +89,14 @@ src_install() {
 
 			for n in "${pkg[@]}"; do
 				## Try another package if slots differ.
-				[[ -z ${slot} ]] || grep -Fqsx "${slot}" "${n}/SLOT" || continue
+				grep -Fqsx "${slot:-0}" "${n}/SLOT" || grep -qs "^${slot:-0}/" "${n}/SLOT" || continue
 
 				if use "${x}"; then
-					[[ $(date -r "${n}" "+%s") -ge $(grep -F "${m}|${x}" timestamps | cut -d "|" -f 4) ]] \
-						&& sed -i -e "/${m/\//\\/}|${x}/{s/|[0-9]\{10\}|/|${timestamp}|/}" timestamps
+					[[ $(date -r "${n}" "+%s") -ge $(grep -F "${m}${slot:+:${slot}}|${x}" timestamps | cut -d "|" -f 4) ]] \
+						&& sed -i -e "/${m/\//\\/}${slot:+:${slot}}|${x}/{s/|[0-9]\{10\}|/|${timestamp}|/}" timestamps
 				else
-					[[ $(date -r "${n}" "+%s") -ge $(grep -F "${m}|${x}" timestamps | cut -d "|" -f 3) ]] \
-						&& sed -i -e "/${m/\//\\/}|${x}/{s/|[0-9]\{10\}$/|${timestamp}/}" timestamps
+					[[ $(date -r "${n}" "+%s") -ge $(grep -F "${m}${slot:+:${slot}}|${x}" timestamps | cut -d "|" -f 3) ]] \
+						&& sed -i -e "/${m/\//\\/}${slot:+:${slot}}|${x}/{s/|[0-9]\{10\}$/|${timestamp}/}" timestamps
 				fi
 			done
 		done

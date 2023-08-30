@@ -4,9 +4,9 @@
 >app-backup/deja-dup-44.2
 >app-i18n/ibus-1.5.27
 >app-office/libreoffice-7.5.5.2
->app-text/evince-44.2
+>app-text/evince-44.3
 >dev-cpp/gtest-1.13.0
->dev-libs/glib-2.76.3:2
+>dev-libs/glib-2.76.4:2
 >games-board/iagno-3.38.1-r1
 >games-puzzle/gnome-taquin-3.38.1-r1
 >gnome-base/dconf-editor-43.0
@@ -20,13 +20,13 @@
 >gnome-extra/nm-applet-1.32.0
 >gnome-extra/polkit-gnome-0.105-r2
 >gnome-extra/yelp-42.2-r1
->gui-libs/libadwaita-1.3.3:1
+>gui-libs/libadwaita-1.3.4:1
 >gui-libs/libhandy-1.8.2:1
 >mail-client/thunderbird-103
 >mate-extra/mate-system-monitor-1.26.0
 >mate-extra/mate-utils-1.26.0
->media-gfx/eog-44.2:1
->media-gfx/shotwell-0.32.1
+>media-gfx/eog-44.3:1
+>media-gfx/shotwell-0.32.2
 >media-plugins/audacious-plugins-4.3.1-r2
 >media-sound/rhythmbox-3.4.7-r2
 >media-video/totem-43.0
@@ -34,7 +34,7 @@
 >net-im/telegram-desktop-4.8.1-r3
 >sys-apps/accountsservice-23.13.9
 >www-client/chromium-116.0.5845.96
->www-client/firefox-117:rapid
+>www-client/firefox-118:rapid
 >www-client/firefox-103:esr
 >x11-libs/gtk+-2.24.33-r3:2
 >x11-libs/gtk+-3.24.38:3

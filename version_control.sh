@@ -91,7 +91,7 @@ get_installed_packages() {
 }
 
 get_slot() {
-	[[ $1 == *":"+([0-9.esr]) ]] && echo "${1##*:}" || echo ""
+	[[ $1 == *":"* ]] && echo "${1##*:}" || echo ""
 }
 
 find_flag_changes() {
@@ -285,7 +285,7 @@ portage_updates() {
 			## Temporarily accept_keywords www-client/firefox.
 			install -m 666 /dev/null /tmp/"${tmp_ak}" || exit 1
 			ln -fs /tmp/"${tmp_ak}" /etc/portage/package.accept_keywords/zzzz_"${tmp_ak}" || exit 1
-			echo "www-client/firefox::gentoo ~amd64" > /tmp/"${tmp_ak}"
+			echo "www-client/firefox:rapid::gentoo ~amd64" > /tmp/"${tmp_ak}"
 			update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "|~amd64$" | tail -1 | sed "s/|.*$//")
 		elif [[ ${line} == ">app-backup/deja-dup"* ]]; then
 			update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "|~amd64$" | tail -1 | sed "s/|.*$//")
