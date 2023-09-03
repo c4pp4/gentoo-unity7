@@ -91,7 +91,7 @@ DEPEND="${COMMON_DEPEND}
 	x11-libs/libxkbfile
 	>=x11-libs/libxklavier-5.1
 
-	bluetooth? ( >=net-wireless/gnome-bluetooth-3.3.4:2= )
+	bluetooth? ( net-wireless/gnome-bluetooth:3= )
 
 	$(vala_depend)
 "
