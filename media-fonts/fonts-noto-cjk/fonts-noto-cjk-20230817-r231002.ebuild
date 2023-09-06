@@ -5,13 +5,13 @@ EAPI=8
 FONT_PN="noto"
 
 UVER=+repack1
-UREV=1
+UREV=3
 LSVER="0.223"
 
 inherit font ubuntu-versionator
 
 DESCRIPTION="'No Tofu' CJK font families with large Unicode coverage"
-HOMEPAGE="https://github.com/googlei18n/noto-cjk"
+HOMEPAGE="https://github.com/notofonts/noto-cjk"
 SRC_URI="${UURL}.orig.tar.xz
 	${UURL}-${UREV}.debian.tar.xz
 	${UURL%/*}/language-selector_${LSVER}.tar.xz"
