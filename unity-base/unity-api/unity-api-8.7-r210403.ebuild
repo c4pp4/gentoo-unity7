@@ -63,6 +63,10 @@ src_prepare() {
 		-e 's:lib/${CMAKE_LIBRARY_ARCHITECTURE}:${CMAKE_INSTALL_LIBDIR}:' \
 		CMakeLists.txt || die
 
+	# Preprocessor fixes #
+	sed -i '/#include <type_traits>/a #include <stdexcept>' include/unity/util/ResourcePtr.h || die
+	sed -i '/#include <vector>/a #include <cstdint>' include/unity/util/FileIO.h || die
+
 	ubuntu-versionator_src_prepare
 }
 

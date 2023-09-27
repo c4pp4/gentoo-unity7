@@ -102,7 +102,8 @@ sys-auth/polkit-pkla-compat		# Fix localstatedir path (/var/lib)
 www-client/chromium			# Required to support Unity Launcher icon effects (no duplicate icons, quicklist menu, progress bar, window title bar fixes etc.)
 www-client/firefox:rapid		# Latest version, add Unity menubar and desktop launcher with quicklist and translations
 www-client/firefox:esr			# ESR version, add Unity menubar and desktop launcher with quicklist and translations
-www-client/firefox-bin			# Add desktop launcher with quicklist and translations
+www-client/firefox-bin:rapid		# Add desktop launcher with quicklist and translations
+www-client/firefox-bin:esr		# ESR version, add desktop launcher with quicklist and translations
 x11-libs/gtk+:2				# Support for dynamically loading overlay scrollbars, have the local menubars hidding under unity in favor of the unity ones
 x11-libs/gtk+:3				# Needed for global appmenu, fix firefox/thunderbird global submenus to be initially populated
 					#  Ubuntu patchset:

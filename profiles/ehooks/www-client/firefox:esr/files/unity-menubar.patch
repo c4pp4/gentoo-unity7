@@ -105,8 +105,8 @@
 +pref("ui.use_unity_menubar", true);
 +#endif
  
- pref("browser.display.force_inline_alttext", false); // true = force ALT text for missing images to be layed out inline
- // 0 = no external leading,
+ // See http://whatwg.org/specs/web-apps/current-work/#ping
+ pref("browser.send_pings", false);
 --- a/toolkit/content/xul.css
 +++ b/toolkit/content/xul.css
 @@ -229,6 +229,13 @@ toolbox {
@@ -121,7 +121,7 @@
 +}
 +
  toolbarspring {
-   -moz-box-flex: 1000;
+   flex: 1000 1000;
  }
 --- a/widget/gtk/moz.build
 +++ b/widget/gtk/moz.build
@@ -3006,7 +3006,7 @@
 +#endif /* __nsMenuItem_h__ */
 --- /dev/null
 +++ b/widget/gtk/nsMenuObject.cpp
-@@ -0,0 +1,664 @@
+@@ -0,0 +1,653 @@
 +/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 +/* vim:expandtab:shiftwidth=4:tabstop=4:
 + */
@@ -3091,7 +3091,6 @@
 +    nsMenuObject *mOwner;
 +    RefPtr<imgRequestProxy> mImageRequest;
 +    nsCOMPtr<nsIURI> mURI;
-+    nsIntRect mImageRect;
 +};
 +
 +NS_IMPL_ISUPPORTS(nsMenuObjectIconLoader, imgINotificationObserver)
@@ -3145,10 +3144,6 @@
 +        return;
 +    }
 +
-+    if (!mImageRect.IsEmpty()) {
-+        img = ImageOps::Clip(img, mImageRect);
-+    }
-+
 +    int32_t width, height;
 +    img->GetWidth(&width);
 +    img->GetHeight(&height);
@@ -3183,7 +3178,6 @@
 +    dom::Document *doc = mOwner->ContentNode()->OwnerDoc();
 +
 +    nsCOMPtr<nsIURI> uri;
-+    nsIntRect imageRect;
 +    imgRequestProxy *imageRequest = nullptr;
 +
 +    nsAutoString uriString;
@@ -3206,9 +3200,6 @@
 +        imageRequest = list->mListStyleImage.GetImageRequest();
 +        if (imageRequest) {
 +            imageRequest->GetURI(getter_AddRefs(uri));
-+            auto& rect = list->mImageRegion.AsRect();
-+            imageRect = rect.ToLayoutRect().ToNearestPixels(
-+                            pc->AppUnitsPerDevPixel());
 +        }
 +    }
 +
@@ -3226,7 +3217,7 @@
 +
 +    bool same;
 +    if (mURI && NS_SUCCEEDED(mURI->Equals(uri, &same)) && same &&
-+        (!imageRequest || imageRect == mImageRect)) {
++        !imageRequest) {
 +        return;
 +    }
 +
@@ -3238,10 +3229,8 @@
 +    mURI = uri;
 +
 +    if (imageRequest) {
-+        mImageRect = imageRect;
 +        imageRequest->Clone(this, nullptr, getter_AddRefs(mImageRequest));
 +    } else {
-+        mImageRect.SetEmpty();
 +        nsCOMPtr<nsILoadGroup> loadGroup = doc->GetDocumentLoadGroup();
 +        RefPtr<imgLoader> loader =
 +            nsContentUtils::GetImgLoaderForDocument(doc);
@@ -3254,7 +3243,7 @@
 +                          nullptr, 0, loadGroup, this, nullptr, nullptr,
 +                          nsIRequest::LOAD_NORMAL, nullptr,
 +                          nsIContentPolicy::TYPE_IMAGE, EmptyString(),
-+                          false, false, getter_AddRefs(mImageRequest));
++                          false, false, 0, getter_AddRefs(mImageRequest));
 +    }
 +}
 +
@@ -4112,7 +4101,7 @@
 +}
 +
 +void
-+nsNativeMenuDocListener::NodeWillBeDestroyed(const nsINode *aNode)
++nsNativeMenuDocListener::NodeWillBeDestroyed(nsINode *aNode)
 +{
 +    mDocument = nullptr;
 +}
@@ -4437,7 +4426,7 @@
 +    static void RemoveUpdateBlocker();
 +
 +    nsCOMPtr<nsIContent> mRootNode;
-+    mozilla::dom::Document *mDocument;
++    nsCOMPtr<mozilla::dom::Document> mDocument;
 +    nsIContent *mLastSource;
 +    nsNativeMenuChangeObserver *mLastTarget;
 +    nsTArray<mozilla::UniquePtr<MutationRecord> > mPendingMutations;
@@ -5045,7 +5034,7 @@
 --- a/widget/gtk/nsWindow.cpp
 +++ b/widget/gtk/nsWindow.cpp
 @@ -7060,6 +7060,10 @@ void nsWindow::HideWindowChrome(bool aSh
-   SetWindowDecoration(aShouldHide ? eBorderStyle_none : mBorderStyle);
+   SetWindowDecoration(aShouldHide ? BorderStyle::None : mBorderStyle);
  }
  
 +void nsWindow::SetMenuBar(UniquePtr<nsMenuBar> aMenuBar) {
@@ -5054,7 +5043,7 @@
 +
  bool nsWindow::CheckForRollup(gdouble aMouseX, gdouble aMouseY, bool aIsWheel,
                                bool aAlwaysRollup) {
-   nsIRollupListener* rollupListener = GetActiveRollupListener();
+   LOG("nsWindow::CheckForRollup() aAlwaysRollup %d", aAlwaysRollup);
 --- a/widget/gtk/nsWindow.h
 +++ b/widget/gtk/nsWindow.h
 @@ -26,6 +26,8 @@
@@ -5099,13 +5088,13 @@
 --- a/xpcom/ds/StaticAtoms.py
 +++ b/xpcom/ds/StaticAtoms.py
 @@ -7,6 +7,7 @@
- from Atom import Atom, InheritingAnonBoxAtom, NonInheritingAnonBoxAtom
- from Atom import PseudoElementAtom
+     PseudoElementAtom,
+ )
  from HTMLAtoms import HTML_PARSER_ATOMS
 +from NativeMenuAtoms import NATIVE_MENU_ATOMS
- import sys
  
  # Static atom definitions, used to generate nsGkAtomList.h.
+ #
 @@ -2529,7 +2530,7 @@ STATIC_ATOMS = [
      InheritingAnonBoxAtom("AnonBox_mozSVGForeignContent", ":-moz-svg-foreign-content"),
      InheritingAnonBoxAtom("AnonBox_mozSVGText", ":-moz-svg-text"),
@@ -5217,7 +5206,7 @@
 +
  EXPORTS.mozilla += [
      "BasicEvents.h",
-     "ColorScheme.h",
+     "ClipboardWriteRequestChild.h",
 --- /dev/null
 +++ b/widget/nsINativeMenuService.h
 @@ -0,0 +1,39 @@
@@ -5277,3 +5266,20 @@
  // {F6CD4F21-53AF-11d2-8DC4-00609703C14E}
  #define NS_POPUPMENU_CID                           \
    {                                                \
+--- a/xpcom/base/nsCOMPtr.h
++++ b/xpcom/base/nsCOMPtr.h
+@@ -815,10 +815,10 @@
+                                  const nsIID& aIID) {
+   // Allow QIing to nsISupports from nsISupports as a special-case, since
+   // SameCOMIdentity uses it.
+-  static_assert(
+-      std::is_same_v<T, nsISupports> ||
+-          !(std::is_same_v<T, U> || std::is_base_of<T, U>::value),
+-      "don't use do_QueryInterface for compile-time-determinable casts");
++  // static_assert(
++  //     std::is_same_v<T, nsISupports> ||
++  //         !(std::is_same_v<T, U> || std::is_base_of<T, U>::value),
++  //     "don't use do_QueryInterface for compile-time-determinable casts");
+   void* newRawPtr;
+   if (NS_FAILED(aQI(aIID, &newRawPtr))) {
+     newRawPtr = nullptr;

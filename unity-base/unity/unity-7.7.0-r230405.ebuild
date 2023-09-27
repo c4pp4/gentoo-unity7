@@ -138,10 +138,12 @@ src_prepare() {
 
 	# Preprocessor fixes #
 	if ! use pch; then
-		sed -i '/#include "GLibWrapper.h"/a #include <iostream>/' UnityCore/GLibWrapper.cpp || die
+		sed -i '/#include "GLibWrapper.h"/a #include <iostream>' UnityCore/GLibWrapper.cpp || die
 		sed -i '/#include <functional>/a #include <string>' UnityCore/GLibSource.h || die
 		sed -i '/#include "GLibWrapper.h"/a #include <vector>' UnityCore/ScopeData.h || die
 		sed -i '/#include <NuxCore\/Property.h>/a #include <vector>' unity-shared/ThemeSettings.h || die
+		sed -i '/#include <map>/a #include <cstdint>' UnityCore/Variant.h || die
+		sed -i '/#include <glib.h>/a #include <cstdint>' unity-shared/IntrospectionData.h || die
 	fi
 
 	# see https://launchpad.net/bugs/974480 #

@@ -34,8 +34,8 @@
 >net-im/telegram-desktop-4.8.1-r3
 >sys-apps/accountsservice-23.13.9
 >www-client/chromium-116.0.5845.187
->www-client/firefox-118:rapid
->www-client/firefox-103:esr
+>www-client/firefox-119:rapid
+>www-client/firefox-116:esr
 >x11-libs/gtk+-2.24.33-r3:2
 >x11-libs/gtk+-3.24.38:3
 >x11-libs/libwnck-43.0-r1:3
