@@ -111,6 +111,9 @@ src_prepare() {
 		-e '/except /{s/,/ as/}' \
 		tools/hudkeywords/hudkeywords/cli.py || die
 
+	# Remove invalid attribute #
+	sed -i 's/ visible="0"//' tools-vala/hud-gtk.ui || die
+
 	python_fix_shebang tools/hudkeywords
 	wrap_distutils ${FUNCNAME}
 
