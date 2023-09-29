@@ -58,6 +58,11 @@ src_prepare() {
 				-delete || die
 	fi
 
+	# Fix .desktop file name #
+	sed -i \
+		-e "s/shotwell\.desktop/org.gnome.Shotwell.desktop/" \
+		src/unity_shotwell_daemon.py || die
+
 	python_fix_shebang src
 
 	ubuntu-versionator_src_prepare

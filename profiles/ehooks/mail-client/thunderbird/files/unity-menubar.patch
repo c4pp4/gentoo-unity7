@@ -16,7 +16,7 @@
  #endif
 --- a/browser/base/content/browser.js
 +++ b/browser/base/content/browser.js
-@@ -6478,11 +6478,18 @@ function onViewToolbarsPopupShowing(aEvent, aInsertPoint) {
+@@ -6466,11 +6466,18 @@ function onViewToolbarsPopupShowing(aEve
    MozXULElement.insertFTLIfNeeded("browser/toolbarContextMenu.ftl");
    let firstMenuItem = aInsertPoint || popup.firstElementChild;
    let toolbarNodes = gNavToolbox.querySelectorAll("toolbar");
@@ -37,7 +37,7 @@
        popup.insertBefore(menu, firstMenuItem);
 --- a/browser/components/places/content/places.xhtml
 +++ b/browser/components/places/content/places.xhtml
-@@ -166,6 +166,7 @@
+@@ -165,6 +165,7 @@
  #else
        <menubar id="placesMenu">
          <menu class="menu-iconic" data-l10n-id="places-organize-button"
@@ -47,7 +47,7 @@
            <menupopup id="organizeButtonPopup">
 --- a/dom/xul/XULPopupElement.cpp
 +++ b/dom/xul/XULPopupElement.cpp
-@@ -207,6 +207,10 @@ void XULPopupElement::GetState(nsString& aState) {
+@@ -208,6 +208,10 @@ void XULPopupElement::GetState(nsString&
    // set this here in case there's no frame for the popup
    aState.AssignLiteral("closed");
  
@@ -58,7 +58,7 @@
    if (nsXULPopupManager* pm = nsXULPopupManager::GetInstance()) {
      switch (pm->GetPopupState(this)) {
        case ePopupShown:
-@@ -229,6 +233,11 @@ void XULPopupElement::GetState(nsString& aState) {
+@@ -230,6 +234,11 @@ void XULPopupElement::GetState(nsString&
          break;
      }
    }
@@ -84,7 +84,7 @@
  FINAL_LIBRARY = "xul"
 --- a/layout/build/moz.build
 +++ b/layout/build/moz.build
-@@ -70,6 +70,10 @@ elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "android":
+@@ -70,6 +70,10 @@ elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "an
          "/dom/system",
          "/dom/system/android",
      ]
@@ -97,7 +97,7 @@
      "components.conf",
 --- a/modules/libpref/init/all.js
 +++ b/modules/libpref/init/all.js
-@@ -188,6 +188,9 @@ pref("dom.mouseevent.click.hack.use_legacy_non-primary_dispatch", "");
+@@ -311,6 +311,9 @@ pref("dom.mouseevent.click.hack.use_lega
  // Fastback caching - if this pref is negative, then we calculate the number
  // of content viewers to cache based on the amount of available memory.
  pref("browser.sessionhistory.max_total_viewers", -1);
@@ -105,11 +105,11 @@
 +pref("ui.use_unity_menubar", true);
 +#endif
  
- pref("browser.display.force_inline_alttext", false); // true = force ALT text for missing images to be layed out inline
- // 0 = no external leading,
+ // See http://whatwg.org/specs/web-apps/current-work/#ping
+ pref("browser.send_pings", false);
 --- a/toolkit/content/xul.css
 +++ b/toolkit/content/xul.css
-@@ -226,6 +226,13 @@ toolbox {
+@@ -229,6 +229,13 @@ toolbox {
    }
  }
  
@@ -121,7 +121,7 @@
 +}
 +
  toolbarspring {
-   -moz-box-flex: 1000;
+   flex: 1000 1000;
  }
 --- a/widget/gtk/moz.build
 +++ b/widget/gtk/moz.build
@@ -141,7 +141,7 @@
      "nsNativeThemeGTK.cpp",  # conflicts with X11 headers
      "nsWindow.cpp",  # conflicts with X11 headers
      "WaylandVsyncSource.cpp",  # conflicts with X11 headers
-@@ -156,6 +165,7 @@ LOCAL_INCLUDES += [
+@@ -152,6 +161,7 @@ LOCAL_INCLUDES += [
      "/layout/base",
      "/layout/forms",
      "/layout/generic",
@@ -3006,7 +3006,7 @@
 +#endif /* __nsMenuItem_h__ */
 --- /dev/null
 +++ b/widget/gtk/nsMenuObject.cpp
-@@ -0,0 +1,664 @@
+@@ -0,0 +1,653 @@
 +/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 +/* vim:expandtab:shiftwidth=4:tabstop=4:
 + */
@@ -3091,7 +3091,6 @@
 +    nsMenuObject *mOwner;
 +    RefPtr<imgRequestProxy> mImageRequest;
 +    nsCOMPtr<nsIURI> mURI;
-+    nsIntRect mImageRect;
 +};
 +
 +NS_IMPL_ISUPPORTS(nsMenuObjectIconLoader, imgINotificationObserver)
@@ -3145,10 +3144,6 @@
 +        return;
 +    }
 +
-+    if (!mImageRect.IsEmpty()) {
-+        img = ImageOps::Clip(img, mImageRect);
-+    }
-+
 +    int32_t width, height;
 +    img->GetWidth(&width);
 +    img->GetHeight(&height);
@@ -3183,7 +3178,6 @@
 +    dom::Document *doc = mOwner->ContentNode()->OwnerDoc();
 +
 +    nsCOMPtr<nsIURI> uri;
-+    nsIntRect imageRect;
 +    imgRequestProxy *imageRequest = nullptr;
 +
 +    nsAutoString uriString;
@@ -3206,9 +3200,6 @@
 +        imageRequest = list->mListStyleImage.GetImageRequest();
 +        if (imageRequest) {
 +            imageRequest->GetURI(getter_AddRefs(uri));
-+            auto& rect = list->mImageRegion.AsRect();
-+            imageRect = rect.ToLayoutRect().ToNearestPixels(
-+                            pc->AppUnitsPerDevPixel());
 +        }
 +    }
 +
@@ -3226,7 +3217,7 @@
 +
 +    bool same;
 +    if (mURI && NS_SUCCEEDED(mURI->Equals(uri, &same)) && same &&
-+        (!imageRequest || imageRect == mImageRect)) {
++        !imageRequest) {
 +        return;
 +    }
 +
@@ -3238,10 +3229,8 @@
 +    mURI = uri;
 +
 +    if (imageRequest) {
-+        mImageRect = imageRect;
 +        imageRequest->Clone(this, nullptr, getter_AddRefs(mImageRequest));
 +    } else {
-+        mImageRect.SetEmpty();
 +        nsCOMPtr<nsILoadGroup> loadGroup = doc->GetDocumentLoadGroup();
 +        RefPtr<imgLoader> loader =
 +            nsContentUtils::GetImgLoaderForDocument(doc);
@@ -3254,7 +3243,7 @@
 +                          nullptr, 0, loadGroup, this, nullptr, nullptr,
 +                          nsIRequest::LOAD_NORMAL, nullptr,
 +                          nsIContentPolicy::TYPE_IMAGE, EmptyString(),
-+                          false, false, getter_AddRefs(mImageRequest));
++                          false, false, 0, getter_AddRefs(mImageRequest));
 +    }
 +}
 +
@@ -4112,7 +4101,7 @@
 +}
 +
 +void
-+nsNativeMenuDocListener::NodeWillBeDestroyed(const nsINode *aNode)
++nsNativeMenuDocListener::NodeWillBeDestroyed(nsINode *aNode)
 +{
 +    mDocument = nullptr;
 +}
@@ -4437,7 +4426,7 @@
 +    static void RemoveUpdateBlocker();
 +
 +    nsCOMPtr<nsIContent> mRootNode;
-+    mozilla::dom::Document *mDocument;
++    nsCOMPtr<mozilla::dom::Document> mDocument;
 +    nsIContent *mLastSource;
 +    nsNativeMenuChangeObserver *mLastTarget;
 +    nsTArray<mozilla::UniquePtr<MutationRecord> > mPendingMutations;
@@ -5044,8 +5033,8 @@
 +#endif /* __nsNativeMenuService_h__ */
 --- a/widget/gtk/nsWindow.cpp
 +++ b/widget/gtk/nsWindow.cpp
-@@ -7102,6 +7102,10 @@ void nsWindow::HideWindowChrome(bool aShouldHide) {
-   SetWindowDecoration(aShouldHide ? eBorderStyle_none : mBorderStyle);
+@@ -7060,6 +7060,10 @@ void nsWindow::HideWindowChrome(bool aSh
+   SetWindowDecoration(aShouldHide ? BorderStyle::None : mBorderStyle);
  }
  
 +void nsWindow::SetMenuBar(UniquePtr<nsMenuBar> aMenuBar) {
@@ -5054,10 +5043,10 @@
 +
  bool nsWindow::CheckForRollup(gdouble aMouseX, gdouble aMouseY, bool aIsWheel,
                                bool aAlwaysRollup) {
-   nsIRollupListener* rollupListener = GetActiveRollupListener();
+   LOG("nsWindow::CheckForRollup() aAlwaysRollup %d", aAlwaysRollup);
 --- a/widget/gtk/nsWindow.h
 +++ b/widget/gtk/nsWindow.h
-@@ -27,6 +27,8 @@
+@@ -26,6 +26,8 @@
  #include "nsRefPtrHashtable.h"
  #include "IMContextWrapper.h"
  
@@ -5066,7 +5055,7 @@
  #ifdef ACCESSIBILITY
  #  include "mozilla/a11y/LocalAccessible.h"
  #endif
-@@ -203,6 +205,8 @@ class nsWindow final : public nsBaseWidget {
+@@ -172,6 +174,8 @@ class nsWindow final : public nsBaseWidg
    nsresult MakeFullScreen(bool aFullScreen) override;
    void HideWindowChrome(bool aShouldHide) override;
  
@@ -5075,7 +5064,7 @@
    /**
     * GetLastUserInputTime returns a timestamp for the most recent user input
     * event.  This is intended for pointer grab requests (including drags).
-@@ -874,6 +878,8 @@ class nsWindow final : public nsBaseWidget {
+@@ -824,6 +828,8 @@ class nsWindow final : public nsBaseWidg
  
    static bool sTransparentMainWindow;
  
@@ -5099,14 +5088,14 @@
 --- a/xpcom/ds/StaticAtoms.py
 +++ b/xpcom/ds/StaticAtoms.py
 @@ -7,6 +7,7 @@
- from Atom import Atom, InheritingAnonBoxAtom, NonInheritingAnonBoxAtom
- from Atom import PseudoElementAtom
+     PseudoElementAtom,
+ )
  from HTMLAtoms import HTML_PARSER_ATOMS
 +from NativeMenuAtoms import NATIVE_MENU_ATOMS
- import sys
  
  # Static atom definitions, used to generate nsGkAtomList.h.
-@@ -2536,7 +2537,7 @@ STATIC_ATOMS = [
+ #
+@@ -2529,7 +2530,7 @@ STATIC_ATOMS = [
      InheritingAnonBoxAtom("AnonBox_mozSVGForeignContent", ":-moz-svg-foreign-content"),
      InheritingAnonBoxAtom("AnonBox_mozSVGText", ":-moz-svg-text"),
      # END ATOMS
@@ -5117,7 +5106,7 @@
  
 --- a/widget/gtk/components.conf
 +++ b/widget/gtk/components.conf
-@@ -117,6 +117,14 @@ Classes = [
+@@ -76,6 +76,14 @@ Classes = [
          'headers': ['/widget/gtk/nsUserIdleServiceGTK.h'],
          'constructor': 'nsUserIdleServiceGTK::GetInstance',
      },
@@ -5154,7 +5143,7 @@
  
  namespace mozilla::widget {
  
-@@ -14,7 +16,14 @@ void NativeMenuSupport::CreateNativeMenuBar(nsIWidget* aParent,
+@@ -14,7 +16,14 @@ void NativeMenuSupport::CreateNativeMenu
                                              dom::Element* aMenuBarElement) {
    MOZ_RELEASE_ASSERT(NS_IsMainThread(),
                       "Attempting to create native menu bar on wrong thread!");
@@ -5206,7 +5195,7 @@
 +#endif  // mozilla_widget_NativeMenuSupport_h
 --- a/widget/moz.build
 +++ b/widget/moz.build
-@@ -161,6 +161,11 @@ EXPORTS += [
+@@ -157,6 +157,11 @@ EXPORTS += [
      "PuppetWidget.h",
  ]
  
@@ -5217,7 +5206,7 @@
 +
  EXPORTS.mozilla += [
      "BasicEvents.h",
-     "ColorScheme.h",
+     "ClipboardWriteRequestChild.h",
 --- /dev/null
 +++ b/widget/nsINativeMenuService.h
 @@ -0,0 +1,39 @@
@@ -5277,3 +5266,20 @@
  // {F6CD4F21-53AF-11d2-8DC4-00609703C14E}
  #define NS_POPUPMENU_CID                           \
    {                                                \
+--- a/xpcom/base/nsCOMPtr.h
++++ b/xpcom/base/nsCOMPtr.h
+@@ -815,10 +815,10 @@
+                                  const nsIID& aIID) {
+   // Allow QIing to nsISupports from nsISupports as a special-case, since
+   // SameCOMIdentity uses it.
+-  static_assert(
+-      std::is_same_v<T, nsISupports> ||
+-          !(std::is_same_v<T, U> || std::is_base_of<T, U>::value),
+-      "don't use do_QueryInterface for compile-time-determinable casts");
++  // static_assert(
++  //     std::is_same_v<T, nsISupports> ||
++  //         !(std::is_same_v<T, U> || std::is_base_of<T, U>::value),
++  //     "don't use do_QueryInterface for compile-time-determinable casts");
+   void* newRawPtr;
+   if (NS_FAILED(aQI(aIID, &newRawPtr))) {
+     newRawPtr = nullptr;
