@@ -40,3 +40,10 @@ DEPEND="${COMMON_DEPEND}
 "
 
 S="${S}${UVER}"
+
+src_prepare() {
+	# Wait for updatedb #
+	sed -i "/updatedb_bin/{s/async/sync/}" src/locate.vala || die
+
+	ubuntu-versionator_src_prepare
+}
