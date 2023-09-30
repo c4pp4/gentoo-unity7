@@ -50,3 +50,12 @@ PDEPEND="
 S="${S}${UVER}"
 
 PATCHES=( "${FILESDIR}"/fix-build-against-vala-0.48.patch )
+
+src_prepare() {
+	# Fix .desktop file name #
+	sed -i \
+		-e "s/rhythmbox\.desktop/org.gnome.Rhythmbox3.desktop/" \
+		src/daemon.vala || die
+
+	ubuntu-versionator_src_prepare
+}
