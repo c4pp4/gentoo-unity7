@@ -27,7 +27,10 @@ COMMON_DEPEND="
 	>=net-libs/libsoup-2.27.4:2.4
 "
 RDEPEND="${COMMON_DEPEND}
-	sys-apps/mlocate
+	|| (
+		sys-apps/plocate
+		sys-apps/mlocate
+	)
 	>=sys-libs/glibc-2.4
 "
 DEPEND="${COMMON_DEPEND}
