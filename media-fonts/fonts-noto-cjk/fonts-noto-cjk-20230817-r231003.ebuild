@@ -6,7 +6,7 @@ FONT_PN="noto"
 
 UVER=+repack1
 UREV=3
-LSVER="0.223"
+LSVER="0.224"
 
 inherit font ubuntu-versionator
 

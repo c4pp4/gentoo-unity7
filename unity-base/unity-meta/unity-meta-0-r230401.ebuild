@@ -76,11 +76,11 @@ RDEPEND="
 			mate-extra/mate-calc
 			gnome-extra/gnome-calculator
 		)
+		mate-extra/mate-utils
 		|| (
 			media-gfx/eom
 			media-gfx/eog:1
 		)
-		mate-extra/mate-utils
 		|| (
 			media-gfx/shotwell
 			media-gfx/gthumb
