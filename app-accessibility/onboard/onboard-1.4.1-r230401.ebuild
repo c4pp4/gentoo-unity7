@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
+DISTUTILS_EXT=1
 DISTUTILS_SINGLE_IMPL=1
 PYTHON_COMPAT=( python3_{10..12} )
 
@@ -17,7 +18,7 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
 LICENSE="GPL-3+ BSD"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="+accessibility wayland"
+IUSE="+accessibility debug wayland"
 RESTRICT="test"
 
 COMMON_DEPEND="
