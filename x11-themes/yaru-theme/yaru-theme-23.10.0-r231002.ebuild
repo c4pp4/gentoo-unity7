@@ -4,7 +4,7 @@
 EAPI=8
 
 UVER=
-UREV=0ubuntu1
+UREV=0ubuntu2
 
 inherit meson xdg ubuntu-versionator
 
