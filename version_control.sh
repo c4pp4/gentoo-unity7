@@ -1,7 +1,7 @@
 #!/bin/bash
 
-stable="lunar"
-dev="mantic"
+stable="mantic"
+dev=""
 repos=(
 	main
 	universe

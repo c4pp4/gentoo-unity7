@@ -18,7 +18,7 @@ SRC_URI="${UURL}-${UREV}.tar.xz"
 
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="debug doc gles2 +hud pch systray +uwidgets"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="test"

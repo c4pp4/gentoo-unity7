@@ -15,7 +15,7 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
 
 LICENSE="UbuntuFontLicense-1.0"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="extra"
 RESTRICT="binchecks strip test"
 

@@ -13,7 +13,7 @@ HOMEPAGE="https://translations.launchpad.net/ubuntu"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 
 setvar() {
 	eval "${1//-/_}=( ${2} ${3} ${4} )"

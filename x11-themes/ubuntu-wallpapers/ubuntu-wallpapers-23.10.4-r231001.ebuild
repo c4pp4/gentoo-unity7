@@ -21,7 +21,7 @@ for c in ${CODENAME}; do
 done
 
 LICENSE="CC-BY-SA-3.0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 SLOT="0"
 IUSE="gnome ${CODENAME}"
 RESTRICT="binchecks strip test"

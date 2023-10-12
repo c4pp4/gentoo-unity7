@@ -14,7 +14,7 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
 
 LICENSE="LGPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="coverage doc test"
 REQUIRED_USE="coverage? ( test )"
 RESTRICT="!test? ( test )"
