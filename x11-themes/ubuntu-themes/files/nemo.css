@@ -1,3 +1,4 @@
+
 .nemo-window .nemo-window-pane .view:not(.rubberband):not(:selected):not(:active) {
     background-color: @theme_bg_color;
 }

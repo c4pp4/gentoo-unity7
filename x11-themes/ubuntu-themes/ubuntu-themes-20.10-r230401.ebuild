@@ -37,10 +37,12 @@ DEPEND="
 
 src_prepare() {
 	## Add nemo nautilus-like theme ##
-	cat "${FILESDIR}"/nemo.css >> Ambiance/gtk-3.20/apps/nemo.css
+	cat "${FILESDIR}"/nemo.css >> \
+		Ambiance/gtk-3.20/apps/nemo.css || die
 
 	## Add widget fixes ##
-	cat "${FILESDIR}"/gtk-widgets.css >> Ambiance/gtk-3.20/gtk-widgets.css
+	cat "${FILESDIR}"/gtk-widgets.css >> \
+		Ambiance/gtk-3.20/gtk-widgets.css || die
 
 	ubuntu-versionator_src_prepare
 }

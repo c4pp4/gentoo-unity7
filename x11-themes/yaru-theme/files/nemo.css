@@ -1,0 +1,8 @@
+
+.nemo-window .sidebar .places-treeview {
+    -GtkTreeView-vertical-separator: 11;
+}
+
+.nemo-window .sidebar .NemoSidebar {
+    -GtkTreeView-vertical-separator: 7;
+}
