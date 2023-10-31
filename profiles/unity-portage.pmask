@@ -25,11 +25,11 @@
 >mail-client/thunderbird-116
 >mate-extra/mate-system-monitor-1.26.0
 >mate-extra/mate-utils-1.26.0
->media-gfx/eog-44.3:1
+>media-gfx/eog-44.3-r1:1
 >media-gfx/shotwell-0.32.2
 >media-plugins/audacious-plugins-4.3.1-r2
->media-sound/rhythmbox-3.4.7-r2
->media-video/totem-43.0
+>media-sound/rhythmbox-3.4.7-r3
+>media-video/totem-43.0-r1
 >net-im/pidgin-2.14.12
 >net-im/telegram-desktop-4.8.1-r3
 >sys-apps/accountsservice-23.13.9
