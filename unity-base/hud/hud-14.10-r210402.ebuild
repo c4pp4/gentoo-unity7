@@ -27,7 +27,7 @@ COMMON_DEPEND="
 	>=dev-libs/glib-2.37.3:2
 	>=dev-libs/libcolumbus-1.1.0:0=[${PYTHON_SINGLE_USEDEP}]
 	>=dev-libs/libdbusmenu-qt-0.9.3_pre20160218
-	>=dev-qt/qtcore-5.15.1:5[systemd]
+	>=dev-qt/qtcore-5.15.1:5
 	>=dev-qt/qtdbus-5.0.2:5
 	>=dev-qt/qtgui-5.0.2:5
 	>=dev-qt/qtsql-5.0.2:5[sqlite]
@@ -54,6 +54,7 @@ DEPEND="${COMMON_DEPEND}
 	>=dev-libs/libdbusmenu-0.5.90[gtk3,test?]
 	>=dev-util/cmake-extras-0.10
 	gnome-base/gnome-common
+	sys-apps/systemd
 
 	doc? (
 		dev-libs/libxslt
