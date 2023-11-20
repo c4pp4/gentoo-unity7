@@ -20,7 +20,7 @@ RESTRICT="test"
 COMMON_DEPEND="
 	>=dev-libs/glib-2.39.4:2
 	>=dev-qt/qtcore-5.14.1:5
-	>=dev-qt/qtdeclarative-5.10.0
+	>=dev-qt/qtdeclarative-5.10.0:5
 "
 RDEPEND="${COMMON_DEPEND}
 	>=sys-devel/gcc-5

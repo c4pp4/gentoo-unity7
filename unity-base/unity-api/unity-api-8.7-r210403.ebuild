@@ -28,7 +28,7 @@ RDEPEND="${COMMON_DEPEND}
 	>=sys-libs/glibc-2.33
 "
 DEPEND="${COMMON_DEPEND}
-	dev-qt/qtdeclarative
+	dev-qt/qtdeclarative:5
 
 	test? (
 		dev-cpp/gtest

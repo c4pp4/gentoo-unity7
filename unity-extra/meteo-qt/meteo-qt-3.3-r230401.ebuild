@@ -23,7 +23,7 @@ COMMON_DEPEND="
 	$(python_gen_cond_dep 'dev-python/PyQt5[${PYTHON_USEDEP}]')
 "
 RDEPEND="${COMMON_DEPEND}
-	dev-qt/qttranslations
+	dev-qt/qttranslations:5
 
 	$(python_gen_cond_dep '
 		dev-python/lxml[${PYTHON_USEDEP}]
@@ -32,8 +32,8 @@ RDEPEND="${COMMON_DEPEND}
 	')
 "
 DEPEND="${COMMON_DEPEND}
-	dev-qt/linguist-tools
-	dev-qt/qtcore
+	dev-qt/linguist-tools:5
+	dev-qt/qtcore:5
 "
 
 src_prepare() {
