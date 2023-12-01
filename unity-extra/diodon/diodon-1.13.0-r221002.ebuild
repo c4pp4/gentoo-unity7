@@ -15,7 +15,8 @@ SRC_URI="${UURL}.orig.tar.xz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="+indicator scope"
+IUSE="+indicator scope test"
+RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.46:2
@@ -37,7 +38,8 @@ DEPEND="${COMMON_DEPEND}
 	dev-libs/gobject-introspection
 	dev-util/desktop-file-utils
 	x11-apps/xauth
-	x11-misc/xvfb-run
+
+	test? ( x11-misc/xvfb-run )
 
 	$(vala_depend)
 "
