@@ -15,7 +15,7 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 
 LICENSE="LGPL-3"
 SLOT="0/$(usub)"
-KEYWORDS="amd64"
+KEYWORDS="~amd64"
 IUSE="coverage debug pch test"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="!test? ( test )"
