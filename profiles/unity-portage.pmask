@@ -6,7 +6,7 @@
 >app-office/libreoffice-7.5.6.2
 >app-text/evince-44.3
 >dev-cpp/gtest-1.13.0
->dev-libs/glib-2.76.4:2
+>dev-libs/glib-2.78.3:2
 >games-board/iagno-3.38.1-r1
 >games-puzzle/gnome-taquin-3.38.1-r1
 >gnome-base/dconf-editor-43.0

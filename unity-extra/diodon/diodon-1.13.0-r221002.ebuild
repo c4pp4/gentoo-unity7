@@ -44,6 +44,17 @@ DEPEND="${COMMON_DEPEND}
 	$(vala_depend)
 "
 
+src_prepare() {
+	# Make test optional #
+	use test || sed -i \
+		-e "/testdatadir/d" \
+		-e "/xvfb_run/d" \
+		-e "/subdir('tests')/d" \
+		meson.build || die
+
+	ubuntu-versionator_src_prepare
+}
+
 src_configure() {
 	local emesonargs=(
 		$(meson_use !indicator disable-indicator-plugin)
