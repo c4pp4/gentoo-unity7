@@ -2,8 +2,8 @@
 >app-accessibility/at-spi2-core-2.48.3:2
 >app-admin/system-config-printer-1.5.18-r1
 >app-backup/deja-dup-44.2
->app-i18n/ibus-1.5.27
->app-office/libreoffice-7.5.6.2
+>app-i18n/ibus-1.5.29
+>app-office/libreoffice-7.5.9.2
 >app-text/evince-44.3
 >dev-cpp/gtest-1.13.0
 >dev-libs/glib-2.78.3:2
