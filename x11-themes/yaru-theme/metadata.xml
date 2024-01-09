@@ -7,6 +7,7 @@
 	<use>
 		<flag name="cinnamon">Build Yaru with Cinnamon flavour</flag>
 		<flag name="gnome-shell">Build gnome-shell component</flag>
+		<flag name="gtk">Support yaru accent colors using adwaita theming</flag>
 		<flag name="mate">Build Yaru mate flavour</flag>
 		<flag name="unity">Build Yaru with Unity assets</flag>
 		<flag name="xfwm">Build Yaru with xfwm4 assets</flag>

@@ -39,17 +39,17 @@ index 128ebe6df..4d8629cd0 100644
  	ev_window_set_action_enabled (ev_window, "scroll-forward", !recent_view_mode);
  	ev_window_set_action_enabled (ev_window, "scroll-backwards", !recent_view_mode);
  	ev_window_set_action_enabled (ev_window, "sizing-mode", !recent_view_mode);
-@@ -2463,6 +2466,10 @@
- 		priv->bookmarks = ev_bookmarks_new (priv->metadata);
- 		ev_sidebar_bookmarks_set_bookmarks (EV_SIDEBAR_BOOKMARKS (priv->sidebar_bookmarks),
- 						    priv->bookmarks);
-+		g_signal_connect_swapped (priv->bookmarks, "changed",
-+					  G_CALLBACK (ev_window_setup_bookmarks),
-+					  ev_window);
-+		ev_window_setup_bookmarks (ev_window);
- 	} else {
- 		priv->bookmarks = NULL;
+@@ -2435,6 +2440,10 @@
+ 			priv->bookmarks = ev_bookmarks_new (priv->metadata);
+ 			ev_sidebar_bookmarks_set_bookmarks (EV_SIDEBAR_BOOKMARKS (priv->sidebar_bookmarks),
+ 							    priv->bookmarks);
++			g_signal_connect_swapped (priv->bookmarks, "changed",
++						  G_CALLBACK (ev_window_setup_bookmarks),
++						  ev_window);
++			ev_window_setup_bookmarks (ev_window);
+ 		}
  	}
+ 
 @@ -5112,6 +5119,42 @@
  	}
  }
