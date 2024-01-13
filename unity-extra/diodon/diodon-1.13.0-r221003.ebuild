@@ -44,6 +44,8 @@ DEPEND="${COMMON_DEPEND}
 	$(vala_depend)
 "
 
+PATCHES=( "${FILESDIR}"/fix-first-run.patch )
+
 src_prepare() {
 	# Make test optional #
 	use test || sed -i \

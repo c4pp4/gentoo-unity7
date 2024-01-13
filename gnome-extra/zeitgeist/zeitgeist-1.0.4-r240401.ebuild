@@ -6,22 +6,21 @@ PYTHON_COMPAT=( python3_{10..12} )
 UBUNTU_EAUTORECONF="yes"
 
 UVER=
-UREV=4ubuntu1
+UREV=5ubuntu1
 
 inherit python-single-r1 xdg ubuntu-versionator vala
 
 DESCRIPTION="Service to log activities and present to other apps"
 HOMEPAGE="https://launchpad.net/zeitgeist/"
-SRC_URI="${UURL}.orig.tar.xz
+SRC_URI="${UURL}.orig.tar.bz2
 	${UURL}-${UREV}.debian.tar.xz"
 
 LICENSE="GPL-2 LGPL-2.1"
 SLOT="0"
-KEYWORDS="amd64"
-IUSE="+datahub doc +downloads-monitor +fts +icu introspection nls sql-debug telepathy"
-REQUIRED_USE="${PYTHON_REQUIRED_USE}
-	downloads-monitor? ( datahub )
-"
+KEYWORDS="~amd64"
+IUSE="+datahub doc +downloads-monitor +fts +icu introspection nls sql-debug telepathy test"
+REQUIRED_USE="${PYTHON_REQUIRED_USE} downloads-monitor? ( datahub )"
+RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
 	>=dev-db/sqlite-3.7.11:3
@@ -60,15 +59,11 @@ DEPEND="${COMMON_DEPEND}
 	$(vala_depend)
 "
 
-# As of vala 0.51.1, PtrArray is a subclass of GenericArray #
-PATCHES=( "${FILESDIR}"/0001-use-genericarray-api-only.patch )
+S="${WORKDIR}/${PN}-v${PV}"
 
 src_prepare() {
 	if use doc; then
 		local VALA_USE_DEPEND="valadoc"
-
-		# valadoc will generate documentation #
-		rm -rf doc/libzeitgeist/docs_{c,vala} || die
 	else
 		# Don't install ontology #
 		sed -i "/ontology /d" data/Makefile.am || die
@@ -123,7 +118,7 @@ src_install() {
 	doexe "${WORKDIR}"/debian/zeitgeist-maybe-vacuum
 
 	# valadoc generated documentation #
-	use doc && dodoc -r doc/libzeitgeist/docs_c/html
+	use doc && dodoc -r doc/libzeitgeist/docs_c doc/libzeitgeist/docs_vala
 
 	find "${ED}" -name '*.la' -delete || die
 }
