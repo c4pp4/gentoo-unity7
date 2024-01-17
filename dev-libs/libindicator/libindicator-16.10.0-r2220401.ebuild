@@ -38,7 +38,7 @@ DEPEND="${COMMON_DEPEND}
 "
 BDEPEND="
 	dev-util/intltool
-	sys-devel/libtool
+	dev-build/libtool
 "
 
 S="${WORKDIR}"

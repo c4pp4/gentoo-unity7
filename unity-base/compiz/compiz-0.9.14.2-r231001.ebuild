@@ -84,7 +84,7 @@ DEPEND="${COMMON_DEPEND}
 "
 BDEPEND="
 	dev-util/intltool
-	sys-devel/libtool
+	dev-build/libtool
 	virtual/pkgconfig
 "
 PDEPEND="unity-base/unity[gles2=]"
