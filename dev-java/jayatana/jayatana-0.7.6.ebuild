@@ -5,7 +5,7 @@ EAPI=8
 
 COMMIT="6a09b01b13637454c268a4e1c050a266"
 
-inherit cmake java-utils-2
+inherit java-pkg-2 cmake
 
 DESCRIPTION="Global menu for Java applications"
 HOMEPAGE="https://gitlab.com/vala-panel-project/vala-panel-appmenu/tree/master/subprojects/jayatana"
@@ -26,6 +26,8 @@ RDEPEND="
 DEPEND="${RDEPEND}"
 
 src_prepare() {
+	java-pkg-2_src_prepare
+
 	# Fix .jar dir #
 	java-pkg_init_paths_
 	sed -i "s:\${CMAKE_INSTALL_DATAROOTDIR}/java:${JAVA_PKG_JARDEST}:" java/CMakeLists.txt || die
