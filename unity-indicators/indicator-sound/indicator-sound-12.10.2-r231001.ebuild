@@ -38,7 +38,7 @@ RDEPEND="${COMMON_DEPEND}
 DEPEND="${COMMON_DEPEND}
 	dev-libs/gobject-introspection
 	dev-libs/libxml2:2
-	>=dev-util/cmake-extras-0.10
+	>=dev-build/cmake-extras-0.10
 	dev-qt/qtdeclarative:5
 	gnome-base/gnome-common
 	sys-apps/dbus

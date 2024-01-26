@@ -40,7 +40,7 @@ RDEPEND="${COMMON_DEPEND}
 "
 DEPEND="${COMMON_DEPEND}
 	dev-libs/properties-cpp
-	>=dev-util/cmake-extras-1.1
+	>=dev-build/cmake-extras-1.1
 	gnome-base/gvfs
 	unity-base/unity-language-pack
 	sys-apps/dbus

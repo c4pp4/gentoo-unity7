@@ -36,7 +36,7 @@ RDEPEND="${COMMON_DEPEND}
 	)
 "
 DEPEND="${COMMON_DEPEND}
-	>=dev-util/cmake-extras-1.3
+	>=dev-build/cmake-extras-1.3
 	sys-apps/dbus
 	unity-base/unity-settings-daemon
 

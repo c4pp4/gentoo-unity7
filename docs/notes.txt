@@ -131,7 +131,7 @@ x11-plugins/pidgin-libnotify		# Fix Unity messaging menu support
 x11-terms/mate-terminal			# Set as default terminal under Unity, add style classes and CSS names to some of our widgets, use theme transparency, draw proper background under the scrollbar (https://bugzilla.gnome.org/show_bug.cgi?id=754796, LP #1493964)
 
 ========================================================================
-* Optional ehooks managed via unity-extra/ehooks USE flags:
+* Optional ehooks managed via unity-base/gentoo-unity-env USE flags:
 ========================================================================
 app-office/libreoffice			# Add Human icon theme and make it the default, create fontconfig configuration (30-opensymbol.conf) symlink
 					#  Add custom icons (savemodified_{large,small}.png)

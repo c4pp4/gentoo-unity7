@@ -20,7 +20,7 @@ REQUIRED_USE="coverage? ( test )"
 RESTRICT="!test? ( test )"
 
 DEPEND="
-	>=dev-util/cmake-extras-1.5
+	>=dev-build/cmake-extras-1.5
 
 	test? (
 		dev-cpp/gtest

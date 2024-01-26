@@ -33,7 +33,7 @@ RDEPEND="${COMMON_DEPEND}
 "
 DEPEND="${COMMON_DEPEND}
 	dev-libs/libgudev:=
-	>=dev-util/cmake-extras-0.10
+	>=dev-build/cmake-extras-0.10
 	sys-apps/systemd
 	unity-base/gsettings-ubuntu-touch-schemas
 

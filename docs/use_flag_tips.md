@@ -1,43 +1,31 @@
 # USE flag tips
 
-- **unity-extra/diodon** - clipboard manager for the Unity7:
+- You can install **unity-extra/diodon** clipboard manager for the Unity7:
 
   ```
   unity-indicators/unity-indicators-meta paste
   ```
 
-- **net-mail/mailnag** - mail notification with Messaging menu support:
+- You can install mail notification with Messaging menu support **net-mail/mailnag**:
 
   ```
   unity-indicators/unity-indicators-meta mail
   ```
 
-- **dev-java/jayatana** - enable Global menu for Java applications:
+- You can enable Java global menu support **dev-java/jayatana** if you are using some Java applications:
 
   ```
   unity-indicators/unity-indicators-meta java
   ```
 
-- set the theme from **Ubuntu Unity** as a default one:
+- You can try **Ubuntu Unity** theme as the default one if you don't like **Ambiance**:
 
   ```
   unity-base/unity-settings ubuntu-unity
   ```
 
-- enable **system tray** support for all applications:
+- You can try to turn on **system tray** support for all applications if you are missing some icons:
 
   ```
   unity-base/unity systray
-  ```
-
-- disable **Evolution Data Server** support:
-
-  ```
-  unity-indicators/indicator-datetime -eds
-  ```
-
-- disable **Wayland** support globally:
-
-  ```
-  */* -wayland
   ```

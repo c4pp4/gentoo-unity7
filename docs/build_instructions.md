@@ -12,22 +12,22 @@
 
    `eselect profile list`
 
+   NOTE: You can also switch to a [merged-usr⬀][mu] profile `gentoo-unity7:amd64/17.1/desktop/unity/systemd/merged-usr (stable)`
+
 4. **Set** `EHOOKS_ACCEPT="yes"` **variable** in `/etc/portage/make.conf` configuration file.
 
    WARNING: Some overlay patches will be applied to packages from the Gentoo tree via ehooks patching system. For more details, see [ehooks - Chapter I.][ehooks] Set the variable to confirm you agree with it.
 
-5. Install the package to **setup the Unity7 build environment**:
+5. **Setup** Gentoo Unity⁷ Desktop **build environment**:
 
-   `emerge -av unity-build-env`
+   `emerge -av gentoo-unity-env`
 
-6. Previous emerge command will install `unity-extra/ehooks` package. The package generates emerge command needed to be applied and displays it as a warning message in pkg_postinst phase. **Rebuild affected packages**.
+6. Previous emerge command installs `unity-base/gentoo-unity-env` package. The package, among other things, generates emerge command needed to be applied and displays it as a warning message in pkg_postinst phase. **Rebuild all affected packages**.
 
-   FOR EXAMPLE:
+   FOR EXAMPLE, YOU CAN SEE:
    ```
-   Looking for ehooks changes... done!
-
-    * Rebuild the packages affected by ehooks changes:
-
+    * Looking for ehooks changes... done!
+    * Rebuild the following packages affected by ehooks changes:
     * emerge -av1 app-i18n/ibus gnome-base/gnome-menus gnome-base/gnome-session gnome-base/gsettings-desktop-schemas gnome-extra/polkit-gnome x11-libs/gtk+:2 x11-libs/gtk+:3
    ```
 
@@ -54,5 +54,6 @@ NOTES:
 [ep]: https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Base#Choosing_the_right_profile
 [erepo]: https://wiki.gentoo.org/wiki/Eselect/Repository
 [ldm]: https://wiki.gentoo.org/wiki/LightDM#systemd
+[mu]: https://wiki.gentoo.org/wiki/Merge-usr
 [nm]: https://wiki.gentoo.org/wiki/NetworkManager#systemd
 [sysd]: https://wiki.gentoo.org/wiki/Systemd

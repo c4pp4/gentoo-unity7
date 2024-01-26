@@ -52,7 +52,7 @@ RDEPEND="${COMMON_DEPEND}
 "
 DEPEND="${COMMON_DEPEND}
 	>=dev-libs/libdbusmenu-0.5.90[gtk3,test?]
-	>=dev-util/cmake-extras-0.10
+	>=dev-build/cmake-extras-0.10
 	gnome-base/gnome-common
 	sys-apps/systemd
 

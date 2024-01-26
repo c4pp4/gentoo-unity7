@@ -10,12 +10,11 @@ repos=(
 remove=(
 	app-eselect/eselect-lightdm
 	dev-java/jayatana
+	unity-base/gentoo-unity-env
 	unity-base/ubuntu-docs
-	unity-base/unity-build-env
 	unity-base/unity-language-pack
 	unity-base/unity-meta
 	unity-base/unity-settings
-	unity-extra/ehooks
 	unity-extra/indicator-netspeed
 	unity-extra/indicator-privacy
 	unity-indicators/unity-indicators-meta
@@ -36,11 +35,11 @@ count=1
 indicator=( "|" "/" "-" "\\" )
 
 einfo() {
-	echo " ${color_green}*${color_norm} $*"
+	echo " $(tput bold; tput setaf 2)*$(tput sgr0) $*"
 }
 
 ewarn() {
-	echo " ${color_yellow}*${color_norm} $*"
+	echo " $(tput bold; tput setaf 3)*$(tput sgr0) $*"
 }
 
 eerror() {
@@ -98,16 +97,18 @@ find_flag_changes() {
 	local \
 		reset="$1" \
 		sys_db="/var/db/pkg/" \
-		ts_file="/etc/ehooks/timestamps" \
+		ts_file="/etc/gentoo-unity7/timestamps" \
 		flag line n slot sys_date ts x
 
 	local -a result
+
+	[[ ! -e ${ts_file} ]] && return
 
 	while read -r line; do
 		[[ ${line} == "##"* ]] && continue
 		x="${line%%|*}"
 		flag=$(echo "${line}" | cut -d "|" -f 2)
-		portageq has_version / unity-extra/ehooks["${flag}"] \
+		portageq has_version / unity-base/gentoo-unity-env["${flag}"] \
 			&& ts=$(echo "${line}" | cut -d "|" -f 3) \
 			|| ts=$(echo "${line}" | cut -d "|" -f 4)
 		slot=$(get_slot "${x}")
@@ -123,7 +124,7 @@ find_flag_changes() {
 
 			## Set USE flag change time equal to package's time when --reset option given.
 			if [[ -n ${reset} ]]; then
-				if portageq has_version / unity-extra/ehooks["${flag}"]; then
+				if portageq has_version / unity-base/gentoo-unity-env["${flag}"]; then
 					sed -i -e "/${x/\//\\/}|${flag}/{s/|[0-9]\{10\}|/|${sys_date}|/}" "${ts_file}" 2>/dev/null && reset="applied" && continue
 				else
 					sed -i -e "/${x/\//\\/}|${flag}/{s/|[0-9]\{10\}$/|${sys_date}/}" "${ts_file}" 2>/dev/null && reset="applied" && continue
@@ -174,7 +175,7 @@ find_tree_changes() {
 			if [[ -n ${flags[@]} ]]; then
 				flags=( ${flags[@]/ehooks_require} ); flags=( ${flags[@]/ehooks_use} )
 				for f in "${flags[@]}"; do
-					portageq has_version / unity-extra/ehooks["${f}"] && break
+					portageq has_version / unity-base/gentoo-unity-env["${f}"] && break
 					[[ ${f} == ${flags[-1]} ]] && continue 2
 				done
 			fi
@@ -197,9 +198,9 @@ find_tree_changes() {
 ehooks_changes() {
 	local -a result
 
-	if [[ -n $1 ]] && ( [[ ! -w $(get_repo_root)/profiles/ehooks ]] || [[ ! -w /etc/ehooks/timestamps ]] ); then
+	if [[ -n $1 ]] && ( [[ ! -w $(get_repo_root)/profiles/ehooks ]] || [[ ! -w /etc/gentoo-unity7/timestamps ]] ); then
 		## Get ownership when write permission denied.
-		result=( $(stat -c '%U:%G' $(get_repo_root)/profiles/ehooks) $(stat -c '%U:%G' /etc/ehooks/timestamps) )
+		result=( $(stat -c '%U:%G' $(get_repo_root)/profiles/ehooks) $(stat -c '%U:%G' /etc/gentoo-unity7/timestamps) )
 		# Remove duplicates.
 		result=( $(printf "%s\n" "${result[@]}" | sort -u) )
 		echo
@@ -208,19 +209,18 @@ ehooks_changes() {
 		exit 1
 	fi
 
-	printf "%s" "Looking for ehooks changes${color_blink}...${color_norm}"
+	printf "%s" " $(tput bold; tput setaf 2)*$(tput sgr0) Looking for ehooks changes${color_blink}...${color_norm}"
 
 	result=( $(find_tree_changes "$1") $(find_flag_changes "$1") )
 	# Remove duplicates.
 	result=( $(printf "%s\n" "${result[@]}" | sort -u) )
 
-	printf "\b\b\b%s\n\n" "... done!"
+	printf "\b\b\b%s\n" "... done!"
 
 	if [[ -z ${result[@]} ]]; then
 		einfo "No rebuild needed"
 	elif [[ ${result[0]} == *"/"* ]] && ( [[ -z ${result[1]} ]] || [[ ${result[1]} == *"/"* ]] ); then
-		ewarn "Rebuild the packages affected by ehooks changes:"
-		echo
+		ewarn "Rebuild the following packages affected by ehooks changes:"
 		ewarn "emerge -av1 ${result[@]}"
 	else
 		case ${result[@]} in
@@ -263,7 +263,7 @@ portage_updates() {
 	local -a updates
 
 	[[ -z $1 ]] && pmask="${PWD}" || pmask="$1"
-	pmask+="/profiles/unity-portage.pmask"
+	pmask+="/profiles/gentoo-unity7.mask"
 
 	## Temporarily unmask packages maintained via ehooks.
 	install -m 666 /dev/null /tmp/"${tmp_um}" || exit 1
@@ -287,7 +287,7 @@ portage_updates() {
 			ln -fs /tmp/"${tmp_ak}" /etc/portage/package.accept_keywords/zzzz_"${tmp_ak}" || exit 1
 			echo "www-client/firefox:rapid::gentoo ~amd64" > /tmp/"${tmp_ak}"
 			update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "|~amd64$" | tail -1 | sed "s/|.*$//")
-		elif [[ ${line} == ">app-backup/deja-dup"* ]]; then
+		elif [[ ${line} == ">app-backup/deja-dup"* ]] || [[ ${line} == ">net-im/telegram-desktop"* ]]; then
 			update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "|~amd64$" | tail -1 | sed "s/|.*$//")
 		else
 			update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "|amd64$" | tail -1 | sed "s/|.*$//")
@@ -308,7 +308,7 @@ portage_updates() {
 	printf "\b\b%s\n\n" "... done!"
 
 	if [[ ! -e ${pmask} ]]; then
-		eerror "'unity-portage.pmask' file not found"
+		eerror "'gentoo-unity7.mask' file not found"
 		echo
 	elif [[ -z ${updates[@]} ]]; then
 		einfo "No updates found"
@@ -792,12 +792,12 @@ case $1 in
 		echo "	version_control.sh"
 		echo
 		echo "${color_blue}SYNOPSIS${color_norm}"
-		echo "	${color_blue}guver${color_norm} [${color_cyan}OPTION${color_norm}]"
+		echo "	${color_blue}gentoo-unity-ver${color_norm} [${color_cyan}OPTION${color_norm}]"
 		echo
 		echo "${color_blue}DESCRIPTION${color_norm}"
 		echo "	Gentoo Unity⁷ version control tool."
 		echo
-		echo "	/usr/bin/${color_blue}guver${color_norm} is a symlink to gentoo-unity7/version_control.sh script."
+		echo "	/usr/bin/${color_blue}gentoo-unity-ver${color_norm} is a symlink to gentoo-unity7/version_control.sh script."
 		echo
 		echo "${color_blue}OPTIONS${color_norm}"
 		echo "	${color_blue}-b${color_norm}, ${color_blue}--blake${color_norm} [${color_cyan}$(tput smul)repo path$(tput rmul)${color_norm}] [${color_cyan}$(tput smul)packages$(tput rmul)${color_norm}]"
@@ -813,7 +813,7 @@ case $1 in
 		echo "		It looks for ehooks changes and set them as applied (it resets modification time)."
 		echo
 		echo "	${color_blue}-u${color_norm}, ${color_blue}--update${color_norm} [${color_cyan}$(tput smul)repo path$(tput rmul)${color_norm}]"
-		echo "		It updates unity-portage.pmask version entries (it needs temporary access to /etc/portage/package.unmask), unity-base/unity-language-pack version entries, unity-scopes/smart-scopes version entries and it looks for available packages updates."
+		echo "		It updates gentoo-unity7.mask version entries (it needs temporary access to /etc/portage/package.unmask), unity-base/unity-language-pack version entries, unity-scopes/smart-scopes version entries and it looks for available packages updates."
 		echo
 		exit 1
 esac

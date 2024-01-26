@@ -145,7 +145,7 @@ setvar yo		14.04+20150804 14.04+20150804
 setvar zh-CN		24.04+20231202 24.04+20231202 zh-hans
 setvar zh-TW		24.04+20231202 24.04+20231202 zh-hant
 setvar zu		14.04+20150804 14.04+20150804
-# Add a new line and launch 'guver -u' #
+# Add a new line and launch 'gentoo-unity-ver -u' #
 #setvar [xy]		none none
 
 # Only valid IETF language tags that are listed in #

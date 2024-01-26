@@ -1,0 +1,9 @@
+## A set of packages that require keyword unmasking for Unity installation ##
+app-backup/deja-dup::gentoo
+
+# Telegram Desktop related packages: #
+dev-cpp/cppgir::gentoo
+dev-cpp/expected-lite::gentoo
+media-libs/libtgvoip::gentoo
+media-libs/tg_owt::gentoo
+net-im/telegram-desktop::gentoo

@@ -34,12 +34,12 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 
 	## Define function to check if USE flag is declared.
 	ehooks_use() {
-		return $("${PORTAGE_QUERY_TOOL}" has_version / unity-extra/ehooks["$1"])
+		return $("${PORTAGE_QUERY_TOOL}" has_version / unity-base/gentoo-unity-env["$1"])
 	}
 
 	## Define function to skip all related ehooks if USE flag is not declared.
 	ehooks_require() {
-		if ! "${PORTAGE_QUERY_TOOL}" has_version / unity-extra/ehooks["$1"]; then
+		if ! "${PORTAGE_QUERY_TOOL}" has_version / unity-base/gentoo-unity-env["$1"]; then
 			echo " * USE flag '$1' not declared: skipping related ehooks..."
 			exit ${SKIP_CODE}
 		fi

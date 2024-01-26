@@ -35,7 +35,7 @@ RDEPEND="${COMMON_DEPEND}
 	>=sys-libs/glibc-2.14
 "
 DEPEND="${COMMON_DEPEND}
-	>=dev-util/cmake-extras-1.5
+	>=dev-build/cmake-extras-1.5
 	net-misc/networkmanager
 
 	test? (

@@ -8,24 +8,30 @@ UREV=
 
 inherit ubuntu-versionator
 
-DESCRIPTION="ehooks patching system"
+DESCRIPTION="Setup the Unity7 build environment and ehooks patching system"
 HOMEPAGE="https://github.com/c4pp4/gentoo-unity7"
 SRC_URI=""
 
 LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="+fontconfig +libreoffice"
+
+IUSE_EHOOKS="
+	+fontconfig
+	+libreoffice
+"
+IUSE="dev ${IUSE_EHOOKS}"
+
 RESTRICT="binchecks strip test"
 
 RDEPEND="fontconfig? ( media-libs/freetype:2[adobe-cff,cleartype-hinting] )"
-DEPEND="unity-base/unity-build-env"
 
 S="${WORKDIR}"
 
 pkg_setup() {
 	ubuntu-versionator_pkg_setup
 	[[ -f ${EROOT}/etc/ehooks/timestamps ]] && cp "${EROOT}"/etc/ehooks/timestamps "${S}"/timestamps.old
+	[[ -f ${EROOT}/etc/gentoo-unity7/timestamps ]] && cp "${EROOT}"/etc/gentoo-unity7/timestamps "${S}"/timestamps.old
 }
 
 src_install() {
@@ -41,8 +47,8 @@ src_install() {
 
 	echo "## Automatically generated file: please don't remove or edit" > timestamps
 
-	printf "%s" "Generating timestamps file ${indicator[0]}"
-	for x in ${IUSE}; do
+	printf "%s" " $(tput bold; tput setaf 2)*$(tput sgr0) Generating ${EROOT}/etc/gentoo-unity7/timestamps file ${indicator[0]}"
+	for x in ${IUSE_EHOOKS}; do
 		x="${x#+}"
 
 		## Progress indicator.
@@ -52,7 +58,7 @@ src_install() {
 
 		## Find out if there is USE flag change.
 		use "${x}" && pkg_flag=1 || pkg_flag=0
-		"${PORTAGE_QUERY_TOOL}" has_version / unity-extra/ehooks["${x}"] && sys_flag=1 || sys_flag=0
+		"${PORTAGE_QUERY_TOOL}" has_version / unity-base/gentoo-unity-env["${x}"] && sys_flag=1 || sys_flag=0
 		[[ ${pkg_flag} -eq ${sys_flag} ]] || change="yes"
 
 		## Get ehooks containing USE flag.
@@ -104,10 +110,24 @@ src_install() {
 	done
 	printf "\b\b%s\n" "... done!"
 
-	insinto /etc/ehooks
+	n="gentoo-unity7"
+	insinto /etc/"${n}"
 	doins timestamps
 
-	dosym -r "${REPO_ROOT}"/version_control.sh /usr/bin/guver
+	dosym -r "${REPO_ROOT}"/version_control.sh /usr/bin/gentoo-unity-ver
+
+	for x in {accept_keywords,env,mask,unmask,use}; do
+		dodir "/etc/portage/package.${x}"
+		dosym -r "${REPO_ROOT}/profiles/${n}.${x}" \
+			"/etc/portage/package.${x}/0000_${n}.${x}" || die
+	done
+
+	dodir "/etc/portage/env"
+	dosym -r "${REPO_ROOT}/profiles/${n}.conf.env" \
+		"/etc/portage/env/${n}.conf" || die
+
+	use dev && dosym -r "${REPO_ROOT}/profiles/${n}-dev.accept_keywords" \
+		"/etc/portage/package.accept_keywords/0001_${n}-dev.accept_keywords"
 }
 
 pkg_postinst() {
@@ -117,12 +137,12 @@ pkg_postinst() {
 	local \
 		color_blink=$(tput blink) \
 		color_norm=$(tput sgr0) \
-		fn="get_subdirs get_repo_root get_ehooks_subdirs get_installed_packages get_slot find_flag_changes find_tree_changes ehooks_changes" \
+		fn="einfo ewarn get_subdirs get_repo_root get_ehooks_subdirs get_installed_packages get_slot find_flag_changes find_tree_changes ehooks_changes" \
 		prev_shopt=$(shopt -p nullglob) \
 		x=$("${PORTAGE_QUERY_TOOL}" get_repo_path / gentoo-unity7)/version_control.sh
 
 	shopt -s nullglob
-	local -a cfg_files=( "${EROOT}"/etc/ehooks/._cfg*timestamps )
+	local -a cfg_files=( "${EROOT}"/etc/gentoo-unity7/._cfg*timestamps )
 	${prev_shopt}
 
 	source <(awk "/^(${fn// /|})(\(\)|=\(\$)/ { p = 1 } p { print } /(^(}|\))|; })\$/ { p = 0 }" "${x}" 2>/dev/null)
@@ -131,6 +151,13 @@ pkg_postinst() {
 	for x in get_repo_root find_flag_changes find_tree_changes; do
 		source <(declare -f "${x}" | sed 's:portageq:"${PORTAGE_QUERY_TOOL}":')
 	done
+
+	if use dev; then
+		echo
+		ewarn "Overlay development packages unmasked. Continue if you really know how broken development packages could be."
+	fi
+	echo
+
 	ehooks_changes
 
 	for x in ${fn}; do

@@ -5,10 +5,12 @@
 		<name>gentoo-unity7</name>
 	</maintainer>
 	<use>
-		<flag name="fontconfig">Adjust fonts configuration
+		<flag name="dev">Unmask overlay development packages with
+			missing keyword (experimental)</flag>
+		<flag name="fontconfig">Optional ehooks: Adjust fonts configuration
 			according to Ubuntu</flag>
-		<flag name="libreoffice">Add Ubuntu's Human icon theme for
-			<pkg>app-office/libreoffice</pkg>
+		<flag name="libreoffice">Optional ehooks: Add Ubuntu's Human
+			icon theme for <pkg>app-office/libreoffice</pkg>
 			and make it the default</flag>
 	</use>
 </pkgmetadata>
