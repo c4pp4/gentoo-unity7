@@ -133,6 +133,8 @@ RDEPEND="
 		media-fonts/noto
 		media-fonts/noto-emoji
 		media-fonts/urw-fonts
+		media-libs/freetype:2[adobe-cff,cleartype-hinting]
+		unity-base/gentoo-unity-env[fontconfig]
 	)
 	games? (
 		games-arcade/gnome-nibbles

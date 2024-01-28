@@ -15,7 +15,7 @@ SRC_URI=""
 LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="+files lowgfx +music +photos +ubuntu-cursor +ubuntu-sounds +video ubuntu-unity"
+IUSE="dejavu +files lowgfx +music +photos +ubuntu-cursor +ubuntu-sounds +video ubuntu-unity"
 RESTRICT="binchecks strip test"
 
 RDEPEND="
@@ -84,6 +84,20 @@ src_install() {
 	[[ ${#dash} -ne ${dlen} ]] && echo -e \
 		"\n[com.canonical.Unity.Dash:Unity]\nscopes = ['home.scope','applications.scope',${dash}'social.scope']" \
 		>> "${ED}${gschema_dir}/${gschema}"
+
+	# language-selector-0.224 fontconfig #
+	insinto /etc/fonts/conf.avail
+	doins -r "${FILESDIR}"/language-selector/*
+	use dejavu \
+		&& mv "${ED}"/etc/fonts/conf.avail/56-language-selector-prefer.conf \
+			"${ED}"/etc/fonts/conf.avail/64-language-selector-prefer.conf
+	einfo "Creating fontconfig configuration symlinks ..."
+	local f
+	for f in "${ED}"/etc/fonts/conf.avail/*; do
+		f=${f##*/}
+		echo " * ${f}"
+		dosym -r /etc/fonts/conf.avail/"${f}" /etc/fonts/conf.d/"${f}"
+	done
 }
 
 pkg_preinst() {

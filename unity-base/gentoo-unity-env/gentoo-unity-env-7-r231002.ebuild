@@ -15,16 +15,12 @@ SRC_URI=""
 LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="amd64"
-
 IUSE_EHOOKS="
 	+fontconfig
 	+libreoffice
 "
 IUSE="dev ${IUSE_EHOOKS}"
-
 RESTRICT="binchecks strip test"
-
-RDEPEND="fontconfig? ( media-libs/freetype:2[adobe-cff,cleartype-hinting] )"
 
 S="${WORKDIR}"
 

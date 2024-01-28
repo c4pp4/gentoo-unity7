@@ -6,15 +6,13 @@ FONT_PN="noto"
 
 UVER=+repack1
 UREV=3
-LSVER="0.224"
 
 inherit font ubuntu-versionator
 
 DESCRIPTION="'No Tofu' CJK font families with large Unicode coverage (CJK regular and bold)"
 HOMEPAGE="https://github.com/notofonts/noto-cjk"
 SRC_URI="${UURL}.orig.tar.xz
-	${UURL}-${UREV}.debian.tar.xz
-	${UURL%/*}/language-selector_${LSVER}.tar.xz"
+	${UURL}-${UREV}.debian.tar.xz"
 
 LICENSE="OFL-1.1"
 SLOT="0"
@@ -31,19 +29,7 @@ FONT_S=(
 	"${S}/Sans/OTC"
 	"${S}/Serif/OTC"
 )
-FONT_CONF=(
-	"${WORKDIR}"/language-selector/fontconfig/30-cjk-aliases.conf
-	"${WORKDIR}"/language-selector/fontconfig/56-language-selector-prefer.conf
-	"${WORKDIR}"/language-selector/fontconfig/64-language-selector-cjk-prefer.conf
-	"${WORKDIR}"/language-selector/fontconfig/69-language-selector-ja.conf
-	"${WORKDIR}"/language-selector/fontconfig/69-language-selector-zh-cn.conf
-	"${WORKDIR}"/language-selector/fontconfig/69-language-selector-zh-hk.conf
-	"${WORKDIR}"/language-selector/fontconfig/69-language-selector-zh-mo.conf
-	"${WORKDIR}"/language-selector/fontconfig/69-language-selector-zh-sg.conf
-	"${WORKDIR}"/language-selector/fontconfig/69-language-selector-zh-tw.conf
-	"${WORKDIR}"/debian/70-"${PN}".conf
-	"${WORKDIR}"/language-selector/fontconfig/99-language-selector-zh.conf
-)
+FONT_CONF=( "${WORKDIR}"/debian/70-"${PN}".conf )
 
 src_install() {
 	if use extra; then
