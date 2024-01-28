@@ -16,7 +16,7 @@ A Gentoo overlay to build the Unity7 user interface.
 
 #
 
-###### It defaults to the Gentoo stable software branch for the system's architecture amd64 (except `app-backup/deja-dup` and `net-im/telegram-desktop` from the Gentoo testing branch, see [accept_keywords file][upak]). You can build `www-client/firefox` from the Gentoo testing branch as *unity-menubar.patch* is available for both branches, the stable ([extended support release][fesr]) and the testing ([the latest stable release][ftlr]).
+###### It defaults to the Gentoo stable software branch for the system's architecture amd64 (except `app-backup/deja-dup` and `net-im/telegram-desktop` from the Gentoo testing branch, see [accept_keywords file][acck]). You can build `www-client/firefox` from the Gentoo testing branch as *unity-menubar.patch* is available for both branches, the stable ([extended support release][fesr]) and the testing ([the latest stable release][ftlr]).
 
 [//]: # (LINKS)
 [acck]: profiles/gentoo-unity7.accept_keywords

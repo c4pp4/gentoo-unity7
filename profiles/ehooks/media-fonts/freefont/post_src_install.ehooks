@@ -1,5 +1,0 @@
-ehooks() {
-	ehooks_require fontconfig
-
-	find "${ED}" -type f -name "*.otf" -delete
-}

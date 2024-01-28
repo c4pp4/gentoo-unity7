@@ -124,37 +124,14 @@ RDEPEND="
 		)
 	)
 	fonts? (
-		media-fonts/droid
-		media-fonts/font-bitstream-type1
 		|| (
 			media-fonts/fonts-noto-cjk
 			media-fonts/noto-cjk
 		)
 		media-fonts/freefont
-		media-fonts/kacst-fonts
-		media-fonts/khmer
 		media-fonts/liberation-fonts
-		media-fonts/lklug
-		media-fonts/lohit-assamese
-		media-fonts/lohit-bengali
-		media-fonts/lohit-devanagari
-		media-fonts/lohit-gujarati
-		media-fonts/lohit-gurmukhi
-		media-fonts/lohit-kannada
-		media-fonts/lohit-malayalam
-		media-fonts/lohit-odia
-		media-fonts/lohit-tamil
-		media-fonts/lohit-tamil-classical
-		media-fonts/lohit-telugu
-		media-fonts/nanum
+		media-fonts/noto
 		media-fonts/noto-emoji
-		media-fonts/quivira
-		media-fonts/sil-abyssinica
-		media-fonts/sil-padauk
-		media-fonts/stix-fonts
-		media-fonts/takao-fonts
-		media-fonts/thaifonts-scalable
-		media-fonts/tibetan-machine-font
 		media-fonts/urw-fonts
 	)
 	games? (

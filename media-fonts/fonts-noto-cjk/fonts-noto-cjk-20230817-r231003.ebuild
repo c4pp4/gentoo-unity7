@@ -10,7 +10,7 @@ LSVER="0.224"
 
 inherit font ubuntu-versionator
 
-DESCRIPTION="'No Tofu' CJK font families with large Unicode coverage"
+DESCRIPTION="'No Tofu' CJK font families with large Unicode coverage (CJK regular and bold)"
 HOMEPAGE="https://github.com/notofonts/noto-cjk"
 SRC_URI="${UURL}.orig.tar.xz
 	${UURL}-${UREV}.debian.tar.xz

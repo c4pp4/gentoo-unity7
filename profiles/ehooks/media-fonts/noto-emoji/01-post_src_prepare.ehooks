@@ -1,9 +1,0 @@
-ehooks() {
-	ehooks_require fontconfig
-
-	cp fonts/NotoColorEmoji.ttf "${S}"
-
-	rm {Makefile,png/128/*,svg/*}
-	touch png/128/tmp.png
-	touch svg/tmp.svg
-}
