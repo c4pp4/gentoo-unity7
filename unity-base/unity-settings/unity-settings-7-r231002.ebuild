@@ -15,7 +15,8 @@ SRC_URI=""
 LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="dejavu +files lowgfx +music +photos +ubuntu-cursor +ubuntu-sounds +video ubuntu-unity"
+IUSE="dejavu +files +fontconfig lowgfx +music +photos +ubuntu-cursor +ubuntu-sounds +video ubuntu-unity"
+REQUIRED_USE="dejavu? ( fontconfig )"
 RESTRICT="binchecks strip test"
 
 RDEPEND="
@@ -26,12 +27,16 @@ RDEPEND="
 	x11-themes/ubuntu-themes
 	x11-themes/ubuntu-wallpapers
 
+	fontconfig? ( media-libs/freetype:2[adobe-cff,cleartype-hinting] )
 	ubuntu-cursor? ( x11-themes/vanilla-dmz-xcursors )
 	ubuntu-sounds? ( x11-themes/ubuntu-sounds )
 	ubuntu-unity? ( x11-themes/ubuntu-unity-backgrounds )
 "
 
-PDEPEND="unity-lenses/unity-lens-meta[files=,music=,photos=,video=]"
+PDEPEND="
+	unity-base/gentoo-unity-env[fontconfig=]
+	unity-lenses/unity-lens-meta[files=,music=,photos=,video=]
+"
 
 S="${FILESDIR}"
 
@@ -85,19 +90,22 @@ src_install() {
 		"\n[com.canonical.Unity.Dash:Unity]\nscopes = ['home.scope','applications.scope',${dash}'social.scope']" \
 		>> "${ED}${gschema_dir}/${gschema}"
 
-	# language-selector-0.224 fontconfig #
-	insinto /etc/fonts/conf.avail
-	doins -r "${FILESDIR}"/language-selector/*
-	use dejavu \
-		&& mv "${ED}"/etc/fonts/conf.avail/56-language-selector-prefer.conf \
-			"${ED}"/etc/fonts/conf.avail/64-language-selector-prefer.conf
-	einfo "Creating fontconfig configuration symlinks ..."
-	local f
-	for f in "${ED}"/etc/fonts/conf.avail/*; do
-		f=${f##*/}
-		echo " * ${f}"
-		dosym -r /etc/fonts/conf.avail/"${f}" /etc/fonts/conf.d/"${f}"
-	done
+
+	# Add language-selector-0.224 fontconfig #
+	if use fontconfig; then
+		insinto /etc/fonts/conf.avail
+		doins -r "${FILESDIR}"/language-selector/*
+		use dejavu \
+			&& mv "${ED}"/etc/fonts/conf.avail/56-language-selector-prefer.conf \
+				"${ED}"/etc/fonts/conf.avail/64-language-selector-prefer.conf
+		einfo "Creating fontconfig configuration symlinks ..."
+		local f
+		for f in "${ED}"/etc/fonts/conf.avail/*; do
+			f=${f##*/}
+			echo " * ${f}"
+			dosym -r /etc/fonts/conf.avail/"${f}" /etc/fonts/conf.d/"${f}"
+		done
+	fi
 }
 
 pkg_preinst() {

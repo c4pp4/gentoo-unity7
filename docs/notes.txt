@@ -138,6 +138,7 @@ app-office/libreoffice			# Add Human icon theme and make it the default, create 
 					#  https://github.com/LibreOffice/core/tree/3498ed37527b7af795f00dc6a55c11e65a313186/icon-themes/human
 app-office/libreoffice-bin		# Create fontconfig configuration (30-opensymbol.conf) symlink
 media-fonts/dejavu			# Create fontconfig configuration symlinks
+media-fonts/noto-cjk			# Create fontconfig configuration symlinks
 media-fonts/urw-fonts			# Create fontconfig configuration symlinks
 media-libs/fontconfig:1.0		# Adjust fonts configuration according to Ubuntu
 
