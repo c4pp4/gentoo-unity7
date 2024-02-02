@@ -31,7 +31,7 @@
 >media-sound/rhythmbox-3.4.7-r3
 >media-video/totem-43.0-r1
 >net-im/pidgin-2.14.12
->net-im/telegram-desktop-4.14.6
+>net-im/telegram-desktop-4.14.9
 >sys-apps/accountsservice-23.13.9
 >www-client/chromium-120.0.6099.129
 >www-client/firefox-123:rapid

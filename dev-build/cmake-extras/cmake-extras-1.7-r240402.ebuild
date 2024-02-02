@@ -4,7 +4,7 @@
 EAPI=8
 
 UVER=
-UREV=1
+UREV=2
 
 inherit cmake ubuntu-versionator
 
