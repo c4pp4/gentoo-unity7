@@ -357,12 +357,12 @@ download_sources() {
 				filename="/tmp/gentoo-unity7-sources-${rp}-${frls}"
 				[[ -f ${filename} ]] && [[ $(($(date -r "${filename}" "+%s") + 72000)) -gt $(date "+%s") ]] && continue
 				printf "%s" "Downloading ${frls}/${rp} sources${color_blink}...${color_norm}"
-				wget -q -T 60 http://archive.ubuntu.com/ubuntu/dists/${frls}/${rp}/source/Sources.gz -O "${filename}.gz" \
+				wget -q -T 30 http://archive.ubuntu.com/ubuntu/dists/${frls}/${rp}/source/Sources.gz -O "${filename}.gz" \
 					&& printf "\b\b\b%s\n" "... done!" \
 					|| printf "\b\b\b%s\n" "... ${color_red}failed!${color_norm}"
 				chmod 666 "${filename}.gz" 2>/dev/null
 				gunzip -qf "${filename}.gz" 2>/dev/null
-				touch "${filename}"
+				[[ -f ${filename} ]] && touch "${filename}"
 				ctl=1
 			done
 		done

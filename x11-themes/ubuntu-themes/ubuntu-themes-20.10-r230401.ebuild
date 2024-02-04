@@ -20,6 +20,7 @@ RESTRICT="binchecks strip test"
 
 RDEPEND="
 	x11-themes/adwaita-icon-theme
+	x11-themes/gtk-engines-murrine
 	x11-themes/hicolor-icon-theme
 	x11-themes/humanity-icon-theme
 	x11-themes/ubuntu-wallpapers

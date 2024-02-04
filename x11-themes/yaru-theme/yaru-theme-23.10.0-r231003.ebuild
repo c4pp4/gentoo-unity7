@@ -20,6 +20,7 @@ RESTRICT="binchecks strip test"
 
 RDEPEND="
 	dev-libs/glib:2
+	unity-base/session-migration
 	x11-libs/gtk+:2
 	x11-themes/gtk-engines-adwaita
 	x11-themes/gtk-engines-murrine
