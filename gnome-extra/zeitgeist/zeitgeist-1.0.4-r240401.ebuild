@@ -122,3 +122,12 @@ src_install() {
 
 	find "${ED}" -name '*.la' -delete || die
 }
+
+pkg_postinst() {
+	ubuntu-versionator_pkg_postinst
+
+	echo
+	elog "Reset ZeitGeist database in case of problems:"
+	elog "rm -rfv ~/.local/share/zeitgeist"
+	echo
+}

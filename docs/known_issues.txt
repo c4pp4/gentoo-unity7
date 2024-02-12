@@ -1,7 +1,7 @@
-- Updating media-fonts/fonts-ubuntu can cause unreadable menus. Better update the package outside gui.
-- Packages depending on gui-libs/libadwaita have Client Side Decoration.
-- Unity via unity-base/unity-settings-daemon strips the 'grp' option for XKB keyboard layouts (see LP# 1315867 and overlay issue #133)
-	* This can lead to problems trying to use group keyboard layout(s)/variant(s) customised key+combo switching
-		Based on bug, requires upstream to patch support into unity-settings-daemon,unity,compiz and unity-control-center
+- Upgrading gnome-extra/zeitgeist from 1.0.3 to 1.0.4 can cause a dash loading lag.
+	* Try to reset ZeitGeist database with 'rm -rfv ~/.local/share/zeitgeist'.
 
-- Lockscreen (Ctrl+Alt+L/Super+L) fails to function when onscreen reader(orca) or keyboard(onboard) are activated (broken since Trusty, see LP# 1310404)
+- Updating media-fonts/fonts-ubuntu can cause unreadable menus.
+	* Better update the package outside gui.
+
+- Packages depending on gui-libs/libadwaita have Client Side Decoration.
