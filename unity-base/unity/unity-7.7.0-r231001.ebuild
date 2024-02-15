@@ -145,6 +145,12 @@ src_prepare() {
 		sed -i '/#include <NuxCore\/Property.h>/a #include <vector>' unity-shared/ThemeSettings.h || die
 		sed -i '/#include <map>/a #include <cstdint>' UnityCore/Variant.h || die
 		sed -i '/#include <glib.h>/a #include <cstdint>' unity-shared/IntrospectionData.h || die
+		sed -i '/#include <vector>/a #include <algorithm>' unity-shared/DecorationStyle.h || die
+		sed -i '/#include "FileManager.h"/a #include <algorithm>' unity-shared/GnomeFileManager.h || die
+		sed -i '/#include <list>/a #include <algorithm>' unity-shared/StandaloneWindowManager.h || die
+		sed -i '/#include "Indicator.h"/a #include <algorithm>' UnityCore/AppmenuIndicator.h || die
+		sed -i '/#include "Scopes.h"/a #include <algorithm>' UnityCore/GSettingsScopes.h || die
+		sed -i '/#include "Scope.h"/a #include <algorithm>' UnityCore/Scopes.h || die
 	fi
 
 	# see https://launchpad.net/bugs/974480 #

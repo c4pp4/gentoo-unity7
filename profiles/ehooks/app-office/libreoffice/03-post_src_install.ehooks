@@ -1,13 +1,13 @@
 ehooks() {
 	if ehooks_use fontconfig; then
-		local f="30-opensymbol.conf"
+		local dir="${ED}"/usr/"$(get_libdir)"/libreoffice/share/fonts/truetype
 
-		einfo "Creating fontconfig configuration symlink ..."
-		echo " * ${f}"
+		if [[ -e ${dir}/fc_local.conf ]] && [[ -e ${dir}/opens___.ttf ]]; then
+			insinto /etc/fonts/conf.avail
+			newins "${dir}"/fc_local.conf 30-opensymbol.conf
 
-		insinto /etc/fonts/conf.avail
-		newins "${ED}/usr/$(get_libdir)"/libreoffice/share/fonts/truetype/fc_local.conf "${f}"
-
-		dosym -r "/etc/fonts/conf.avail/${f}" "/etc/fonts/conf.d/${f}"
+			insinto /usr/share/fonts/libreoffice
+			doins "${dir}"/opens___.ttf
+		fi
 	fi
 }
