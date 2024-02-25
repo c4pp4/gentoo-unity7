@@ -7,7 +7,7 @@ DISTUTILS_SINGLE_IMPL=1
 PYTHON_COMPAT=( python3_{10..12} )
 
 UVER=
-UREV=5ubuntu1
+UREV=5ubuntu2
 
 inherit gnome2 distutils-r1 ubuntu-versionator
 

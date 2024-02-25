@@ -1,13 +1,1 @@
-ehooks() {
-	if ehooks_use fontconfig; then
-		local dir="${ED}"/usr/"$(get_libdir)"/libreoffice/share/fonts/truetype
-
-		if [[ -e ${dir}/fc_local.conf ]] && [[ -e ${dir}/opens___.ttf ]]; then
-			insinto /etc/fonts/conf.avail
-			newins "${dir}"/fc_local.conf 30-opensymbol.conf
-
-			insinto /usr/share/fonts/libreoffice
-			doins "${dir}"/opens___.ttf
-		fi
-	fi
-}
+../libreoffice/03-post_src_install.ehooks
