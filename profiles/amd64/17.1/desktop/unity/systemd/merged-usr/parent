@@ -1,2 +1,2 @@
-..
-gentoo:features/merged-usr
+../..
+gentoo:default/linux/amd64/17.1/desktop/gnome/systemd/merged-usr

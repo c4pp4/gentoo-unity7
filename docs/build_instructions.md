@@ -8,11 +8,11 @@
    <br/>
    `emaint sync -r gentoo-unity7`
 
-3. **Select** `gentoo-unity7:amd64/17.1/desktop/unity/systemd (stable)` [profile⬀][ep] listed with:
+3. **Select** `gentoo-unity7:amd64/17.1/desktop/unity/systemd/merged-usr (stable)` [profile⬀][ep] listed with:
 
    `eselect profile list`
 
-   NOTE: You can also switch to a [merged-usr⬀][mu] profile `gentoo-unity7:amd64/17.1/desktop/unity/systemd/merged-usr (stable)`
+   NOTE: See [merged-usr⬀][mu] layout.
 
 4. **Set** `EHOOKS_ACCEPT="yes"` **variable** in `/etc/portage/make.conf` configuration file.
 
