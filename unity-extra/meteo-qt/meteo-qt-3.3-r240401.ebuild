@@ -3,12 +3,13 @@
 
 EAPI=8
 DISTUTILS_SINGLE_IMPL=1
+DISTUTILS_USE_PEP517=setuptools
 PYTHON_COMPAT=( python3_{10..12} )
 
 UVER=
 UREV=2
 
-inherit distutils-r1 ubuntu-versionator
+inherit distutils-r1 xdg ubuntu-versionator
 
 DESCRIPTION="System tray application for weather status information"
 HOMEPAGE="https://github.com/dglent/meteo-qt"
@@ -37,11 +38,14 @@ DEPEND="${COMMON_DEPEND}
 "
 
 src_prepare() {
-	# Exp #1: Fix lrelease path #
-	# Exp #2: Fix docdir #
+	# Fix lrelease path, data_dir and doc #
 	sed -i \
 		-e "s:lrelease:/usr/$(get_libdir)/qt5/bin/lrelease:" \
-		-e "s:/doc/${PN}:/doc/${PF}:" \
+		-e "s:/usr/share/applications:share/applications:" \
+		-e "s:/usr/share/icons:share/icons:" \
+		-e "s:/usr/share/meteo_qt/translations:share/meteo_qt/translations:" \
+		-e "s:/usr/share/doc/meteo-qt:share/doc/${PF}:" \
+		-e "/include_package_data/{s/True/False/}" \
 		setup.py || die
 
 	ubuntu-versionator_src_prepare
