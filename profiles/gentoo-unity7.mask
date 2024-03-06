@@ -1,6 +1,6 @@
 ## These are packages maintained via ehooks that must be checked before bump ##
 >app-accessibility/at-spi2-core-2.50.1:2
->app-admin/system-config-printer-1.5.18-r1
+>app-admin/system-config-printer-1.5.18-r2
 >app-backup/deja-dup-44.2
 >app-i18n/ibus-1.5.29
 >app-office/libreoffice-7.6.4.1
@@ -31,9 +31,9 @@
 >media-sound/rhythmbox-3.4.7-r3
 >media-video/totem-43.0-r1
 >net-im/pidgin-2.14.12
->net-im/telegram-desktop-4.15.0
+>net-im/telegram-desktop-4.15.0-r1
 >sys-apps/accountsservice-23.13.9
->www-client/chromium-121.0.6167.184
+>www-client/chromium-122.0.6261.94
 >www-client/firefox-124:rapid
 >www-client/firefox-116:esr
 >x11-libs/gtk+-2.24.33-r3:2
