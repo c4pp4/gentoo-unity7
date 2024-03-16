@@ -4,9 +4,11 @@
 
 2. **Add the overlay** using [eselect-repository⬀][erepo] module and synchronize it:
 
-   `eselect repository add gentoo-unity7`
+   `eselect repository enable gentoo-unity7`
    <br/>
    `emaint sync -r gentoo-unity7`
+
+   NOTE: Package [dev-vcs/git⬀][git] is required.
 
 3. **Select** `gentoo-unity7:amd64/17.1/desktop/unity/systemd/merged-usr (stable)` [profile⬀][ep] listed with:
 
@@ -35,6 +37,10 @@
 
    `emerge -avuDU --with-bdeps=y @world`
 
+   NOTE: Circular dependencies error may appear between 'media-libs/freetype' and 'media-libs/harfbuzz'. At first try:
+   <br/>
+   `USE="-harfbuzz" emerge -av1 media-libs/freetype`
+
 8. **Install the Unity7**:
 
    `emerge -av unity-meta`
@@ -53,6 +59,7 @@ NOTES:
 [ehooks]: ehooks.md
 [ep]: https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Base#Choosing_the_right_profile
 [erepo]: https://wiki.gentoo.org/wiki/Eselect/Repository
+[git]: https://wiki.gentoo.org/wiki/Git
 [ldm]: https://wiki.gentoo.org/wiki/LightDM#systemd
 [mu]: https://wiki.gentoo.org/wiki/Merge-usr
 [nm]: https://wiki.gentoo.org/wiki/NetworkManager#systemd
