@@ -49,7 +49,7 @@
 
 NOTES:
 
-- Don't forget to start systemd services, such as [LightDM⬀][ldm], [NetworkManager⬀][nm], [CUPS⬀][cups] or [Bluetooth⬀][bt].
+- Don't forget to start systemd services, such as [LightDM⬀][ldm], [PulseAudio⬀][pa], [NetworkManager⬀][nm], [CUPS⬀][cups] or [Bluetooth⬀][bt].
 
 - If you switch the default Python target, you **must** update `sys-apps/portage` before any other packages.
 
@@ -63,4 +63,5 @@ NOTES:
 [ldm]: https://wiki.gentoo.org/wiki/LightDM#systemd
 [mu]: https://wiki.gentoo.org/wiki/Merge-usr
 [nm]: https://wiki.gentoo.org/wiki/NetworkManager#systemd
+[pa]: https://wiki.gentoo.org/wiki/PulseAudio#systemd
 [sysd]: https://wiki.gentoo.org/wiki/Systemd
