@@ -5,7 +5,7 @@ EAPI=8
 PYTHON_COMPAT=( python3_{10..12} )
 
 UVER=+15.10.20150806
-UREV=0ubuntu31
+UREV=0ubuntu32
 
 inherit cmake python-single-r1 ubuntu-versionator
 
