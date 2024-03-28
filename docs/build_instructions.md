@@ -1,6 +1,6 @@
 # Build instructions
 
-1. **Switch to** [systemd⬀][sysd] init system.
+1. **Switch to** [systemd⬀][sysd] init system or use *'stage3-amd64-systemd-mergedusr'* tarball.
 
 2. **Add the overlay** using [eselect-repository⬀][erepo] module and synchronize it:
 
@@ -10,13 +10,9 @@
 
    NOTE: Package [dev-vcs/git⬀][git] is required.
 
-3. **Select** `gentoo-unity7:amd64/17.1/desktop/unity/systemd/merged-usr (stable)` [profile⬀][ep] listed with:
+3. **Set** `gentoo-unity7:amd64/17.1/desktop/unity/systemd/merged-usr (stable)` [profile⬀][ep] listed with `eselect profile list`.
 
-   `eselect profile list`
-
-   NOTE: See [merged-usr⬀][mu] layout.
-
-4. **Set** `EHOOKS_ACCEPT="yes"` **variable** in `/etc/portage/make.conf` configuration file.
+4. **Add** `EHOOKS_ACCEPT="yes"` **variable** into `/etc/portage/make.conf` configuration file.
 
    WARNING: Some overlay patches will be applied to packages from the Gentoo tree via ehooks patching system. For more details, see [ehooks - Chapter I.][ehooks] Set the variable to confirm you agree with it.
 
@@ -24,7 +20,7 @@
 
    `emerge -av gentoo-unity-env`
 
-6. Previous emerge command installs `unity-base/gentoo-unity-env` package. The package, among other things, generates emerge command needed to be applied and displays it as a warning message in pkg_postinst phase. **Rebuild all affected packages**.
+6. Previous emerge command installs *'unity-base/gentoo-unity-env'* package. The package, among other things, generates emerge command needed to be applied and displays it as a warning message in pkg_postinst phase. **Rebuild all affected packages**, if any.
 
    FOR EXAMPLE, YOU CAN SEE:
    ```
@@ -37,7 +33,7 @@
 
    `emerge -avuDU --with-bdeps=y @world`
 
-   NOTE: Circular dependencies error may appear between 'media-libs/freetype' and 'media-libs/harfbuzz'. At first try:
+   NOTE: Circular dependencies error may appear between *'media-libs/freetype'* and *'media-libs/harfbuzz'*. Before the update, try:
    <br/>
    `USE="-harfbuzz" emerge -av1 media-libs/freetype`
 
