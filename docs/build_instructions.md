@@ -1,6 +1,6 @@
 # Build instructions
 
-1. **Switch to** [systemd⬀][sysd] init system or use *'stage3-amd64-systemd-mergedusr'* tarball.
+1. **Switch to** [systemd⬀][sysd] init system or use *'stage3-amd64-systemd'* tarball.
 
 2. **Add the overlay** using [eselect-repository⬀][erepo] module and synchronize it:
 
@@ -10,7 +10,7 @@
 
    NOTE: Package [dev-vcs/git⬀][git] is required.
 
-3. **Set** `gentoo-unity7:amd64/17.1/desktop/unity/systemd/merged-usr (stable)` [profile⬀][ep] listed with `eselect profile list`.
+3. **Set** `gentoo-unity7:amd64/23.0/desktop/unity/systemd (stable)` [profile⬀][ep] listed with `eselect profile list`.
 
 4. **Add** `EHOOKS_ACCEPT="yes"` **variable** into `/etc/portage/make.conf` configuration file.
 
