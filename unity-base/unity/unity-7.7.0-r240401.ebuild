@@ -62,7 +62,7 @@ RDEPEND="${COMMON_DEPEND}
 	sys-auth/polkit-pkla-compat
 	>=sys-devel/gcc-7
 	>=sys-libs/glibc-2.29
-	unity-base/session-migration[${PYTHON_SINGLE_USEDEP}]
+	unity-base/session-migration
 	unity-base/session-shortcuts
 	unity-base/unity-control-center
 	unity-base/unity-language-pack
