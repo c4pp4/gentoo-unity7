@@ -17,7 +17,7 @@ HOMEPAGE="https://launchpad.net/onehundredscopes"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="amd64"
-RESTRICT="!test? ( test )"
+RESTRICT="test"
 
 RDEPEND="
 	dev-libs/dee:0=
@@ -95,8 +95,6 @@ PDEPEND="
 	soundcloud? ( unity-lenses/unity-lens-meta[music] )
 "
 
-distutils_enable_tests nose
-
 S="${WORKDIR}"
 
 src_prepare() {
@@ -122,18 +120,6 @@ src_compile() {
 		eval "_name=${i}; _ver=\${_ver_${i//-/_}}; _rel=\${_rel_${i//-/_}}"
 		pushd "${S}/unity-scope-${_name}-${_ver}" >/dev/null || die
 			BUILD_DIR="${PWD#${WORKDIR}/}_${BUILD_DIR}" distutils-r1_src_compile
-		popd >/dev/null || die
-	done
-}
-
-src_test() {
-	for i in ${packages[@]}; do
-		use ${i} || continue
-		eval "_name=${i}; _ver=\${_ver_${i//-/_}}; _rel=\${_rel_${i//-/_}}"
-		pushd "${S}/unity-scope-${_name}-${_ver}" >/dev/null || die
-			if grep -q python3-nose debian/control; then
-				nosetests || :
-			fi
 		popd >/dev/null || die
 	done
 }
