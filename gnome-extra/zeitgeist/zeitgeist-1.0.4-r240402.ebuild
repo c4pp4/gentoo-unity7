@@ -53,8 +53,9 @@ DEPEND="${COMMON_DEPEND}
 		dev-lang/vala[valadoc]
 		dev-util/gtk-doc
 		media-libs/raptor:2
-		$(python_gen_cond_dep 'dev-python/rdflib[${PYTHON_USEDEP}]')
 	)
+
+	$(python_gen_cond_dep 'dev-python/rdflib[${PYTHON_USEDEP}]')
 
 	$(vala_depend)
 "
@@ -62,13 +63,7 @@ DEPEND="${COMMON_DEPEND}
 S="${WORKDIR}/${PN}-v${PV}"
 
 src_prepare() {
-	if use doc; then
-		local VALA_USE_DEPEND="valadoc"
-	else
-		# Don't install ontology #
-		sed -i "/ontology /d" data/Makefile.am || die
-		sed -i "/install the python3-rdflib/{s/FAILURE/RESULT/}" configure.ac || die
-	fi
+	use doc && local VALA_USE_DEPEND="valadoc"
 
 	# Fix pre_populator.patch #
 	sed -i \
@@ -127,7 +122,7 @@ pkg_postinst() {
 	ubuntu-versionator_pkg_postinst
 
 	echo
-	elog "Reset ZeitGeist database in case of problems:"
+	elog "In case of problems, reset ZeitGeist database:"
 	elog "rm -rfv ~/.local/share/zeitgeist"
 	echo
 }
