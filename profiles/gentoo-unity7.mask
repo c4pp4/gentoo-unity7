@@ -1,5 +1,5 @@
 ## These are packages maintained via ehooks that must be checked before bump ##
->app-accessibility/at-spi2-core-2.50.1:2
+>app-accessibility/at-spi2-core-2.50.2:2
 >app-admin/system-config-printer-1.5.18-r2
 >app-backup/deja-dup-44.2
 >app-i18n/ibus-1.5.29
@@ -17,23 +17,23 @@
 >gnome-extra/gnome-calendar-45.1
 >gnome-extra/gnome-contacts-45.0
 >gnome-extra/nemo-5.8.4
->gnome-extra/nm-applet-1.32.0
+>gnome-extra/nm-applet-1.36.0
 >gnome-extra/polkit-gnome-0.105-r2
 >gnome-extra/yelp-42.2-r1
->gui-libs/libadwaita-1.4.2:1
->gui-libs/libhandy-1.8.2:1
+>gui-libs/libadwaita-1.4.4:1
+>gui-libs/libhandy-1.8.3:1
 >mail-client/thunderbird-116
 >mate-extra/mate-system-monitor-1.26.2
 >mate-extra/mate-utils-1.26.1
->media-gfx/eog-45.2:1
+>media-gfx/eog-45.3:1
 >media-gfx/shotwell-0.32.4
 >media-plugins/audacious-plugins-4.3.1-r2
 >media-sound/rhythmbox-3.4.7-r3
 >media-video/totem-43.0-r1
 >net-im/pidgin-2.14.12
->net-im/telegram-desktop-4.15.2
+>net-im/telegram-desktop-4.16.6
 >sys-apps/accountsservice-23.13.9
->www-client/chromium-122.0.6261.111
+>www-client/chromium-123.0.6312.105
 >www-client/firefox-125:rapid
 >www-client/firefox-116:esr
 >x11-libs/gtk+-2.24.33-r3:2
