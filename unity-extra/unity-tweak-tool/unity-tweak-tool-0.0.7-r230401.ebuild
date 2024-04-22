@@ -29,7 +29,6 @@ RDEPEND="
 	bluetooth? ( unity-indicators/unity-indicators-meta[bluetooth] )
 	files? ( unity-lenses/unity-lens-meta[files] )
 
-	${PYTHON_DEPS}
 	$(python_gen_cond_dep '
 		dev-python/pycairo[${PYTHON_USEDEP}]
 		dev-python/pyxdg[${PYTHON_USEDEP}]

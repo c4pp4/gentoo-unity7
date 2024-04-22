@@ -5,7 +5,7 @@ EAPI=8
 UBUNTU_EAUTORECONF="yes"
 
 UVER=
-UREV=4
+UREV=4build1
 
 inherit ubuntu-versionator
 

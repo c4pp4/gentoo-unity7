@@ -23,7 +23,6 @@ RDEPEND="
 	>=dev-libs/libappindicator-0.1:3[introspection]
 	sys-power/cpufrequtils
 
-	${PYTHON_DEPS}
 	$(python_gen_cond_dep '
 		dev-python/dbus-python[${PYTHON_USEDEP}]
 		dev-python/pygobject:3[${PYTHON_USEDEP}]

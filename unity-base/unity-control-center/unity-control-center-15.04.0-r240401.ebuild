@@ -15,7 +15,7 @@ HOMEPAGE="https://wiki.ubuntu.com/Unity"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="+accessibility +bluetooth +colord +cups +fcitx +gnome-online-accounts +i18n +input_devices_wacom +kerberos +networkmanager +v4l wayland +webkit"
+IUSE="+accessibility +bluetooth +colord +cups fcitx +gnome-online-accounts +i18n +input_devices_wacom +kerberos +networkmanager +v4l wayland +webkit"
 RESTRICT="test"
 
 COMMON_DEPEND="
@@ -45,7 +45,7 @@ COMMON_DEPEND="
 
 	colord? ( >=x11-misc/colord-1.4.3:= )
 	cups? ( >=net-print/cups-1.6.0 )
-	fcitx? ( >=app-i18n/fcitx-4.2.9.5 )
+	fcitx? ( >=app-i18n/fcitx-4.2.9.5:4 )
 	gnome-online-accounts? ( >=net-libs/gnome-online-accounts-3.18.0 )
 	i18n? ( >=app-i18n/ibus-1.5.1 )
 	input_devices_wacom? ( >=dev-libs/libwacom-1.1 )

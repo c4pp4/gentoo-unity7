@@ -19,10 +19,8 @@ SLOT="0"
 KEYWORDS="amd64"
 RESTRICT="mirror test"
 
+RDEPEND="unity-indicators/indicator-messages"
 DEPEND="${PYTHON_DEPS}"
-RDEPEND="${DEPEND}
-	unity-indicators/indicator-messages
-"
 PDEPEND=">=net-mail/mailnag-2.0.0"
 
 S="${WORKDIR}/${PN}-${COMMIT}"

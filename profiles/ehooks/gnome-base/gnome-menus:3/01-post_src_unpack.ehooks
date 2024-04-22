@@ -1,7 +1,7 @@
 ehooks() {
 	local \
-		blake=f81d1a54218a0ee0958a93d544ce91c8507bdd8871caa7d7bfa116f4db78961512e4c447be8d1dec94e59f51eeae138a9ada014a4b74c4253e0a3c3ca43a9d07 \
-		uver=gnome-menus_3.36.0-1.1ubuntu1
+		blake=27bcba37c77b43ee41557ebb4dd92f58d9854c000b0494cfbe8a6c9d0715d682d6bde67843bdeb1720f3e0731493267eb746a1edbd84b3f9c5fb152fd579f988 \
+		uver=gnome-menus_3.36.0-1.1ubuntu3
 
 	source "${EHOOKS_PATH}"/templates/fetch_debian.template
 	fetch_debian "${blake}" "${uver}"

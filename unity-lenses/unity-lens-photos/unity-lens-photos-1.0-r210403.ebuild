@@ -22,7 +22,6 @@ IUSE="gnome-online-accounts"
 RESTRICT="test"
 
 RDEPEND="
-	${PYTHON_DEPS}
 	>=dev-libs/dee-1.2.5:0=[${PYTHON_SINGLE_USEDEP}]
 	>=dev-libs/libunity-7:0=[${PYTHON_SINGLE_USEDEP}]
 	media-gfx/shotwell

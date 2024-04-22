@@ -16,7 +16,7 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 LICENSE="GPL-2 LGPL-2.1"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="+colord debug +fcitx +i18n +input_devices_wacom nls rfkill +short-touchpad-timeout smartcard +udev"
+IUSE="+colord debug fcitx +i18n +input_devices_wacom nls rfkill +short-touchpad-timeout smartcard +udev"
 REQUIRED_USE="
 	input_devices_wacom? ( udev )
 	smartcard? ( udev )
@@ -48,8 +48,8 @@ COMMON_DEPEND="
 
 	colord? ( >=x11-misc/colord-1.4.3:= )
 	fcitx? (
-		>=app-i18n/fcitx-4.2.9.5
-		app-i18n/fcitx-configtool
+		>=app-i18n/fcitx-4.2.9.5:4
+		app-i18n/fcitx-configtool:4
 	)
 	i18n? ( >=app-i18n/ibus-1.5.1 )
 	input_devices_wacom? (
