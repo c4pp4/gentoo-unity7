@@ -5,20 +5,22 @@ EAPI=8
 GNOME2_EAUTORECONF="yes"
 
 UVER=+23.04.20230220
-UREV=0ubuntu1
+UREV=0ubuntu8
 
 inherit gnome2 ubuntu-versionator vala
 
 DESCRIPTION="Unity Desktop Configuration Tool"
 HOMEPAGE="https://wiki.ubuntu.com/Unity"
+SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="+accessibility +bluetooth +colord +cups fcitx +gnome-online-accounts +i18n +input_devices_wacom +kerberos +networkmanager +v4l wayland +webkit"
+IUSE="+accessibility +bluetooth +colord +cups fcitx +gnome-online-accounts +input_devices_wacom +kerberos +networkmanager +v4l wayland +webkit"
 RESTRICT="test"
 
 COMMON_DEPEND="
+	>=app-i18n/ibus-1.5.1
 	>=dev-libs/glib-2.39.91:2
 	>=dev-libs/libpwquality-1.1.0
 	>=dev-libs/libtimezonemap-0.4.5
@@ -47,7 +49,6 @@ COMMON_DEPEND="
 	cups? ( >=net-print/cups-1.6.0 )
 	fcitx? ( >=app-i18n/fcitx-4.2.9.5:4 )
 	gnome-online-accounts? ( >=net-libs/gnome-online-accounts-3.18.0 )
-	i18n? ( >=app-i18n/ibus-1.5.1 )
 	input_devices_wacom? ( >=dev-libs/libwacom-1.1 )
 	kerberos? ( >=app-crypt/mit-krb5-1.8 )
 	networkmanager? (
@@ -108,6 +109,7 @@ PATCHES=(
 	"${FILESDIR}"/01-langselector.patch # Based on g-c-c v3.24 Region & Language panel
 	"${FILESDIR}"/02-optional-bt-colord-kerberos-wacom.patch
 	"${FILESDIR}"/03-revert-searching-the-dash-legal-notice.patch
+	"${FILESDIR}"/04-ibus_init.patch
 )
 
 src_prepare() {
@@ -199,11 +201,11 @@ src_configure() {
 		--disable-update-mimedb
 		--disable-static
 		--enable-documentation
+		--enable-ibus
 		$(use_enable bluetooth)
 		$(use_enable colord color)
 		$(use_enable cups)
 		$(use_enable fcitx)
-		$(use_enable i18n ibus)
 		$(use_enable input_devices_wacom wacom)
 		$(use_enable kerberos)
 		$(use_enable gnome-online-accounts onlineaccounts)

@@ -48,15 +48,14 @@ RDEPEND="
 			www-client/firefox
 			www-client/firefox-bin
 			www-client/chromium
-			www-client/chromium-bin
 			www-client/epiphany
 		)
 	)
 	chat? (
 		|| (
-			( net-im/pidgin x11-plugins/pidgin-libnotify )
 			net-im/telegram-desktop
 			net-im/telegram-desktop-bin
+			( net-im/pidgin x11-plugins/pidgin-libnotify )
 		)
 	)
 	core? (

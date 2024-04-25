@@ -1,6 +1,6 @@
-From d1e90491737a3ea90ae994a20e0b5f010d2c5cff Mon Sep 17 00:00:00 2001
+From 843b06d8894aa09127d33579be89f9c5b45eea5c Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Fri, 31 May 2019 20:20:55 +0200
+Date: Wed, 24 Apr 2024 22:29:33 +0200
 Subject: [PATCH 1/1] Integrate 'Language Support' panel
 
 Allow set up Language and Formats for Unity and Login Screen (it's
@@ -17,7 +17,7 @@ Signed-off-by: c4pp4
  panels/Makefile.am                            |   1 +
  panels/common/Makefile.am                     |   2 +
  panels/common/cc-common-language.c            | 626 +++---------
- panels/common/cc-common-language.h            |   2 +-
+ panels/common/cc-common-language.h            |   5 +-
  panels/common/cc-language-chooser.c           | 606 +++++++-----
  panels/common/cc-language-chooser.h           |  10 +-
  panels/common/cc-util.c                       | 108 +++
@@ -33,15 +33,21 @@ Signed-off-by: c4pp4
  panels/langselector/langselector-module.c     |  41 +
  panels/langselector/langselector.ui           | 221 +++++
  .../unity-langselector-panel.desktop.in.in    |  11 +
- panels/region/gnome-region-panel-formats.c    |   2 +-
+ panels/region/Makefile.am                     |   3 -
+ panels/region/cc-region-panel.c               |   3 -
+ panels/region/gnome-region-panel-formats.c    | 214 -----
+ panels/region/gnome-region-panel-formats.h    |  31 -
  panels/region/gnome-region-panel-input.c      |  38 +-
- panels/region/gnome-region-panel-lang.c       |   2 +-
- panels/region/unity-region-panel-fcitx.ui     |  21 +-
+ panels/region/gnome-region-panel-lang.c       | 151 +--
+ panels/region/gnome-region-panel-lang.h       |  32 -
+ panels/region/gnome-region-panel-system.c     | 105 ---
+ panels/region/gnome-region-panel-system.h     |  34 -
+ panels/region/unity-region-panel-fcitx.ui     |  23 +-
  panels/region/unity-region-panel-ibus.ui      |  23 +-
  .../data/user-accounts-dialog.ui              |  15 +-
  panels/user-accounts/um-user-panel.c          | 123 ++-
  po/POTFILES.in                                |   6 +-
- 28 files changed, 3120 insertions(+), 891 deletions(-)
+ 34 files changed, 3120 insertions(+), 1465 deletions(-)
  create mode 100644 panels/common/cc-util.c
  create mode 100644 panels/common/cc-util.h
  create mode 100644 panels/langselector/Makefile.am
@@ -53,12 +59,15 @@ Signed-off-by: c4pp4
  create mode 100644 panels/langselector/langselector-module.c
  create mode 100644 panels/langselector/langselector.ui
  create mode 100644 panels/langselector/unity-langselector-panel.desktop.in.in
+ delete mode 100644 panels/region/gnome-region-panel-formats.h
+ delete mode 100644 panels/region/gnome-region-panel-lang.h
+ delete mode 100644 panels/region/gnome-region-panel-system.h
 
 diff --git a/configure.ac b/configure.ac
-index e4206aa..ce2b177 100644
+index 5aab154..a9603a6 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -146,6 +146,11 @@ PKG_CHECK_MODULES(INFO_PANEL, $COMMON_MODULES libgtop-2.0 gl x11
+@@ -148,6 +148,11 @@ PKG_CHECK_MODULES(INFO_PANEL, $COMMON_MODULES libgtop-2.0 gl x11
  PKG_CHECK_MODULES(KEYBOARD_PANEL, $COMMON_MODULES
                    gnome-desktop-3.0 >= $GNOME_DESKTOP_REQUIRED_VERSION
                    x11)
@@ -70,7 +79,7 @@ index e4206aa..ce2b177 100644
  PKG_CHECK_MODULES(MEDIA_PANEL, $COMMON_MODULES)
  PKG_CHECK_MODULES(MOUSE_PANEL, $COMMON_MODULES xi >= 1.2
                    unity-settings-daemon x11)
-@@ -460,6 +465,8 @@ panels/keyboard/unity-keyboard-panel.desktop.in
+@@ -465,6 +470,8 @@ panels/keyboard/unity-keyboard-panel.desktop.in
  panels/keyboard/unity-keybindings.pc
  panels/region/Makefile
  panels/region/unity-region-panel.desktop.in
@@ -826,10 +835,18 @@ index 885afe1..a55df19 100644
          return ht;
  }
 diff --git a/panels/common/cc-common-language.h b/panels/common/cc-common-language.h
-index 9894988..528eb6c 100644
+index 9894988..ff82cd4 100644
 --- a/panels/common/cc-common-language.h
 +++ b/panels/common/cc-common-language.h
-@@ -45,9 +45,9 @@ guint    cc_common_language_add_available_languages (GtkListStore     *store,
+@@ -37,17 +37,14 @@ enum {
+ gboolean cc_common_language_get_iter_for_language   (GtkTreeModel     *model,
+ 						     const gchar      *lang,
+ 						     GtkTreeIter      *iter);
+-gboolean cc_common_language_get_iter_for_region     (GtkTreeModel     *model,
+-						     const gchar      *lang,
+-						     GtkTreeIter      *iter);
+ guint    cc_common_language_add_available_languages (GtkListStore     *store,
+                                                      gboolean          regions,
                                                       GHashTable       *user_langs);
  gboolean cc_common_language_has_font                (const gchar  *locale);
  gchar   *cc_common_language_get_current_language    (void);
@@ -4203,21 +4220,313 @@ index 0000000..9ac1b1f
 +NotShowIn=KDE;
 +X-Unity-Settings-Panel=langselector
 +_Keywords=Language;Input method;Region;Format;
+diff --git a/panels/region/Makefile.am b/panels/region/Makefile.am
+index 0ff2ab1..d40fd1d 100644
+--- a/panels/region/Makefile.am
++++ b/panels/region/Makefile.am
+@@ -18,11 +18,8 @@ libregion_la_SOURCES =	\
+ 	cc-region-panel.c \
+ 	cc-region-panel.h \
+ 	gnome-region-panel-formats.c \
+-	gnome-region-panel-formats.h \
+ 	gnome-region-panel-lang.c \
+-	gnome-region-panel-lang.h \
+ 	gnome-region-panel-system.c \
+-	gnome-region-panel-system.h \
+ 	gnome-region-panel-input.c \
+ 	gnome-region-panel-input.h \
+ 	cc-region-keyboard-item.c \
+diff --git a/panels/region/cc-region-panel.c b/panels/region/cc-region-panel.c
+index 6f75869..d42e3c6 100644
+--- a/panels/region/cc-region-panel.c
++++ b/panels/region/cc-region-panel.c
+@@ -23,9 +23,6 @@
+ #include <gtk/gtk.h>
+ 
+ #include "gnome-region-panel-input.h"
+-#include "gnome-region-panel-lang.h"
+-#include "gnome-region-panel-formats.h"
+-#include "gnome-region-panel-system.h"
+ #include "gtkentryaccel.h"
+ 
+ CC_PANEL_REGISTER (CcRegionPanel, cc_region_panel)
 diff --git a/panels/region/gnome-region-panel-formats.c b/panels/region/gnome-region-panel-formats.c
-index 1f28de6..eb2a702 100644
+index 1f28de6..f505f11 100644
 --- a/panels/region/gnome-region-panel-formats.c
 +++ b/panels/region/gnome-region-panel-formats.c
-@@ -334,7 +334,7 @@ add_region (GtkWidget *button, GtkWidget *treeview)
-         toplevel = gtk_widget_get_toplevel (button);
-         chooser = g_object_get_data (G_OBJECT (button), "chooser");
-         if (chooser == NULL) {
--                chooser = cc_language_chooser_new (toplevel, TRUE);
-+                chooser = cc_language_chooser_new (toplevel);
+@@ -27,11 +27,8 @@
+ #include <locale.h>
+ #include <langinfo.h>
+ #include <stdlib.h>
+-#include "cc-common-language.h"
+ #include "cc-language-chooser.h"
+ #include "gdm-languages.h"
+-#include "gnome-region-panel-formats.h"
+-#include "gnome-region-panel-system.h"
  
-                 g_signal_connect (chooser, "response",
-                                   G_CALLBACK (region_response), treeview);
+ static void
+ display_date (GtkLabel *label, GDateTime *dt, const gchar *format)
+@@ -191,41 +188,6 @@ set_formats_locale (const gchar *formats_locale)
+ 	g_free (user_path);
+ }
+ 
+-static void
+-update_settings_cb (GtkTreeSelection *selection, gpointer user_data)
+-{
+-        GtkBuilder *builder = GTK_BUILDER (user_data);
+-        GtkTreeModel *model;
+-        GtkTreeIter iter;
+-        gchar *active_id;
+-        GtkWidget *treeview;
+-        GSettings *locale_settings;
+-
+-        if (!gtk_tree_selection_get_selected (selection, &model, &iter)) {
+-                return;
+-        }
+-        gtk_tree_model_get (model, &iter, 0, &active_id, -1);
+-
+-        treeview = GTK_WIDGET (gtk_builder_get_object (builder, "region_selector"));
+-
+-        locale_settings = g_object_get_data (G_OBJECT (treeview), "settings");
+-
+-        set_formats_locale (active_id);
+-        locale_settings_changed (locale_settings, NULL, builder);
+-
+-        g_free (active_id);
+-}
+-
+-static void
+-setting_changed_cb (GSettings *locale_settings, gchar *key, GtkTreeView *treeview)
+-{
+-        gchar *current_setting;
+-
+-        current_setting = cc_common_language_get_property ("FormatsLocale");
+-        select_region (treeview, current_setting);
+-        g_free (current_setting);
+-}
+-
+ static gint
+ sort_regions (GtkTreeModel *model,
+               GtkTreeIter  *a,
+@@ -245,179 +207,3 @@ sort_regions (GtkTreeModel *model,
+ 
+         return result;
+ }
+-
+-static void
+-populate_regions (GtkBuilder *builder, const gchar *current_lang)
+-{
+-        gchar *current_region;
+-        GHashTable *ht;
+-        GHashTableIter htiter;
+-        GtkTreeModel *model;
+-        gchar *name, *language;
+-        GtkWidget *treeview;
+-        GtkTreeIter iter;
+-        GtkTreeSelection *selection;
+-
+-        treeview = GTK_WIDGET (gtk_builder_get_object (builder, "region_selector"));
+-        /* don't update the setting just because the list is repopulated */
+-        selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+-        g_signal_handlers_block_by_func (selection, update_settings_cb, builder);
+-
+-        model = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
+-
+-        ht = cc_common_language_get_initial_regions (current_lang);
+-
+-        current_region = cc_common_language_get_property ("FormatsLocale");
+-        if (!current_region || !current_region[0]) {
+-                current_region = g_strdup (current_lang);
+-        }
+-        else if (!g_hash_table_lookup (ht, current_region)) {
+-                name = gdm_get_region_from_name (current_region, NULL);
+-                g_hash_table_insert (ht, g_strdup (current_region), name);
+-        }
+-
+-        gtk_list_store_clear (GTK_LIST_STORE (model));
+-
+-        g_hash_table_iter_init (&htiter, ht);
+-        while (g_hash_table_iter_next (&htiter, (gpointer *)&name, (gpointer *)&language)) {
+-                gtk_list_store_append (GTK_LIST_STORE (model), &iter);
+-                gtk_list_store_set (GTK_LIST_STORE (model), &iter, 0, name, 1, language, -1);
+-        }
+-        g_hash_table_unref (ht);
+-
+-        select_region (GTK_TREE_VIEW (treeview), current_region);
+-
+-        g_free (current_region);
+-
+-        g_signal_handlers_unblock_by_func (selection, update_settings_cb, builder);
+-}
+-
+-static void
+-region_response (GtkDialog *dialog,
+-                 gint       response_id,
+-                 GtkWidget *treeview)
+-{
+-        gchar *lang;
+-        GtkTreeModel *model;
+-        GtkTreeSelection *selection;
+-        GtkTreeIter iter;
+-
+-        gtk_widget_hide (GTK_WIDGET (dialog));
+-
+-        if (response_id != GTK_RESPONSE_OK) {
+-                return;
+-        }
+-
+-        lang = cc_language_chooser_get_language (GTK_WIDGET (dialog));
+-
+-        if (lang == NULL) {
+-                return;
+-        }
+-        model = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
+-        selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+-
+-        if (cc_common_language_get_iter_for_region (model, lang, &iter)) {
+-                gtk_tree_selection_select_iter (selection, &iter);
+-        }
+-
+-        gtk_widget_grab_focus (treeview);
+-
+-        g_free (lang);
+-}
+-
+-static void
+-add_region (GtkWidget *button, GtkWidget *treeview)
+-{
+-        GtkWidget *toplevel;
+-        GtkWidget *chooser;
+-
+-        toplevel = gtk_widget_get_toplevel (button);
+-        chooser = g_object_get_data (G_OBJECT (button), "chooser");
+-        if (chooser == NULL) {
+-                chooser = cc_language_chooser_new (toplevel, TRUE);
+-
+-                g_signal_connect (chooser, "response",
+-                                  G_CALLBACK (region_response), treeview);
+-                g_signal_connect (chooser, "delete-event",
+-                                  G_CALLBACK (gtk_widget_hide_on_delete), NULL);
+-
+-                g_object_set_data_full (G_OBJECT (button), "chooser",
+-                                        chooser, (GDestroyNotify)gtk_widget_destroy);
+-        }
+-        else {
+-                cc_language_chooser_clear_filter (chooser);
+-        }
+-
+-        gdk_window_set_cursor (gtk_widget_get_window (toplevel), NULL);
+-        gtk_window_present (GTK_WINDOW (chooser));
+-}
+-
+-void
+-setup_formats (GtkBuilder *builder)
+-{
+-	GtkWidget *treeview;
+-	gchar *current_lang;
+-	GtkTreeModel *model;
+-        GtkCellRenderer *cell;
+-        GtkTreeViewColumn *column;
+-        GtkWidget *widget;
+-        GtkStyleContext *context;
+-        GSettings *locale_settings;
+-        GtkTreeSelection *selection;
+-
+-	locale_settings = g_settings_new ("org.gnome.system.locale");
+-
+-        /* Setup junction between toolbar and treeview */
+-        widget = (GtkWidget *)gtk_builder_get_object (builder, "region-swindow");
+-        context = gtk_widget_get_style_context (widget);
+-        gtk_style_context_set_junction_sides (context, GTK_JUNCTION_BOTTOM);
+-        widget = (GtkWidget *)gtk_builder_get_object (builder, "region-toolbar");
+-        context = gtk_widget_get_style_context (widget);
+-        gtk_style_context_set_junction_sides (context, GTK_JUNCTION_TOP);
+-
+-	/* Setup formats selector */
+-	treeview = GTK_WIDGET (gtk_builder_get_object (builder, "region_selector"));
+-        cell = gtk_cell_renderer_text_new ();
+-        g_object_set (cell,
+-                      "width-chars", 40,
+-                      "ellipsize", PANGO_ELLIPSIZE_END,
+-                      NULL);
+-        column = gtk_tree_view_column_new_with_attributes (NULL, cell, "text", 1, NULL);
+-        gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), column);
+-
+-        model = (GtkTreeModel*)gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_STRING);
+-        gtk_tree_sortable_set_default_sort_func (GTK_TREE_SORTABLE (model),
+-                                                 sort_regions, NULL, NULL);
+-        gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (model),
+-                                              GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID,
+-                                              GTK_SORT_ASCENDING);
+-        gtk_tree_view_set_model (GTK_TREE_VIEW (treeview), model);
+-
+-        g_object_set_data_full (G_OBJECT (treeview), "settings", locale_settings, g_object_unref);
+-
+-        selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+-        g_signal_connect (selection, "changed",
+-                          G_CALLBACK (update_settings_cb), builder);
+-        g_signal_connect (selection, "changed",
+-                          G_CALLBACK (update_examples_cb), builder);
+-
+-        /* Connect buttons */
+-        widget = (GtkWidget *)gtk_builder_get_object (builder, "region_add");
+-        g_signal_connect (widget, "clicked",
+-                          G_CALLBACK (add_region), treeview);
+-
+-	current_lang = cc_common_language_get_current_language ();
+-        populate_regions (builder, current_lang);
+-	g_free (current_lang);
+-
+-        g_signal_connect (locale_settings, "changed::region",
+-                          G_CALLBACK (setting_changed_cb), treeview);
+-}
+-
+-void
+-formats_update_language (GtkBuilder  *builder,
+-                         const gchar *language)
+-{
+-        populate_regions (builder, language);
+-}
+-
+diff --git a/panels/region/gnome-region-panel-formats.h b/panels/region/gnome-region-panel-formats.h
+deleted file mode 100644
+index 6ba1176..0000000
+--- a/panels/region/gnome-region-panel-formats.h
++++ /dev/null
+@@ -1,31 +0,0 @@
+-/*
+- * Copyright (C) 2011 Rodrigo Moya
+- *
+- * Written by: Rodrigo Moya <rodrigo@gnome.org>
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2, or (at your option)
+- * any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+- * 02111-1307, USA.
+- */
+-
+-#ifndef __GNOME_REGION_PANEL_FORMATS_H
+-#define __GNOME_REGION_PANEL_FORMATS_H
+-
+-#include <gtk/gtk.h>
+-
+-void setup_formats (GtkBuilder *builder);
+-void formats_update_language (GtkBuilder  *builder,
+-                              const gchar *language);
+-
+-#endif
 diff --git a/panels/region/gnome-region-panel-input.c b/panels/region/gnome-region-panel-input.c
-index ef2e6ba..3bfe6cc 100644
+index ef2e6ba..4547167 100644
 --- a/panels/region/gnome-region-panel-input.c
 +++ b/panels/region/gnome-region-panel-input.c
 @@ -79,6 +79,9 @@
@@ -4259,8 +4568,8 @@ index ef2e6ba..3bfe6cc 100644
 +}
 +
 +static gboolean
-+langselector_callback (GtkLinkButton *button,
-+                       CcRegionPanel *self)
++go_to_langselector (GtkLinkButton *button,
++                    CcRegionPanel *self)
 +{
 +  switch_panel (self, LANGSELECTOR_PANEL);
 +
@@ -4268,8 +4577,8 @@ index ef2e6ba..3bfe6cc 100644
 +}
 +
 +static gboolean
-+keyboard_callback (GtkLinkButton *button,
-+                   CcRegionPanel *self)
++go_to_keyboard (GtkLinkButton *button,
++                CcRegionPanel *self)
 +{
 +  switch_panel (self, KEYBOARD_PANEL);
  
@@ -4282,17 +4591,122 @@ index ef2e6ba..3bfe6cc 100644
 -  g_signal_connect (WID("jump-to-shortcuts"), "activate-link",
 -                    G_CALLBACK (go_to_shortcuts), panel);
 +  g_signal_connect (WID("jump-to-langselector"), "activate-link",
-+                    G_CALLBACK (langselector_callback), panel);
++                    G_CALLBACK (go_to_langselector), panel);
 +  g_signal_connect (WID("jump-to-keyboard"), "activate-link",
-+                    G_CALLBACK (keyboard_callback), panel);
++                    G_CALLBACK (go_to_keyboard), panel);
    g_signal_connect (G_OBJECT (input_sources_settings),
                      "changed::" KEY_INPUT_SOURCES,
                      G_CALLBACK (input_sources_changed),
 diff --git a/panels/region/gnome-region-panel-lang.c b/panels/region/gnome-region-panel-lang.c
-index a944eca..575c36e 100644
+index a944eca..c74fae3 100644
 --- a/panels/region/gnome-region-panel-lang.c
 +++ b/panels/region/gnome-region-panel-lang.c
-@@ -167,7 +167,7 @@ add_language (GtkWidget *button, GtkWidget *treeview)
+@@ -26,104 +26,12 @@
+ #include <string.h>
+ #include <glib/gi18n.h>
+ 
+-#include "gnome-region-panel-lang.h"
+-#include "gnome-region-panel-formats.h"
+-#include "gnome-region-panel-system.h"
+ #include "cc-common-language.h"
+ #include "cc-language-chooser.h"
+ #include "gdm-languages.h"
+ 
+ static GDBusProxy *proxy = NULL;
+ 
+-static void
+-selection_changed (GtkTreeSelection *selection,
+-                   GtkBuilder       *builder)
+-{
+-	GtkTreeModel *model;
+-	GtkTreeIter iter;
+-	char *locale;
+-	GDBusProxy *user;
+-	GVariant *variant;
+-	GError *error = NULL;
+-	char *object_path;
+-
+-	if (gtk_tree_selection_get_selected (selection, &model, &iter) == FALSE) {
+-		g_warning ("No selected languages, this shouldn't happen");
+-		return;
+-	}
+-
+-	user = NULL;
+-	variant = NULL;
+-
+-	gtk_tree_model_get (model, &iter,
+-			    LOCALE_COL, &locale,
+-			    -1);
+-
+-	if (proxy == NULL) {
+-		g_warning ("Would change the language to '%s', but no D-Bus connection available", locale);
+-		goto bail;
+-	}
+-
+-	variant = g_dbus_proxy_call_sync (proxy,
+-					  "FindUserByName",
+-					  g_variant_new ("(s)", g_get_user_name ()),
+-					  G_DBUS_CALL_FLAGS_NONE,
+-					  -1,
+-					  NULL,
+-					  &error);
+-	if (variant == NULL) {
+-		g_warning ("Could not contact accounts service to look up '%s': %s",
+-			   g_get_user_name (), error->message);
+-		g_error_free (error);
+-		goto bail;
+-	}
+-
+-	g_variant_get (variant, "(o)", &object_path);
+-	user = g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
+-					      G_DBUS_PROXY_FLAGS_NONE,
+-					      NULL,
+-					      "org.freedesktop.Accounts",
+-					      object_path,
+-					      "org.freedesktop.Accounts.User",
+-					      NULL,
+-					      &error);
+-	g_free (object_path);
+-
+-	if (user == NULL) {
+-		g_warning ("Could not create proxy for user '%s': %s",
+-			   g_variant_get_string (variant, NULL), error->message);
+-		g_error_free (error);
+-		goto bail;
+-	}
+-	g_variant_unref (variant);
+-
+-	variant = g_dbus_proxy_call_sync (user,
+-					  "SetLanguage",
+-					  g_variant_new ("(s)", locale),
+-					  G_DBUS_CALL_FLAGS_NONE,
+-					  -1,
+-					  NULL,
+-					  &error);
+-	if (variant == NULL) {
+-		g_warning ("Failed to set the language '%s': %s", locale, error->message);
+-		g_error_free (error);
+-		goto bail;
+-	}
+-
+-        /* Update the other tabs */
+-        formats_update_language (builder, locale);
+-        system_update_language (builder, locale);
+-
+-	/* And done */
+-
+-bail:
+-	if (variant != NULL)
+-		g_variant_unref (variant);
+-	if (user != NULL)
+-		g_object_unref (user);
+-	g_free (locale);
+-}
+-
+ static void
+ language_response (GtkDialog *dialog,
+                    gint       response_id,
+@@ -167,7 +75,7 @@ add_language (GtkWidget *button, GtkWidget *treeview)
  	toplevel = gtk_widget_get_toplevel (button);
  	chooser = g_object_get_data (G_OBJECT (button), "chooser");
  	if (chooser == NULL) {
@@ -4301,8 +4715,274 @@ index a944eca..575c36e 100644
  
         		g_signal_connect (chooser, "response",
                  	          G_CALLBACK (language_response), treeview);
+@@ -184,60 +92,3 @@ add_language (GtkWidget *button, GtkWidget *treeview)
+         gdk_window_set_cursor (gtk_widget_get_window (toplevel), NULL);
+         gtk_window_present (GTK_WINDOW (chooser));
+ }
+-
+-void
+-setup_language (GtkBuilder *builder)
+-{
+-	GtkWidget *treeview;
+-	GHashTable *user_langs;
+-	GError *error = NULL;
+-	GtkWidget *widget;
+-	GtkStyleContext *context;
+-	GtkTreeSelection *selection;
+-
+-        /* Setup junction between toolbar and treeview */
+-        widget = (GtkWidget *)gtk_builder_get_object (builder, "language-swindow");
+-        context = gtk_widget_get_style_context (widget);
+-        gtk_style_context_set_junction_sides (context, GTK_JUNCTION_BOTTOM);
+-        widget = (GtkWidget *)gtk_builder_get_object (builder, "language-toolbar");
+-        context = gtk_widget_get_style_context (widget);
+-        gtk_style_context_set_junction_sides (context, GTK_JUNCTION_TOP);
+-	
+-	treeview = GTK_WIDGET (gtk_builder_get_object (builder, "display_language_treeview"));
+-
+-	/* Connect buttons */
+-	widget = (GtkWidget *)gtk_builder_get_object (builder, "language_add");
+-	g_signal_connect (widget, "clicked",
+-			  G_CALLBACK (add_language), treeview);	
+-
+-	/* Setup accounts service */
+-	proxy = g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
+-					       G_DBUS_PROXY_FLAGS_NONE,
+-					       NULL,
+-					       "org.freedesktop.Accounts",
+-					       "/org/freedesktop/Accounts",
+-					       "org.freedesktop.Accounts",
+-					       NULL,
+-					       &error);
+-
+-	if (proxy == NULL) {
+-		g_warning ("Failed to contact accounts service: %s", error->message);
+-		g_error_free (error);
+-	} else {
+-		g_object_weak_ref (G_OBJECT (treeview), (GWeakNotify) g_object_unref, proxy);
+-	}
+-
+-	/* Add user languages */
+-	user_langs = cc_common_language_get_initial_languages ();
+-	cc_common_language_setup_list (treeview, user_langs);
+-
+-        /* And select the current language */
+-        cc_common_language_select_current_language (GTK_TREE_VIEW (treeview));
+-
+-        /* And now listen for changes */
+-        selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+-        g_signal_connect (G_OBJECT (selection), "changed",
+-                          G_CALLBACK (selection_changed), builder);
+-
+-	gtk_widget_grab_focus (treeview);
+-}
+diff --git a/panels/region/gnome-region-panel-lang.h b/panels/region/gnome-region-panel-lang.h
+deleted file mode 100644
+index 3522ac0..0000000
+--- a/panels/region/gnome-region-panel-lang.h
++++ /dev/null
+@@ -1,32 +0,0 @@
+-/*
+- * Copyright (C) 2010 Bastien Nocera
+- *
+- * Written by: Bastien Nocera <hadess@hadess.net>
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2, or (at your option)
+- * any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+- * 02111-1307, USA.
+- */
+-
+-#ifndef __GNOME_KEYBOARD_PROPERTY_LANG_H
+-#define __GNOME_KEYBOARD_PROPERTY_LANG_H
+-
+-#include <gtk/gtk.h>
+-
+-G_BEGIN_DECLS
+-
+-void setup_language (GtkBuilder *builder);
+-
+-G_END_DECLS
+-#endif /* __GNOME_KEYBOARD_PROPERTY_LANG_H */
+diff --git a/panels/region/gnome-region-panel-system.c b/panels/region/gnome-region-panel-system.c
+index 488782a..622734f 100644
+--- a/panels/region/gnome-region-panel-system.c
++++ b/panels/region/gnome-region-panel-system.c
+@@ -34,7 +34,6 @@
+ 
+ #include "cc-common-language.h"
+ #include "gdm-languages.h"
+-#include "gnome-region-panel-system.h"
+ 
+ #define WID(s) GTK_WIDGET(gtk_builder_get_object (dialog, s))
+ 
+@@ -92,48 +91,6 @@ update_copy_button (GtkBuilder *dialog)
+                 gtk_widget_set_sensitive (button, TRUE);
+ }
+ 
+-void
+-locale_settings_changed (GSettings *settings,
+-                         const gchar *key,
+-                         GtkBuilder *dialog)
+-{
+-        GtkWidget *label;
+-        gchar *region, *display_region;
+-
+-        region = cc_common_language_get_property ("FormatsLocale");
+-        if (!region || !region[0]) {
+-                label = WID ("user_display_language");
+-                region = g_strdup ((gchar*)g_object_get_data (G_OBJECT (label), "language"));
+-        }
+-
+-        display_region = gdm_get_region_from_name (region, NULL);
+-        label = WID ("user_format");
+-        gtk_label_set_text (GTK_LABEL (label), display_region);
+-        g_object_set_data_full (G_OBJECT (label), "region", g_strdup (region), g_free);
+-        g_free (region);
+-        g_free (display_region);
+-
+-        update_copy_button (dialog);
+-}
+-
+-void
+-system_update_language (GtkBuilder *dialog, const gchar *language)
+-{
+-        gchar *display_language;
+-        GtkWidget *label;
+-
+-        display_language = gdm_get_language_from_name (language, NULL);
+-        label = WID ("user_display_language");
+-        gtk_label_set_text (GTK_LABEL (label), display_language);
+-        g_object_set_data_full (G_OBJECT (label), "language", g_strdup (language), g_free);
+-        g_free (display_language);
+-
+-        /* need to update the region display in case the setting is '' */
+-        locale_settings_changed (locale_settings, "region", dialog);
+-
+-        update_copy_button (dialog);
+-}
+-
+ static void
+ input_sources_changed (GSettings *settings,
+                        const gchar *key,
+@@ -524,65 +481,3 @@ on_permission_changed (GPermission *permission,
+                 }
+         }
+ }
+-
+-void
+-setup_system (GtkBuilder *dialog)
+-{
+-        gchar *language;
+-        GDBusConnection *bus;
+-        GtkWidget *button;
+-
+-        localed_permission = polkit_permission_new_sync ("org.freedesktop.locale1.set-locale", NULL, NULL, NULL);
+-        if (localed_permission == NULL) {
+-                GtkWidget *tab_widget, *notebook;
+-                int num;
+-
+-                tab_widget = WID ("table3");
+-                notebook = WID ("region_notebook");
+-                num = gtk_notebook_page_num (GTK_NOTEBOOK (notebook), tab_widget);
+-                gtk_notebook_remove_page (GTK_NOTEBOOK (notebook), num);
+-                return;
+-        }
+-
+-        g_object_weak_ref (G_OBJECT (dialog), (GWeakNotify) g_object_unref, localed_permission);
+-        g_signal_connect (localed_permission, "notify",
+-                          G_CALLBACK (on_permission_changed), dialog);
+-        on_permission_changed (localed_permission, NULL, dialog);
+-
+-
+-        button = WID ("copy_settings_button");
+-        g_signal_connect (button, "clicked",
+-                          G_CALLBACK (copy_settings), dialog);
+-
+-
+-        locale_settings = g_settings_new ("org.gnome.system.locale");
+-        g_signal_connect (locale_settings, "changed::region",
+-                          G_CALLBACK (locale_settings_changed), dialog);
+-        g_object_weak_ref (G_OBJECT (dialog), (GWeakNotify) g_object_unref, locale_settings);
+-
+-        input_sources_settings = g_settings_new ("org.gnome.desktop.input-sources");
+-        g_signal_connect (input_sources_settings, "changed::sources",
+-                          G_CALLBACK (input_sources_changed), dialog);
+-        g_object_weak_ref (G_OBJECT (dialog), (GWeakNotify) g_object_unref, input_sources_settings);
+-
+-        /* Display user settings */
+-        language = cc_common_language_get_property ("Language");
+-        system_update_language (dialog, language);
+-        g_free (language);
+-
+-        locale_settings_changed (locale_settings, "region", dialog);
+-
+-        input_sources_changed (input_sources_settings, "sources", dialog);
+-
+-        bus = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, NULL);
+-        g_dbus_proxy_new (bus,
+-                           G_DBUS_PROXY_FLAGS_NONE,
+-                           NULL,
+-                           "org.freedesktop.locale1",
+-                           "/org/freedesktop/locale1",
+-                           "org.freedesktop.locale1",
+-                           NULL,
+-                           (GAsyncReadyCallback) localed_proxy_ready,
+-                           dialog);
+-        g_object_unref (bus);
+-}
+diff --git a/panels/region/gnome-region-panel-system.h b/panels/region/gnome-region-panel-system.h
+deleted file mode 100644
+index b76dec2..0000000
+--- a/panels/region/gnome-region-panel-system.h
++++ /dev/null
+@@ -1,34 +0,0 @@
+-/*
+- * Copyright (C) 2011 Rodrigo Moya
+- *
+- * Written by: Rodrigo Moya <rodrigo@gnome.org>
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2, or (at your option)
+- * any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+- * 02111-1307, USA.
+- */
+-
+-#ifndef __GNOME_REGION_PANEL_SYSTEM_H
+-#define __GNOME_REGION_PANEL_SYSTEM_H
+-
+-#include <gtk/gtk.h>
+-
+-void setup_system           (GtkBuilder *builder);
+-void system_update_language (GtkBuilder  *builder,
+-                             const gchar *language);
+-void locale_settings_changed (GSettings   *settings,
+-                              const gchar *key,
+-                              GtkBuilder  *dialog);
+-
+-#endif
 diff --git a/panels/region/unity-region-panel-fcitx.ui b/panels/region/unity-region-panel-fcitx.ui
-index 70332af..68e6efb 100644
+index 70332af..ebe95d9 100644
 --- a/panels/region/unity-region-panel-fcitx.ui
 +++ b/panels/region/unity-region-panel-fcitx.ui
 @@ -516,8 +516,25 @@
@@ -4333,6 +5013,15 @@ index 70332af..68e6efb 100644
                          <property name="visible">True</property>
                          <property name="can_focus">True</property>
                          <property name="receives_default">True</property>
+@@ -528,7 +545,7 @@
+                       <packing>
+                         <property name="expand">False</property>
+                         <property name="fill">True</property>
+-                        <property name="position">1</property>
++                        <property name="position">2</property>
+                       </packing>
+                     </child>
+                   </object>
 diff --git a/panels/region/unity-region-panel-ibus.ui b/panels/region/unity-region-panel-ibus.ui
 index a42d52c..3529c81 100644
 --- a/panels/region/unity-region-panel-ibus.ui
@@ -4627,5 +5316,5 @@ index 80b302b..d271728 100644
 +[type: gettext/glade]panels/langselector/langselector.ui
 +panels/langselector/unity-langselector-panel.desktop.in.in
 -- 
-2.21.0
+2.43.2
 

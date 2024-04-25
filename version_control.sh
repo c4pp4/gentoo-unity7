@@ -1,7 +1,7 @@
 #!/bin/bash
 
-stable="mantic"
-dev="noble"
+stable="noble"
+dev=""
 repos=(
 	main
 	universe

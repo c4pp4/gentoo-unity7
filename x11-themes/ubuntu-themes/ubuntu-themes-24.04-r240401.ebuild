@@ -14,7 +14,7 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 
 LICENSE="GPL-3 CC-BY-SA-3.0"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="+optimize"
 RESTRICT="binchecks strip test"
 

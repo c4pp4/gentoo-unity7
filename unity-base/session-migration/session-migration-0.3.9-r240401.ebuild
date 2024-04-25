@@ -14,7 +14,7 @@ SRC_URI="${UURL}.tar.xz"
 
 LICENSE="LGPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 RESTRICT="test"
 
 DEPEND=">=dev-libs/glib-2.51.1:2"

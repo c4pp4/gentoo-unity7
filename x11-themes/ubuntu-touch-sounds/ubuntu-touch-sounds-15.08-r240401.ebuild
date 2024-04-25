@@ -13,7 +13,7 @@ HOMEPAGE="https://launchpad.net/ubuntu-sounds"
 SRC_URI="${UURL}.tar.gz"
 
 LICENSE="CC-BY-SA-3.0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 SLOT="0"
 RESTRICT="binchecks strip test"
 

@@ -14,7 +14,7 @@ HOMEPAGE="https://launchpad.net/notify-osd"
 
 LICENSE="LGPL-2+ GPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="minimal"
 RESTRICT="test"
 
