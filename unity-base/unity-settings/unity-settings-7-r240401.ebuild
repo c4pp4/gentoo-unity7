@@ -15,18 +15,16 @@ SRC_URI=""
 LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="dejavu +files +fontconfig lowgfx +music +photos +ubuntu-cursor +ubuntu-sounds +video ubuntu-unity"
-REQUIRED_USE="dejavu? ( fontconfig )"
+IUSE="+files +fontconfig lowgfx +music +photos ubuntu-classic +ubuntu-cursor +ubuntu-sounds ubuntu-unity +video"
+REQUIRED_USE="ubuntu-classic? ( fontconfig )"
 RESTRICT="binchecks strip test"
 
 RDEPEND="
-	|| (
-		media-fonts/fonts-ubuntu
-		media-fonts/ubuntu-font-family
-	)
 	x11-themes/ubuntu-themes
 	x11-themes/ubuntu-wallpapers
 
+	!ubuntu-classic? ( media-fonts/fonts-ubuntu )
+	ubuntu-classic? ( media-fonts/ubuntu-font-family )
 	fontconfig? ( media-libs/freetype:2[adobe-cff,cleartype-hinting] )
 	ubuntu-cursor? ( x11-themes/vanilla-dmz-xcursors )
 	ubuntu-sounds? ( x11-themes/ubuntu-sounds )
@@ -95,7 +93,7 @@ src_install() {
 	if use fontconfig; then
 		insinto /etc/fonts/conf.avail
 		doins -r "${FILESDIR}"/language-selector/*
-		use dejavu \
+		use ubuntu-classic \
 			&& mv "${ED}"/etc/fonts/conf.avail/56-language-selector-prefer.conf \
 				"${ED}"/etc/fonts/conf.avail/64-language-selector-prefer.conf
 		einfo "Creating fontconfig configuration symlinks ..."

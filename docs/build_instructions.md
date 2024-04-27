@@ -1,6 +1,6 @@
 # Build instructions
 
-1. **Switch to** [systemd⬀][sysd] init system or use *'stage3-amd64-systemd'* tarball.
+1. **Switch to** [systemd⬀][sysd] init system or use [stage3-amd64-systemd⬀][s3] tarball.
 
 2. **Add the overlay** using [eselect-repository⬀][erepo] module and synchronize it:
 
@@ -60,4 +60,5 @@ NOTES:
 [mu]: https://wiki.gentoo.org/wiki/Merge-usr
 [nm]: https://wiki.gentoo.org/wiki/NetworkManager#systemd
 [pa]: https://wiki.gentoo.org/wiki/PulseAudio#systemd
+[s3]: https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Stage#Downloading_the_stage_file
 [sysd]: https://wiki.gentoo.org/wiki/Systemd
