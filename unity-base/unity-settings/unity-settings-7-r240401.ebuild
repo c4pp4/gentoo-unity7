@@ -23,14 +23,18 @@ RDEPEND="
 	x11-themes/ubuntu-themes
 	x11-themes/ubuntu-wallpapers
 
-	!ubuntu-classic? ( media-fonts/fonts-ubuntu )
+	!ubuntu-classic? (
+		|| (
+			media-fonts/fonts-ubuntu
+			media-fonts/ubuntu-font-family
+		)
+	)
 	ubuntu-classic? ( media-fonts/ubuntu-font-family )
 	fontconfig? ( media-libs/freetype:2[adobe-cff,cleartype-hinting] )
 	ubuntu-cursor? ( x11-themes/vanilla-dmz-xcursors )
 	ubuntu-sounds? ( x11-themes/ubuntu-sounds )
 	ubuntu-unity? ( x11-themes/ubuntu-unity-backgrounds )
 "
-
 PDEPEND="
 	unity-base/gentoo-unity-env[fontconfig=]
 	unity-lenses/unity-lens-meta[files=,music=,photos=,video=]
