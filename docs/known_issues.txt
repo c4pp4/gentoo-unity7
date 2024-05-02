@@ -1,8 +1,8 @@
 - Upgrading gnome-extra/zeitgeist from 1.0.3 to 1.0.4 can cause a dash loading lag.
 	* Try to reset ZeitGeist database with 'rm -rfv ~/.local/share/zeitgeist'.
 
-- Merging media-fonts/ubuntu-font-family from media-fonts/fonts-ubuntu package
-  and vice versa can cause unreadable menus (unity-base/unity-settings[ubuntu-classic]).
-	* Better update the package outside gui.
+- Installing media-fonts/ubuntu-font-family package instead of media-fonts/fonts-ubuntu
+  and vice versa may cause unreadable menus before session re-login.
+	* Preferably install these packages outside of the gui.
 
 - Packages depending on gui-libs/libadwaita have Client Side Decoration.

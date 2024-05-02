@@ -17,6 +17,7 @@ emerge -1 `qdepends -CNQ x11-libs/gtk+ 2> /dev/null`
 dev-libs/libindicator			# See "Using portage tree libindicate packages" above, the latest version in the Gentoo tree is 12.10.1 (2012-09-19)
 dev-python/python-zombie-imp		# Copy of the 'imp' module that was removed in Python 3.12
 media-fonts/fonts-noto-cjk		# Repacked version with reduced size
+media-fonts/fonts-ubuntu		# Newer version of Ubuntu fonts
 media-libs/glewmx			# Needed by unity-base/nux, MX discontinued as of GLEW v2.0.0
 x11-misc/notify-osd::gentoo		# The latest version in the Gentoo tree is 0.9.34 (2012-03-23)
 x11-themes/notify-osd-icons::gentoo	# The latest version in the Gentoo tree is 0.7 (2010-11-15)
@@ -75,7 +76,7 @@ mate-extra/mate-system-monitor		# Add Unity branding when in Unity
 mate-extra/mate-utils			# mate-screenshot: add quicklist options and use ubuntu help when in Unity
 mail-client/thunderbird			# Add Unity menubar and desktop launcher with quicklist and translations
 mail-client/thunderbird-bin		# Add desktop launcher with quicklist and translations
-media-fonts/ubuntu-font-family		# Add Ubuntu medium font (e.g. used by unity-indicators/indicator-keyboard)
+media-fonts/ubuntu-font-family		# Add medium size of Ubuntu classic font (e.g. used by unity-indicators/indicator-keyboard)
 media-gfx/eog:1				# Add traditional menu bar (https://bugzilla.gnome.org/749976, https://bugs.debian.org/793445), add menu translations
 media-gfx/gnome-photos			# Use unity-control-center as the fallback
 media-gfx/shotwell			# Patched for integration with Unity online accounts

@@ -19,16 +19,16 @@ IUSE="+files +fontconfig lowgfx +music +photos ubuntu-classic +ubuntu-cursor +ub
 REQUIRED_USE="ubuntu-classic? ( fontconfig )"
 RESTRICT="binchecks strip test"
 
+# media-fonts/ubuntu-font-family dependency #
+# is compatible with media-fonts/fonts-meta #
 RDEPEND="
+	|| (
+		media-fonts/fonts-ubuntu
+		media-fonts/ubuntu-font-family
+	)
 	x11-themes/ubuntu-themes
 	x11-themes/ubuntu-wallpapers
 
-	!ubuntu-classic? (
-		|| (
-			media-fonts/fonts-ubuntu
-			media-fonts/ubuntu-font-family
-		)
-	)
 	ubuntu-classic? ( media-fonts/ubuntu-font-family )
 	fontconfig? ( media-libs/freetype:2[adobe-cff,cleartype-hinting] )
 	ubuntu-cursor? ( x11-themes/vanilla-dmz-xcursors )
