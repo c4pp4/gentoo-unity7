@@ -174,7 +174,7 @@
 [//]: # (LINKS)
 [bashrc]: https://wiki.gentoo.org/wiki//etc/portage/bashrc
 [cenv]: ../profiles/gentoo-unity7.conf.env
-[code]: ../profiles/amd64/17.1/desktop/unity/profile.bashrc
+[code]: ../profiles/amd64/23.0/desktop/unity/profile.bashrc
 [efn]: https://devmanual.gentoo.org/function-reference/index.html
 [ehooks]: ../profiles/ehooks
 [env]: ../profiles/gentoo-unity7.env
