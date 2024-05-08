@@ -6,3 +6,7 @@
 	* Preferably install these packages outside of the gui.
 
 - Packages depending on gui-libs/libadwaita have Client Side Decoration.
+
+- Tray icon is not shown when using packages based on Electron framework such as Joplin or Discord.
+  https://github.com/electron/electron/issues/38979
+	* Use exec prefix 'env XDG_CURRENT_DESKTOP=Unity7'

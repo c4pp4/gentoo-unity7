@@ -20,7 +20,6 @@ REQUIRED_USE="gnome? ( extra )"
 RESTRICT="binchecks strip test"
 
 RDEPEND="
-	gnome-base/gnome-core-libs
 	gnome-extra/nm-applet
 	media-fonts/dejavu
 	unity-base/overlay-scrollbar
