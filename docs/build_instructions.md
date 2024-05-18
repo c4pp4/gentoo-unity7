@@ -24,7 +24,8 @@
 
    FOR EXAMPLE, YOU CAN SEE:
    ```
-    * Looking for ehooks changes... done!
+   >>> Looking for ehooks changes... done!
+
     * Rebuild the following packages affected by ehooks changes:
     * emerge -av1 app-i18n/ibus gnome-base/gnome-menus gnome-base/gnome-session gnome-base/gsettings-desktop-schemas gnome-extra/polkit-gnome x11-libs/gtk+:2 x11-libs/gtk+:3
    ```

@@ -209,13 +209,13 @@ ehooks_changes() {
 		exit 1
 	fi
 
-	printf "%s" " $(tput bold; tput setaf 2)*$(tput sgr0) Looking for ehooks changes${color_blink}...${color_norm}"
+	printf "%s" "Looking for ehooks changes${color_blink}...${color_norm}"
 
 	result=( $(find_tree_changes "$1") $(find_flag_changes "$1") )
 	# Remove duplicates.
 	result=( $(printf "%s\n" "${result[@]}" | sort -u) )
 
-	printf "\b\b\b%s\n" "... done!"
+	printf "\b\b\b%s\n\n" "... done!"
 
 	if [[ -z ${result[@]} ]]; then
 		einfo "No rebuild needed"
@@ -287,7 +287,7 @@ portage_updates() {
 			ln -fs /tmp/"${tmp_ak}" /etc/portage/package.accept_keywords/zzzz_"${tmp_ak}" || exit 1
 			echo "www-client/firefox:rapid::gentoo ~amd64" > /tmp/"${tmp_ak}"
 			update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "|~amd64$" | tail -1 | sed "s/|.*$//")
-		elif [[ ${line} == ">app-backup/deja-dup"* ]] || [[ ${line} == ">net-im/telegram-desktop"* ]]; then
+		elif [[ ${line} == ">app-backup/deja-dup"* ]]; then
 			update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "|~amd64$" | tail -1 | sed "s/|.*$//")
 		else
 			update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "|amd64$" | tail -1 | sed "s/|.*$//")

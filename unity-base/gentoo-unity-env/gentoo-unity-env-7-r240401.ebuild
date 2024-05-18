@@ -38,19 +38,13 @@ src_install() {
 		pkg_flag sys_flag x m n change slot prev_shopt
 
 	local -a \
-		ehk=() pkg=() \
-		indicator=( "|" "/" "-" "\\" )
+		ehk=() pkg=()
 
 	echo "## Automatically generated file: please don't remove or edit" > timestamps
 
-	printf "%s" " $(tput bold; tput setaf 2)*$(tput sgr0) Generating ${EROOT}/etc/gentoo-unity7/timestamps file ${indicator[0]}"
+	ebegin "Generating ${EROOT}/etc/gentoo-unity7/timestamps file"
 	for x in ${IUSE_EHOOKS}; do
 		x="${x#+}"
-
-		## Progress indicator.
-		[[ ${count} -eq 4 ]] && count=0
-		printf "\b\b %s" "${indicator[${count}]}"
-		count=$((count + 1))
 
 		## Find out if there is USE flag change.
 		use "${x}" && pkg_flag=1 || pkg_flag=0
@@ -104,7 +98,7 @@ src_install() {
 		done
 		unset change
 	done
-	printf "\b\b%s\n" "... done!"
+	eend "0"
 
 	n="gentoo-unity7"
 	insinto /etc/"${n}"
@@ -154,6 +148,7 @@ pkg_postinst() {
 	fi
 	echo
 
+	printf "%s" ">>> "
 	ehooks_changes
 
 	for x in ${fn}; do
