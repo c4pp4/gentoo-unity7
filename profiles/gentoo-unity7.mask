@@ -5,7 +5,7 @@
 >app-i18n/ibus-1.5.29
 >app-office/libreoffice-7.6.4.1
 >app-text/evince-45.0
->dev-cpp/gtest-1.13.0
+>dev-cpp/gtest-1.14.0
 >dev-libs/glib-2.78.6:2
 >games-board/iagno-3.38.1-r1
 >games-puzzle/gnome-taquin-3.38.1-r1
@@ -28,7 +28,7 @@
 >media-gfx/eog-45.3:1
 >media-gfx/shotwell-0.32.4
 >media-plugins/audacious-plugins-4.3.1-r2
->media-sound/rhythmbox-3.4.7-r3
+>media-sound/rhythmbox-3.4.7-r4
 >media-video/totem-43.0-r1
 >net-im/pidgin-2.14.12
 >net-im/telegram-desktop-4.16.6
