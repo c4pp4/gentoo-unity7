@@ -20,13 +20,12 @@ IUSE="test"
 RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
-	>=dev-libs/glib-2.37.3:2
-	>=unity-indicators/ido-13.10.0:0=
-	>=x11-libs/gtk+-2.18:2
+	>=dev-libs/glib-2.37.3:2[${MULTILIB_USEDEP}]
+	>=x11-libs/gtk+-2.18:2[${MULTILIB_USEDEP}]
 "
 RDEPEND="${COMMON_DEPEND}
 	>=sys-libs/glibc-2.4
-	>=x11-libs/gdk-pixbuf-2.22.0:2
+	>=x11-libs/gdk-pixbuf-2.22.0:2[${MULTILIB_USEDEP}]
 "
 DEPEND="${COMMON_DEPEND}
 	gnome-base/gnome-common

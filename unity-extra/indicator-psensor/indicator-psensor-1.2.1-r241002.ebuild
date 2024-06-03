@@ -5,7 +5,7 @@ EAPI=8
 GNOME2_EAUTORECONF="yes"
 
 UVER=
-UREV=1ubuntu5
+UREV=2
 MY_PN="psensor"
 
 inherit gnome2 ubuntu-versionator
