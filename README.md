@@ -6,7 +6,8 @@ A Gentoo overlay to build the Unity7 user interface.
 
 - [Build instructions][build]
 - [USE flag tips][tips]
-- [Source URIs][uris]
+- [Additional packages list][addp]
+- [Source URIs list][uris]
 - [Join the Telegram group⬀][tg]
 
 #
@@ -20,6 +21,7 @@ A Gentoo overlay to build the Unity7 user interface.
 
 [//]: # (LINKS)
 [acck]: profiles/gentoo-unity7.accept_keywords
+[addp]: docs/additional_packages.md
 [build]: docs/build_instructions.md
 [fesr]: profiles/ehooks/www-client/firefox:esr/files
 [fork]: https://github.com/shiznix/unity-gentoo
