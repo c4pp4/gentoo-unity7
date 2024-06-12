@@ -104,7 +104,10 @@ RDEPEND="
 		media-video/cheese
 		net-misc/remmina
 		net-misc/vino
-		net-p2p/transmission[appindicator]
+		|| (
+			net-p2p/transmission[appindicator,qt5]
+			net-p2p/transmission[appindicator,qt6]
+		)
 		sys-apps/gnome-disk-utility
 		unity-base/unity-control-center[gnome-online-accounts]
 		unity-extra/unity-tweak-tool

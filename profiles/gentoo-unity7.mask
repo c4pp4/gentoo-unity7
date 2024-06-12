@@ -50,8 +50,5 @@ x11-misc/notify-osd::gentoo		## the latest version in the Gentoo tree is 0.9.34 
 x11-themes/notify-osd-icons::gentoo	## the latest version in the Gentoo tree is 0.7 (2010-11-15)
 x11-themes/ubuntu-wallpapers::gentoo	## version in the Gentoo tree doesn't control download size via USE flags
 
-## Keep gtk3 version (https://github.com/transmission/transmission/issues/5332) ##
->net-p2p/transmission-4::gentoo
-
 ## Keep legacy icons to avoid missing icons ##
 >x11-themes/adwaita-icon-theme-44::gentoo
