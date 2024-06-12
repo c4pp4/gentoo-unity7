@@ -1,0 +1,329 @@
+From 0d020760ab7d6fa2d264755de04884e51684c733 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Wed, 12 Jun 2024 19:47:39 +0200
+Subject: [PATCH 1/1] Revert Dash classic look
+
+Signed-off-by: c4pp4
+---
+ dash/DashView.cpp                | 36 ++++++++---------
+ dash/PlacesGroup.cpp             |  4 --
+ dash/ScopeBar.cpp                |  2 +-
+ unity-shared/DashStyle.cpp       |  5 ---
+ unity-shared/DashStyle.h         |  2 -
+ unity-shared/OverlayRenderer.cpp | 49 ++++++++----------------
+ unity-shared/SearchBar.cpp       | 66 ++++++++++++++++++++++++++++++--
+ unity-shared/SearchBar.h         |  1 +
+ 8 files changed, 99 insertions(+), 66 deletions(-)
+
+diff --git a/dash/DashView.cpp b/dash/DashView.cpp
+index 0fd0597..ac8ee69 100644
+--- a/dash/DashView.cpp
++++ b/dash/DashView.cpp
+@@ -485,11 +485,6 @@ void DashView::SetupViews()
+   content_view_->SetLayout(content_layout_);
+   layout_->AddView(content_view_, 1, nux::MINOR_POSITION_START, nux::MINOR_SIZE_FULL);
+ 
+-  scope_bar_ = new ScopeBar();
+-  AddChild(scope_bar_);
+-  scope_bar_->scope_activated.connect(sigc::mem_fun(this, &DashView::OnScopeBarActivated));
+-  content_layout_->AddView(scope_bar_, 0, nux::MINOR_POSITION_CENTER);
+-
+   search_bar_layout_ = new nux::HLayout();
+   content_layout_->AddLayout(search_bar_layout_, 0, nux::MINOR_POSITION_CENTER, nux::MINOR_SIZE_FULL);
+ 
+@@ -513,6 +508,11 @@ void DashView::SetupViews()
+   scopes_layout_ = new nux::VLayout();
+   content_layout_->AddLayout(scopes_layout_, 1, nux::MINOR_POSITION_START);
+ 
++  scope_bar_ = new ScopeBar();
++  AddChild(scope_bar_);
++  scope_bar_->scope_activated.connect(sigc::mem_fun(this, &DashView::OnScopeBarActivated));
++  content_layout_->AddView(scope_bar_, 0, nux::MINOR_POSITION_CENTER);
++
+   OnDPIChanged();
+ }
+ 
+@@ -631,24 +631,24 @@ nux::Geometry DashView::GetBestFitGeometry(nux::Geometry const& for_geo)
+                          style.GetPlacesGroupResultTopPadding().CP(scale) +
+                          style.GetTileHeight().CP(scale));
+ 
+-  // let's show five tiles per row
+-  width = tile_width * 5;
++  int half = for_geo.width / 2;
+ 
++  // if default dash size is bigger than half a screens worth of items, go for that.
++  while ((width += tile_width) < half);
++
++  width = std::max(width, tile_width * DASH_TILE_HORIZONTAL_COUNT);
+   width += style.GetVSeparatorSize().CP(scale);
+   width += style.GetPlacesGroupResultLeftPadding().CP(scale) + DASH_RESULT_RIGHT_PAD.CP(scale);
+ 
+-  // width  shouldn't be bigger than the geo available.
++  height = style.GetHSeparatorSize().CP(scale);
++  height += style.GetDashViewTopPadding().CP(scale);
++  height += search_bar_->GetGeometry().height;
++  height += category_height * DASH_DEFAULT_CATEGORY_COUNT; // adding three categories
++  height += scope_bar_->GetGeometry().height;
++
++  // width/height shouldn't be bigger than the geo available.
+   width = std::min(width, for_geo.width); // launcher width is taken into account in for_geo.
+-  height = for_geo.height - vertical_offset;
+-
+-  if (Settings::Instance().launcher_position() == LauncherPosition::BOTTOM) {
+-    height = style.GetHSeparatorSize().CP(scale);
+-    height += style.GetDashViewTopPadding().CP(scale);
+-    height += search_bar_->GetGeometry().height;
+-    height += category_height * 3;
+-    height += scope_bar_->GetGeometry().height;
+-    height = std::min(height, for_geo.height - vertical_offset);
+-  }
++  height = std::min(height, for_geo.height - vertical_offset); // panel height is not taken into account in for_geo.
+ 
+   return nux::Geometry(0, vertical_offset, width, height);
+ }
+diff --git a/dash/PlacesGroup.cpp b/dash/PlacesGroup.cpp
+index b83be9b..7a1f8db 100755
+--- a/dash/PlacesGroup.cpp
++++ b/dash/PlacesGroup.cpp
+@@ -52,9 +52,6 @@ namespace
+ const nux::Color EXPAND_DEFAULT_TEXT_COLOR(1.0f, 1.0f, 1.0f, 0.5f);
+ const float EXPAND_DEFAULT_ICON_OPACITY = 0.5f;
+ 
+-// Category  heading
+-const RawPixel HEADER_VERTICAL_MARGIN =  10_em;
+-
+ // Category  highlight
+ const RawPixel HIGHLIGHT_RIGHT_PADDING = 10_em;
+ const RawPixel HIGHLIGHT_HEIGHT       = 24_em;
+@@ -232,7 +229,6 @@ PlacesGroup::UpdatePlacesGroupSize()
+ 
+   _header_layout->SetSpaceBetweenChildren(SPACE_BETWEEN_CHILDREN.CP(scale()));
+   _header_layout->SetLeftAndRightPadding(_style.GetCategoryHeaderLeftPadding().CP(scale), 0);
+-  _header_layout->SetVerticalExternalMargin(HEADER_VERTICAL_MARGIN);
+ 
+   _icon->SetMinMaxSize(icon_size, icon_size);
+ 
+diff --git a/dash/ScopeBar.cpp b/dash/ScopeBar.cpp
+index 5bba477..027675c 100644
+--- a/dash/ScopeBar.cpp
++++ b/dash/ScopeBar.cpp
+@@ -58,7 +58,7 @@ void ScopeBar::SetupBackground()
+   rop.Blend = true;
+   rop.SrcBlend = GL_ONE;
+   rop.DstBlend = GL_ONE_MINUS_SRC_ALPHA;
+-  bg_layer_.reset(new nux::ColorLayer(nux::Color(0.0f, 0.0f, 0.0f, 0.0f), true, rop));
++  bg_layer_.reset(new nux::ColorLayer(nux::Color(0.0f, 0.0f, 0.0f, 0.2f), true, rop));
+ }
+ 
+ void ScopeBar::UpdateScale(double scale)
+diff --git a/unity-shared/DashStyle.cpp b/unity-shared/DashStyle.cpp
+index b0c3eac..63e8999 100755
+--- a/unity-shared/DashStyle.cpp
++++ b/unity-shared/DashStyle.cpp
+@@ -2159,11 +2159,6 @@ BaseTexturePtr Style::GetDashRightCornerMask(double scale) const
+   return pimpl->LoadScaledTexture("dash_top_right_corner_mask", scale);
+ }
+ 
+-BaseTexturePtr Style::GetEmpty(double scale) const
+-{
+-  return pimpl->LoadScaledTexture("empty", scale);
+-}
+-
+ BaseTexturePtr Style::GetSearchMagnifyIcon(double scale) const
+ {
+   return pimpl->LoadScaledTexture("search_magnify", scale);
+diff --git a/unity-shared/DashStyle.h b/unity-shared/DashStyle.h
+index dd127c4..f080297 100755
+--- a/unity-shared/DashStyle.h
++++ b/unity-shared/DashStyle.h
+@@ -178,8 +178,6 @@ public:
+   BaseTexturePtr GetDashLeftTile(double scale) const;
+   BaseTexturePtr GetDashTopTile(double scale) const;
+ 
+-  BaseTexturePtr GetEmpty(double scale) const;
+-
+   BaseTexturePtr GetDashCorner(double scale) const;
+   BaseTexturePtr GetDashCornerMask(double scale) const;
+   BaseTexturePtr GetDashLeftCorner(double scale) const;
+diff --git a/unity-shared/OverlayRenderer.cpp b/unity-shared/OverlayRenderer.cpp
+index e35a3e8..648efa7 100644
+--- a/unity-shared/OverlayRenderer.cpp
++++ b/unity-shared/OverlayRenderer.cpp
+@@ -142,37 +142,20 @@ void OverlayRendererImpl::LoadScaledTextures()
+   double scale = parent->scale;
+   auto& style = dash::Style::Instance();
+ 
+-  if (parent->owner_type == OverlayOwner::Hud) {
+-    horizontal_texture_ = style.GetDashHorizontalTile(scale);
+-    horizontal_texture_mask_ = style.GetDashHorizontalTileMask(scale);
+-    right_texture_ = style.GetDashRightTile(scale);
+-    right_texture_mask_ = style.GetDashRightTileMask(scale);
+-    top_left_texture_ = style.GetDashTopLeftTile(scale);
+-    left_texture_ = style.GetDashLeftTile(scale);
+-    top_texture_ = style.GetDashTopTile(scale);
+-
+-    corner_ = style.GetDashCorner(scale);
+-    corner_mask_ = style.GetDashCornerMask(scale);
+-    left_corner_ = style.GetDashLeftCorner(scale);
+-    left_corner_mask_ = style.GetDashLeftCornerMask(scale);
+-    right_corner_ = style.GetDashRightCorner(scale);
+-    right_corner_mask_ = style.GetDashRightCornerMask(scale);
+-  } else {
+-    horizontal_texture_ = style.GetEmpty(scale);
+-    horizontal_texture_mask_ = style.GetEmpty(scale);
+-    right_texture_ = style.GetEmpty(scale);
+-    right_texture_mask_ = style.GetEmpty(scale);
+-    top_left_texture_ = style.GetEmpty(scale);
+-    left_texture_ = style.GetEmpty(scale);
+-    top_texture_ = style.GetEmpty(scale);
+-
+-    corner_ = style.GetEmpty(scale);
+-    corner_mask_ = style.GetEmpty(scale);
+-    left_corner_ = style.GetEmpty(scale);
+-    left_corner_mask_ = style.GetEmpty(scale);
+-    right_corner_ = style.GetEmpty(scale);
+-    right_corner_mask_ = style.GetEmpty(scale);
+-  }
++  horizontal_texture_ = style.GetDashHorizontalTile(scale);
++  horizontal_texture_mask_ = style.GetDashHorizontalTileMask(scale);
++  right_texture_ = style.GetDashRightTile(scale);
++  right_texture_mask_ = style.GetDashRightTileMask(scale);
++  top_left_texture_ = style.GetDashTopLeftTile(scale);
++  left_texture_ = style.GetDashLeftTile(scale);
++  top_texture_ = style.GetDashTopTile(scale);
++
++  corner_ = style.GetDashCorner(scale);
++  corner_mask_ = style.GetDashCornerMask(scale);
++  left_corner_ = style.GetDashLeftCorner(scale);
++  left_corner_mask_ = style.GetDashLeftCornerMask(scale);
++  right_corner_ = style.GetDashRightCorner(scale);
++  right_corner_mask_ = style.GetDashRightCornerMask(scale);
+ }
+ 
+ void OverlayRendererImpl::OnBgColorChanged(nux::Color const& new_color)
+@@ -205,7 +188,7 @@ void OverlayRendererImpl::UpdateTextures()
+   rop.Blend = true;
+   rop.SrcBlend = GL_ZERO;
+   rop.DstBlend = GL_SRC_COLOR;
+-  nux::Color darken_colour = nux::Color(1.0f, 1.0f, 1.0f, 1.0f);
++  nux::Color darken_colour = nux::Color(0.9f, 0.9f, 0.9f, 1.0f);
+ 
+   //When we are in low gfx mode then our darken layer will act as a background.
+   if (Settings::Instance().low_gfx())
+@@ -217,7 +200,7 @@ void OverlayRendererImpl::UpdateTextures()
+   }
+ 
+   bg_darken_layer_ = std::make_shared<nux::ColorLayer>(darken_colour, false, rop);
+-  // bg_shine_texture_ = dash::Style::Instance().GetDashShine()->GetDeviceTexture();
++  bg_shine_texture_ = dash::Style::Instance().GetDashShine()->GetDeviceTexture();
+ 
+   auto const& bg_refine_tex = dash::Style::Instance().GetRefineTextureDash();
+ 
+diff --git a/unity-shared/SearchBar.cpp b/unity-shared/SearchBar.cpp
+index 8e90c58..9c3741f 100644
+--- a/unity-shared/SearchBar.cpp
++++ b/unity-shared/SearchBar.cpp
+@@ -74,11 +74,11 @@ const RawPixel FILTER_HORIZONTAL_MARGIN = 8_em;
+ 
+ // Fonts
+ const std::string HINT_LABEL_FONT_SIZE = "15"; // == 20px
+-const std::string HINT_LABEL_FONT_STYLE = "Light";
++const std::string HINT_LABEL_FONT_STYLE = "Italic";
+ const std::string HINT_LABEL_DEFAULT_FONT = "Ubuntu " + HINT_LABEL_FONT_STYLE + " " + HINT_LABEL_FONT_SIZE;
+ 
+-const std::string PANGO_ENTRY_DEFAULT_FONT_FAMILY = "Ubuntu Light";
+-const RawPixel PANGO_ENTRY_FONT_SIZE = 15_em;
++const std::string PANGO_ENTRY_DEFAULT_FONT_FAMILY = "Ubuntu";
++const RawPixel PANGO_ENTRY_FONT_SIZE = 22_em;
+ 
+ const std::string SHOW_FILTERS_LABEL_FONT_SIZE = "13";
+ const std::string SHOW_FILTERS_LABEL_FONT_STYLE = "";
+@@ -403,6 +403,8 @@ void SearchBar::Draw(nux::GraphicsEngine& graphics_engine, bool force_draw)
+ {
+   nux::Geometry const& base = GetGeometry();
+ 
++  UpdateBackground(false);
++
+   graphics_engine.PushClippingRectangle(base);
+ 
+   if (RedirectedAncestor())
+@@ -511,6 +513,64 @@ void SearchBar::SetSearchFinished()
+   spinner_->SetState(is_empty ? STATE_READY : STATE_CLEAR);
+ }
+ 
++void SearchBar::UpdateBackground(bool force)
++{
++  nux::Geometry geo(GetGeometry());
++  geo.width = layered_layout_->GetAbsoluteX() +
++              layered_layout_->GetAbsoluteWidth() -
++              GetAbsoluteX() +
++              SEARCH_ENTRY_RIGHT_BORDER.CP(scale());
++
++  LOG_TRACE(logger) << "height: "
++  << geo.height << " - "
++  << layered_layout_->GetGeometry().height << " - "
++  << pango_entry_->GetGeometry().height;
++
++  if (!bg_layer_ &&
++      geo.width == last_width_
++      && geo.height == last_height_
++      && force == false)
++    return;
++
++  last_width_ = geo.width;
++  last_height_ = geo.height;
++
++  nux::CairoGraphics cairo_graphics(CAIRO_FORMAT_ARGB32, last_width_, last_height_);
++  cairo_t* cr = cairo_graphics.GetInternalContext();
++  cairo_surface_set_device_scale(cairo_get_target(cr), scale, scale);
++
++  cairo_graphics.DrawRoundedRectangle(cr,
++                                      1.0f,
++                                      0.5, 0.5,
++                                      CORNER_RADIUS,
++                                      (last_width_/scale) - 1, (last_height_/scale) - 1,
++                                      false);
++
++  cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
++  cairo_set_source_rgba(cr, 0.0f, 0.0f, 0.0f, 0.35f);
++  cairo_fill_preserve(cr);
++  cairo_set_line_width(cr, 1);
++  cairo_set_source_rgba(cr, 1.0f, 1.0f, 1.0f, 0.7f);
++  cairo_stroke(cr);
++
++  auto texture2D = texture_ptr_from_cairo_graphics(cairo_graphics);
++
++  nux::TexCoordXForm texxform;
++  texxform.SetTexCoordType(nux::TexCoordXForm::OFFSET_COORD);
++  texxform.SetWrap(nux::TEXWRAP_REPEAT, nux::TEXWRAP_REPEAT);
++
++  nux::ROPConfig rop;
++  rop.Blend = true;
++  rop.SrcBlend = GL_ONE;
++  rop.DstBlend = GL_ONE_MINUS_SRC_ALPHA;
++
++  bg_layer_.reset(new nux::TextureLayer(texture2D->GetDeviceTexture(),
++                                        texxform,
++                                        nux::color::White,
++                                        true,
++                                        rop));
++}
++
+ void SearchBar::OnMouseButtonDown(int x, int y, unsigned long button, unsigned long key)
+ {
+   hint_->SetVisible(false);
+diff --git a/unity-shared/SearchBar.h b/unity-shared/SearchBar.h
+index fa28332..c9af1db 100644
+--- a/unity-shared/SearchBar.h
++++ b/unity-shared/SearchBar.h
+@@ -82,6 +82,7 @@ private:
+   void OnMouseButtonDown(int x, int y, unsigned long button_flags, unsigned long key_flags);
+   void OnEndKeyFocus();
+ 
++  void UpdateBackground(bool force);
+   void OnSearchChanged(nux::TextEntry* text_entry);
+   void OnClearClicked(int x, int y, unsigned long button_flags, unsigned long key_flags);
+   void OnEntryActivated();
+-- 
+2.44.2
+

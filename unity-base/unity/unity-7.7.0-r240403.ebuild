@@ -19,7 +19,7 @@ SRC_URI="${UURL}-${UREV}.tar.xz"
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="debug doc gles2 +hud pch systray +uwidgets"
+IUSE="classic debug doc gles2 +hud pch systray +uwidgets"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="test"
 
@@ -137,6 +137,9 @@ src_prepare() {
 		-e 's/"Ubuntu Desktop"/"Gentoo Unity⁷ Desktop"/' \
 		panel/PanelMenuView.cpp || die
 
+	# Dash classic look #
+	use classic && eapply "${FILESDIR}"/dash-classic.patch
+
 	# Preprocessor fixes #
 	if ! use pch; then
 		sed -i '/#include "GLibWrapper.h"/a #include <iostream>' UnityCore/GLibWrapper.cpp || die
@@ -229,9 +232,9 @@ src_prepare() {
 		dash/FilterMultiRangeButton.cpp || die
 
 	# Tweak preview width #
-	sed -i \
+	! use classic && ( sed -i \
 		-e "/preview_width =/{s/770/700/}" \
-		unity-shared/PreviewStyle.cpp || die
+		unity-shared/PreviewStyle.cpp || die )
 
 	# Fix warning: the address of ‘nux::Event::text’ will never be NULL #
 	sed -i \
@@ -288,7 +291,20 @@ src_install() {
 	# Gentoo logo on lock-screen on multi head system #
 	doins "${FILESDIR}/branding/lockscreen_cof.png"
 	# Panel shadow #
-	doins "${FILESDIR}/panel_shadow.png"
+	doins "${FILESDIR}/resources/panel_shadow.png"
+	# Dash classic look #
+	if use classic; then
+		doins "${FILESDIR}/resources/dash_bottom_border_tile.png"
+		doins "${FILESDIR}/resources/dash_bottom_left_corner.png"
+		doins "${FILESDIR}/resources/dash_bottom_left_corner_mask.png"
+		doins "${FILESDIR}/resources/dash_bottom_right_corner.png"
+		doins "${FILESDIR}/resources/dash_left_tile.png"
+		doins "${FILESDIR}/resources/dash_right_border_tile.png"
+		doins "${FILESDIR}/resources/dash_top_edge.png"
+		doins "${FILESDIR}/resources/dash_top_right_corner.png"
+		doins "${FILESDIR}/resources/dash_top_right_corner_mask.png"
+		doins "${FILESDIR}/resources/dash_top_tile.png"
+	fi
 
 	exeinto /etc/X11/xinit/xinitrc.d/
 	doexe "${FILESDIR}/70im-config"			# Configure input method (xim/ibus)

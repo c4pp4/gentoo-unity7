@@ -26,6 +26,12 @@
   unity-base/unity-settings ubuntu-unity
   ```
 
+- You can try **Dash** classic look - horizontal with bottom scope bar:
+
+  ```
+  unity-base/unity classic
+  ```
+
 - You can try classic fonts **media-fonts/ubuntu-font-family** instead of newer **media-fonts/fonts-ubuntu**:
 
   ```
