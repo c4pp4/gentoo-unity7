@@ -161,10 +161,10 @@ index 9ead8be..0f5622c 100644
  static void
  terminal_screen_profile_notify_cb (TerminalProfile *profile,
                                     GParamSpec *pspec,
-@@ -1159,6 +1201,18 @@ update_color_scheme (TerminalScreen *screen)
- 	if (bold_rgba)
- 		vte_terminal_set_color_bold (VTE_TERMINAL (screen),
+@@ -1189,6 +1189,18 @@ update_color_scheme (TerminalScreen *screen)
  		                             bold_rgba);
+ 
+ 	update_toplevel_transparency (screen);
 +
 +	if (gdk_rgba_hash (&priv->bg_color) != gdk_rgba_hash (&bg))
 +	{
