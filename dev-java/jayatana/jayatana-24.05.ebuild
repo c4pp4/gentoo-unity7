@@ -3,9 +3,9 @@
 
 EAPI=8
 
-COMMIT="6a09b01b13637454c268a4e1c050a266"
+COMMIT="f16187ed0ea0763af1e6d6a3245afc8e"
 
-inherit java-pkg-2 cmake
+inherit java-pkg-2 meson
 
 DESCRIPTION="Global menu for Java applications"
 HOMEPAGE="https://gitlab.com/vala-panel-project/vala-panel-appmenu/tree/master/subprojects/jayatana"
@@ -20,33 +20,34 @@ RESTRICT="mirror test"
 RDEPEND="
 	>=dev-libs/glib-2.40.0:2
 	>=dev-libs/libdbusmenu-16.04.0
-	>=virtual/jdk-1.7.0
+	>=virtual/jdk-1.8.0
 	>=x11-libs/libxkbcommon-0.5.0
 "
 DEPEND="${RDEPEND}"
+
+S="${WORKDIR}/${PN}-24.02"
 
 src_prepare() {
 	java-pkg-2_src_prepare
 
 	# Fix .jar dir #
-	java-pkg_init_paths_
-	sed -i "s:\${CMAKE_INSTALL_DATAROOTDIR}/java:${JAVA_PKG_JARDEST}:" java/CMakeLists.txt || die
-	sed -i "s:@CMAKE_INSTALL_FULL_DATAROOTDIR@/java:${JAVA_PKG_JARDEST}:" lib/config.h.in || die
+	sed -i \
+		-e "/java_install_path =/{s:'java':'${PN}/lib':}" \
+		java/meson.build || die
+	sed -i \
+		-e "/@CMAKE_INSTALL_FULL_DATAROOTDIR@/{s:java:${PN}/lib:}" \
+		lib/config.h.in || die
 
-	# Remove JDK 9+ related option #
+	# Fix JDK 9+ related options #
 	local active_vm=$(java-config -f)
-	[[ ${active_vm##*-} == "8" ]] && ( sed -i \
-		"/--add-exports/d" java/CMakeLists.txt || die )
-
-	cmake_src_prepare
-}
-
-src_configure() {
-	local mycmakeargs=(
-		-DENABLE_JAYATANA=ON
-		-DSTANDALONE=OFF
-	)
-	cmake_src_configure
+	if [[ ${active_vm##*-} == "8" ]]; then
+		sed -i \
+			-e "/args/d" \
+			-e "/command/{s/-f/uvfm/}" \
+			-e "/command/{s/'-u', '-m',//}" \
+			-e "/command/{s/, '-v'//}" \
+			java/meson.build || die
+	fi
 }
 
 src_install() {
@@ -55,9 +56,9 @@ src_install() {
 		LICENSE
 		README.md
 	)
-	cmake_src_install
+	meson_src_install
 
-	java-pkg_regjar "${ED}"/"${JAVA_PKG_JARDEST}"/*.jar
+	java-pkg_regjar "${ED}"/usr/share/"${PN}"/lib/*.jar
 
 	if use system-wide; then
 		exeinto /etc/X11/xinit/xinitrc.d
