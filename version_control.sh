@@ -287,7 +287,7 @@ portage_updates() {
 			ln -fs /tmp/"${tmp_ak}" /etc/portage/package.accept_keywords/zzzz_"${tmp_ak}" || exit 1
 			echo "www-client/firefox:rapid::gentoo ~amd64" > /tmp/"${tmp_ak}"
 			update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "|~amd64$" | tail -1 | sed "s/|.*$//")
-		elif [[ ${line} == ">app-backup/deja-dup"* ]]; then
+		elif [[ ${line} == ">app-backup/deja-dup"* ]] || [[ ${line} == ">x11-misc/zim"* ]]; then
 			update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "|~amd64$" | tail -1 | sed "s/|.*$//")
 		else
 			update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "|amd64$" | tail -1 | sed "s/|.*$//")

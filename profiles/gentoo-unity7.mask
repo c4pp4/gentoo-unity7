@@ -40,7 +40,7 @@
 >x11-libs/libwnck-43.0-r1:3
 >x11-libs/vte-0.74.2:2.91
 >x11-misc/lightdm-1.32.0-r2
->x11-misc/zim-0.75.1-r1
+>x11-misc/zim-0.75.2-r1
 >x11-plugins/pidgin-libnotify-0.14-r2
 >x11-terms/mate-terminal-1.28.1
 
