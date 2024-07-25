@@ -18,25 +18,12 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="gnome-online-accounts"
 RESTRICT="test"
 
 RDEPEND="
 	>=dev-libs/dee-1.2.5:0=[${PYTHON_SINGLE_USEDEP}]
 	>=dev-libs/libunity-7:0=[${PYTHON_SINGLE_USEDEP}]
 	media-gfx/shotwell
-
-	gnome-online-accounts? (
-		dev-libs/libgdata[gnome-online-accounts,introspection]
-		net-libs/libsoup:2.4[introspection]
-
-		$(python_gen_cond_dep '
-			dev-python/httplib2[${PYTHON_USEDEP}]
-			dev-python/oauthlib[${PYTHON_USEDEP}]
-			>=net-libs/libaccounts-glib-1.0:=[${PYTHON_USEDEP}]
-			net-libs/libsignon-glib[introspection,${PYTHON_USEDEP}]
-		')
-	)
 "
 DEPEND="
 	${PYTHON_DEPS}
@@ -48,14 +35,14 @@ DEPEND="
 S="${WORKDIR}"
 
 src_prepare() {
-	if ! use gnome-online-accounts; then
-		eapply "${FILESDIR}/remove-goa-scopes.diff"
-		find -type f \
-			\( -name '*facebook*' \
-			-o -name '*flickr*' \
-			-o -name '*picasa*' \) \
-				-delete || die
-	fi
+	# Facebook, Flickr and Picasa scopes #
+	# are not maintained and tested anymore #
+	eapply "${FILESDIR}/remove-goa-scopes.diff"
+	find -type f \
+		\( -name '*facebook*' \
+		-o -name '*flickr*' \
+		-o -name '*picasa*' \) \
+			-delete || die
 
 	# Fix .desktop file name #
 	sed -i \
@@ -74,15 +61,4 @@ src_install() {
 	# Remove all installed language files as they can be incomplete #
 	#  due to being provided by Ubuntu's language-pack packages #
 	rm -rf "${ED}/usr/share/locale"
-}
-
-pkg_postinst() {
-	ubuntu-versionator_pkg_postinst
-
-	if use gnome-online-accounts; then
-		echo
-		ewarn "USE flag 'gnome-online-accounts' declared:"
-		ewarn "Facebook, Flickr and Picasa scopes are installed but not maintained and tested anymore."
-		echo
-	fi
 }

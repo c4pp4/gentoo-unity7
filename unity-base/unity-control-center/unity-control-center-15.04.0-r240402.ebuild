@@ -233,6 +233,13 @@ src_install() {
 pkg_postinst() {
 	ubuntu-versionator_pkg_postinst
 
+	if use gnome-online-accounts; then
+		echo
+		ewarn "USE flag 'gnome-online-accounts' declared:"
+		ewarn "Compatible $("${PORTAGE_QUERY_TOOL}" best_version / net-libs/gnome-online-accounts) package installed"
+		ewarn "but it's not maintained and tested anymore."
+		echo
+	fi
 	if ! use webkit; then
 		echo
 		elog "Searching in the dash - Legal notice:"
