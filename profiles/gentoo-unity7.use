@@ -19,7 +19,6 @@ media-libs/libcanberra gtk2
 media-libs/freetype harfbuzz		# x11-libs/pango
 media-libs/libvpx postproc		# mail-client/thunderbird, www-client/firefox
 media-video/ffmpeg opus
-net-libs/gnome-online-accounts -gnome
 net-p2p/transmission appindicator -gtk	# GTK3 global menu bug (https://github.com/transmission/transmission/issues/5332)
 sys-libs/zlib minizip			# net-im/telegram-desktop
 virtual/notification-daemon -gnome	# Needed to avoid blocks because of 'x11-misc/notify-osd' if 'gnome-base/gnome-shell' is not installed
