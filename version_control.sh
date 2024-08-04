@@ -10,6 +10,7 @@ repos=(
 remove=(
 	app-eselect/eselect-lightdm
 	dev-java/jayatana
+	net-libs/gnome-online-accounts
 	unity-base/gentoo-unity-env
 	unity-base/ubuntu-docs
 	unity-base/unity-language-pack
