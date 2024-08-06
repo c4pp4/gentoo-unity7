@@ -45,7 +45,6 @@
 >x11-terms/mate-terminal-1.28.1
 
 ## These are packages maintained within the overlay that must not be emerged from the main portage tree ##
-dev-libs/libindicator::gentoo		## the latest version in the Gentoo tree is 12.10.1 (2012-09-19)
 x11-misc/notify-osd::gentoo		## the latest version in the Gentoo tree is 0.9.34 (2012-03-23)
 x11-themes/notify-osd-icons::gentoo	## the latest version in the Gentoo tree is 0.7 (2010-11-15)
 x11-themes/ubuntu-wallpapers::gentoo	## version in the Gentoo tree doesn't control download size via USE flags

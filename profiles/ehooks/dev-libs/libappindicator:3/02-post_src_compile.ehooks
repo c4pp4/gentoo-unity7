@@ -1,3 +1,0 @@
-ehooks() {
-	BUILD_DIR="build-gtk2" multilib_foreach_abi multilib-minimal_abi_src_compile
-}

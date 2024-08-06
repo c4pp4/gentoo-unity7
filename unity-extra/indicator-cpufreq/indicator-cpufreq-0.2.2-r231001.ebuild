@@ -20,7 +20,7 @@ KEYWORDS="amd64"
 RESTRICT="test"
 
 RDEPEND="
-	>=dev-libs/libappindicator-0.1:3[introspection]
+	>=dev-libs/libappindicator-0.1:3
 	sys-power/cpufrequtils
 
 	$(python_gen_cond_dep '

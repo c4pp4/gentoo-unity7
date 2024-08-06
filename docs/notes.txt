@@ -1,20 +1,6 @@
 ========================================================================
-* To rebuild all packages against new GTK libs using qdepends (part of app-portage/portage-utils):
-========================================================================
-emerge -1 `qdepends -CNQ x11-libs/gtk+ 2> /dev/null`
-
-========================================================================
-* Core python deps. for the Dash lens to work
-========================================================================
-	dev-libs/dee
-	dev-libs/libappindicator
-	dev-libs/libunity
-	unity-lenses/unity-lens-video
-
-========================================================================
 * Reasons for patching/maintaining packages:
 ========================================================================
-dev-libs/libindicator			# See "Using portage tree libindicate packages" above, the latest version in the Gentoo tree is 12.10.1 (2012-09-19)
 dev-python/python-zombie-imp		# Copy of the 'imp' module that was removed in Python 3.12
 media-fonts/fonts-noto-cjk		# Repacked version with reduced size
 media-fonts/fonts-ubuntu		# Newer version of Ubuntu fonts
@@ -33,7 +19,6 @@ app-i18n/ibus				# Patched for indicator-keyboard support
 app-text/evince				# Add traditional menu bar (https://bugzilla.gnome.org/show_bug.cgi?id=736419), add menu translations
 dev-cpp/gtest				# Install /usr/src/{gmock,gtest}/* source files lacking from main tree ebuild
 dev-libs/glib:2				# Patched to call gettext if .desktop file does not have inline translations, don't try DBusActivatable when in Unity user interface and fallback on Exec=
-dev-libs/libappindicator:3		# Build with GTK2, see "Using portage tree libindicate packages" item above
 games-board/iagno			# Disable headerbar quit button when not in GNOME
 games-puzzle/gnome-taquin		# Disable headerbar quit button when not in GNOME
 gnome-base/dconf-editor			# Disable headerbar quit button when not in GNOME

@@ -23,7 +23,7 @@ COMMON_DEPEND="
 RDEPEND="${COMMON_DEPEND}
 	dev-libs/geoip
 	dev-libs/glib:2
-	dev-libs/libappindicator:3[introspection]
+	dev-libs/libappindicator:3
 	gnome-base/dconf
 	gnome-extra/zeitgeist[${PYTHON_SINGLE_USEDEP}]
 	x11-libs/gtk+:3[introspection]
