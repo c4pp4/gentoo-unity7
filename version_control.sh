@@ -568,7 +568,7 @@ update_packages() {
 					upstr_ver=$(grep -A 4 -- "^Package: ${fixname}$" /tmp/gentoo-unity7-sources-${rp}-${frls} | grep "Version: " | cut -d " " -f 2)
 					if [[ -n ${upstr_ver} ]]; then
 						[[ ${rls} == ${stable} ]] && pattern="\"amd64\"" || pattern="\"~amd64\""
-						if [[ ${pkg} == "dev-libs/libindicator" ]]; then
+						if [[ ${pkg} == "dev-libs/libindicator" ]] || [[ ${pkg} == "dev-libs/libappindicator" ]]; then
 							filename=$(grep -H -- "${pattern}" ${path}/${pkg}/*r2*.ebuild | cut -d ":" -f 1)
 							[[ ${filename} == *".ebuild"*".ebuild"* ]] \
 								|| filename=$(grep -H -- "${pattern}" ${path}/${pkg}/*r3*.ebuild | cut -d ":" -f 1)
