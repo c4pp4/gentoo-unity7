@@ -21,7 +21,7 @@ COMMON_DEPEND="
 	>=dev-libs/glib-2.43.92:2
 	>=dev-libs/libgee-0.8.3:0.8
 	|| (
-		>=media-sound/pulseaudio-4.0[glib]
+		>=media-libs/libpulse-4.0[glib]
 		media-video/pipewire
 	)
 	>=sys-apps/accountsservice-0.6.8
