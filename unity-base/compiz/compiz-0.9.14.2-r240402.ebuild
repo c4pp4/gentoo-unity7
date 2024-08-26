@@ -71,7 +71,7 @@ RDEPEND="${COMMON_DEPEND}
 DEPEND="${COMMON_DEPEND}
 	dev-libs/dbus-glib
 	dev-perl/XML-Parser
-	media-libs/mesa[gles2?]
+	media-libs/mesa[gles2(+)?,opengl]
 	>=x11-base/xorg-proto-1.4.8
 	>=x11-base/xorg-server-0.7.0
 

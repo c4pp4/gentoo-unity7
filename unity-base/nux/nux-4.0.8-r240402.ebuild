@@ -52,9 +52,8 @@ RDEPEND="${COMMON_DEPEND}
 "
 DEPEND="${COMMON_DEPEND}
 	gnome-base/gnome-common
+	media-libs/mesa[gles2(+)?,opengl]
 	x11-libs/libXtst
-
-	gles2? ( media-libs/mesa[gles2] )
 "
 BDEPEND="doc? ( app-doc/doxygen[dot] )"
 PDEPEND="unity-base/unity[gles2=]"
