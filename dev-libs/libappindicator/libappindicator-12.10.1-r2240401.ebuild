@@ -43,6 +43,8 @@ BDEPEND="
 
 S="${WORKDIR}"
 
+MAKEOPTS="${MAKEOPTS} -j1"
+
 multilib_src_configure() {
 	local myeconfargs=(
 		$(use_enable test tests)
@@ -50,10 +52,6 @@ multilib_src_configure() {
 		--with-gtk=2
 	)
 	ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
-}
-
-multilib_src_install() {
-	emake -j1 DESTDIR="${D}" install
 }
 
 multilib_src_install_all() {

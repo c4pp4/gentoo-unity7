@@ -43,6 +43,8 @@ BDEPEND="
 
 S="${WORKDIR}"
 
+MAKEOPTS="${MAKEOPTS} -j1"
+
 src_prepare() {
 	# Fix typo #
 	sed -i "/AM_SILENT_RULES/{s/]$//}" configure.ac || die
@@ -61,10 +63,6 @@ multilib_src_configure() {
 multilib_src_test() {
 	# b.g.o #391179
 	virtx emake
-}
-
-multilib_src_install() {
-	emake -j1 DESTDIR="${D}" install
 }
 
 multilib_src_install_all() {

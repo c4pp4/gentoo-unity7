@@ -20,7 +20,7 @@ REQUIRED_USE="ubuntu-classic? ( fontconfig )"
 RESTRICT="binchecks strip test"
 
 # media-fonts/ubuntu-font-family dependency #
-# is compatible with media-fonts/fonts-meta #
+# is required by media-fonts/fonts-meta package #
 RDEPEND="
 	|| (
 		media-fonts/fonts-ubuntu
