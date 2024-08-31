@@ -1,0 +1,50 @@
+From ab4b2669e9f1ef5dd224e1f248f093b83c23d4b3 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sat, 31 Aug 2024 18:09:02 +0200
+Subject: [PATCH 1/1] Adjust window shadow and bottom corners
+
+Signed-off-by: c4pp4
+---
+ src/stylesheet/widgets/_window.scss | 21 +++------------------
+ 1 file changed, 3 insertions(+), 18 deletions(-)
+
+diff --git a/src/stylesheet/widgets/_window.scss b/src/stylesheet/widgets/_window.scss
+index 5f18de2..0d77680 100644
+--- a/src/stylesheet/widgets/_window.scss
++++ b/src/stylesheet/widgets/_window.scss
+@@ -1,29 +1,14 @@
+ window {
+   &.csd {
+-    box-shadow: 0 1px 3px 3px transparent,
+-                0 2px 8px 2px transparentize(black, 0.87),
+-                0 3px 20px 10px transparentize(black, 0.91),
+-                0 6px 32px 16px transparentize(black, 0.96),
+-                0 0 0 1px transparentize(black, if($contrast == 'high', .2, .95));
++    box-shadow: 0 0 3px transparentize(black, 0.9);
+     margin: 0px;
+     border-radius: $window_radius;
++    border-bottom-left-radius: 0;
++    border-bottom-right-radius: 0;
+ 
+     outline: 1px solid $window_outline_color;
+     outline-offset: -1px;
+ 
+-    &:backdrop {
+-      // the transparent shadow here is to enforce that the shadow extents don't
+-      // change when we go to backdrop, to prevent jumping windows.
+-      // The biggest shadow should be in the same order then in the active state
+-      // or the jumping will happen during the transition.
+-      box-shadow: 0 1px 3px 3px transparentize(black, 0.91),
+-                  0 2px 14px 5px transparentize(black, 0.95),
+-                  0 4px 28px 12px transparentize(black, 0.97),
+-                  0 6px 32px 16px transparent,
+-                  0 0 0 1px transparentize(black, if($contrast == 'high', .2, .98));
+-      transition: box-shadow $backdrop_transition;
+-    }
+-
+     &.dialog.message,
+     &.messagedialog {
+       box-shadow: 0 2px 8px 2px transparentize(black, 0.93),
+-- 
+2.44.2
+
