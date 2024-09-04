@@ -500,7 +500,7 @@ debian_changes() {
 						get_debian_archive "${un%_*}_${uv}"
 						tar --overwrite -xf "/tmp/ehooks-${USER}-${un%_*}_${uv}.debian.tar.xz" -C /tmp debian/patches/series --strip-components 2 --transform "s/series/ehooks-${USER}-aseries/"
 						if [[ -n $(diff /tmp/ehooks-${USER}-series /tmp/ehooks-${USER}-aseries) ]]; then
-							result[${#result[@]}-1]="${result[${#result[@]}-1]/${uv}/${color_red}${uv}${color_norm}}"
+							result[${#result[@]}-1]="${result[${#result[@]}-1]/\'${uv}\'/\'${color_red}${uv}${color_norm}\'}"
 							an[2]="${color_red}[ debian/patches/series file differs from local ]${color_norm}"
 						fi
 					done
