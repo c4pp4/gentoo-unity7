@@ -34,5 +34,8 @@
 		<flag name="jammy">Jammy Jellyfish wallpapers</flag>
 		<flag name="kinetic">Kinetic Kudu wallpapers</flag>
 		<flag name="lunar">Lunar Lobster wallpapers</flag>
+		<flag name="mantic">Mantic Minotaur wallpapers</flag>
+		<flag name="noble">Noble Numbat wallpapers</flag>
+		<flag name="oracular">Oracular Oriole wallpapers</flag>
 	</use>
 </pkgmetadata>
