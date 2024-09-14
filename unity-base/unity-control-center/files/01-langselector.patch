@@ -1934,7 +1934,7 @@ index 0000000..68a750c
 +INCLUDES =						\
 +	$(PANEL_CFLAGS)					\
 +	$(LANGSELECTOR_PANEL_CFLAGS)			\
-+	-DLIBLOCALEDIR=\""$(prefix)/lib/locale"\"       \
++	-DLIBLOCALEDIR="\"$(datadir)/locale"\"       \
 +	-DDATADIR=\""$(datadir)"\"			\
 +	-DUIDIR=\""$(pkgdatadir)/ui"\"			\
 +	-I$(srcdir)/../common/				\

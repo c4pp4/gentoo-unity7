@@ -281,7 +281,7 @@ src_install() {
 	# Remove all translations except those we need
 	find "${S}" -type f \
 		! -name ${gcc_po} \
-		! -name 'gnome-session-42.po' \
+		! -name 'gnome-session-*' \
 		! -name 'indicator-*' \
 		! -name ${ls_po} \
 		! -name 'libdbusmenu.po' \
@@ -418,6 +418,10 @@ src_install() {
 
 		msgfmt -o "${pofile%.po}.mo" "${pofile}"
 		rm "${pofile}" 2>/dev/null
+
+		if [[ ${pofile##*/} == "gnome-session-"* ]]; then
+			mv "${pofile%.po}.mo" "${pofile%/*}/gnome-session-45.mo"
+		fi
 	done
 
 	insinto /usr/share/locale
