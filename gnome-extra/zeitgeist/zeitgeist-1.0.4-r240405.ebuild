@@ -73,6 +73,7 @@ src_prepare() {
 		-e '/gedit/a +    arr.add (event_for_desktop_file ("pluma.desktop", ++ts));' \
 		-e '/Totem/a +    arr.add (event_for_desktop_file ("vlc.desktop", ++ts));' \
 		-e "/thunderbird/r ${FILESDIR}/mail-clients" \
+		-e "s/rhythmbox/org.gnome.Rhythmbox3/" \
 		-e "s/yelp/unity-yelp/" \
 		"${WORKDIR}/debian/patches/pre_populator.patch" || die
 
