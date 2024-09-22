@@ -20,6 +20,8 @@
 
    `emerge -av gentoo-unity-env`
 
+   WARNING: Portage variable EMERGE_DEFAULT_OPTS with `--jobs N` option causes informational and warning messages to be ignored. If you are using this option, use *'app-portage/elogv'* utility to read such messages. It's very important in the next step.
+
 6. Previous emerge command installs *'unity-base/gentoo-unity-env'* package. The package, among other things, generates emerge command needed to be applied and displays it as a warning message in pkg_postinst phase. **Rebuild all affected packages**, if any.
 
    FOR EXAMPLE, YOU CAN SEE:

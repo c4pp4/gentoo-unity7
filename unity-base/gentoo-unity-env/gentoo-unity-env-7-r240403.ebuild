@@ -127,7 +127,7 @@ pkg_postinst() {
 	local \
 		color_blink=$(tput blink) \
 		color_norm=$(tput sgr0) \
-		fn="einfo ewarn get_subdirs get_repo_root get_ehooks_subdirs get_installed_packages get_slot find_flag_changes find_tree_changes ehooks_changes" \
+		fn="get_subdirs get_repo_root get_ehooks_subdirs get_installed_packages get_slot find_flag_changes find_tree_changes ehooks_changes" \
 		prev_shopt=$(shopt -p nullglob) \
 		x=$("${PORTAGE_QUERY_TOOL}" get_repo_path / gentoo-unity7)/version_control.sh
 
