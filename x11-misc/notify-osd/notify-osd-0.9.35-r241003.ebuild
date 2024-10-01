@@ -5,7 +5,7 @@ EAPI=8
 GNOME2_EAUTORECONF="yes"
 
 UVER=+20.04.20191129
-UREV=1
+UREV=2
 
 inherit gnome2 savedconfig ubuntu-versionator
 
