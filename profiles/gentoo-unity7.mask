@@ -22,7 +22,7 @@
 >gnome-extra/yelp-42.2-r1
 >gui-libs/libadwaita-1.5.2:1
 >gui-libs/libhandy-1.8.3:1
->mail-client/thunderbird-116
+>mail-client/thunderbird-129
 >mate-extra/mate-system-monitor-1.28.0
 >mate-extra/mate-utils-1.28.0
 >media-gfx/eog-45.3:1
@@ -34,7 +34,7 @@
 >net-im/telegram-desktop-5.0.4
 >sys-apps/accountsservice-23.13.9
 >www-client/firefox-132:rapid
->www-client/firefox-116:esr
+>www-client/firefox-129:esr
 >x11-libs/gtk+-2.24.33-r3:2
 >x11-libs/gtk+-3.24.41-r1:3
 >x11-libs/libwnck-43.0-r1:3

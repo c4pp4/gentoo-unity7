@@ -1,6 +1,7 @@
 */* vala -nautilus
 
 app-accessibility/brltty python		# app-accessibility/orca[braille]
+app-dicts/myspell-en l10n_en-US
 app-i18n/fcitx:4 gtk2 -autostart	# don't launch systray tool by default
 app-i18n/ibus appindicator gtk2
 dev-libs/boost python			# dev-libs/libcolumbus
