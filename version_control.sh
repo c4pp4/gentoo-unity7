@@ -1,7 +1,7 @@
 #!/bin/bash
 
-stable="noble"
-dev="oracular"
+stable="oracular"
+dev=""
 repos=(
 	main
 	universe

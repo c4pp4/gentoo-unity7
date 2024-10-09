@@ -263,7 +263,7 @@ src_configure() {
 		-DCOMPIZ_PLUGIN_INSTALL_TYPE=package
 		-DENABLE_UNIT_TESTS=OFF
 		-DI18N_SUPPORT=OFF
-		-DUNITY_RELEASE="24.04 Noble"
+		-DUNITY_RELEASE="24.10 Oracular"
 		-Duse_pch=$(usex pch ON OFF)
 		-Wno-dev
 	)

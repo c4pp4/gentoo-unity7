@@ -16,7 +16,7 @@ SRC_URI="${UURL}.orig.tar.gz
 
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="coverage test"
 REQUIRED_USE="${PYTHON_REQUIRED_USE} coverage? ( test )"
 RESTRICT="!test? ( test )"
