@@ -14,7 +14,7 @@ HOMEPAGE="https://wiki.gnome.org/Projects/GnomeOnlineAccounts"
 LICENSE="LGPL-2+"
 SLOT="0/1"
 KEYWORDS="amd64"
-IUSE="gtk-doc kerberos"
+IUSE="gtk-doc kerberos vala"
 RESTRICT="test"
 
 COMMON_DEPEND="
@@ -40,8 +40,7 @@ DEPEND="${COMMON_DEPEND}
 	>=dev-libs/gobject-introspection-0.9.3
 
 	gtk-doc? ( dev-util/gtk-doc )
-
-	$(vala_depend)
+	vala? ( $(vala_depend) )
 "
 
 src_configure() {
@@ -60,7 +59,7 @@ src_configure() {
 		$(meson_use gtk-doc gtk_doc)
 		-Dintrospection=true
 		-Dman=true
-		-Dvapi=true
+		$(meson_use vala vapi)
 	)
 	meson_src_configure
 }
