@@ -48,7 +48,7 @@
 
 NOTES:
 
-- Don't forget to start systemd services, such as [LightDM⬀][ldm], [PulseAudio⬀][pa], [NetworkManager⬀][nm], [CUPS⬀][cups] or [Bluetooth⬀][bt].
+- Don't forget to enable systemd services, such as [LightDM⬀][ldm], [PulseAudio⬀][pa], [NetworkManager⬀][nm], [CUPS⬀][cups] or [Bluetooth⬀][bt].
 
 - If you switch the default Python target, you **must** update `sys-apps/portage` before any other packages.
 
