@@ -7,9 +7,7 @@ ehooks() {
 
 	## Desktop Notifications Plugin first run defaults ##
 	sed -i \
-		-e "/constexpr StatusIcon/{s/false/true/}" \
+		-e "/constexpr NotifyPlugin/{s/false/true/}" \
 		-e "/actions/{s/TRUE/FALSE/}" \
 		src/notify/notify.cc || die
-
-	eautoreconf
 }

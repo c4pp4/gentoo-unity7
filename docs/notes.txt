@@ -65,8 +65,8 @@ media-fonts/ubuntu-font-family		# Add medium size of Ubuntu classic fonts (e.g. 
 media-gfx/eog:1				# Add traditional menu bar (https://bugzilla.gnome.org/749976, https://bugs.debian.org/793445), add menu translations
 media-gfx/gnome-photos			# Use unity-control-center as the fallback
 media-gfx/shotwell			# Patched for integration with Unity online accounts
-media-plugins/audacious-plugins		# Unity Shortcuts Plugin (former GNOME Shortcuts Plugin)
-media-sound/audacious			# Install GTK version as well
+media-plugins/audacious-plugins		# Add Unity Shortcuts Plugin (former GNOME Shortcuts Plugin)
+media-sound/audacious			# First run in GTK mode
 media-sound/audacity			# Fix Exec command to use Unity menubar properly
 media-sound/rhythmbox			# Patched for indicator-sound support, add Unity MediaKeys plugin, add menu quicklist
 					#  Ubuntu patchset:

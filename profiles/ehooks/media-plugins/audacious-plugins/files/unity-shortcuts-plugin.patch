@@ -1,22 +1,28 @@
-From 575cf8913aae46a252b9536fe4358840fa3b40de Mon Sep 17 00:00:00 2001
+From 7678aaab7a6db95c86d2104b363db2c3ffb91ab0 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Sun, 17 Jul 2022 07:35:05 +0200
+Date: Sat, 2 Nov 2024 23:49:47 +0100
 Subject: [PATCH 1/1] Unity shortcuts plugin
 
 Signed-off-by: c4pp4
 ---
  configure.ac                         |   8 +
+ extra.mk.in                          |   2 +
+ meson.build                          |   5 +
+ meson_options.txt                    |   2 +
+ src/meson.build                      |   4 +
  src/unityshortcuts/Makefile          |  13 ++
- src/unityshortcuts/unityshortcuts.cc | 294 +++++++++++++++++++++++++++
- 3 files changed, 315 insertions(+)
+ src/unityshortcuts/meson.build       |   7 +
+ src/unityshortcuts/unityshortcuts.cc | 295 +++++++++++++++++++++++++++
+ 8 files changed, 336 insertions(+)
  create mode 100644 src/unityshortcuts/Makefile
+ create mode 100644 src/unityshortcuts/meson.build
  create mode 100644 src/unityshortcuts/unityshortcuts.cc
 
 diff --git a/configure.ac b/configure.ac
-index 642443e..6f9661a 100644
+index 8309684..b43938e 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -406,6 +406,13 @@ ENABLE_PLUGIN_WITH_DEP(mms,
+@@ -441,6 +441,13 @@ ENABLE_PLUGIN_WITH_DEP(mms,
      MMS,
      libmms >= 0.3)
  
@@ -30,17 +36,81 @@ index 642443e..6f9661a 100644
  ENABLE_PLUGIN_WITH_DEP(notify,
      libnotify OSD,
      auto,
-@@ -816,6 +823,7 @@ echo "  -------"
- echo "  Alarm (requires GTK+):                  $USE_GTK"
+@@ -853,6 +860,7 @@ echo "  General"
+ echo "  -------"
  echo "  Ampache browser (requires Qt):          $have_ampache"
  echo "  Delete Files:                           $USE_GTK_OR_QT"
 +echo "  Unity Shortcuts:                        $have_unityshortcuts"
  echo "  libnotify OSD:                          $have_notify"
  echo "  Linux Infrared Remote Control (LIRC):   $have_lirc"
- echo "  MPRIS 2 Server:                         $have_mpris2"
+ echo "  Lyrics Viewer:                          yes"
+diff --git a/extra.mk.in b/extra.mk.in
+index c702945..ff536b3 100644
+--- a/extra.mk.in
++++ b/extra.mk.in
+@@ -33,6 +33,8 @@ CUE_CFLAGS ?= @CUE_CFLAGS@
+ CUE_LIBS ?= @CUE_LIBS@
+ CURL_CFLAGS ?= @CURL_CFLAGS@
+ CURL_LIBS ?= @CURL_LIBS@
++DBUS_CFLAGS ?= @DBUS_CFLAGS@
++DBUS_LIBS ?= @DBUS_LIBS@
+ FFMPEG_CFLAGS ?= @FFMPEG_CFLAGS@
+ FFMPEG_LIBS ?= @FFMPEG_LIBS@
+ FILEWRITER_CFLAGS ?= @FILEWRITER_CFLAGS@
+diff --git a/meson.build b/meson.build
+index 0450b0b..093239f 100644
+--- a/meson.build
++++ b/meson.build
+@@ -54,6 +54,10 @@ audgui_dep = declare_dependency(link_args: [
+ 
+ glib_req = '>= 2.32'
+ glib_dep = dependency('glib-2.0', version: glib_req, required: true)
++dbus_req = '>= 0.60'
++dbus_dep = dependency('dbus-1', version: dbus_req, required: true)
++dbus_glib_req = '>= 0.60'
++dbus_glib_dep = dependency('dbus-glib-1', version: dbus_glib_req, required: true)
+ gmodule_dep = dependency('gmodule-2.0', version: glib_req, required: true)
+ zlib_dep = dependency('zlib', required: true)
+ 
+@@ -299,6 +303,7 @@ if meson.version().version_compare('>= 0.53')
+     'MPRIS 2 Server': get_variable('have_mpris2', false),
+     'Scrobbler 2.0': get_variable('have_scrobbler2', false),
+     'Song Change': get_option('songchange'),
++    'Unity Shortcuts': get_variable('have_unityshortcuts', true),
+   }, section: 'General')
+ 
+   if conf.has('USE_QT')
+diff --git a/meson_options.txt b/meson_options.txt
+index fbef006..84f4094 100644
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -106,6 +106,8 @@ option('songchange', type: 'boolean', value: true,
+        description: 'Whether the Song Change plugin is enabled')
+ option('streamtuner', type: 'boolean', value: false,
+        description: 'Whether the Stream Tuner plugin is enabled')
++option('unityshortcuts', type: 'boolean', value: true,
++       description: 'Whether the Unity Shortcuts plugin is enabled')
+ 
+ 
+ # effect plugins
+diff --git a/src/meson.build b/src/meson.build
+index 50b7662..cff7db5 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -183,6 +183,10 @@ if get_option('songchange')
+   subdir('songchange')
+ endif
+ 
++if get_option('unityshortcuts')
++  subdir('unityshortcuts')
++endif
++
+ 
+ # input plugins
+ if get_option('aac')
 diff --git a/src/unityshortcuts/Makefile b/src/unityshortcuts/Makefile
 new file mode 100644
-index 0000000..b8ef5df
+index 0000000..e67244e
 --- /dev/null
 +++ b/src/unityshortcuts/Makefile
 @@ -0,0 +1,13 @@
@@ -57,9 +127,22 @@ index 0000000..b8ef5df
 +CFLAGS += ${PLUGIN_CFLAGS}
 +CPPFLAGS += ${PLUGIN_CPPFLAGS} ${GLIB_CFLAGS} ${DBUS_CFLAGS} -I../.. -I..
 +LIBS += ${GLIB_LIBS} ${DBUS_LIBS} ${GTK_LIBS}
+diff --git a/src/unityshortcuts/meson.build b/src/unityshortcuts/meson.build
+new file mode 100644
+index 0000000..a700ac1
+--- /dev/null
++++ b/src/unityshortcuts/meson.build
+@@ -0,0 +1,7 @@
++shared_module('unityshortcuts',
++  'unityshortcuts.cc',
++  dependencies: [audacious_dep, gtk_dep, dbus_dep, dbus_glib_dep],
++  name_prefix: '',
++  install: true,
++  install_dir: general_plugin_dir
++)
 diff --git a/src/unityshortcuts/unityshortcuts.cc b/src/unityshortcuts/unityshortcuts.cc
 new file mode 100644
-index 0000000..50a1a23
+index 0000000..dc359f0
 --- /dev/null
 +++ b/src/unityshortcuts/unityshortcuts.cc
 @@ -0,0 +1,295 @@
@@ -359,5 +442,5 @@ index 0000000..50a1a23
 +    }
 +}
 -- 
-2.35.1
+2.45.2
 
