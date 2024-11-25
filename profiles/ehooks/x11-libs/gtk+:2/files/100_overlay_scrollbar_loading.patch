@@ -26,3 +26,16 @@ Index: b/gtk/gtkmain.c
  static void
  do_post_parse_initialization (int    *argc,
  			      char ***argv)
+## Fix gcc 14 build of unity-base/overlay-scrollbar
+diff '--color=auto' -Nur a/gtk/gtkmain.h b/gtk/gtkmain.h
+--- a/gtk/gtkmain.h	2020-12-18 06:50:58.000000000 +0100
++++ b/gtk/gtkmain.h	2024-11-25 19:15:10.580983229 +0100
+@@ -212,6 +212,8 @@
+ 
+ GtkWidget* gtk_get_event_widget	   (GdkEvent	   *event);
+ 
++gboolean ubuntu_gtk_get_use_overlay_scrollbar (void);
++void ubuntu_gtk_set_use_overlay_scrollbar (gboolean use);
+ 
+ /* Private routines internal to GTK+ 
+  */

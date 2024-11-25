@@ -1,0 +1,105 @@
+From 4bb1d392c2cd5eef03f392f49ac1e8ec01bcd7c9 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Mon, 25 Nov 2024 21:53:44 +0100
+Subject: [PATCH 1/1] Fix gcc 14 build
+
+Signed-off-by: c4pp4
+---
+ gnome-settings-daemon/gnome-settings-manager.c          | 2 +-
+ plugins/background/gnome-update-wallpaper-cache.c       | 2 +-
+ plugins/keyboard/gsd-keyboard-manager.c                 | 2 +-
+ plugins/media-keys/gsd-media-keys-manager.c             | 2 +-
+ plugins/media-keys/what-did-you-plug-in/dialog-window.c | 4 ++--
+ plugins/xrandr/gsd-xrandr-manager.c                     | 2 +-
+ 6 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/gnome-settings-daemon/gnome-settings-manager.c b/gnome-settings-daemon/gnome-settings-manager.c
+index c640eca..4aae03d 100644
+--- a/gnome-settings-daemon/gnome-settings-manager.c
++++ b/gnome-settings-daemon/gnome-settings-manager.c
+@@ -465,7 +465,7 @@ gnome_settings_manager_stop (GnomeSettingsManager *manager)
+         /* This will be called from both stop_manager and dispose, so we need to
+          * prevent the queue being freed twice */
+         if (manager->priv->signal_queue != NULL) {
+-            g_queue_free_full (manager->priv->signal_queue, signal_cache_free);
++            g_queue_free_full (manager->priv->signal_queue, (GDestroyNotify) signal_cache_free);
+             manager->priv->signal_queue = NULL;
+         }
+         g_clear_pointer (&manager->priv->whitelist, g_strfreev);
+diff --git a/plugins/background/gnome-update-wallpaper-cache.c b/plugins/background/gnome-update-wallpaper-cache.c
+index dee3055..e35c6cb 100644
+--- a/plugins/background/gnome-update-wallpaper-cache.c
++++ b/plugins/background/gnome-update-wallpaper-cache.c
+@@ -31,7 +31,7 @@ static GOptionEntry entries[] =
+   { NULL }
+ };
+ 
+-main (int argc, char *argv[])
++int main (int argc, char *argv[])
+ {
+     GOptionContext *context = NULL;
+     GError         *error = NULL;
+diff --git a/plugins/keyboard/gsd-keyboard-manager.c b/plugins/keyboard/gsd-keyboard-manager.c
+index 3a2a4fc..7ced4c2 100644
+--- a/plugins/keyboard/gsd-keyboard-manager.c
++++ b/plugins/keyboard/gsd-keyboard-manager.c
+@@ -1132,7 +1132,7 @@ manager_notify_is_loaded_cb (GObject    *object,
+                         user_notify_is_loaded_cb (G_OBJECT (user), NULL, user_data);
+                 else
+                         g_signal_connect (user, "notify::is-loaded",
+-                                          user_notify_is_loaded_cb, user_data);
++                                          G_CALLBACK (user_notify_is_loaded_cb), user_data);
+         }
+ }
+ 
+diff --git a/plugins/media-keys/gsd-media-keys-manager.c b/plugins/media-keys/gsd-media-keys-manager.c
+index f00c115..49f6e88 100644
+--- a/plugins/media-keys/gsd-media-keys-manager.c
++++ b/plugins/media-keys/gsd-media-keys-manager.c
+@@ -344,7 +344,7 @@ static const char *
+ calculate_icon_name (gint value, const char **icon_names)
+ {
+         value = CLAMP (value, 0, 100);
+-        gint length = g_strv_length (icon_names);
++        gint length = g_strv_length ((char**)icon_names);
+         gint s = (length - 1) * value / 100 + 1;
+         s = CLAMP (s, 1, length - 1);
+ 
+diff --git a/plugins/media-keys/what-did-you-plug-in/dialog-window.c b/plugins/media-keys/what-did-you-plug-in/dialog-window.c
+index eaa38c6..56d6d10 100644
+--- a/plugins/media-keys/what-did-you-plug-in/dialog-window.c
++++ b/plugins/media-keys/what-did-you-plug-in/dialog-window.c
+@@ -98,7 +98,7 @@ static void dialog_create(dialog_window *d, bool show_headset, bool show_mic)
+ 
+     d->label = gtk_label_new(_("What kind of device did you plug in?"));
+     gtk_misc_set_alignment(GTK_MISC(d->label), 0.5, 0.5);
+-    gtk_box_pack_start(GTK_CONTAINER(d->v_box), d->label, FALSE, FALSE, 6);
++    gtk_box_pack_start(GTK_BOX(d->v_box), d->label, FALSE, FALSE, 6);
+ 
+     d->hp_btn = create_icon_button(WDYPI_DIALOG_HEADPHONES, _("Headphones"), "audio-headphones");
+     gtk_box_pack_start(GTK_BOX(d->icon_box), d->hp_btn, FALSE, TRUE, 0);
+@@ -110,7 +110,7 @@ static void dialog_create(dialog_window *d, bool show_headset, bool show_mic)
+         d->mic_btn = create_icon_button(WDYPI_DIALOG_MICROPHONE, _("Microphone"), "audio-input-microphone");
+         gtk_box_pack_start(GTK_BOX(d->icon_box), d->mic_btn, FALSE, TRUE, 0);
+     }
+-    gtk_box_pack_start(GTK_CONTAINER(d->v_box), d->icon_box, FALSE, FALSE, 6);
++    gtk_box_pack_start(GTK_BOX(d->v_box), d->icon_box, FALSE, FALSE, 6);
+ 
+     d->cancel_btn = gtk_dialog_add_button(GTK_DIALOG(d->dialog), _("Cancel"), GTK_RESPONSE_CANCEL);
+     d->settings_btn = gtk_dialog_add_button(GTK_DIALOG(d->dialog), _("Sound Settings…"), GTK_RESPONSE_YES);
+diff --git a/plugins/xrandr/gsd-xrandr-manager.c b/plugins/xrandr/gsd-xrandr-manager.c
+index 133a095..e3eb7bb 100644
+--- a/plugins/xrandr/gsd-xrandr-manager.c
++++ b/plugins/xrandr/gsd-xrandr-manager.c
+@@ -2357,7 +2357,7 @@ do_touchscreen_mapping (GsdXrandrManager *manager)
+         GsdRROutputInfo *laptop_output;
+ 
+         if (!supports_xinput_devices ())
+-                return;
++                return FALSE;
+ 
+         current = gsd_rr_config_new_current (screen, NULL);
+         laptop_output = get_mappable_output_info (manager, screen, current);
+-- 
+2.45.2
+

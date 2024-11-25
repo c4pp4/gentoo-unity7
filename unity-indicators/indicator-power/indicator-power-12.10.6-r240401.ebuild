@@ -40,6 +40,8 @@ BDEPEND="dev-util/intltool"
 
 MAKEOPTS="${MAKEOPTS} -j1"
 
+PATCHES=( "${FILESDIR}"/fix-gcc-14-build.patch )
+
 src_unpack() {
 	ubuntu-versionator_src_unpack
 }

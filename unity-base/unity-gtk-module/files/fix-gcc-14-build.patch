@@ -1,0 +1,49 @@
+From 5f9bfc0453bf2429d831fe86001926f4e5945757 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Mon, 25 Nov 2024 22:28:00 +0100
+Subject: [PATCH 1/1] Fix gcc 14 build
+
+Signed-off-by: c4pp4
+---
+ lib/unity-gtk-menu-item.c | 4 ++--
+ src/main.c                | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/lib/unity-gtk-menu-item.c b/lib/unity-gtk-menu-item.c
+index 2c2b692..1822783 100644
+--- a/lib/unity-gtk-menu-item.c
++++ b/lib/unity-gtk-menu-item.c
+@@ -145,7 +145,7 @@ gtk_image_get_icon (GtkImage *image)
+           GdkPixbuf *pixbuf = gtk_image_get_pixbuf (image);
+ 
+           if (pixbuf != NULL)
+-            icon = g_object_ref (pixbuf);
++            icon = G_ICON (g_object_ref (pixbuf));
+         }
+ 
+       break;
+@@ -159,7 +159,7 @@ gtk_image_get_icon (GtkImage *image)
+               GdkPixbuf *pixbuf = gdk_pixbuf_animation_get_static_image (animation);
+ 
+               if (pixbuf != NULL)
+-                icon = g_object_ref (pixbuf);
++                icon = G_ICON (g_object_ref (pixbuf));
+             }
+         }
+ 
+diff --git a/src/main.c b/src/main.c
+index b48272f..2829f45 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -401,7 +401,7 @@ gtk_window_get_window_data (GtkWindow *window)
+ 
+       if (old_menu_model != NULL)
+         {
+-          window_data->old_model = g_object_ref (old_menu_model);
++          window_data->old_model = G_MENU_MODEL (g_object_ref (old_menu_model));
+           g_menu_append_section (window_data->menu_model, NULL, G_MENU_MODEL (old_menu_model));
+         }
+ 
+-- 
+2.45.2
+

@@ -95,6 +95,7 @@ PATCHES=(
 	"${FILESDIR}"/remove-nautilus-support.patch
 	"${FILESDIR}"/shortcut-alt-app.patch
 	"${FILESDIR}"/add-gerror.patch
+	"${FILESDIR}"/fix-gcc-14-build.patch
 )
 
 src_prepare() {

@@ -1,0 +1,26 @@
+From 4cffb5b32b05760fb1cc150df46f7d929d016930 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Mon, 25 Nov 2024 22:21:58 +0100
+Subject: [PATCH 1/1] Fix gcc 14 build
+
+Signed-off-by: c4pp4
+---
+ src/service.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/service.c b/src/service.c
+index e289561..e0b4a96 100644
+--- a/src/service.c
++++ b/src/service.c
+@@ -982,7 +982,7 @@ on_bus_acquired (GDBusConnection * connection,
+ 
+   g_debug ("bus acquired: %s", name);
+ 
+-  p->conn = g_object_ref (G_OBJECT (connection));
++  p->conn = (GDBusConnection*) g_object_ref (G_OBJECT (connection));
+   g_object_notify_by_pspec (G_OBJECT(self), properties[PROP_BUS]);
+ 
+   /* export the battery properties */
+-- 
+2.45.2
+

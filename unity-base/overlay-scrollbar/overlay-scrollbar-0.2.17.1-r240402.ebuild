@@ -32,6 +32,11 @@ DEPEND="${COMMON_DEPEND}"
 S="${S}${UVER}"
 
 src_prepare() {
+	# Fix gcc 14 build #
+	sed -i \
+		-e '/#include <X11\/extensions\/XInput2.h>/a #include <gtk\/gtkmain.h>' \
+		os/os-scrollbar.c || die
+
 	# Install Xsession file into correct Gentoo path #
 	sed -i 's:/X11/Xsession.d:/X11/xinit/xinitrc.d:g' data/Makefile.am || die
 

@@ -3512,7 +3512,7 @@ new file mode 100644
 index 0000000..139f470
 --- /dev/null
 +++ b/panels/langselector/cc-langselector-panel.h
-@@ -0,0 +1,71 @@
+@@ -0,0 +1,73 @@
 +/*
 + * Copyright (C) 2010 Intel, Inc
 + *
@@ -3580,6 +3580,8 @@ index 0000000..139f470
 +};
 +
 +GType cc_langselector_panel_get_type (void) G_GNUC_CONST;
++
++void cc_langselector_panel_register (GIOModule * module);
 +
 +G_END_DECLS
 +

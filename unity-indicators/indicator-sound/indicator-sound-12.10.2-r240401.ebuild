@@ -54,11 +54,18 @@ src_unpack() {
 }
 
 src_prepare() {
+	# Fix gcc 14 build #
+	sed -i \
+		-e '/#include <libnotify\/notify.h>/a #include <libintl.h>\n#include <glib-unix.h>' \
+		src/main.c || die
+
 	# Make test optional #
 	sed -i "s/TEST REQUIRED/TEST QUIET/" CMakeLists.txt || die
 
 	# Fix error: unknown type name ‘VALA_EXTERN’ #
-	sed -i "/add_definitions(/a -DVALA_EXTERN=extern" src/CMakeLists.txt || die
+	sed -i \
+		-e "/add_definitions(/a -DVALA_EXTERN=extern" \
+		src/CMakeLists.txt || die
 
 	# Disable all language files as they can be incomplete #
 	#  due to being provided by Ubuntu's language-pack packages #

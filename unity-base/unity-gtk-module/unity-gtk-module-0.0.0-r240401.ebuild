@@ -35,6 +35,8 @@ DEPEND="${COMMON_DEPEND}
 
 S="${WORKDIR}"
 
+PATCHES=( "${FILESDIR}"/fix-gcc-14-build.patch )
+
 src_prepare() {
 	# Disable autopilot tests #
 	sed -i "s/ tests//" Makefile.am || die
