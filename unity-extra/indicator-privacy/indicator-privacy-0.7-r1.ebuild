@@ -3,6 +3,7 @@
 
 EAPI=8
 DISTUTILS_SINGLE_IMPL=1
+DISTUTILS_USE_PEP517=setuptools
 PYTHON_COMPAT=( python3_{10..13} )
 
 inherit desktop gnome2 distutils-r1
@@ -40,10 +41,20 @@ DEPEND="${COMMON_DEPEND}
 "
 BDEPEND="dev-util/intltool"
 
+src_prepare() {
+	# Fix schemas path #
+	sed -i "s:/usr/share:share:" setup.py || die
+
+	distutils-r1_src_prepare
+}
+
 src_install() {
 	distutils-r1_src_install
 
 	insinto /usr/share/locale
 	doins -r "${S}"/build/mo/*
+
 	domenu "${S}"/build/share/applications/indicator-privacy.desktop
+	dosym -r /usr/share/applications/"${PN}".desktop \
+		/etc/xdg/autostart/"${PN}".desktop
 }

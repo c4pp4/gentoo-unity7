@@ -3,6 +3,7 @@
 
 EAPI=8
 DISTUTILS_SINGLE_IMPL=1
+DISTUTILS_USE_PEP517=setuptools
 PYTHON_COMPAT=( python3_{10..13} )
 
 UVER=
@@ -53,6 +54,9 @@ src_install() {
 	doman "${WORKDIR}"/debian/"${PN}".1
 	doman "${WORKDIR}"/debian/"${PN}"-selector.1
 
-	insinto /etc/xdg/autostart
-	doins "${ED}"/usr/share/applications/"${PN}".desktop
+	# Fix /etc/dbus-1/system.d path #
+	mv "${ED}/$(python_get_sitedir)"/etc "${ED}" || die
+
+	dosym -r /usr/share/applications/"${PN}".desktop \
+		/etc/xdg/autostart/"${PN}".desktop
 }

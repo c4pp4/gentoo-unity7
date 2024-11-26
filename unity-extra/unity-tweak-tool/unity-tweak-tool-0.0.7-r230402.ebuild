@@ -3,12 +3,13 @@
 
 EAPI=8
 DISTUTILS_SINGLE_IMPL=1
+DISTUTILS_USE_PEP517=setuptools
 PYTHON_COMPAT=( python3_{10..13} )
 
 UVER=+
 UREV=0ubuntu11
 
-inherit distutils-r1 xdg ubuntu-versionator
+inherit gnome2 distutils-r1 ubuntu-versionator
 
 DESCRIPTION="Configuration manager for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/unity-tweak-tool"
@@ -60,6 +61,9 @@ src_prepare() {
 		-e "s/context.CurrentProfile.Name/(context.CurrentProfile.Name)/" \
 		notes/wizardry.py || die
 
+	# Disable recompiling GSettings schemas #
+	sed -i "/compile_schemas(self/d" setup.py || die
+
 	use bluetooth || sed -i \
 		-e "/indicator.bluetooth/d" \
 		UnityTweakTool/section/spaghetti/gsettings.py || die
@@ -74,6 +78,12 @@ src_prepare() {
 src_install() {
 	distutils-r1_src_install
 	python_optimize
+
+	# Fix /usr/share/applications path #
+	insinto /usr/share/applications
+	newins "${ED}/$(python_get_sitedir)"/usr/share/applications/extras-"${PN}".desktop \
+		"${PN}".desktop || die
+	rm -r "${ED}/$(python_get_sitedir)"/usr || die
 
 	exeinto /etc/X11/xinit/xinitrc.d
 	doexe "${FILESDIR}/95-xcursor-theme"
