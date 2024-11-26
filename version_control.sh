@@ -336,6 +336,10 @@ portage_updates() {
 					y="${new_pkg#*thunderbird-}"; y="${y%%.*}"; y=$((y + 1))
 					new_pkg="mail-client/thunderbird-${y}"
 				fi
+				if [[ ${new_pkg} == "sys-devel/gcc"* ]]; then
+					y="${new_pkg#*gcc-}"; y="${y%%.*}"; y=$((y + 1))
+					new_pkg="sys-devel/gcc-${y}"
+				fi
 				if [[ -n ${slot} ]]; then
 					old_pkg="${old_pkg}:${slot}"
 					new_pkg="${new_pkg}:${slot}"
