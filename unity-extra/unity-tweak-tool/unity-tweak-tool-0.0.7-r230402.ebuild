@@ -9,7 +9,7 @@ PYTHON_COMPAT=( python3_{10..13} )
 UVER=+
 UREV=0ubuntu11
 
-inherit gnome2 distutils-r1 ubuntu-versionator
+inherit desktop gnome2 distutils-r1 ubuntu-versionator
 
 DESCRIPTION="Configuration manager for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/unity-tweak-tool"
@@ -64,6 +64,9 @@ src_prepare() {
 	# Disable recompiling GSettings schemas #
 	sed -i "/compile_schemas(self/d" setup.py || die
 
+	# Remove Apport support #
+	rm debian/source_unity-tweak-tool.py || die
+
 	use bluetooth || sed -i \
 		-e "/indicator.bluetooth/d" \
 		UnityTweakTool/section/spaghetti/gsettings.py || die
@@ -80,13 +83,13 @@ src_install() {
 	python_optimize
 
 	# Fix /usr/share/applications path #
-	insinto /usr/share/applications
-	newins "${ED}/$(python_get_sitedir)"/usr/share/applications/extras-"${PN}".desktop \
-		"${PN}".desktop || die
-	rm -r "${ED}/$(python_get_sitedir)"/usr || die
+	local pysite="${ED}/$(python_get_sitedir)"
+	newmenu "${pysite}"/usr/share/applications/extras-"${PN}".desktop \
+		"${PN}".desktop
+	rm -r "${pysite}"/usr || die
 
 	exeinto /etc/X11/xinit/xinitrc.d
 	doexe "${FILESDIR}/95-xcursor-theme"
 
-	rm -r "${ED}/usr/share/doc/${PN}"
+	rm -r "${ED}/usr/share/doc/${PN}" || die
 }
