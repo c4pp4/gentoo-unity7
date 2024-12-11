@@ -1,11 +1,3 @@
 ehooks() {
-	local desktopfile="${ED}/usr/share/applications/${PN}.desktop"
-
-	newmenu "${EHOOKS_FILESDIR}/${PN}.desktop.in" "${PN}.desktop"
-
-	sed -i \
-		-e "s/@MOZ_APP_NAME@/${PN}/" \
-		-e "/%%ifdef/d" \
-		-e "/%%else/,+$(( $(grep -n %%endif < ${desktopfile} | cut -d ':' -f 1) - $(grep -n %%else < ${desktopfile} | cut -d ':' -f 1) )) d" \
-		"${desktopfile}" || die
+	domenu "${EHOOKS_FILESDIR}/${PN}-esr.desktop"
 }

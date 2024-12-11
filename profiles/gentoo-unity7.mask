@@ -27,8 +27,8 @@
 >mate-extra/mate-utils-1.28.0-r1
 >media-gfx/eog-45.3:1
 >media-gfx/shotwell-0.32.4
->media-plugins/audacious-plugins-4.4.1
->media-sound/audacious-4.4.1
+>media-plugins/audacious-plugins-4.4.2
+>media-sound/audacious-4.4.2
 >media-sound/rhythmbox-3.4.7-r4
 >media-video/totem-43.0-r1
 >net-im/pidgin-2.14.13

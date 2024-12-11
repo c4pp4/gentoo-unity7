@@ -1,6 +1,5 @@
 [Desktop Entry]
 Version=1.0
-%%ifdef MOZ_OFFICIAL_BRANDING
 Name=Firefox Web Browser
 Name[ar]=متصفح الويب فَيَرفُكْس
 Name[ast]=Restolador web Firefox
@@ -41,46 +40,6 @@ Name[uk]=Веб-браузер Firefox
 Name[vi]=Trình duyệt web Firefox
 Name[zh_CN]=Firefox 网络浏览器
 Name[zh_TW]=Firefox 網路瀏覽器
-%%else
-Name=@MOZ_DISPLAY_NAME@ Web Browser
-Name[ast]=Restolador web @MOZ_DISPLAY_NAME@
-Name[ca]=Navegador web @MOZ_DISPLAY_NAME@
-Name[cs]=@MOZ_DISPLAY_NAME@ Webový prohlížeč
-Name[da]=@MOZ_DISPLAY_NAME@ - internetbrowser
-Name[el]=Περιηγητής @MOZ_DISPLAY_NAME@
-Name[es]=Navegador web @MOZ_DISPLAY_NAME@
-Name[et]=@MOZ_DISPLAY_NAME@i veebibrauser
-Name[fa]=مرورگر اینترنتی @MOZ_DISPLAY_NAME@
-Name[fi]=@MOZ_DISPLAY_NAME@-selain
-Name[fr]=Navigateur Web @MOZ_DISPLAY_NAME@
-Name[gl]=Navegador web @MOZ_DISPLAY_NAME@
-Name[he]=דפדפן האינטרנט @MOZ_DISPLAY_NAME@
-Name[hr]=@MOZ_DISPLAY_NAME@ web preglednik
-Name[hu]=@MOZ_DISPLAY_NAME@ webböngésző
-Name[it]=@MOZ_DISPLAY_NAME@ Browser Web
-Name[ja]=@MOZ_DISPLAY_NAME@ ウェブ・ブラウザ
-Name[ko]=@MOZ_DISPLAY_NAME@ 웹 브라우저
-Name[ku]=Geroka torê @MOZ_DISPLAY_NAME@
-Name[lt]=@MOZ_DISPLAY_NAME@ interneto naršyklė
-Name[nb]=@MOZ_DISPLAY_NAME@ Nettleser
-Name[nl]=@MOZ_DISPLAY_NAME@ webbrowser
-Name[nn]=@MOZ_DISPLAY_NAME@ Nettlesar
-Name[no]=@MOZ_DISPLAY_NAME@ Nettleser
-Name[pl]=Przeglądarka WWW @MOZ_DISPLAY_NAME@
-Name[pt]=@MOZ_DISPLAY_NAME@ Navegador Web
-Name[pt_BR]=Navegador Web @MOZ_DISPLAY_NAME@
-Name[ro]=@MOZ_DISPLAY_NAME@ – Navigator Internet
-Name[ru]=Веб-браузер @MOZ_DISPLAY_NAME@
-Name[sk]=@MOZ_DISPLAY_NAME@ - internetový prehliadač
-Name[sl]=@MOZ_DISPLAY_NAME@ spletni brskalnik
-Name[sv]=@MOZ_DISPLAY_NAME@ webbläsare
-Name[tr]=@MOZ_DISPLAY_NAME@ Web Tarayıcısı
-Name[ug]=@MOZ_DISPLAY_NAME@ توركۆرگۈ
-Name[uk]=Веб-браузер @MOZ_DISPLAY_NAME@
-Name[vi]=Trình duyệt web @MOZ_DISPLAY_NAME@
-Name[zh_CN]=@MOZ_DISPLAY_NAME@ 网络浏览器
-Name[zh_TW]=@MOZ_DISPLAY_NAME@ 網路瀏覽器
-%%endif
 Comment=Browse the World Wide Web
 Comment[ar]=تصفح الشبكة العنكبوتية العالمية
 Comment[ast]=Restola pela Rede
@@ -191,14 +150,15 @@ Keywords[uk]=Internet;WWW;Browser;Web;Explorer;Інтернет;мережа;п�
 Keywords[vi]=Internet;WWW;Browser;Web;Explorer;Trình duyệt;Trang web
 Keywords[zh_CN]=Internet;WWW;Browser;Web;Explorer;网页;浏览;上网;火狐;Firefox;ff;互联网;网站;
 Keywords[zh_TW]=Internet;WWW;Browser;Web;Explorer;網際網路;網路;瀏覽器;上網;網頁;火狐
-Exec=@MOZ_APP_NAME@ %u
+Exec=firefox-bin %u
 Terminal=false
 X-MultipleArgs=false
 Type=Application
-Icon=@MOZ_APP_NAME@
+Icon=firefox-bin
 Categories=GNOME;GTK;Network;WebBrowser;
-MimeType=text/html;text/xml;application/xhtml+xml;application/xml;application/rss+xml;application/rdf+xml;image/gif;image/jpeg;image/png;x-scheme-handler/http;x-scheme-handler/https;x-scheme-handler/ftp;x-scheme-handler/chrome;video/webm;application/x-xpinstall;
+MimeType=text/html;text/xml;application/xhtml+xml;application/xml;application/rss+xml;application/rdf+xml;image/gif;image/jpeg;image/png;x-scheme-handler/http;x-scheme-handler/https;video/webm;application/x-xpinstall;
 StartupNotify=true
+StartupWMClass=firefox-bin
 Actions=new-window;new-private-window;
 
 [Desktop Action new-window]
@@ -238,7 +198,7 @@ Name[uk]=Відкрити нове вікно
 Name[vi]=Mở cửa sổ mới
 Name[zh_CN]=新建窗口
 Name[zh_TW]=開啟新視窗
-Exec=@MOZ_APP_NAME@ -new-window
+Exec=firefox-bin -new-window
 
 [Desktop Action new-private-window]
 Name=Open a New Private Window
@@ -260,4 +220,4 @@ Name[sv]=Öppna ett nytt privat fönster
 Name[tr]=Yeni gizli pencere aç
 Name[uk]=Відкрити нове вікно у потайливому режимі
 Name[zh_TW]=開啟新隱私瀏覽視窗
-Exec=@MOZ_APP_NAME@ -private-window
+Exec=firefox-bin -private-window
