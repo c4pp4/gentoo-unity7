@@ -1,2 +1,3 @@
++    arr.add (event_for_desktop_file ("thunderbird-esr.desktop", ++ts));
 +    arr.add (event_for_desktop_file ("thunderbird-bin.desktop", ++ts));
 +    arr.add (event_for_desktop_file ("org.gnome.Evolution.desktop", ++ts));

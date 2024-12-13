@@ -47,6 +47,10 @@ RDEPEND="
 			www-client/firefox
 			www-client/firefox-bin
 			www-client/chromium
+			www-client/google-chrome
+			www-client/microsoft-edge
+			www-client/opera
+			www-client/vivaldi
 			www-client/epiphany
 		)
 	)
