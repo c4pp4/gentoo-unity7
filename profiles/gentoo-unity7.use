@@ -16,7 +16,6 @@ dev-build/cmake -qt6			# qt5
 gnome-base/gvfs fuse mtp samba
 gnome-extra/nm-applet appindicator
 media-fonts/noto -extra
-media-libs/libcanberra gtk2
 media-libs/freetype harfbuzz		# x11-libs/pango
 media-libs/libvpx postproc		# mail-client/thunderbird, www-client/firefox
 media-video/ffmpeg opus

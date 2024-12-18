@@ -1,0 +1,20 @@
+ehooks() {
+	multilib_src_configure() {
+		local myeconfargs=(
+			--docdir="${EPREFIX}"/usr/share/doc/${PF}
+			--disable-alsa
+			--disable-oss
+			--disable-pulse
+			--disable-gstreamer
+			--enable-gtk
+			--enable-gtk3
+			--disable-tdb
+			--disable-udev
+			--disable-lynx
+			--disable-gtk-doc
+		)
+
+		ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
+	}
+	multilib-minimal_src_configure
+}

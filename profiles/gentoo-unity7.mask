@@ -3,7 +3,7 @@
 >app-admin/system-config-printer-1.5.18-r2
 >app-backup/deja-dup-44.2
 >app-i18n/ibus-1.5.29
->app-office/libreoffice-24.2.6.2
+>app-office/libreoffice-24.2.7.2
 >app-text/evince-45.0
 >dev-cpp/gtest-1.14.0-r1
 >dev-libs/glib-2.78.6:2

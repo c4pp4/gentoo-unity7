@@ -31,7 +31,8 @@ COMMON_DEPEND="
 	>=gnome-base/gsettings-desktop-schemas-3.15.4
 	>=gnome-base/libgnomekbd-3.5.90
 	>=gnome-base/libgtop-2.22.3:2=
-	>=media-libs/libcanberra-0.25[gtk3,pulseaudio]
+	>=media-libs/libcanberra-0.25[pulseaudio]
+	>=media-libs/libcanberra-gtk3-0.25
 	>=media-libs/libpulse-2.0[glib]
 	>=net-libs/geonames-0.1
 	>=sys-apps/accountsservice-0.6.34
