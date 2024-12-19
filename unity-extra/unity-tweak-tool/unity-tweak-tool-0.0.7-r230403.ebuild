@@ -61,8 +61,12 @@ src_prepare() {
 		-e "s/context.CurrentProfile.Name/(context.CurrentProfile.Name)/" \
 		notes/wizardry.py || die
 
-	# Disable recompiling GSettings schemas #
-	sed -i "/compile_schemas(self/d" setup.py || die
+	# Exp #1: Fix /usr/share/unity-tweak-tool path #
+	# Exp #2: Disable recompiling GSettings schemas #
+	sed -i \
+		-e "/target_pkgdata =/{s:target_data:'${EROOT}/usr/':}" \
+		-e "/compile_schemas(self/d" \
+		setup.py || die
 
 	# Remove Apport support #
 	rm debian/source_unity-tweak-tool.py || die
