@@ -11,8 +11,7 @@ inherit cmake python-single-r1 ubuntu-versionator
 
 DESCRIPTION="Qt Bindings for python-dbusmock"
 HOMEPAGE="https://launchpad.net/libqtdbusmock"
-SRC_URI="${UURL}.orig.tar.gz
-	${UURL}-${UREV}.debian.tar.xz"
+SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
 
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"

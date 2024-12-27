@@ -498,11 +498,15 @@ debian_changes() {
 					fi
 					result+=( " * ${ipn}... local: ${utd} available: ${auvers[*]}" )
 					get_debian_archive "${un}"
-					tar --overwrite -xf "/tmp/ehooks-${USER}-${un}.debian.tar.xz" -C /tmp debian/patches/series --strip-components 2 --transform "s/series/ehooks-${USER}-series/"
+					[[ -e debian/patches/series ]] \
+						&& tar --overwrite -xf "/tmp/ehooks-${USER}-${un}.debian.tar.xz" -C /tmp debian/patches/series --strip-components 2 --transform "s/series/ehooks-${USER}-series/" \
+						|| touch "/tmp/ehooks-${USER}-series"
 					auvers=( "${auvers[@]//\'}" )
 					for uv in "${auvers[@]}"; do
 						get_debian_archive "${un%_*}_${uv}"
-						tar --overwrite -xf "/tmp/ehooks-${USER}-${un%_*}_${uv}.debian.tar.xz" -C /tmp debian/patches/series --strip-components 2 --transform "s/series/ehooks-${USER}-aseries/"
+						[[ -e debian/patches/series ]] \
+							&& tar --overwrite -xf "/tmp/ehooks-${USER}-${un%_*}_${uv}.debian.tar.xz" -C /tmp debian/patches/series --strip-components 2 --transform "s/series/ehooks-${USER}-aseries/" \
+							|| touch "/tmp/ehooks-${USER}-aseries"
 						if [[ -n $(diff /tmp/ehooks-${USER}-series /tmp/ehooks-${USER}-aseries) ]]; then
 							result[${#result[@]}-1]="${result[${#result[@]}-1]/\'${uv}\'/\'${color_red}${uv}${color_norm}\'}"
 							an[2]="${color_red}[ debian/patches/series file differs from local ]${color_norm}"
