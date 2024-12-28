@@ -7,6 +7,7 @@ repos=(
 	universe
 )
 
+## Don't check these packages ##
 remove=(
 	app-eselect/eselect-lightdm
 	dev-java/jayatana
@@ -22,6 +23,7 @@ remove=(
 	unity-lenses/unity-lens-meta
 	unity-scopes/smart-scopes
 	x11-plugins/mailnag-messagingmenu-plugin
+	x11-themes/adwaita-icon-theme
 )
 
 color_blink=$(tput blink)
