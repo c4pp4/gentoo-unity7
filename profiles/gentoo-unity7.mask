@@ -32,7 +32,7 @@
 >media-sound/rhythmbox-3.4.8
 >media-video/totem-43.1
 >net-im/pidgin-2.14.13
->net-im/telegram-desktop-5.5.5
+>net-im/telegram-desktop-5.9.0
 >sys-apps/accountsservice-23.13.9
 >sys-devel/gcc-15
 >www-client/firefox-134:rapid
