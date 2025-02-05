@@ -35,14 +35,14 @@
 >net-im/telegram-desktop-5.9.0-r2
 >sys-apps/accountsservice-23.13.9
 >sys-devel/gcc-15
->www-client/firefox-135:rapid
+>www-client/firefox-136:rapid
 >www-client/firefox-129:esr
 >x11-libs/gtk+-2.24.33-r3:2
 >x11-libs/gtk+-3.24.42-r1:3
 >x11-libs/libwnck-43.0-r1:3
 >x11-libs/vte-0.76.3:2.91
 >x11-misc/lightdm-1.32.0-r2
->x11-misc/zim-0.76.0
+>x11-misc/zim-0.76.1
 >x11-plugins/pidgin-libnotify-0.14-r2
 >x11-terms/mate-terminal-1.28.1
 
