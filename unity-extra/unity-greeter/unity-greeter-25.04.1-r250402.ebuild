@@ -15,7 +15,7 @@ SRC_URI="${UURL}-${UREV}.tar.xz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="amd64"
+KEYWORDS="~amd64"
 IUSE="+battery +networkmanager nls +sound"
 RESTRICT="test"
 
@@ -66,7 +66,7 @@ DEPEND="${COMMON_DEPEND}
 	$(vala_depend)
 "
 
-S="${S}${UVER}"
+S="${WORKDIR}/${PN}-24.10.1"
 
 PATCHES=(
 	"${FILESDIR}"/environment-variables.patch # Import DISPLAY and XDG_SESSION_CLASS1, set XDG_CURRENT_DESKTOP
@@ -148,13 +148,6 @@ src_install() {
 pkg_postinst() {
 	elog "Setting '${PN}' as default greeter of LightDM."
 	"${EROOT}"/usr/bin/eselect lightdm set unity-greeter
-
-	elog "Setting 'unity' as default user session."
-	if line=$(grep -s -m 1 -e "user-session" "${EROOT}/etc/lightdm/lightdm.conf"); then
-		sed -i -e "s/user-session=.*/user-session=unity/" "${EROOT}/etc/lightdm/lightdm.conf"
-	else
-		echo "user-session=unity" >> "${EROOT}/etc/lightdm/lightdm.conf"
-	fi
 
 	ubuntu-versionator_pkg_postinst
 }

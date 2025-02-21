@@ -1,4 +1,7 @@
 ehooks() {
+	# Configure --with-greeter-user=lightdm #
+	sed -i '/GREETER_USER/{s/$withval/lightdm/}' configure.ac || die
+
 	"${PORTAGE_QUERY_TOOL}" has_version / app-text/yelp-tools \
 		|| ( sed -i "/YELP_HELP_INIT/d" configure.ac || die )
 }

@@ -1,0 +1,39 @@
+ehooks() {
+	pushd "${ED}"/etc/${PN} >/dev/null || die
+		mv ${PN}.conf ${PN}.conf_example
+	popd >/dev/null || die
+	insinto /etc/${PN}
+	doins "${EHOOKS_FILESDIR}"/${PN}.conf
+
+	exeinto /usr/sbin
+	newexe "${EHOOKS_FILESDIR}"/Xsession lightdm-session		# Install our custom Xsession as /usr/sbin/lightdm-session
+
+	# Install guest-account script
+	exeinto /usr/bin
+	doexe "${EHOOKS_FILESDIR}"/guest-account
+	# Fix the script
+	exeinto /usr/share/lightdm/guest-session
+	doexe "${EHOOKS_FILESDIR}"/setup.sh
+	keepdir /usr/share/lightdm/guest-session/skel
+
+	# Add guest session GSettings defaults
+	insinto /etc/guest-session/gsettings
+	newins "${EHOOKS_FILESDIR}"/99_default.gsettings-override \
+		99_default.gschema.override
+
+	# Install systemd tmpfiles.d file
+	insinto /usr/lib/tmpfiles.d
+	newins "${EHOOKS_FILESDIR}"/${PN}.tmpfiles.d ${PN}.conf
+
+	# Install PolicyKit rules from Fedora which allow the lightdm user to access
+	# the systemd-logind, consolekit, and upower DBus interfaces
+	insinto /usr/share/polkit-1/rules.d
+	newins "${EHOOKS_FILESDIR}"/${PN}.rules ${PN}.rules
+
+	# Add gnome-keyring support to automatically
+	# unlock the keyring once you log in. Issue #203
+	sed -i \
+		-e "/^auth/a -auth\toptional\t\tpam_gnome_keyring.so" \
+		-e "/^session/a -session\toptional\t\tpam_gnome_keyring.so auto_start" \
+		"${ED}/etc/pam.d/${PN}" || die
+}
