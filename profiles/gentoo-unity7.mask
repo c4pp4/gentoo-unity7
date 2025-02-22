@@ -3,7 +3,7 @@
 >app-admin/system-config-printer-1.5.18-r2
 >app-backup/deja-dup-44.2
 >app-i18n/ibus-1.5.29
->app-office/libreoffice-24.2.7.2
+>app-office/libreoffice-24.2.7.2-r1
 >app-text/evince-46.3.1
 >dev-cpp/gtest-1.14.0-r1
 >dev-libs/glib-2.80.5-r1:2
@@ -32,7 +32,7 @@
 >media-sound/rhythmbox-3.4.8
 >media-video/totem-43.1
 >net-im/pidgin-2.14.13
->net-im/telegram-desktop-5.9.0-r2
+>net-im/telegram-desktop-5.10.7
 >sys-apps/accountsservice-23.13.9
 >sys-devel/gcc-15
 >www-client/firefox-136:rapid

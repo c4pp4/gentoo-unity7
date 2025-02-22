@@ -1,22 +1,21 @@
 ehooks() {
+	# Install default config with guest session disabled
 	pushd "${ED}"/etc/${PN} >/dev/null || die
 		mv ${PN}.conf ${PN}.conf_example
 	popd >/dev/null || die
 	insinto /etc/${PN}
 	doins "${EHOOKS_FILESDIR}"/${PN}.conf
 
+	# Install our custom Xsession as /usr/sbin/lightdm-session
 	exeinto /usr/sbin
-	newexe "${EHOOKS_FILESDIR}"/Xsession lightdm-session		# Install our custom Xsession as /usr/sbin/lightdm-session
+	newexe "${EHOOKS_FILESDIR}"/Xsession lightdm-session
 
-	# Install guest-account script
+	# Install guest-account script and related settings
 	exeinto /usr/bin
-	doexe "${EHOOKS_FILESDIR}"/guest-account
-	# Fix the script
+	newexe "${EHOOKS_FILESDIR}"/guest-account.sh guest-account
 	exeinto /usr/share/lightdm/guest-session
 	doexe "${EHOOKS_FILESDIR}"/setup.sh
 	keepdir /usr/share/lightdm/guest-session/skel
-
-	# Add guest session GSettings defaults
 	insinto /etc/guest-session/gsettings
 	newins "${EHOOKS_FILESDIR}"/99_default.gsettings-override \
 		99_default.gschema.override
