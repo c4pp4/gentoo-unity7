@@ -50,6 +50,8 @@ NOTES:
 
 - Don't forget to enable systemd services, such as [LightDM⬀][ldm], [PulseAudio⬀][pa], [NetworkManager⬀][nm], [CUPS⬀][cups] or [Bluetooth⬀][bt].
 
+- In case of starting Unity7 with `startx` command, use [our .xinitrc file][xirc] to ensure all needed services are started.
+
 - If you switch the default Python target, you **must** update `sys-apps/portage` before any other packages.
 
 [//]: # (LINKS)
@@ -65,3 +67,4 @@ NOTES:
 [pa]: https://wiki.gentoo.org/wiki/PulseAudio#systemd
 [s3]: https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Stage#Downloading_the_stage_file
 [sysd]: https://wiki.gentoo.org/wiki/Systemd
+[xirc]: /unity-base/unity/files/xinitrc
