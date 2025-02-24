@@ -23,6 +23,7 @@ net-p2p/transmission appindicator -gtk	# GTK3 global menu bug (https://github.co
 sys-libs/zlib minizip			# net-im/telegram-desktop
 virtual/notification-daemon -gnome	# Needed to avoid blocks because of 'x11-misc/notify-osd' if 'gnome-base/gnome-shell' is not installed
 x11-base/xorg-server xvfb		# x11-misc/xvfb-run
+x11-libs/gsettings-qt -qt6		# qt5
 x11-misc/lightdm -gtk
 x11-themes/ubuntu-wallpapers -gnome
 x11-themes/yaru-theme -gnome-shell

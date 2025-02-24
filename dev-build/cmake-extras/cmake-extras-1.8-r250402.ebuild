@@ -28,5 +28,11 @@ RDEPEND="
 
 src_install() {
 	cmake_src_install
+
+	# Support new multilib layout #
+	sed -i \
+		-e "s:/usr/lib:/usr/lib64:" \
+		"${ED}"/usr/share/cmake/QmlPlugins/QmlPluginsConfig.cmake
+
 	use examples && ( dodoc -r examples || die )
 }
