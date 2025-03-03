@@ -20,7 +20,7 @@
 
    `emerge -av gentoo-unity-env`
 
-   WARNING: Don't use portage variable EMERGE_DEFAULT_OPTS with `--jobs N` option as it causes informational and warning messages to be ignored. Such messages are important mainly in the next step.
+   WARNING: Don't use Gentoo binary package host (such as portage variable FEATURES with `getbinpkg` option) as related packages need to be built from source. Don't use portage variable EMERGE_DEFAULT_OPTS with `--jobs N` option as it causes informational and warning messages to be ignored. Such messages are important mainly in the next step.
 
 6. Previous emerge command installs *'unity-base/gentoo-unity-env'* package. The package, among other things, generates emerge command needed to be applied and displays it as a warning message in pkg_postinst phase. **Rebuild all affected packages**, if any.
 
