@@ -35,7 +35,7 @@
 >net-im/telegram-desktop-5.10.7
 >sys-apps/accountsservice-23.13.9
 >sys-devel/gcc-15
->www-client/firefox-136:rapid
+>www-client/firefox-137:rapid
 >www-client/firefox-129:esr
 >x11-libs/gtk+-2.24.33-r3:2
 >x11-libs/gtk+-3.24.42-r1:3

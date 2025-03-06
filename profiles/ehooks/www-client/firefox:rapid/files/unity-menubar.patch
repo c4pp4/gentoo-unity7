@@ -3924,7 +3924,7 @@
 +#endif /* __nsMenuSeparator_h__ */
 --- /dev/null
 +++ b/widget/gtk/nsNativeMenuDocListener.cpp
-@@ -0,0 +1,346 @@
+@@ -0,0 +1,347 @@
 +/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 +/* vim:expandtab:shiftwidth=4:tabstop=4:
 + */
@@ -4044,7 +4044,8 @@
 +}
 +
 +void
-+nsNativeMenuDocListener::ContentWillBeRemoved(nsIContent *aChild)
++nsNativeMenuDocListener::ContentWillBeRemoved(nsIContent *aChild,
++                                              const BatchRemovalState*)
 +{
 +    nsIContent* container = aChild->GetParent();
 +    if (!container) {
