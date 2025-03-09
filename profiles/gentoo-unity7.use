@@ -1,4 +1,4 @@
-*/* vala -nautilus
+*/* vala X -nautilus
 
 app-accessibility/brltty python		# app-accessibility/orca[braille]
 app-dicts/myspell-en l10n_en-US
