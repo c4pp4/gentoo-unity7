@@ -68,6 +68,8 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 		source <(declare -f die | sed -e "/${bugapnd}/a ${bugmsg}" -e "/${bugapnd}/a ${buglog}")
 		## End of modifying 'die' command
 
+		x="$(cat ${EROOT}/etc/portage/make.conf | grep --color=never EHOOKS_ACCEPT)"
+		[[ -n ${x} ]] && eval "$x" ## Needed when installing binary package
 		if [[ ${EHOOKS_ACCEPT} != "yes" ]]; then
 			eerror
 			eerror "Warning!"
