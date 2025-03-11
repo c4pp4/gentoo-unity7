@@ -2,6 +2,8 @@
 
 1. **Switch to** [systemd⬀][sysd] init system or use [stage3-amd64-systemd⬀][s3] tarball.
 
+   WARNING: In case you are using [Gentoo binhost⬀][gbph], add EMERGE_DEFAULT_OPTS portage variable with `--usepkg-exclude` option into `/etc/portage/make.conf` configuration file, use [our setting][edo], see more on [wiki guide⬀][pkge].
+
 2. **Add the overlay** using [eselect-repository⬀][erepo] module and synchronize it:
 
    `eselect repository enable gentoo-unity7`
@@ -20,7 +22,7 @@
 
    `emerge -av gentoo-unity-env`
 
-   WARNING: Don't use Gentoo binary package host (such as portage variable FEATURES with `getbinpkg` option) as related packages need to be built from source. Don't use portage variable EMERGE_DEFAULT_OPTS with `--jobs N` option as it causes informational and warning messages to be ignored. Such messages are important mainly in the next step.
+   WARNING: Don't use portage variable EMERGE_DEFAULT_OPTS with `--jobs N` option as it causes informational and warning messages to be ignored. Such messages are important mainly in the next step.
 
 6. Previous emerge command installs *'unity-base/gentoo-unity-env'* package. The package, among other things, generates emerge command needed to be applied and displays it as a warning message in pkg_postinst phase. **Rebuild all affected packages**, if any.
 
@@ -57,14 +59,17 @@ NOTES:
 [//]: # (LINKS)
 [bt]: https://wiki.gentoo.org/wiki/Bluetooth#systemd
 [cups]: https://wiki.gentoo.org/wiki/Printing#systemd
+[edo]: make.conf
 [ehooks]: ehooks.md
 [ep]: https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Base#Choosing_the_right_profile
 [erepo]: https://wiki.gentoo.org/wiki/Eselect/Repository
+[gbph]: https://wiki.gentoo.org/wiki/Gentoo_Binary_Host_Quickstart
 [git]: https://wiki.gentoo.org/wiki/Git
 [ldm]: https://wiki.gentoo.org/wiki/LightDM#systemd
 [mu]: https://wiki.gentoo.org/wiki/Merge-usr
 [nm]: https://wiki.gentoo.org/wiki/NetworkManager#systemd
 [pa]: https://wiki.gentoo.org/wiki/PulseAudio#systemd
+[pkge]: https://wiki.gentoo.org/wiki/Binary_package_guide#Additional_client_settings
 [s3]: https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Stage#Downloading_the_stage_file
 [sysd]: https://wiki.gentoo.org/wiki/Systemd
 [xirc]: /unity-base/unity/files/xinitrc
