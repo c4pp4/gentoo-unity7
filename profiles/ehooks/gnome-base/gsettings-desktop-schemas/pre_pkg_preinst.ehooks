@@ -1,0 +1,5 @@
+ehooks() {
+	pushd ${ED} >/dev/null || die
+		eapply "${EHOOKS_FILESDIR}"/ubuntu_lock-on-suspend.patch
+	popd >/dev/null || die
+}

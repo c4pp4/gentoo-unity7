@@ -86,7 +86,6 @@ sys-apps/accountsservice		# Requires patching for SetInputSources as needed by u
 					#  0012-add-keyboard-layout-support.patch
 					#  0016-add-input-sources-support.patch
 sys-apps/dbus				# Don't run dbuslaunch when DESKTOP_SESSION is unity (fix systemd startx problem)
-sys-auth/polkit-pkla-compat		# Fix localstatedir path (/var/lib)
 www-client/chromium			# Required to support Unity Launcher icon effects (no duplicate icons, quicklist menu, progress bar, window title bar fixes etc.)
 www-client/firefox:rapid		# Latest version, add Unity menubar and desktop launcher with quicklist and translations
 www-client/firefox:esr			# ESR version, add Unity menubar and desktop launcher with quicklist and translations

@@ -1,0 +1,5 @@
+ehooks() {
+	[[ -e ${ED}/usr/share/applications/${PN}.desktop ]] \
+		&& echo "X-MessagingMenu-UsesChatSection=true" >> "${ED}"/usr/share/applications/"${PN}".desktop \
+		|| die
+}

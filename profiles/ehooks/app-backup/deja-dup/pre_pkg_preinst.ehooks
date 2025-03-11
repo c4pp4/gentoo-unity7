@@ -3,5 +3,5 @@ ehooks() {
 	sed -i \
 		-e "/Exec/{s/ %u//}" \
 		-e "/Categories/{s/X-GNOME-Utilities/Settings;X-GNOME-SystemSettings;X-Unity-Settings-Panel\nX-Unity-Settings-Panel=deja-dup/}" \
-		data/app.desktop.in || die
+		"${ED}"/usr/share/applications/org.gnome.DejaDup.desktop || die
 }

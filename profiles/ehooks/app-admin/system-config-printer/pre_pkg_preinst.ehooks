@@ -1,0 +1,13 @@
+ehooks() {
+	[[ -e ${ED}/usr/share/applications/Gentoo-${PN}.desktop ]] \
+		&& echo "NotShowIn=Unity;" >> "${ED}"/usr/share/applications/Gentoo-"${PN}".desktop \
+		|| die
+
+	sed -i \
+		-e "s:\(NotShowIn=KDE;GNOME;Cinnamon;\):\1Unity;:" \
+		"${ED}"/etc/xdg/autostart/Gentoo-print-applet.desktop || die
+
+	sed -i \
+		-e "s:\(self.AboutDialog.set_\)\(icon_name('printer\):\1logo_\21:" \
+		"${ED}"/usr/share/"${PN}"/"${PN}".py || die
+}

@@ -1,0 +1,5 @@
+ehooks() {
+	sed -i \
+		-e "s/Unity;//" \
+		"${ED}"/usr/share/applications/"${PN}".desktop || die
+}
