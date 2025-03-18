@@ -21,7 +21,7 @@ RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.37.3:2[${MULTILIB_USEDEP}]
-	>=unity-indicators/ido-13.10.0:0=[${MULTILIB_USEDEP}]
+	>=dev-libs/ido-13.10.0:0=[${MULTILIB_USEDEP}]
 	>=x11-libs/gtk+-3.5.18:3[${MULTILIB_USEDEP}]
 "
 RDEPEND="${COMMON_DEPEND}

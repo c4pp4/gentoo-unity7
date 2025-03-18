@@ -28,6 +28,7 @@ COMMON_DEPEND="
 	>=dev-libs/atk-2.2.0
 	>=dev-libs/dee-1.2.6:0=[${PYTHON_SINGLE_USEDEP}]
 	>=dev-libs/glib-2.41.1:2
+	>=dev-libs/ido-13.10.0:0=
 	>=dev-libs/json-glib-1.5.2
 	>=dev-libs/libdbusmenu-0.4.2[gtk3]
 	>=dev-libs/libindicator-0.12.2:3
@@ -41,7 +42,6 @@ COMMON_DEPEND="
 	>=unity-base/gsettings-ubuntu-touch-schemas-0.0.7
 	>=unity-base/nux-4.0.6:0=[debug?,gles2=]
 	>=unity-base/unity-settings-daemon-15.04.1
-	>=unity-indicators/ido-13.10.0:0=
 	>=x11-libs/cairo-1.14.0
 	>=x11-libs/gtk+-3.19.12:3[introspection]
 	>=x11-libs/libnotify-0.7.0
