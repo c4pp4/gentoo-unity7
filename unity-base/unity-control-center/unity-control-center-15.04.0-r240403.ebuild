@@ -20,7 +20,7 @@ IUSE="+accessibility +bluetooth +colord +cups fcitx +gnome-online-accounts +inpu
 RESTRICT="test"
 
 COMMON_DEPEND="
-	>=app-i18n/ibus-1.5.1
+	>=app-i18n/ibus-1.5.1[vala]
 	>=dev-libs/glib-2.39.91:2
 	>=dev-libs/libpwquality-1.1.0
 	>=dev-libs/libtimezonemap-0.4.5
@@ -46,16 +46,16 @@ COMMON_DEPEND="
 	>=x11-libs/libnotify-0.7.3:=
 	x11-libs/libX11
 
-	colord? ( >=x11-misc/colord-1.4.3:= )
+	colord? ( >=x11-misc/colord-1.4.3:=[vala] )
 	cups? ( >=net-print/cups-1.6.0 )
 	fcitx? ( >=app-i18n/fcitx-4.2.9.5:4 )
 	gnome-online-accounts? ( <net-libs/gnome-online-accounts-3.49.0 )
 	input_devices_wacom? ( >=dev-libs/libwacom-1.1 )
 	kerberos? ( >=app-crypt/mit-krb5-1.8 )
 	networkmanager? (
-		>=net-libs/libnma-1.2.0
-		>=net-misc/modemmanager-0.7.991
-		>=net-misc/networkmanager-1.2.0
+		>=net-libs/libnma-1.2.0[vala]
+		>=net-misc/modemmanager-0.7.991[vala]
+		>=net-misc/networkmanager-1.2.0[vala]
 	)
 	v4l? ( >=media-video/cheese-3.18.0 )
 	webkit? ( >=net-libs/webkit-gtk-2.15.1:4.1 )

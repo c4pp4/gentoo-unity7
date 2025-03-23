@@ -25,7 +25,7 @@ COMMON_DEPEND="
 	gnome-base/libgnomekbd
 	>=sys-apps/accountsservice-0.6.40
 	>=x11-libs/gtk+-3.1.6:3
-	>=x11-misc/lightdm-1.1.3
+	>=x11-misc/lightdm-1.1.3[vala]
 
 	fcitx? ( >=app-i18n/fcitx-4.2.9.5:4[introspection] )
 "

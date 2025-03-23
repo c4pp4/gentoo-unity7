@@ -25,7 +25,7 @@ COMMON_DEPEND="
 	>=media-libs/libcanberra-gtk3-0.2
 	>=unity-base/unity-settings-daemon-15.04.1
 	>=x11-libs/gtk+-3.16.2:3
-	>=x11-misc/lightdm-1.20.0[introspection]
+	>=x11-misc/lightdm-1.20.0[vala]
 "
 RDEPEND="${COMMON_DEPEND}
 	>=dev-libs/atk-1.12.4
