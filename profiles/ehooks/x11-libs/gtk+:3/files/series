@@ -1,7 +1,7 @@
 bzg_gtkcellrenderer_grabbing_modifier.patch
 ubuntu_gtk_custom_menu_items.patch
 x-canonical-accel.patch
-#message-dialog-restore-traditional-look-on-unity.patch
+message-dialog-restore-traditional-look-on-unity.patch
 0001-gtkwindow-set-transparent-background-color.patch
 #unity-border-radius.patch
 unity-headerbar-maximized-mode.patch

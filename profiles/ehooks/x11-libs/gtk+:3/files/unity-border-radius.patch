@@ -10,7 +10,7 @@ Bug-Ubuntu: https://bugs.launchpad.net/bugs/1516403
  1 file changed, 152 insertions(+), 6 deletions(-)
 
 diff --git a/gtk/gtkwindow.c b/gtk/gtkwindow.c
-index c67530f..f835b9a 100644
+index 6ee2cb9..c9d2696 100644
 --- a/gtk/gtkwindow.c
 +++ b/gtk/gtkwindow.c
 @@ -30,6 +30,7 @@

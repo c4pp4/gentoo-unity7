@@ -7,7 +7,7 @@ DISTUTILS_USE_PEP517=setuptools
 PYTHON_COMPAT=( python3_{10..13} )
 
 UVER=
-UREV=3
+UREV=1
 
 inherit distutils-r1 ubuntu-versionator
 
@@ -21,4 +21,4 @@ RESTRICT="test"
 
 DEPEND="${RDEPEND}"
 
-S="${WORKDIR}/${PN#python-}-${PV}"
+S="${WORKDIR}/zombie_imp-${PV}"
