@@ -1,0 +1,8 @@
+ehooks() {
+	local \
+		blake=9895987be9ef67d4ef72dc82944595177f2352b3464e65c4152c80a333374ce4cdfd6e1b9cee5e2899e7a4e4e546ece2e3ac4659c3f918f23d01dcda45c48414 \
+		uver=libadwaita-1_1.6.2-1ubuntu1
+
+	source "${EHOOKS_PATH}"/templates/fetch_debian.template
+	fetch_debian "${blake}" "${uver}"
+}

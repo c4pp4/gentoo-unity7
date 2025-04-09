@@ -5,7 +5,7 @@
 >app-i18n/ibus-1.5.30-r1
 >app-office/libreoffice-24.2.7.2-r2
 >app-text/evince-46.3.1
->dev-cpp/gtest-1.14.0-r1
+>dev-cpp/gtest-1.14.0-r2
 >dev-libs/glib-2.82.5:2
 >games-board/iagno-3.38.1-r1
 >games-puzzle/gnome-taquin-3.38.1-r1
@@ -20,7 +20,7 @@
 >gnome-extra/nm-applet-1.36.0
 >gnome-extra/polkit-gnome-0.105-r2
 >gnome-extra/yelp-42.2-r1
->gui-libs/libadwaita-1.5.3:1
+>gui-libs/libadwaita-1.6.2:1
 >gui-libs/libhandy-1.8.3:1
 >mail-client/thunderbird-129
 >mate-extra/mate-system-monitor-1.28.0
