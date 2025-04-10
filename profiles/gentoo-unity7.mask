@@ -32,7 +32,7 @@
 >media-sound/rhythmbox-3.4.8
 >media-video/totem-43.1
 >net-im/pidgin-2.14.13-r1
->net-im/telegram-desktop-5.12.3-r3
+>net-im/telegram-desktop-5.12.3-r5
 >sys-apps/accountsservice-23.13.9
 >sys-devel/gcc-15
 >www-client/firefox-138:rapid
@@ -42,7 +42,7 @@
 >x11-libs/libwnck-43.0-r1:3
 >x11-libs/vte-0.76.3:2.91
 >x11-misc/lightdm-1.32.0-r2
->x11-misc/zim-0.76.2
+>x11-misc/zim-0.76.3
 >x11-plugins/pidgin-libnotify-0.14-r3
 >x11-terms/mate-terminal-1.28.1
 

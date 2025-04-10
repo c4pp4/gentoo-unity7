@@ -30,5 +30,6 @@ x11-base/xorg-server xvfb		# x11-misc/xvfb-run
 x11-libs/gsettings-qt -qt6		# qt5
 x11-misc/colord vala
 x11-misc/lightdm vala -gtk
+x11-misc/zim ubuntu-mono		# Install ubuntu-mono-{dark,light} icons
 x11-themes/ubuntu-wallpapers -gnome
 x11-themes/yaru-theme -gnome-shell
