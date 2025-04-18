@@ -1,0 +1,51 @@
+From 92bc33736c58efd810413f9d3c9628979eba99b1 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Fri, 18 Apr 2025 19:18:05 +0200
+Subject: [PATCH 1/1] Fix Sharing panel translation
+
+Signed-off-by: c4pp4
+---
+ panels/sharing/cc-sharing-panel.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
+
+diff --git a/panels/sharing/cc-sharing-panel.c b/panels/sharing/cc-sharing-panel.c
+index 8d0a3f5..d0a9650 100644
+--- a/panels/sharing/cc-sharing-panel.c
++++ b/panels/sharing/cc-sharing-panel.c
+@@ -685,19 +685,30 @@ cc_sharing_panel_setup_label (CcSharingPanel *self,
+ {
+   CcSharingPanelPrivate *priv = self->priv;
+   gchar *text;
++  gchar *link;
+ 
+   if (label == WID ("personal-file-sharing-label"))
+-    text = g_strdup_printf (_("Personal File Sharing allows you to share your Public folder with others on your current network using: <a href=\"dav://%s\">dav://%s</a>"), hostname, hostname);
++    {
++      link = g_strdup_printf ("<a href=\"dav://%s\">dav://%s</a>", hostname, hostname);
++      text = g_strdup_printf (_("Personal File Sharing allows you to share your Public folder with others on your current network using: %s"), link);
++    }
+   else if (label == WID ("remote-login-label"))
+-    text = g_strdup_printf (_("When remote login is enabled, remote users can connect using the Secure Shell command:\n<a href=\"ssh %s\">ssh %s</a>"), hostname, hostname);
++    {
++      link = g_strdup_printf ("<a href=\"ssh %s\">ssh %s</a>", hostname, hostname);
++      text = g_strdup_printf (_("When remote login is enabled, remote users can connect using the Secure Shell command:\n%s"), link);
++    }
+   else if (label == WID ("screen-sharing-label"))
+-    text = g_strdup_printf (_("Screen sharing allows remote users to view or control your screen by connecting to <a href=\"vnc://%s\">vnc://%s</a>"), hostname, hostname);
++    {
++      link = g_strdup_printf ("<a href=\"vnc://%s\">vnc://%s</a>", hostname, hostname);
++      text = g_strdup_printf (_("Screen sharing allows remote users to view or control your screen by connecting to %s"), link);
++    }
+   else
+     g_assert_not_reached ();
+ 
+   gtk_label_set_label (GTK_LABEL (label), text);
+ 
+   g_free (text);
++  g_free (link);
+ }
+ 
+ typedef struct
+-- 
+2.49.0
+

@@ -111,6 +111,7 @@ PATCHES=(
 	"${FILESDIR}"/02-optional-bt-colord-kerberos-wacom.patch
 	"${FILESDIR}"/03-revert-searching-the-dash-legal-notice.patch
 	"${FILESDIR}"/04-ibus_init.patch
+	"${FILESDIR}"/fix-sharing-panel-translation.patch
 )
 
 src_prepare() {
@@ -145,6 +146,11 @@ src_prepare() {
 		-e "s:ASCII \*/:ASCII */\n\tresult = g_str_to_ascii (pretty, NULL);:" \
 		panels/info/hostname-helper.c || die
 	grep -Fq "translit: '%s'" panels/info/hostname-helper.c || die
+
+	# Rename button to be translated #
+	sed -i \
+		-e "s/_Add Profile…/Add profile/" \
+		panels/network/network-ethernet.ui || die
 
 	# Fix typo (Sha ring) #
 	sed -i \

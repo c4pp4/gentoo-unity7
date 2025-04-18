@@ -1,4 +1,7 @@
-# PCH is masked globally due to its instability (see gentoo:base/use.mask) #
+# PCH is masked globally due to its instability #
+# Telepathy is dead and packages masked for removal #
+# see /var/db/repos/gentoo/profiles/base/use.mask #
 dev-libs/libcolumbus -pch
+net-misc/vino -telepathy
 unity-base/unity -pch
 unity-base/unity-api -pch
