@@ -13,7 +13,7 @@ HOMEPAGE="https://translations.launchpad.net/ubuntu"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 
 setvar() {
 	eval "${1//-/_}=( ${2} ${3} ${4} )"
@@ -191,7 +191,6 @@ src_install() {
 	# sharing panel msgids
 	local -a sh_msgids=(
 		"No networks selected for sharing"
-		"service is enabled"
 		"service is disabled"
 		"service is enabled"
 		"service is active"
@@ -221,7 +220,6 @@ src_install() {
 		"Share music, photos and videos over the network."
 		"Folders"
 		"Control what you want to share with others"
-		"preferences-system-sharing"
 		"share;sharing;ssh;host;name;remote;desktop;media;audio;video;pictures;photos;"
 		"Networks"
 		"Enable or disable remote login"
@@ -229,9 +227,7 @@ src_install() {
 	)
 
 	# langselector panel msgids
-	local -a ls_msgids=(
-		"Language Support"
-		"Configure multiple and native language support on your system"
+	local -a ls1_msgids=(
 		"Login _Screen"
 		"_Language"
 		"_Formats"
@@ -253,6 +249,10 @@ src_install() {
 		"No languages found"
 		"No regions found"
 	)
+	local -a ls2_msgids=(
+		"Language Support"
+		"Configure multiple and native language support on your system"
+	)
 
 	# online-accounts desktop launcher msgids
 	local -a oa_msgids=(
@@ -272,7 +272,7 @@ src_install() {
 		ul_po="unity.legacy" \
 		ucc_po="unity-control-center.po" \
 		uccl_po="unity-control-center.legacy" \
-		gcc_po="gnome-control-center-2.0.po" \
+		gccl_po="gnome-control-center-2.0.legacy" \
 		ls_po="language-selector.po" \
 		is_po="indicator-session.po" \
 		ylp_po="yelp.po" \
@@ -280,7 +280,6 @@ src_install() {
 
 	# Remove all translations except those we need
 	find "${S}" -type f \
-		! -name ${gcc_po} \
 		! -name 'gnome-session-*' \
 		! -name 'indicator-*' \
 		! -name ${ls_po} \
@@ -323,6 +322,13 @@ src_install() {
 	done
 	rm -r "${S}"/po 2>/dev/null
 
+	unpack "${FILESDIR}"/gnome-control-center-2.0-translations-jammy.tar.xz 1>/dev/null
+
+	for x in "${S}"/language-pack-gnome-*-base/data/*; do
+		cp "${S}"/po/"${x##*data/}".po "${x}"/LC_MESSAGES/"${gccl_po}" 2>/dev/null
+	done
+	rm -r "${S}"/po 2>/dev/null
+
 	_progress_counter=0
 	_progress_indicator() {
 		local -a arr=( "|" "/" "-" "\\" )
@@ -337,7 +343,6 @@ src_install() {
 
 	for pofile in $( \
 		find "${S}" -type f -name "*.po" \
-			! -name "${gcc_po}" \
 			! -name "${ls_po}" \
 			! -name "${ylp_po}" \
 	); do
@@ -353,10 +358,10 @@ src_install() {
 				rm "${x}"
 			fi
 
-			# Add translations for sharing panel and online-accounts desktop launcher
+			# Add translations for langselector, sharing panel and online-accounts desktop launcher
 			sed -i -e "/\"Sharing\"/,+1 d" "${pofile}" || die # remove old identical msgid
-			gcc_src=${pofile/${ucc_po}/${gcc_po}}
-			for msgid in "${sh_msgids[@]}" "${oa_msgids[@]}"; do
+			gcc_src=${pofile/${ucc_po}/${gccl_po}}
+			for msgid in "${ls1_msgids[@]}" "${sh_msgids[@]}" "${oa_msgids[@]}"; do
 				if ! grep -q "^\(msgid\|msgctxt\)\s\"${msgid}\"$" "${pofile}"; then
 					msgid="$(awk "/^(msgid\s|msgctxt\s|)\"${msgid}\"\$/ { p = 1 } p { print } /^\$/ { p = 0 }" "${gcc_src}" 2>/dev/null)"
 					case ${msgid:0:1} in
@@ -375,9 +380,9 @@ src_install() {
 			# Add translations for langselector panel
 			ls_src=${pofile/${ucc_po}/${ls_po}}
 			ls_src=${ls_src/gnome-}
-			for msgid in "${ls_msgids[@]}"; do
+			for msgid in "${ls2_msgids[@]}"; do
 				if ! grep -q "^\(msgid\|msgctxt\)\s\"${msgid}\"$" "${pofile}"; then
-					echo "$(awk "/^(msgid|msgctxt)\s\"${msgid}\"\$/ { p = 1 } p { print } /^\$/ { p = 0 }" "${gcc_src}" "${ls_src}" 2>/dev/null)" \
+					echo "$(awk "/^(msgid|msgctxt)\s\"${msgid}\"\$/ { p = 1 } p { print } /^\$/ { p = 0 }" "${ls_src}" 2>/dev/null)" \
 						>> "${pofile}"
 				fi
 			done
@@ -421,7 +426,7 @@ src_install() {
 
 		# Set ehooks gnome-session version
 		if [[ ${pofile##*/} == "gnome-session-"* ]]; then
-			mv "${pofile%.po}.mo" "${pofile%/*}/gnome-session-46.mo"
+			mv "${pofile%.po}.mo" "${pofile%/*}/gnome-session-46.mo" 2>/dev/null
 		fi
 	done
 

@@ -16,7 +16,7 @@ HOMEPAGE="https://github.com/encukou/zombie-imp"
 
 LICENSE="PSF-2.4"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 RESTRICT="test"
 
 DEPEND="${RDEPEND}"

@@ -14,7 +14,7 @@ SRC_URI="${UURL}-${UREV}.tar.xz"
 
 LICENSE="CC-BY-SA-4.0 GPL-3 LGPL-2.1 LGPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="cinnamon gnome-shell gtk mate +unity xfwm"
 RESTRICT="binchecks strip test"
 

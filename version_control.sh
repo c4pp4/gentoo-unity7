@@ -1,7 +1,7 @@
 #!/bin/bash
 
-stable="oracular"
-dev="plucky"
+stable="plucky"
+dev=""
 repos=(
 	main
 	universe
