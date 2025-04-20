@@ -391,6 +391,32 @@ src_install() {
 		"invalid wpa-psk: cannot interpret key with 64 bytes as hex"
 	)
 
+	# gnome-session-properties msgids
+	local -a gs_msgids=(
+		"Select Command"
+		"Add Startup Program"
+		"Edit Startup Program"
+		"The startup command cannot be empty"
+		"The startup command is not valid"
+		"Enabled"
+		"Icon"
+		"Program"
+		"Startup Applications Preferences"
+		"No name"
+		"No description"
+		"Version of this application"
+		"Could not display help document"
+		"Startup Applications"
+		"Choose what applications to start when you log in"
+		"Additional startup _programs:"
+		"_Automatically remember running applications when logging out"
+		"_Remember Currently Running Applications"
+		"Browse…"
+		"Comm_ent:"
+		"Co_mmand:"
+		"_Name:"
+	)
+
 	# langselector panel msgids
 	local -a ls1_msgids=(
 		"Login _Screen"
@@ -432,12 +458,14 @@ src_install() {
 	)
 
 	local \
-		pofile msgid gcc_src ls_src x ylp_src \
+		pofile msgid gcc_src gs_src ls_src x ylp_src \
 		u_po="unity.po" \
 		ul_po="unity.legacy" \
 		ucc_po="unity-control-center.po" \
 		uccl_po="unity-control-center.legacy" \
 		gccl_po="gnome-control-center-2.0.legacy" \
+		gs_po="gnome-session-46.po" \
+		gsl_po="gnome-session.legacy" \
 		ls_po="language-selector.po" \
 		is_po="indicator-session.po" \
 		ylp_po="yelp.po" \
@@ -455,44 +483,54 @@ src_install() {
 			-delete || die
 	find "${S}" -mindepth 1 -type d -empty -delete || die
 
-	# Add translations for activity-log-manager
-	unpack "${FILESDIR}"/activity-log-manager-translations-artful.tar.xz 1>/dev/null
+	prepare_translations() {
+		unpack "${FILESDIR}"/"$1".tar.xz 1>/dev/null
 
-	for x in "${S}"/language-pack-gnome-*-base/data/*; do
-		cp "${S}"/po/"${x##*data/}".po "${x}"/LC_MESSAGES/activity-log-manager.po 2>/dev/null
-	done
-	rm -r "${S}"/po 2>/dev/null
+		for x in "${S}"/language-pack-gnome-*-base/data/*; do
+			cp "${S}"/po/"${x##*data/}".po "${x}"/LC_MESSAGES/"$2" 2>/dev/null
+		done
+		rm -r "${S}"/po 2>/dev/null
+	}
 
-	# Add translations for session-shortcuts
-	unpack "${FILESDIR}"/session-shortcuts-translations-artful.tar.xz 1>/dev/null
+	process_msgids() {
+		local src pofile
+		
+		src="$1"; shift
+		pofile="$1"; shift
+		if [[ -e ${src} ]]; then
+			for msgid in "$@"; do
+				if ! grep -Fq "^\(msgid\|msgctxt\)\s\"${msgid}\"$" "${pofile}"; then
+					msgid="$(awk "/^(msgid\s|msgctxt\s|)\"${msgid}\"\$/ { p = 1 } p { print } /^\$/ { p = 0 }" "${src}" 2>/dev/null)"
+					case ${msgid:0:1} in
+						m)
+							echo "${msgid}" >> "${pofile}"
+							;;
+						\")
+							echo "msgid \"\"${newline}${msgid}" >> "${pofile}"
+							;;
+					esac
+				fi
+			done
+			msguniq --use-first -o "${pofile}" "${pofile}" 2>/dev/null
+			rm "${src}" 2>/dev/null
+		fi
+	}
 
-	for x in "${S}"/language-pack-gnome-*-base/data/*; do
-		cp "${S}"/po/"${x##*data/}".po "${x}"/LC_MESSAGES/session-shortcuts.po 2>/dev/null
-	done
-	rm -r "${S}"/po 2>/dev/null
+	merge_translations() {
+		if [[ -f $1 ]]; then
+			sed -i -e '/msgid \"\"/,/^$/d' "$1"
+			cat "$1" >> "$2"
+			msguniq --use-first -o "$2" "$2" 2>/dev/null
+			rm "$1"
+		fi
+	}
 
-	# Add legacy translations for Unity
-	unpack "${FILESDIR}"/unity-translations-kinetic.tar.xz 1>/dev/null
-
-	for x in "${S}"/language-pack-gnome-*-base/data/*; do
-		cp "${S}"/po/"${x##*data/}".po "${x}"/LC_MESSAGES/"${ul_po}" 2>/dev/null
-	done
-	rm -r "${S}"/po 2>/dev/null
-
-	# Add legacy translations for System Settings
-	unpack "${FILESDIR}"/unity-control-center-translations-kinetic.tar.xz 1>/dev/null
-
-	for x in "${S}"/language-pack-gnome-*-base/data/*; do
-		cp "${S}"/po/"${x##*data/}".po "${x}"/LC_MESSAGES/"${uccl_po}" 2>/dev/null
-	done
-	rm -r "${S}"/po 2>/dev/null
-
-	unpack "${FILESDIR}"/gnome-control-center-2.0-translations-jammy.tar.xz 1>/dev/null
-
-	for x in "${S}"/language-pack-gnome-*-base/data/*; do
-		cp "${S}"/po/"${x##*data/}".po "${x}"/LC_MESSAGES/"${gccl_po}" 2>/dev/null
-	done
-	rm -r "${S}"/po 2>/dev/null
+	prepare_translations "activity-log-manager-translations-artful" "activity-log-manager.po"
+	prepare_translations "session-shortcuts-translations-artful" "session-shortcuts.po"
+	prepare_translations "unity-translations-kinetic" "${ul_po}"
+	prepare_translations "unity-control-center-translations-kinetic" "${uccl_po}"
+	prepare_translations "gnome-control-center-2.0-translations-jammy" "${gccl_po}"
+	prepare_translations "gnome-session-3.0-translations-xenial" "${gsl_po}"
 
 	_progress_counter=0
 	_progress_indicator() {
@@ -506,6 +544,8 @@ src_install() {
 	printf "%s  " "Processing translation files"
 	_progress_indicator
 
+	ls1_msgids+=("${sh_msgids[@]}" "${net_msgids[@]}" "${oa_msgids[@]}")
+
 	for pofile in $( \
 		find "${S}" -type f -name "*.po" \
 			! -name "${ls_po}" \
@@ -516,43 +556,29 @@ src_install() {
 
 			# Merge legacy translations
 			x="${pofile/${ucc_po}/${uccl_po}}"
-			if [[ -f ${x} ]]; then
-				sed -i -e '/msgid \"\"/,/^$/d' "${x}"
-				cat "${x}" >> "${pofile}"
-				msguniq --use-first -o "${pofile}" "${pofile}" 2>/dev/null
-				rm "${x}"
-			fi
+			merge_translations "${x}" "${pofile}"
 
 			# Add translations for langselector, sharing panel, network panel and online-accounts desktop launcher
 			sed -i -e "/\"Sharing\"/,+1 d" "${pofile}" || die # remove old identical msgid
 			gcc_src=${pofile/${ucc_po}/${gccl_po}}
-			for msgid in "${ls1_msgids[@]}" "${sh_msgids[@]}" "${net_msgids[@]}" "${oa_msgids[@]}"; do
-				if ! grep -Fq "^\(msgid\|msgctxt\)\s\"${msgid}\"$" "${pofile}"; then
-					msgid="$(awk "/^(msgid\s|msgctxt\s|)\"${msgid}\"\$/ { p = 1 } p { print } /^\$/ { p = 0 }" "${gcc_src}" 2>/dev/null)"
-					case ${msgid:0:1} in
-						m)
-							echo "${msgid}" >> "${pofile}"
-							;;
-						\")
-							echo "msgid \"\"${newline}${msgid}" >> "${pofile}"
-							;;
-					esac
-				fi
-			done
+			process_msgids "${gcc_src}" "${pofile}" "${ls1_msgids[@]}"
 
 			_progress_indicator
 
 			# Add translations for langselector panel
 			ls_src=${pofile/${ucc_po}/${ls_po}}
 			ls_src=${ls_src/gnome-}
-			for msgid in "${ls2_msgids[@]}"; do
-				if ! grep -q "^\(msgid\|msgctxt\)\s\"${msgid}\"$" "${pofile}"; then
-					echo "$(awk "/^(msgid|msgctxt)\s\"${msgid}\"\$/ { p = 1 } p { print } /^\$/ { p = 0 }" "${ls_src}" 2>/dev/null)" \
-						>> "${pofile}"
-				fi
-			done
-			msguniq --use-first -o "${pofile}" "${pofile}" 2>/dev/null
-			rm "${gcc_src}" "${ls_src}" 2>/dev/null
+			process_msgids "${ls_src}" "${pofile}" "${ls2_msgids[@]}"
+		fi
+
+		# Add translations for gnome-session-properties
+		if [[ ${pofile##*/} == "gnome-session-"* ]]; then
+			_progress_indicator
+
+			mv "${pofile}" "${pofile%/*}/${gs_po}" 2>/dev/null
+			pofile="${pofile%/*}/${gs_po}"
+			gs_src=${pofile/${gs_po}/${gsl_po}}
+			process_msgids "${gs_src}" "${pofile}" "${gs_msgids[@]}"
 		fi
 
 		# Add translations for Unity help desktop launcher
@@ -561,13 +587,7 @@ src_install() {
 			_progress_indicator
 
 			sed -i -e "s/GNOME/Unity/g" "${ylp_src}" || die
-			for msgid in "${is_msgids[@]}"; do
-				if ! grep -q "^\(msgid\|msgctxt\)\s\"${msgid}\"$" "${pofile}"; then
-					echo "$(awk "/^(msgid|msgctxt)\s\"${msgid}\"\$/ { p = 1 } p { print } /^\$/ { p = 0 }" "${ylp_src}" 2>/dev/null)" \
-						>> "${pofile}"
-				fi
-			done
-			rm "${ylp_src}" 2>/dev/null
+			process_msgids "${ylp_src}" "${pofile}" "${is_msgids[@]}"
 		fi
 
 		# Process translations for Unity
@@ -576,12 +596,7 @@ src_install() {
 
 			# Merge legacy translations
 			x="${pofile/${u_po}/${ul_po}}"
-			if [[ -f ${x} ]]; then
-				sed -i -e '/msgid \"\"/,/^$/d' "${x}"
-				cat "${x}" >> "${pofile}"
-				msguniq --use-first -o "${pofile}" "${pofile}" 2>/dev/null
-				rm "${x}"
-			fi
+			merge_translations "${x}" "${pofile}"
 
 			# Rename Ubuntu Desktop
 			sed -i -e "s/Ubuntu Desktop/Gentoo Unity⁷ Desktop/" -e "/Unity⁷/{n;s/Ubuntu/Gentoo Unity⁷/;}" "${pofile}" || die
@@ -589,11 +604,6 @@ src_install() {
 
 		msgfmt -o "${pofile%.po}.mo" "${pofile}"
 		rm "${pofile}" 2>/dev/null
-
-		# Set ehooks gnome-session version
-		if [[ ${pofile##*/} == "gnome-session-"* ]]; then
-			mv "${pofile%.po}.mo" "${pofile%/*}/gnome-session-46.mo" 2>/dev/null
-		fi
 	done
 
 	insinto /usr/share/locale
