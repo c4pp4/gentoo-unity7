@@ -1,8 +1,5 @@
 ## These are packages maintained via ehooks that must be checked before bump ##
->app-accessibility/at-spi2-core-2.52.0:2
->app-admin/system-config-printer-1.5.18-r2
->app-backup/deja-dup-44.2
->app-i18n/ibus-1.5.30-r1
+>app-i18n/ibus-1.5.31-r1
 >app-office/libreoffice-24.2.7.2-r2
 >app-text/evince-46.3.1
 >dev-cpp/gtest-1.14.0-r2
@@ -13,13 +10,11 @@
 >gnome-base/gnome-desktop-44.1-r300:3
 >gnome-base/gnome-menus-3.36.0-r1:3
 >gnome-base/gnome-session-46.0-r1
->gnome-base/gsettings-desktop-schemas-46.1
 >gnome-extra/gnome-calendar-46.1
 >gnome-extra/gnome-contacts-46.0
 >gnome-extra/nemo-6.2.8
 >gnome-extra/nm-applet-1.36.0
 >gnome-extra/polkit-gnome-0.105-r2
->gnome-extra/yelp-42.2-r1
 >gui-libs/libadwaita-1.6.2:1
 >gui-libs/libhandy-1.8.3:1
 >mail-client/thunderbird-129
@@ -31,7 +26,6 @@
 >media-sound/audacious-4.4.2
 >media-sound/rhythmbox-3.4.8
 >media-video/totem-43.1
->net-im/pidgin-2.14.13-r1
 >net-im/telegram-desktop-5.12.3-r5
 >sys-apps/accountsservice-23.13.9
 >sys-devel/gcc-15
@@ -42,7 +36,6 @@
 >x11-libs/libwnck-43.0-r1:3
 >x11-libs/vte-0.76.3:2.91
 >x11-misc/lightdm-1.32.0-r2
->x11-misc/zim-0.76.3
 >x11-plugins/pidgin-libnotify-0.14-r3
 >x11-terms/mate-terminal-1.28.1
 

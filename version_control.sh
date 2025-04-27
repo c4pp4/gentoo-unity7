@@ -406,7 +406,7 @@ get_uvers() {
 	[[ -z $@ ]] && subdirs=( $(get_subdirs "${y}" "*/*/*src_unpack.ehooks") )
 
 	for x in "${subdirs[@]}"; do
-		ver=$(grep -o -m 1 "uver=.*" "${x}")
+		ver=$(grep -Eo -m 1 "uver=[^[:space:]]+" "${x}")
 		[[ -n ${ver} ]] && result+=( "${x}|${ver#uver=}" );
 	done
 	echo "${result[@]}"
@@ -482,8 +482,10 @@ debian_changes() {
 					for frls in "${rls}" "${rls}"-security "${rls}"-updates; do
 						for rp in "${repos[@]}"; do
 							uv=$(grep -A6 "Package: ${un%_*}$" /tmp/gentoo-unity7-sources-${rp}-${frls} | sed -n 's/^Version: \(.*\)/\1/p' | sed 's/[0-9]://g')
-							[[ -n ${uv} ]] && [[ ${uv} != ${pn} ]] && [[ ${uv} != ${un#*_} ]] && auvers+=( "'${uv}'" ) && pn="${uv}"
-							[[ ${uv} == ${un#*_} ]] && utd="${utd/${color_yellow}/${color_green}}"
+							if [[ -n ${uv} ]]; then
+								[[ ${uv} != ${pn} ]] && [[ ${uv} != ${un#*_} ]] && auvers+=( "'${uv}'" ) && pn="${uv}"
+								[[ ${uv} == ${un#*_} ]] && utd="${utd/${color_yellow}/${color_green}}"
+							fi
 						done
 					done
 				done
