@@ -1,0 +1,91 @@
+From f6d9318d88fafad96c66b2ac288f9328a541277a Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Mon, 5 May 2025 19:45:26 +0200
+Subject: [PATCH 1/1] Revert panel shadow
+
+Signed-off-by: c4pp4
+---
+ plugins/unityshell/src/unityshell.cpp | 64 +++++++++++++++++++++++++++
+ 1 file changed, 64 insertions(+)
+
+diff --git a/plugins/unityshell/src/unityshell.cpp b/plugins/unityshell/src/unityshell.cpp
+index 38f433a..ff739f6 100644
+--- a/plugins/unityshell/src/unityshell.cpp
++++ b/plugins/unityshell/src/unityshell.cpp
+@@ -3157,9 +3157,73 @@ bool UnityWindow::glDraw(const GLMatrix& matrix,
+ 
+   auto draw_panel_shadow = DrawPanelShadow::NO;
+ 
++  if (!(mask & PAINT_WINDOW_ON_TRANSFORMED_SCREEN_MASK))
++  {
++    Window active_window = screen->activeWindow();
++
++    if (G_UNLIKELY(window_type == CompWindowTypeDesktopMask))
++    {
++      uScreen->setPanelShadowMatrix(matrix);
++
++      if (active_window == 0 || active_window == window->id())
++      {
++        if (PluginAdapter::Default().IsWindowOnTop(window->id()))
++        {
++          draw_panel_shadow = DrawPanelShadow::OVER_WINDOW;
++        }
++        uScreen->is_desktop_active_ = true;
++      }
++    }
++    else
++    {
++      if (window->id() == active_window)
++      {
++        draw_panel_shadow = DrawPanelShadow::BELOW_WINDOW;
++        uScreen->is_desktop_active_ = false;
++
++        if (!(window_state & CompWindowStateMaximizedVertMask) &&
++            !(window_state & CompWindowStateFullscreenMask) &&
++            !(window_type & CompWindowTypeFullscreenMask))
++        {
++          auto const& output = uScreen->screen->currentOutputDev();
++          int monitor = uScreen->WM.MonitorGeometryIn(NuxGeometryFromCompRect(output));
++
++          if (window->y() - window->border().top < output.y() + uScreen->panel_style_.PanelHeight(monitor))
++          {
++            draw_panel_shadow = DrawPanelShadow::OVER_WINDOW;
++          }
++        }
++      }
++      else if (uScreen->menus_->integrated_menus())
++      {
++        draw_panel_shadow = DrawPanelShadow::BELOW_WINDOW;
++      }
++      else
++      {
++        if (uScreen->is_desktop_active_)
++        {
++          if (PluginAdapter::Default().IsWindowOnTop(window->id()))
++          {
++            draw_panel_shadow = DrawPanelShadow::OVER_WINDOW;
++            uScreen->panelShadowPainted = CompRegion();
++          }
++        }
++      }
++    }
++  }
++
++  if (locked)
++    draw_panel_shadow = DrawPanelShadow::NO;
++
++  if (draw_panel_shadow == DrawPanelShadow::BELOW_WINDOW)
++    uScreen->paintPanelShadow(region);
++
+   deco_win_->Draw(matrix, attrib, region, mask);
+   bool ret = gWindow->glDraw(matrix, attrib, region, mask);
+ 
++  if (draw_panel_shadow == DrawPanelShadow::OVER_WINDOW)
++    uScreen->paintPanelShadow(region);
++
+   return ret;
+ }
+ 
+-- 
+2.49.0
+

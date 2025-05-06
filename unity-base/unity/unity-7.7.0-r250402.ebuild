@@ -20,7 +20,7 @@ SRC_URI="${UURL}-${UREV}.tar.xz"
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="classic debug doc gles2 +hud pch systray +uwidgets"
+IUSE="classic debug doc gles2 +hud no-panel-shadow pch systray +uwidgets"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="test"
 
@@ -140,6 +140,9 @@ src_prepare() {
 
 	# Dash classic look #
 	use classic && eapply "${FILESDIR}"/dash-classic.patch
+
+	# Panel shadow #
+	use no-panel-shadow || eapply "${FILESDIR}"/revert-panel-shadow.patch
 
 	# Preprocessor fixes #
 	if ! use pch; then

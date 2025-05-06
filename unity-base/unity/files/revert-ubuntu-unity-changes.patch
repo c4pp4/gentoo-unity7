@@ -1,25 +1,24 @@
-From 844a9fc9ba6ec24c67dd7681a8243fdcabbae727 Mon Sep 17 00:00:00 2001
+From 5dcc55d005149441fdf6e8a81cc8d4a801c782c9 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Wed, 12 Apr 2023 10:26:27 +0200
+Date: Mon, 5 May 2025 19:43:37 +0200
 Subject: [PATCH 1/1] Revert Ubuntu Unity changes
 
-Revert panel transparency, shadow and padding, revert dash preview,
+Revert panel transparency and padding, revert dash preview,
 dash and launcher icon size, online search tooltip, drag & drop,
 icon desaturation on hud activation.
 
 Signed-off-by: c4pp4
 ---
- dash/DashView.cpp                     | 129 ++++++++++-
- launcher/BFBLauncherIcon.cpp          |   4 +-
- launcher/Launcher.cpp                 | 312 +++++++++++++++++++++++++-
- lockscreen/LockScreenPanel.cpp        |   4 +-
- panel/PanelController.cpp             |   2 +-
- panel/PanelIndicatorsView.cpp         |   1 -
- panel/PanelView.cpp                   |   4 +-
- plugins/unityshell/src/unityshell.cpp |  64 ++++++
- plugins/unityshell/unityshell.xml.in  |   2 +-
- unity-shared/DashStyle.cpp            |  51 ++++-
- 10 files changed, 540 insertions(+), 33 deletions(-)
+ dash/DashView.cpp                    | 129 ++++++++++-
+ launcher/BFBLauncherIcon.cpp         |   4 +-
+ launcher/Launcher.cpp                | 312 ++++++++++++++++++++++++++-
+ lockscreen/LockScreenPanel.cpp       |   4 +-
+ panel/PanelController.cpp            |   2 +-
+ panel/PanelIndicatorsView.cpp        |   1 -
+ panel/PanelView.cpp                  |   4 +-
+ plugins/unityshell/unityshell.xml.in |   2 +-
+ unity-shared/DashStyle.cpp           |  51 +++--
+ 9 files changed, 476 insertions(+), 33 deletions(-)
 
 diff --git a/dash/DashView.cpp b/dash/DashView.cpp
 index 0fd0597..f064616 100644
@@ -602,84 +601,6 @@ index 1a54ab1..fd492b6 100644
    }
    else
    {
-diff --git a/plugins/unityshell/src/unityshell.cpp b/plugins/unityshell/src/unityshell.cpp
-index 38f433a..ff739f6 100644
---- a/plugins/unityshell/src/unityshell.cpp
-+++ b/plugins/unityshell/src/unityshell.cpp
-@@ -3157,9 +3157,73 @@ bool UnityWindow::glDraw(const GLMatrix& matrix,
- 
-   auto draw_panel_shadow = DrawPanelShadow::NO;
- 
-+  if (!(mask & PAINT_WINDOW_ON_TRANSFORMED_SCREEN_MASK))
-+  {
-+    Window active_window = screen->activeWindow();
-+
-+    if (G_UNLIKELY(window_type == CompWindowTypeDesktopMask))
-+    {
-+      uScreen->setPanelShadowMatrix(matrix);
-+
-+      if (active_window == 0 || active_window == window->id())
-+      {
-+        if (PluginAdapter::Default().IsWindowOnTop(window->id()))
-+        {
-+          draw_panel_shadow = DrawPanelShadow::OVER_WINDOW;
-+        }
-+        uScreen->is_desktop_active_ = true;
-+      }
-+    }
-+    else
-+    {
-+      if (window->id() == active_window)
-+      {
-+        draw_panel_shadow = DrawPanelShadow::BELOW_WINDOW;
-+        uScreen->is_desktop_active_ = false;
-+
-+        if (!(window_state & CompWindowStateMaximizedVertMask) &&
-+            !(window_state & CompWindowStateFullscreenMask) &&
-+            !(window_type & CompWindowTypeFullscreenMask))
-+        {
-+          auto const& output = uScreen->screen->currentOutputDev();
-+          int monitor = uScreen->WM.MonitorGeometryIn(NuxGeometryFromCompRect(output));
-+
-+          if (window->y() - window->border().top < output.y() + uScreen->panel_style_.PanelHeight(monitor))
-+          {
-+            draw_panel_shadow = DrawPanelShadow::OVER_WINDOW;
-+          }
-+        }
-+      }
-+      else if (uScreen->menus_->integrated_menus())
-+      {
-+        draw_panel_shadow = DrawPanelShadow::BELOW_WINDOW;
-+      }
-+      else
-+      {
-+        if (uScreen->is_desktop_active_)
-+        {
-+          if (PluginAdapter::Default().IsWindowOnTop(window->id()))
-+          {
-+            draw_panel_shadow = DrawPanelShadow::OVER_WINDOW;
-+            uScreen->panelShadowPainted = CompRegion();
-+          }
-+        }
-+      }
-+    }
-+  }
-+
-+  if (locked)
-+    draw_panel_shadow = DrawPanelShadow::NO;
-+
-+  if (draw_panel_shadow == DrawPanelShadow::BELOW_WINDOW)
-+    uScreen->paintPanelShadow(region);
-+
-   deco_win_->Draw(matrix, attrib, region, mask);
-   bool ret = gWindow->glDraw(matrix, attrib, region, mask);
- 
-+  if (draw_panel_shadow == DrawPanelShadow::OVER_WINDOW)
-+    uScreen->paintPanelShadow(region);
-+
-   return ret;
- }
- 
 diff --git a/plugins/unityshell/unityshell.xml.in b/plugins/unityshell/unityshell.xml.in
 index 61afdea..3fdd5f3 100644
 --- a/plugins/unityshell/unityshell.xml.in
@@ -809,5 +730,5 @@ index b0c3eac..4d7cdff 100755
  
  RawPixel Style::GetCategoryHeaderLeftPadding() const
 -- 
-2.39.2
+2.49.0
 
