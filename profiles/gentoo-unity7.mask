@@ -12,7 +12,7 @@
 >gnome-base/gnome-session-46.0-r1
 >gnome-extra/gnome-calendar-46.1
 >gnome-extra/gnome-contacts-46.0
->gnome-extra/nemo-6.2.8
+>gnome-extra/nemo-6.4.5
 >gnome-extra/nm-applet-1.36.0
 >gnome-extra/polkit-gnome-0.105-r2
 >gui-libs/libadwaita-1.6.2:1
