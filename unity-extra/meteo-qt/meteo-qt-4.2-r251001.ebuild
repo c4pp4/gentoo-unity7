@@ -4,7 +4,7 @@
 EAPI=8
 DISTUTILS_SINGLE_IMPL=1
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{10..13} )
+PYTHON_COMPAT=( python3_{10..14} )
 
 UVER=
 UREV=2
@@ -26,9 +26,7 @@ COMMON_DEPEND="
 RDEPEND="${COMMON_DEPEND}
 	dev-qt/qttranslations:6
 
-	$(python_gen_cond_dep '
-		dev-python/lxml[${PYTHON_USEDEP}]
-	')
+	$(python_gen_cond_dep 'dev-python/lxml[${PYTHON_USEDEP}]')
 "
 DEPEND="${COMMON_DEPEND}
 	dev-qt/qttools:6
