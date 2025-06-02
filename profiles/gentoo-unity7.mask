@@ -1,7 +1,7 @@
 ## These are packages maintained via ehooks that must be checked before bump ##
 >app-i18n/ibus-1.5.31-r1
 >app-office/libreoffice-24.2.7.2-r2
->app-text/evince-46.3.1
+>app-text/evince-46.3.1-r1
 >dev-cpp/gtest-1.14.0-r2
 >dev-libs/glib-2.82.5:2
 >games-board/iagno-3.38.1-r1
@@ -18,7 +18,7 @@
 >gui-libs/libadwaita-1.6.2:1
 >gui-libs/libhandy-1.8.3:1
 >mail-client/thunderbird-129
->mate-extra/mate-system-monitor-1.28.0
+>mate-extra/mate-system-monitor-1.28.0-r1
 >mate-extra/mate-utils-1.28.0-r1
 >media-gfx/eog-45.4:1
 >media-gfx/shotwell-0.32.10
