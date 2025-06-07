@@ -26,7 +26,7 @@
 >media-sound/audacious-4.4.2
 >media-sound/rhythmbox-3.4.8
 >media-video/totem-43.1
->net-im/telegram-desktop-5.12.3-r5
+>net-im/telegram-desktop-5.12.3-r6
 >sys-apps/accountsservice-23.13.9
 >sys-devel/gcc-15
 >www-client/firefox-140:rapid
