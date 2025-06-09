@@ -21,10 +21,10 @@
 >mate-extra/mate-system-monitor-1.28.0-r1
 >mate-extra/mate-utils-1.28.0-r1
 >media-gfx/eog-45.4:1
->media-gfx/shotwell-0.32.10
->media-plugins/audacious-plugins-4.4.2
+>media-gfx/shotwell-0.32.10-r1
+>media-plugins/audacious-plugins-4.4.2-r1
 >media-sound/audacious-4.4.2
->media-sound/rhythmbox-3.4.8
+>media-sound/rhythmbox-3.4.8-r1
 >media-video/totem-43.1
 >net-im/telegram-desktop-5.12.3-r6
 >sys-apps/accountsservice-23.13.9
