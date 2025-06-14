@@ -32,7 +32,7 @@
 >www-client/firefox-140:rapid
 >www-client/firefox-129:esr
 >x11-libs/gtk+-2.24.33-r3:2
->x11-libs/gtk+-3.24.48:3
+>x11-libs/gtk+-3.24.49-r1:3
 >x11-libs/libwnck-43.0-r1:3
 >x11-libs/vte-0.76.3:2.91
 >x11-misc/lightdm-1.32.0-r4
