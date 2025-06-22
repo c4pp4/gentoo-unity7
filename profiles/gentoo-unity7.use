@@ -2,17 +2,14 @@
 
 app-accessibility/brltty python		# app-accessibility/orca[braille]
 app-dicts/myspell-en l10n_en-US
-app-i18n/fcitx:4 gtk2 -autostart	# don't launch systray tool by default
 app-i18n/ibus appindicator gtk2 vala
+app-office/libreoffice -qt6		# gtk3
 dev-libs/boost python			# dev-libs/libcolumbus
 dev-libs/libdbusmenu gtk3		# dev-libs/libappindicator:3, dev-libs/libindicate, unity-indicators/indicator-appmenu
-dev-libs/liblouis python		# app-accessibility/orca[braille]
 dev-libs/libpcre2 pcre32		# app-accessibility/brltty
-dev-libs/sexpp static-libs		# mail-client/thunderbird
 dev-libs/xapian-bindings python		# REQUIRED_USE flag
 dev-qt/qtgui:5 ibus
 dev-qt/qtmultimedia:5 widgets		# dev-python/PyQt5 (unity-extra/meteo-qt)
-dev-build/cmake -qt6			# qt5
 gnome-base/gvfs fuse mtp samba
 gnome-extra/nm-applet appindicator
 media-fonts/noto -extra

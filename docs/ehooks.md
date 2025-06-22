@@ -124,7 +124,7 @@
   `ehooks_use [USE flag]`
 
   - it returns a true value if **unity-base/gentoo-unity-env** USE flag is declared
-  - e.g. `if ehooks_use fontconfig; then`, see [app-office/libreoffice/03-post_src_install.ehooks][libreoffice]:
+  - e.g. `if ehooks_use fontconfig; then`, see [app-office/libreoffice/03-pre_pkg_preinst.ehooks][libreoffice]:
 
   `ehooks_require [USE flag]`
 
@@ -180,7 +180,7 @@
 [env]: ../profiles/gentoo-unity7.env
 [fconf]: ../profiles/ehooks/media-libs/fontconfig:1.0/01-pre_pkg_preinst.ehooks
 [gnome-session]: ../profiles/ehooks/gnome-base/gnome-session
-[libreoffice]: ../profiles/ehooks/app-office/libreoffice/03-post_src_install.ehooks
+[libreoffice]: ../profiles/ehooks/app-office/libreoffice/03-pre_pkg_preinst.ehooks
 [templates]: ../profiles/ehooks/templates
 [uflags]: ../unity-base/gentoo-unity-env/metadata.xml
 [warch]: https://web.archive.org/web/20191226202345/https://wiki.gentoo.org/wiki//etc/portage/patches#Enabling_.2Fetc.2Fportage.2Fpatches_for_all_ebuilds

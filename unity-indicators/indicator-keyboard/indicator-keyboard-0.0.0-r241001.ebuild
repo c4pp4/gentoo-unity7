@@ -15,7 +15,7 @@ HOMEPAGE="https://launchpad.net/indicator-keyboard"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="+charmap fcitx"
+IUSE="+charmap"
 RESTRICT="test"
 
 COMMON_DEPEND="
@@ -26,8 +26,6 @@ COMMON_DEPEND="
 	>=sys-apps/accountsservice-0.6.40
 	>=x11-libs/gtk+-3.1.6:3
 	>=x11-misc/lightdm-1.1.3[vala]
-
-	fcitx? ( >=app-i18n/fcitx-4.2.9.5:4[introspection] )
 "
 RDEPEND="${COMMON_DEPEND}
 	>=dev-libs/glib-2.37.5:2
@@ -66,7 +64,7 @@ src_prepare() {
 
 src_configure() {
 	local myeconfargs=(
-		$(use_enable fcitx)
+		--disable-fcitx
 	)
 	econf "${myeconfargs[@]}"
 }

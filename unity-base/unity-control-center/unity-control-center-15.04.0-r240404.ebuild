@@ -16,7 +16,7 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="+accessibility +bluetooth +colord +cups fcitx +gnome-online-accounts +input_devices_wacom +kerberos +networkmanager +v4l wayland +webkit"
+IUSE="+accessibility +bluetooth +colord +cups +gnome-online-accounts +input_devices_wacom +kerberos +networkmanager +v4l wayland +webkit"
 RESTRICT="test"
 
 COMMON_DEPEND="
@@ -48,7 +48,6 @@ COMMON_DEPEND="
 
 	colord? ( >=x11-misc/colord-1.4.3:=[vala] )
 	cups? ( >=net-print/cups-1.6.0 )
-	fcitx? ( >=app-i18n/fcitx-4.2.9.5:4 )
 	gnome-online-accounts? ( <net-libs/gnome-online-accounts-3.49.0 )
 	input_devices_wacom? ( >=dev-libs/libwacom-1.1 )
 	kerberos? ( >=app-crypt/mit-krb5-1.8 )
@@ -208,11 +207,11 @@ src_configure() {
 		--disable-update-mimedb
 		--disable-static
 		--enable-documentation
+		--disable-fcitx
 		--enable-ibus
 		$(use_enable bluetooth)
 		$(use_enable colord color)
 		$(use_enable cups)
-		$(use_enable fcitx)
 		$(use_enable input_devices_wacom wacom)
 		$(use_enable kerberos)
 		$(use_enable gnome-online-accounts onlineaccounts)

@@ -198,6 +198,9 @@ src_prepare() {
 		-e 's:boost/utility.hpp:boost/next_prior.hpp:g' \
 		launcher/FavoriteStorePrivate.cpp || die
 
+	# Boost.Math requires C++14 #
+	sed -i "s/c++11/c++14/" CMakeLists.txt
+
 	# Apps launched from u-c-c need GTK_MODULES environment variable with unity-gtk-module value #
 	#	to use unity global/titlebar menu. Disable unity-gtk-module.service as it only sets #
 	#	dbus/systemd environment variable. We are providing xinit.d script to set GTK_MODULES #
