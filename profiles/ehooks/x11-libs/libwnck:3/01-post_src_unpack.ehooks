@@ -1,7 +1,7 @@
 ehooks() {
 	local \
-		blake=bc492f2d81ba7b9397fbfc6f24099bf6cbcc4afdac6c2bb6488231b3aa5f5868b5f73361a413043752d5e7b3b1fc6bc944d38b60cf96b97cb53a0c0dc01bc80b \
-		uver=libwnck3_43.0-3build4
+		blake=96608dc336e78318620f0f4e36e1265e84c03621bbc0e914393d7a376075c0db7dbf7dcd71f21aa291d0655636477233dac801d841d121b6c3f851ae67fa2f4a \
+		uver=libwnck3_43.2-1
 
 	source "${EHOOKS_PATH}"/templates/fetch_debian.template
 	fetch_debian "${blake}" "${uver}"

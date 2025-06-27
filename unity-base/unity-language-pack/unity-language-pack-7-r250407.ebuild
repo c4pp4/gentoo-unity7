@@ -464,7 +464,7 @@ src_install() {
 		ucc_po="unity-control-center.po" \
 		uccl_po="unity-control-center.legacy" \
 		gccl_po="gnome-control-center-2.0.legacy" \
-		gs_po="gnome-session-46.po" \
+		gs_po="gnome-session-47.po" \
 		gsl_po="gnome-session.legacy" \
 		ls_po="language-selector.po" \
 		is_po="indicator-session.po" \
