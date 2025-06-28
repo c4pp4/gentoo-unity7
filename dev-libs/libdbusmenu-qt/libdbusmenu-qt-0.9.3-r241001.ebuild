@@ -30,11 +30,11 @@ S="${S}${UVER}"
 PATCHES=( "${FILESDIR}"/${P}${UVER}-cmake{,4}.patch ) # bug 953018
 
 src_prepare() {
-	ubuntu-versionator_src_prepare
-
 	cmake_comment_add_subdirectory tools
 	# tests fail due to missing connection to dbus
 	cmake_comment_add_subdirectory tests
+
+	ubuntu-versionator_src_prepare
 }
 
 src_configure() {

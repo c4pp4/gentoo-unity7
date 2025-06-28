@@ -45,10 +45,7 @@ MAKEOPTS="${MAKEOPTS} -j1"
 
 src_prepare() {
 	# Make test optional #
-	use test || sed -i \
-		-e "/enable_testing()/d" \
-		-e "/add_subdirectory(tests)/d" \
-		CMakeLists.txt || die
+	use test || cmake_comment_add_subdirectory tests
 
 	ubuntu-versionator_src_prepare
 }

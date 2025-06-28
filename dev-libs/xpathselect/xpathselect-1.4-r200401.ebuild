@@ -31,7 +31,7 @@ S="${S}${UVER}"
 
 src_prepare() {
 	# Make test optional #
-	use test || sed -i '/add_subdirectory(test)/d' CMakeLists.txt || die
+	use test || cmake_comment_add_subdirectory test
 
 	ubuntu-versionator_src_prepare
 }

@@ -65,6 +65,7 @@ MAKEOPTS="${MAKEOPTS} -j1"
 PATCHES=( "${FILESDIR}"/optional-eds_19.10.patch )
 
 src_prepare() {
+	# Make test optional #
 	if use test; then
 		sed -i "s/return/exit/" tests/run-eds-ics-test.sh || die
 
@@ -72,11 +73,7 @@ src_prepare() {
 			-e "/^add_eds_ics_test_by_name/d" \
 			tests/CMakeLists.txt || die
 	else
-		# Make test optional #
-		sed -i \
-			-e "/enable_testing()/d" \
-			-e "/add_subdirectory(tests)/d" \
-			CMakeLists.txt || die
+		cmake_comment_add_subdirectory tests
 	fi
 
 	# Fix schema errors and sandbox violations #
@@ -87,7 +84,7 @@ src_prepare() {
 
 	# Disable all language files as they can be incomplete #
 	#  due to being provided by Ubuntu's language-pack packages #
-	sed -i "/add_subdirectory(po)/d" CMakeLists.txt || die
+	cmake_comment_add_subdirectory po
 
 	ubuntu-versionator_src_prepare
 }

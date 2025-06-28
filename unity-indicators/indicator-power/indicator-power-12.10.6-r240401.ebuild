@@ -58,7 +58,7 @@ src_prepare() {
 
 	# Disable all language files as they can be incomplete #
 	#  due to being provided by Ubuntu's language-pack packages #
-	sed -i "/add_subdirectory(po)/d" CMakeLists.txt || die
+	cmake_comment_add_subdirectory po
 
 	ubuntu-versionator_src_prepare
 }

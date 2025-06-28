@@ -54,18 +54,13 @@ BDEPEND="
 "
 
 src_prepare() {
-	if use test; then
-		# Enforce usage of the configured version of Python #
-		sed -i \
-			-e "s:/usr/bin/python3:/usr/bin/${EPYTHON}:" \
-			tests/libqtdbustest/Test{DBusTestRunner,QProcessDBusService}.cpp || die
-	else
-		# Make test optional #
-		use test || sed -i \
-			-e "/enable_testing()/d" \
-			-e "/add_subdirectory(tests)/d" \
-			CMakeLists.txt || die
-	fi
+	# Enforce usage of the configured version of Python #
+	sed -i \
+		-e "s:/usr/bin/python3:/usr/bin/${EPYTHON}:" \
+		tests/libqtdbustest/Test{DBusTestRunner,QProcessDBusService}.cpp || die
+
+	# Make test optional #
+	use test || cmake_comment_add_subdirectory tests
 
 	ubuntu-versionator_src_prepare
 }
