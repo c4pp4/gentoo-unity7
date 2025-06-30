@@ -49,6 +49,8 @@ BDEPEND="dev-util/intltool"
 
 MAKEOPTS="${MAKEOPTS} -j1"
 
+PATCHES=( "${FILESDIR}"/fix-notification-icon.patch )
+
 src_unpack() {
 	ubuntu-versionator_src_unpack
 }

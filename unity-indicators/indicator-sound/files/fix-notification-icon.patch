@@ -1,0 +1,35 @@
+From a4d128c7f0aefb4f9aa8ce0faca0de23e35a904c Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Tue, 1 Jul 2025 01:11:16 +0200
+Subject: [PATCH 1/1] Fix notification icon (libnotify 0.8.6)
+
+Signed-off-by: c4pp4
+---
+ src/info-notification.vala | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/info-notification.vala b/src/info-notification.vala
+index 2ce8ef6..11709ce 100644
+--- a/src/info-notification.vala
++++ b/src/info-notification.vala
+@@ -19,6 +19,9 @@
+ 
+ using Notify;
+ 
++[CCode (cname = "notify_notification_set_app_icon")]
++extern void notify_notification_set_app_icon (Notify.Notification notification, string icon_name);
++
+ public class IndicatorSound.InfoNotification: Notification
+ {
+ 	protected override Notify.Notification create_notification () {
+@@ -40,6 +43,7 @@ public class IndicatorSound.InfoNotification: Notification
+ 		/* Reset the notification */
+ 		var n = _notification;
+ 		n.update (_("Volume"), volume_label, icon);
++		notify_notification_set_app_icon(n, icon);
+ 		n.clear_hints();
+ 		n.set_hint ("x-canonical-non-shaped-icon", "true");
+ 		n.set_hint ("x-canonical-private-synchronous", "true");
+-- 
+2.49.0
+
