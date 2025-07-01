@@ -45,7 +45,10 @@ RDEPEND="${COMMON_DEPEND}
 DEPEND="${COMMON_DEPEND}"
 BDEPEND="sys-devel/gettext"
 
-PATCHES=( "${FILESDIR}"/handle-glib-exception-in-conntest.patch )
+PATCHES=(
+	"${FILESDIR}"/handle-glib-exception-in-conntest.patch
+	"${FILESDIR}"/fix-notification-icon.patch
+)
 
 src_install() {
 	distutils-r1_src_install

@@ -1,0 +1,44 @@
+From bdaf64a7b8e01a91a6f90e58c86e32af92c5bdb0 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Tue, 1 Jul 2025 02:07:41 +0200
+Subject: [PATCH 1/1] fix notification icon (libnotify 0.8.6)
+
+Signed-off-by: c4pp4
+---
+ Mailnag/plugins/libnotifyplugin.py | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/Mailnag/plugins/libnotifyplugin.py b/Mailnag/plugins/libnotifyplugin.py
+index 933ca5f..ffea388 100644
+--- a/Mailnag/plugins/libnotifyplugin.py
++++ b/Mailnag/plugins/libnotifyplugin.py
+@@ -213,7 +213,7 @@ class LibNotifyPlugin(Plugin):
+ 		mail_count = len(mails)
+ 		
+ 		if len(self._notifications) == 0:
+-			self._notifications['0'] = self._get_notification(" ", None, None) # empty string will emit a gtk warning
++			self._notifications['0'] = self._get_notification(" ", None, "mail-unread") # empty string will emit a gtk warning
+ 		
+ 		i = 0
+ 		n = 0
+@@ -249,7 +249,7 @@ class LibNotifyPlugin(Plugin):
+ 		mails = self._prepend_new_mails(new_mails, all_mails)
+ 		
+ 		if len(self._notifications) == 0:
+-			self._notifications['0'] = self._get_notification(" ", None, None) # empty string will emit a gtk warning
++			self._notifications['0'] = self._get_notification(" ", None, "mail-unread") # empty string will emit a gtk warning
+ 
+ 		ubound = len(mails) if len(mails) <= self._max_mails else self._max_mails
+ 
+@@ -300,7 +300,7 @@ class LibNotifyPlugin(Plugin):
+ 
+ 	def _notify_count(self, count):
+ 		if len(self._notifications) == 0:
+-			self._notifications['0'] = self._get_notification(" ", None, None) # empty string will emit a gtk warning
++			self._notifications['0'] = self._get_notification(" ", None, "mail-unread") # empty string will emit a gtk warning
+ 		
+ 		if count > 1: # multiple new emails
+ 			summary = _("{0} new mails").format(str(count))
+-- 
+2.49.0
+
