@@ -1,6 +1,6 @@
 ## These are packages maintained via ehooks that must be checked before bump ##
 >app-i18n/ibus-1.5.31-r1
->app-office/libreoffice-25.2.3.2
+>app-office/libreoffice-25.2.4.3-r1
 >app-text/evince-48.0-r1
 >dev-cpp/gtest-1.14.0-r2
 >dev-libs/glib-2.84.3:2
@@ -25,7 +25,7 @@
 >media-plugins/audacious-plugins-4.4.2-r1
 >media-sound/audacious-4.4.2
 >media-sound/rhythmbox-3.4.8-r1
->media-video/totem-43.1
+>media-video/totem-43.2
 >net-im/telegram-desktop-5.12.3-r6
 >sys-apps/accountsservice-23.13.9
 >sys-devel/gcc-15
