@@ -4,7 +4,7 @@
 EAPI=8
 
 UVER=
-UREV=1ubuntu1
+UREV=1ubuntu3
 
 inherit ubuntu-versionator
 
@@ -23,7 +23,7 @@ DEPEND="
 	x11-libs/gtk+:3[introspection]
 "
 
-PATCHES=( "${FILESDIR}"/version-4.patch )
+PATCHES=( "${FILESDIR}"/various-improvements.patch )
 
 src_prepare() {
 	# Fix libdir (prefix and LD_PRELOAD) #
