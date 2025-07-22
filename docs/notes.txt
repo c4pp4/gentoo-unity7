@@ -55,7 +55,8 @@ gnome-extra/polkit-gnome		# Patched to have polkit-gnome-authentication-agent-1 
 					#  04-autorestart.patch
 					#  06-authentication-failure-string.patch
 gnome-extra/yelp			# Only show desktop launcher in Gnome as we have own launcher
-gui-libs/libadwaita:1			# Support Yaru accent colors
+gui-libs/gtk:4				# Remove window buttons when window is maximized
+gui-libs/libadwaita:1			# Support Yaru accent colors, remove window buttons when window is maximized
 gui-libs/libhandy:1			# Disable headerbar close button when not in GNOME
 mate-extra/mate-system-monitor		# Add Unity branding when in Unity
 mate-extra/mate-utils			# mate-screenshot: add quicklist options and use ubuntu help when in Unity

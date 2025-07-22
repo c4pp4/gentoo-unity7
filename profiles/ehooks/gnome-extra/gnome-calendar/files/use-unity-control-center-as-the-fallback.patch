@@ -1,6 +1,6 @@
-From 59270e0890c6a6ea988cc8ebc3ba05f426ab542f Mon Sep 17 00:00:00 2001
+From 493a364eb788d015d6f44a9a92aa86ef36ab72a9 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Wed, 10 Jan 2024 01:59:03 +0100
+Date: Wed, 23 Jul 2025 00:12:00 +0200
 Subject: [PATCH 1/1] Use unity-control-center as the fallback
 
 Try to use unity-control-center as the fallback when gnome-control-center
@@ -8,14 +8,14 @@ is not available.
 
 Signed-off-by: c4pp4
 ---
- src/utils/gcal-utils.c | 60 ++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 58 insertions(+), 2 deletions(-)
+ src/utils/gcal-utils.c | 59 ++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 57 insertions(+), 2 deletions(-)
 
 diff --git a/src/utils/gcal-utils.c b/src/utils/gcal-utils.c
-index f0eab32..2532fae 100644
+index 6056c8f..335b0ca 100644
 --- a/src/utils/gcal-utils.c
 +++ b/src/utils/gcal-utils.c
-@@ -1100,6 +1100,48 @@ create_dbus_proxy (GDBusConnection *connection,
+@@ -1022,6 +1022,48 @@ create_dbus_proxy (GDBusConnection *connection,
                                  NULL);
  }
  
@@ -43,11 +43,11 @@ index f0eab32..2532fae 100644
 +}
 +
 +static void
-+spawn_uoa_with_args (const gchar *action)
++spawn_ucc_with_args (const gchar *panel_id,
++                     const gchar *action)
 +{
 +  const gchar* const command[] = { "unity-control-center",
-+                                   "online-accounts",
-+                                   action, NULL };
++                                   panel_id, action, NULL };
 +  GError *error = NULL;
 +
 +  g_spawn_async (NULL, (gchar**) command,
@@ -64,7 +64,7 @@ index f0eab32..2532fae 100644
  void
  gcal_utils_launch_gnome_settings (GDBusConnection *connection,
                                    const gchar     *panel_id,
-@@ -1109,6 +1152,7 @@ gcal_utils_launch_gnome_settings (GDBusConnection *connection,
+@@ -1031,6 +1073,7 @@ gcal_utils_launch_gnome_settings (GDBusConnection *connection,
    GVariantBuilder builder;
    GVariant *params[3];
    GVariant *array[1];
@@ -72,20 +72,20 @@ index f0eab32..2532fae 100644
  
    g_variant_builder_init (&builder, G_VARIANT_TYPE ("av"));
  
-@@ -1137,7 +1181,11 @@ gcal_utils_launch_gnome_settings (GDBusConnection *connection,
+@@ -1059,7 +1102,11 @@ gcal_utils_launch_gnome_settings (GDBusConnection *connection,
  
    if (!proxy)
      {
 -      g_warning ("Couldn't open panel '%s'", panel_id);
 +      if (in_desktop("Unity"))
-+        spawn_uoa_with_args (action);
++        spawn_ucc_with_args (panel_id, action);
 +      else
 +        g_warning ("Couldn't open panel '%s'", panel_id);
 +
        return;
      }
  
-@@ -1147,7 +1195,15 @@ gcal_utils_launch_gnome_settings (GDBusConnection *connection,
+@@ -1069,7 +1116,15 @@ gcal_utils_launch_gnome_settings (GDBusConnection *connection,
                            G_DBUS_CALL_FLAGS_NONE,
                            -1,
                            NULL,
@@ -93,7 +93,7 @@ index f0eab32..2532fae 100644
 +                          &error);
 +  if (error) {
 +    if (in_desktop("Unity"))
-+      spawn_uoa_with_args (action);
++      spawn_ucc_with_args (panel_id, action);
 +    else
 +      g_warning ("Couldn't open panel '%s': %s", panel_id, error->message);
 +
@@ -103,5 +103,5 @@ index f0eab32..2532fae 100644
  
  gchar*
 -- 
-2.41.0
+2.49.1
 

@@ -15,6 +15,7 @@
 >gnome-extra/nemo-6.4.5
 >gnome-extra/nm-applet-1.36.0
 >gnome-extra/polkit-gnome-0.105-r2
+>gui-libs/gtk-4.16.13:4
 >gui-libs/libadwaita-1.6.2-r1:1
 >gui-libs/libhandy-1.8.3:1
 >mail-client/thunderbird-129
