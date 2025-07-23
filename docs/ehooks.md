@@ -2,17 +2,17 @@
 
 ### Chapter I.
 
-- It's a patching system that looks for existence of **{pre,post}\_${EBUILD_PHASE_FUNC}.ehooks** file and source it to perform hooks. It provides a way to patch packages not needed to maintain. It's loosly based on **eapply_user** function from /usr/lib/portage/python3.\*/phase-helpers.sh script and **pre_src_prepare** function from the Gentoo wiki ([archived version⬀][warch] from web.archive.org).
+- It's a patching system that looks for the existence of **{pre,post}\_${EBUILD_PHASE_FUNC}.ehooks** file and sources it to perform hooks. It provides a way to patch packages that do not need to be maintained. It's loosely based on the **eapply_user** function from the /usr/lib/portage/python3.\*/phase-helpers.sh script and the **pre_src_prepare** function from the Gentoo wiki ([archived version⬀][warch] from web.archive.org).
 
    - see the [code][code]
 
-- Overlay's ehooks are located in [gentoo-unity7/profiles/ehooks][ehooks] directory.
+- Overlay's ehooks are located in the [gentoo-unity7/profiles/ehooks][ehooks] directory.
 
-- **Changes** are managed via **unity-base/gentoo-unity-env** package. The package looks for ehooks changes, generates emerge command needed to be applied and displays it as a warning message in pkg_postinst phase.
+- **Changes** are managed via the **unity-base/gentoo-unity-env** package. The package looks for ehooks changes, generates the emerge command that needs to be applied, and displays it as a warning message in the pkg_postinst phase.
 
 - **Optional** ehooks are managed via [unity-base/gentoo-unity-env USE flags][uflags].
 
-- Some [special ehooks][env] are downloading debian archive file to apply ubuntu patchset. Downloading is allowed through [network-sandbox-proxy][cenv]. The archive file is checked via b2sum tool (it checks BLAKE2 512-bit checksum of downloaded file).
+- Some [special ehooks][env] download a debian archive file to apply the ubuntu patchset. Downloading is allowed through [network-sandbox-proxy][cenv]. The archive file is checked via the b2sum tool (it checks the BLAKE2 512-bit checksum of the downloaded file).
 
 - You have to set **EHOOKS_ACCEPT="yes"** in make.conf to confirm you agree with this patching system.
 

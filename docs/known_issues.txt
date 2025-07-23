@@ -1,12 +1,12 @@
-- Upgrading gnome-extra/zeitgeist from 1.0.3 to 1.0.4 can cause a dash loading lag.
-	* Try to reset ZeitGeist database with 'rm -rfv ~/.local/share/zeitgeist'.
+- Upgrading gnome-extra/zeitgeist from 1.0.3 to 1.0.4 can cause dash loading lag.
+    * Try resetting the ZeitGeist database with 'rm -rfv ~/.local/share/zeitgeist'.
 
-- Installing media-fonts/ubuntu-font-family package instead of media-fonts/fonts-ubuntu
-  and vice versa may cause unreadable menus before session re-login.
-	* Preferably install these packages outside of the gui.
+- Installing the media-fonts/ubuntu-font-family package instead of media-fonts/fonts-ubuntu,
+  and vice versa, may cause unreadable menus before session re-login.
+    * Preferably install these packages outside of the GUI.
 
 - Packages depending on gui-libs/libadwaita have Client Side Decoration.
 
-- Tray icon is not shown when using packages based on Electron framework such as Joplin or Discord.
+- The tray icon is not shown when using packages based on the Electron framework, such as Joplin or Discord.
   https://github.com/electron/electron/issues/38979
-	* Use exec prefix 'env XDG_CURRENT_DESKTOP=Unity7' as a workaround.
+    * Use the exec prefix 'env XDG_CURRENT_DESKTOP=Unity7' as a workaround.

@@ -1,2 +1,1 @@
 * Fix theme of GTK4 apps to be consistent with {Amb,Rad}iance theme
-* Fix titlebar of GTK4 apps depending on gui-libs/libadwaita package
