@@ -1,6 +1,6 @@
 # Build instructions
 
-1. **Switch to** [systemd⬀][sysd] init system or use [stage3-amd64-systemd⬀][s3] tarball.
+1. **Use** [stage3-amd64-systemd⬀][s3] tarball or **switch to** [systemd⬀][sysd] init system.
 
    WARNING: If you are using [Gentoo binhost⬀][gbph], add the EMERGE_DEFAULT_OPTS portage variable with the `--usepkg-exclude` option into the `/etc/portage/make.conf` configuration file, use [our setting][edo], see more in the [wiki guide⬀][pkge].
 
@@ -16,7 +16,7 @@
 
 4. **Add** the `EHOOKS_ACCEPT="yes"` **variable** into the `/etc/portage/make.conf` configuration file.
 
-   WARNING: Some overlay patches will be applied to packages from the Gentoo tree via the ehooks patching system. For more details, see [ehooks - Chapter I.][ehooks]. Set the variable to confirm you agree with it.
+   WARNING: Some overlay patches will be applied to packages from the Gentoo tree via the ehooks patching system. For more details, see [ehooks - Chapter I.][ehooks] Set the variable to confirm you agree with it.
 
 5. **Set up** the Gentoo Unity⁷ Desktop **build environment**:
 

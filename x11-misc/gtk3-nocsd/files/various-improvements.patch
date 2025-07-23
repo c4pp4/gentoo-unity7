@@ -1,14 +1,14 @@
-From a0f184aca743f3fdfaabf8c265c3013c7ddab799 Mon Sep 17 00:00:00 2001
+From 8d995e644cb358352786bb860b45aa80e47b5dd3 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Wed, 9 Jul 2025 19:58:07 +0200
+Date: Wed, 23 Jul 2025 14:30:19 +0200
 Subject: [PATCH 1/1] Various improvements
 
 Signed-off-by: c4pp4
 ---
  ChangeLog    |  9 +++++++++
  README.md    |  6 ++++++
- gtk3-nocsd.c | 15 +++++++++++++--
- 3 files changed, 28 insertions(+), 2 deletions(-)
+ gtk3-nocsd.c | 20 ++++++++++++++++++--
+ 3 files changed, 33 insertions(+), 2 deletions(-)
 
 diff --git a/ChangeLog b/ChangeLog
 index 2f98771..3e93cba 100644
@@ -55,18 +55,23 @@ index 54f154d..1319edd 100644
  
  `$LD_PRELOAD` is used to override several Gdk and glib/gobject APIs to
 diff --git a/gtk3-nocsd.c b/gtk3-nocsd.c
-index b07bea0..487dfa1 100644
+index b07bea0..3a9aa19 100644
 --- a/gtk3-nocsd.c
 +++ b/gtk3-nocsd.c
-@@ -507,6 +507,16 @@ static gboolean is_compatible_gtk_version() {
+@@ -507,6 +507,21 @@ static gboolean is_compatible_gtk_version() {
      return is_compatible_gtk_version_cached;
  }
  
 +static gboolean is_gtk4_version() {
-+    void *gtk4_handle = dlopen("libadwaita-1.so.0", RTLD_LAZY | RTLD_NOLOAD);
++    void *gtk4_handle = dlopen("libgtk-4.so.1", RTLD_LAZY | RTLD_NOLOAD);
++    void *adwaita_handle = dlopen("libadwaita-1.so.0", RTLD_LAZY | RTLD_NOLOAD);
 +
 +    if (gtk4_handle) {
 +        dlclose(gtk4_handle);
++        return TRUE;
++    }
++    if (adwaita_handle) {
++        dlclose(adwaita_handle);
 +        return TRUE;
 +    }
 +    return FALSE;
@@ -75,7 +80,7 @@ index b07bea0..487dfa1 100644
  static void set_has_custom_title(GtkWindow* window, gboolean set) {
      g_object_set_data(G_OBJECT(window), "custom_title", set ? GINT_TO_POINTER(1) : NULL);
  }
-@@ -813,7 +823,8 @@ extern void g_object_get (gpointer _object, const gchar *first_property_name, ..
+@@ -813,7 +828,8 @@ extern void g_object_get (gpointer _object, const gchar *first_property_name, ..
       * g_object_get(). */
  
      va_start (var_args, first_property_name);
@@ -85,7 +90,7 @@ index b07bea0..487dfa1 100644
          name = first_property_name;
          while (name) {
              GValue value = G_VALUE_INIT;
-@@ -1230,7 +1241,7 @@ gint g_type_add_instance_private (GType class_type, gsize private_size)
+@@ -1230,7 +1246,7 @@ gint g_type_add_instance_private (GType class_type, gsize private_size)
      } else if (G_UNLIKELY (class_type == gtk_header_bar_type && gtk_header_bar_private_size == 0)) {
          gtk_header_bar_private_size = private_size;
          gtk_header_bar_private_offset = orig_g_type_add_instance_private (class_type, private_size);
@@ -95,5 +100,5 @@ index b07bea0..487dfa1 100644
      return orig_g_type_add_instance_private (class_type, private_size);
  }
 -- 
-2.49.0
+2.49.1
 
