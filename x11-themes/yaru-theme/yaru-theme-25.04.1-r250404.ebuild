@@ -37,7 +37,8 @@ S="${WORKDIR}/${PN}-${UREV}"
 
 PATCHES=(
 	"${FILESDIR}"/Adjust-window-shadow-and-bottom-corners.patch
-	"${FILESDIR}"/Create-Ambiance-GTK-4.0-theme.patch
+	"${FILESDIR}"/Adjust-GTK4-windowcontrols.patch
+	"${FILESDIR}"/Create-Ambiance-GTK4-theme.patch
 )
 
 src_prepare() {
