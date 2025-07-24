@@ -1,0 +1,39 @@
+From ad7448188a4dd172cdbfcfca920c94472bc44bbf Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Wed, 23 Jul 2025 23:46:37 +0200
+Subject: [PATCH 1/1] Adjust window shadow and bottom corners
+
+Signed-off-by: c4pp4
+---
+ gtk/src/default/gtk-4.0/_common.scss | 13 +------------
+ 1 file changed, 1 insertion(+), 12 deletions(-)
+
+diff --git a/gtk/src/default/gtk-4.0/_common.scss b/gtk/src/default/gtk-4.0/_common.scss
+index 000e40e..ba74b9b 100644
+--- a/gtk/src/default/gtk-4.0/_common.scss
++++ b/gtk/src/default/gtk-4.0/_common.scss
+@@ -4207,20 +4207,9 @@ window {
+   $_wm_border_backdrop: if($variant=='light', transparentize(black, 0.82), transparentize(black, 0.25));
+ 
+   &.csd {
+-    box-shadow: 0 3px 9px 1px transparentize(black, 0.5),
+-                0 0 0 1px $_wm_border; //doing borders with box-shadow
++    box-shadow: 0 0 3px RGB(0 0 0 / 10%);
+     margin: 0px;
+     border-radius: $window_radius $window_radius 0 0;
+-    &:backdrop {
+-      // the transparent shadow here is to enforce that the shadow extents don't
+-      // change when we go to backdrop, to prevent jumping windows.
+-      // The biggest shadow should be in the same order then in the active state
+-      // or the jumping will happen during the transition.
+-      box-shadow: 0 3px 9px 1px transparent,
+-                  0 2px 6px 2px transparentize(black, 0.8),
+-                  0 0 0 1px $_wm_border_backdrop;
+-      transition: $backdrop_transition;
+-    }
+ 
+     &.popup {
+       border-radius: $menu_radius;
+-- 
+2.49.1
+

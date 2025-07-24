@@ -35,6 +35,8 @@ BDEPEND="
 
 S="${WORKDIR}/${PN}-${UREV}"
 
+PATCHES=( "${FILESDIR}"/Adjust-window-shadow-and-bottom-corners.patch )
+
 src_prepare() {
 	## Fix mate-terminal background color ##
 	sed -i \
