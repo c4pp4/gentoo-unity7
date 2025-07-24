@@ -1,0 +1,161 @@
+From 52579fad35374955f2a9b0f3fa0d63df5996b6a9 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Thu, 24 Jul 2025 12:47:41 +0200
+Subject: [PATCH 1/1] Orange close button for Ambiance
+
+Signed-off-by: c4pp4
+---
+ src/adw-style-manager.c                       | 31 +++++++++++++++++++
+ src/stylesheet/_tweaks-ambiance.scss          | 23 ++++++++++++++
+ .../adwaita-stylesheet.gresources.xml         |  1 +
+ src/stylesheet/ambiance.scss                  |  5 +++
+ src/stylesheet/meson.build                    |  2 ++
+ 5 files changed, 62 insertions(+)
+ create mode 100644 src/stylesheet/_tweaks-ambiance.scss
+ create mode 100644 src/stylesheet/ambiance.scss
+
+diff --git a/src/adw-style-manager.c b/src/adw-style-manager.c
+index 71f6915..bbe1e90 100644
+--- a/src/adw-style-manager.c
++++ b/src/adw-style-manager.c
+@@ -56,6 +56,7 @@ struct _AdwStyleManager
+   GtkCssProvider *provider;
+   GtkCssProvider *colors_provider;
+   GtkCssProvider *accent_provider;
++  GtkCssProvider *ambiance_provider;
+ 
+   AdwColorScheme color_scheme;
+   gboolean dark;
+@@ -159,6 +160,25 @@ generate_accent_css (AdwStyleManager *self)
+   return g_string_free (str, FALSE);
+ }
+ 
++static gboolean
++is_gtk_theme (const gchar *theme_name)
++{
++  GSettings *settings;
++  gchar *theme;
++  gboolean result = FALSE;
++
++  settings = g_settings_new ("org.gnome.desktop.interface");
++  theme = g_settings_get_string (settings, "gtk-theme");
++
++  if (theme && theme_name && g_strcmp0 (theme, theme_name) == 0)
++    result = TRUE;
++
++  g_free (theme);
++  g_object_unref (settings);
++
++  return result;
++}
++
+ static void
+ update_stylesheet (AdwStyleManager       *self,
+                    StylesheetUpdateFlags  flags)
+@@ -205,6 +225,11 @@ update_stylesheet (AdwStyleManager       *self,
+                                            "/org/gnome/Adwaita/styles/defaults-light.css");
+   }
+ 
++  if (is_gtk_theme ("Ambiance")) {
++    gtk_css_provider_load_from_resource (self->ambiance_provider,
++                                         "/org/gnome/Adwaita/styles/ambiance.css");
++  }
++
+   if (flags & UPDATE_ACCENT_COLOR && self->accent_provider) {
+     char *accent_css = generate_accent_css (self);
+     gtk_css_provider_load_from_string (self->accent_provider, accent_css);
+@@ -327,6 +352,11 @@ adw_style_manager_constructed (GObject *object)
+       gtk_style_context_add_provider_for_display (self->display,
+                                                   GTK_STYLE_PROVIDER (self->accent_provider),
+                                                   GTK_STYLE_PROVIDER_PRIORITY_THEME);
++
++      self->ambiance_provider = gtk_css_provider_new ();
++      gtk_style_context_add_provider_for_display (self->display,
++                                                  GTK_STYLE_PROVIDER (self->ambiance_provider),
++                                                  GTK_STYLE_PROVIDER_PRIORITY_THEME);
+     }
+ 
+     self->animations_provider = gtk_css_provider_new ();
+@@ -376,6 +406,7 @@ adw_style_manager_dispose (GObject *object)
+   g_clear_object (&self->colors_provider);
+   g_clear_object (&self->animations_provider);
+   g_clear_object (&self->accent_provider);
++  g_clear_object (&self->ambiance_provider);
+ 
+   G_OBJECT_CLASS (adw_style_manager_parent_class)->dispose (object);
+ }
+diff --git a/src/stylesheet/_tweaks-ambiance.scss b/src/stylesheet/_tweaks-ambiance.scss
+new file mode 100644
+index 0000000..e4808e9
+--- /dev/null
++++ b/src/stylesheet/_tweaks-ambiance.scss
+@@ -0,0 +1,23 @@
++// Orange close button
++windowcontrols {
++    button {
++        &.close {
++            > image {
++                color: $light_2;
++                background: $orange_5;
++
++                &:hover {
++                    background: lighten($orange_5, 5%);
++                }
++
++                &:active {
++                    background: darken($orange_5, 5%);
++                }
++
++                &:backdrop {
++                    background: desaturate($orange_5, 100%);
++                }
++            }
++        }
++    }
++}
+diff --git a/src/stylesheet/adwaita-stylesheet.gresources.xml b/src/stylesheet/adwaita-stylesheet.gresources.xml
+index 98a07ac..1b5c015 100644
+--- a/src/stylesheet/adwaita-stylesheet.gresources.xml
++++ b/src/stylesheet/adwaita-stylesheet.gresources.xml
+@@ -5,6 +5,7 @@
+     <file>base-hc.css</file>
+     <file>defaults-light.css</file>
+     <file>defaults-dark.css</file>
++    <file>ambiance.css</file>
+     @ACCENTS_CSS@
+ 
+     <file>assets/bullet@2-symbolic.symbolic.png</file>
+diff --git a/src/stylesheet/ambiance.scss b/src/stylesheet/ambiance.scss
+new file mode 100644
+index 0000000..832dbda
+--- /dev/null
++++ b/src/stylesheet/ambiance.scss
+@@ -0,0 +1,5 @@
++$contrast: 'normal';
++
++@import 'palette-yaru';
++@import 'colors';
++@import 'tweaks-ambiance';
+diff --git a/src/stylesheet/meson.build b/src/stylesheet/meson.build
+index 7335851..a0d0dc8 100644
+--- a/src/stylesheet/meson.build
++++ b/src/stylesheet/meson.build
+@@ -21,6 +21,7 @@ if not fs.exists('base.css')
+       '_drawing.scss',
+       '_palette.scss',
+       '_widgets.scss',
++      '_tweaks-ambiance.scss',
+ 
+       'widgets/_avatar.scss',
+       'widgets/_bottom-sheet.scss',
+@@ -72,6 +73,7 @@ if not fs.exists('base.css')
+       'base-hc',
+       'defaults-light',
+       'defaults-dark',
++      'ambiance',
+     ]
+ 
+     foreach scss: scss_files
+-- 
+2.49.1
+

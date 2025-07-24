@@ -5,7 +5,7 @@
   and vice versa, may cause unreadable menus before session re-login.
     * Preferably install these packages outside of the GUI.
 
-- Packages depending on gui-libs/libadwaita have Client Side Decoration.
+- Packages depending on gui-libs/gtk:4 and gui-libs/libadwaita have Client Side Decoration.
 
 - The tray icon is not shown when using packages based on the Electron framework, such as Joplin or Discord.
   https://github.com/electron/electron/issues/38979

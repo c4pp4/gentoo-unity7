@@ -1,0 +1,53 @@
+From a1eaddd4d5e858986e931c5aaeec901c4de025f9 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Thu, 24 Jul 2025 03:19:06 +0200
+Subject: [PATCH 1/1] Create Ambiance GTK-4.0 theme (the rest code is in ebuild)
+
+Signed-off-by: c4pp4
+---
+ common/meson.build  | 1 +
+ gtk/src/meson.build | 3 +++
+ meson_options.txt   | 1 +
+ 3 files changed, 5 insertions(+)
+
+diff --git a/common/meson.build b/common/meson.build
+index cce24a8..f7f812a 100644
+--- a/common/meson.build
++++ b/common/meson.build
+@@ -22,6 +22,7 @@ available_flavours = [
+   'dark',
+   'mate',
+   'mate-dark',
++  'unity-ambiance',
+ ]
+ 
+ foreach flavour: available_flavours
+diff --git a/gtk/src/meson.build b/gtk/src/meson.build
+index 2b59866..f4936c6 100644
+--- a/gtk/src/meson.build
++++ b/gtk/src/meson.build
+@@ -67,6 +67,9 @@ foreach flavour: yaru_flavours
+ 
+   # build and install gtk data
+   foreach gtk_ver: gtk_versions
++    if flavour == 'unity-ambiance' and gtk_ver != '4.0'
++      continue
++    endif
+     gtk_dir = 'gtk-@0@'.format(gtk_ver)
+     base_path = (flavour.startswith('mate') ? base_theme_name : 'default') / gtk_dir
+     dark_path = is_dark ? 'dark' : base_path
+diff --git a/meson_options.txt b/meson_options.txt
+index f149600..0ae3279 100644
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -16,6 +16,7 @@ option('dark', type: 'boolean', value: true, description:'build Yaru dark flavou
+ option('mate', type: 'boolean', value: false, description:'build Yaru mate flavour')
+ option('mate-dark', type: 'boolean', value: false, description:'build Yaru mate-dark flavour')
+ option('ubuntu-unity', type: 'boolean', value: false, description:'build Yaru with Unity assets')
++option('unity-ambiance', type: 'boolean', value: true, description:'build Yaru unity-mbiance flavour')
+ option('xfwm4', type: 'boolean', value: false, description:'build Yaru with xfwm4 assets')
+ option('cinnamon', type: 'boolean', value: false, description:'build Yaru with Cinnamon flavour')
+ option('cinnamon-dark', type: 'boolean', value: false, description:'build Yaru with Cinnamon dark flavour')
+-- 
+2.49.1
+

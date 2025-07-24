@@ -1,0 +1,23 @@
+// Orange close button
+windowcontrols {
+    button {
+        &.close {
+            > image {
+                color: $light_2;
+                background: $orange_5;
+
+                &:hover {
+                    background: lighten($orange_5, 5%);
+                }
+
+                &:active {
+                    background: darken($orange_5, 5%);
+                }
+
+                &:backdrop {
+                    background: desaturate($orange_5, 100%);
+                }
+            }
+        }
+    }
+}

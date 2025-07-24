@@ -14,7 +14,7 @@ SRC_URI="${UURL}-${UREV}.tar.xz"
 
 LICENSE="CC-BY-SA-4.0 GPL-3 LGPL-2.1 LGPL-3"
 SLOT="0"
-KEYWORDS="amd64"
+KEYWORDS="~amd64"
 IUSE="cinnamon gnome-shell gtk mate +unity xfwm"
 RESTRICT="binchecks strip test"
 
@@ -35,7 +35,10 @@ BDEPEND="
 
 S="${WORKDIR}/${PN}-${UREV}"
 
-PATCHES=( "${FILESDIR}"/Adjust-window-shadow-and-bottom-corners.patch )
+PATCHES=(
+	"${FILESDIR}"/Adjust-window-shadow-and-bottom-corners.patch
+	"${FILESDIR}"/Create-Ambiance-GTK-4.0-theme.patch
+)
 
 src_prepare() {
 	## Fix mate-terminal background color ##
@@ -52,6 +55,14 @@ src_prepare() {
 		gtk/src/default/gtk-3.0/_tweaks.scss || die
 
 	ubuntu-versionator_src_prepare
+
+	## Orange close button for Ambiance ##
+	mkdir -p gtk/src/unity-ambiance/gtk-4.0 || die
+	cp -r gtk/src/default/gtk-4.0 gtk/src/unity-ambiance || die
+	cat "${FILESDIR}"/_palette.scss >> \
+		gtk/src/unity-ambiance/gtk-4.0/_palette.scss || die
+	cat "${FILESDIR}"/_tweaks.scss >> \
+		gtk/src/unity-ambiance/gtk-4.0/_tweaks.scss || die
 }
 
 src_configure() {
