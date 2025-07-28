@@ -1,0 +1,32 @@
+From 38282f3ab2740ccd6ed6ee925dc38678d46cdd5d Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Fri, 25 Jul 2025 06:31:41 +0200
+Subject: [PATCH 1/1] Fix timestamp NoneType error
+
+Signed-off-by: c4pp4
+---
+ src/unity_shotwell_daemon.py | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/src/unity_shotwell_daemon.py b/src/unity_shotwell_daemon.py
+index 80b4b66..07eefdb 100755
+--- a/src/unity_shotwell_daemon.py
++++ b/src/unity_shotwell_daemon.py
+@@ -399,9 +399,12 @@ class Daemon:
+                     if match:
+                         icon_hint = photo[1]
+                         timestamp = photo[6]
+-                        if timestamp == 0:
++                        if timestamp is None or timestamp == 0:
+                             timestamp = photo[5]
+-                        date = datetime.datetime.fromtimestamp(timestamp).strftime('%d %b %Y %H:%M')
++                        if timestamp is None or timestamp == 0:
++                            date = ""
++                        else:
++                            date = datetime.datetime.fromtimestamp(timestamp).strftime('%d %b %Y %H:%M')
+ 
+                         item_list = []
+                         item_list.append(title)
+-- 
+2.49.1
+

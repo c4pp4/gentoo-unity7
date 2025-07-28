@@ -34,10 +34,14 @@ DEPEND="
 
 S="${WORKDIR}"
 
+PATCHES=(
+	"${FILESDIR}"/Fix-timestamp-NoneType-error.patch
+	"${FILESDIR}"/remove-goa-scopes.diff
+)
+
 src_prepare() {
 	# Facebook, Flickr and Picasa scopes #
 	# are not maintained and tested anymore #
-	eapply "${FILESDIR}/remove-goa-scopes.diff"
 	find -type f \
 		\( -name '*facebook*' \
 		-o -name '*flickr*' \
@@ -49,7 +53,7 @@ src_prepare() {
 		-e "s/shotwell\.desktop/org.gnome.Shotwell.desktop/" \
 		src/unity_shotwell_daemon.py || die
 
-	python_fix_shebang src
+	python_fix_shebang src/unity_shotwell_daemon.py
 
 	ubuntu-versionator_src_prepare
 }

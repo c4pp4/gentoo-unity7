@@ -1,9 +1,4 @@
 ehooks() {
-	# Set autostart delay #
-	sed -i \
-		-e "/X-GNOME-SingleWindow/a X-GNOME-Autostart-Delay=4" \
-		"${ED}"/usr/share/applications/org.${PN/-/.}.desktop || die
-
 	# ubuntu-mono-dark icons #
 	insinto /usr/share/icons
 	doins -r "${EHOOKS_FILESDIR}"/ubuntu-mono-dark
