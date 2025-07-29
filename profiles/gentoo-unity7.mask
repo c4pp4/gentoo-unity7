@@ -10,7 +10,7 @@
 >gnome-base/gnome-desktop-44.1-r300:3
 >gnome-base/gnome-menus-3.36.0-r1:3
 >gnome-base/gnome-session-47.0.1-r2
->gnome-extra/gnome-calendar-46.1
+>gnome-extra/gnome-calendar-47.0
 >gnome-extra/gnome-contacts-47.1.1
 >gnome-extra/nemo-6.4.5
 >gnome-extra/nm-applet-1.36.0
