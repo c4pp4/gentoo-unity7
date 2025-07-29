@@ -1,0 +1,21 @@
+ehooks() {
+	# ubuntu-mono-dark status icons #
+	insinto /usr/share/icons
+	doins -r "${EHOOKS_FILESDIR}"/ubuntu-mono-dark
+
+	# Symlinks to app icon #
+	dosym -r /usr/share/icons/hicolor/16x16/apps/org.telegram.desktop.png \
+		/usr/share/icons/ubuntu-mono-dark/apps/16/org.telegram.desktop.png
+	dosym -r /usr/share/icons/hicolor/32x32/apps/org.telegram.desktop.png \
+		/usr/share/icons/ubuntu-mono-dark/apps/32/org.telegram.desktop.png
+	dosym -r /usr/share/icons/hicolor/48x48/apps/org.telegram.desktop.png \
+		/usr/share/icons/ubuntu-mono-dark/apps/48/org.telegram.desktop.png
+	dosym -r /usr/share/icons/hicolor/64x64/apps/org.telegram.desktop.png \
+		/usr/share/icons/ubuntu-mono-dark/apps/64/org.telegram.desktop.png
+	dosym -r /usr/share/icons/hicolor/128x128/apps/org.telegram.desktop.png \
+		/usr/share/icons/ubuntu-mono-dark/apps/128/org.telegram.desktop.png
+	dosym -r /usr/share/icons/hicolor/256x256/apps/org.telegram.desktop.png \
+		/usr/share/icons/ubuntu-mono-dark/apps/256/org.telegram.desktop.png
+	dosym -r /usr/share/icons/hicolor/512x512/apps/org.telegram.desktop.png \
+		/usr/share/icons/ubuntu-mono-dark/apps/512/org.telegram.desktop.png
+}

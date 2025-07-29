@@ -1,0 +1,37 @@
+From 2f157c478e1000d3777476b307eedc7bcec2db21 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Mon, 28 Jul 2025 22:29:42 +0200
+Subject: [PATCH 1/1] Prevent compiz segfault by guarding pthread_join
+
+Signed-off-by: c4pp4
+---
+ unity-shared/ThumbnailGenerator.cpp | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/unity-shared/ThumbnailGenerator.cpp b/unity-shared/ThumbnailGenerator.cpp
+index c3f596a..f762dae 100644
+--- a/unity-shared/ThumbnailGenerator.cpp
++++ b/unity-shared/ThumbnailGenerator.cpp
+@@ -91,7 +91,18 @@ public:
+ 
+   ~ThumbnailGeneratorImpl()
+   {
+-    pthread_join(thumbnail_thread_, NULL);
++    if (thumbnail_thread_ != 0 && thumbnail_thread_is_running_)
++    {
++      pthread_join(thumbnail_thread_, NULL);
++    }
++
++    while (!thumbnails_.empty()) {
++      thumbnails_.pop();
++    }
++
++    complete_thumbnails_.clear();
++
++    pthread_mutex_destroy(&thumbnails_mutex_);
+   }
+ 
+   ThumbnailNotifier::Ptr GetThumbnail(std::string const& uri, int size);
+-- 
+2.49.1
+

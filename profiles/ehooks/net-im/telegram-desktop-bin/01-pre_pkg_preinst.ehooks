@@ -1,5 +1,1 @@
-ehooks() {
-	# ubuntu-mono-dark icons #
-	insinto /usr/share/icons
-	doins -r "${EHOOKS_FILESDIR}"/ubuntu-mono-dark
-}
+../telegram-desktop/01-pre_pkg_preinst.ehooks

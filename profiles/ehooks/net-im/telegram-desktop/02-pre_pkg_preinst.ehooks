@@ -1,5 +1,0 @@
-ehooks() {
-	# ubuntu-mono-dark icons #
-	insinto /usr/share/icons
-	doins -r "${EHOOKS_FILESDIR}"/ubuntu-mono-dark
-}
