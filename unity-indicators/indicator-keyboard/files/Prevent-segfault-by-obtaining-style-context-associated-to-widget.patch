@@ -1,0 +1,32 @@
+From ab61f159e8b0ec3430e3022e122359ef9bf3d5cb Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sat, 2 Aug 2025 09:21:30 +0200
+Subject: [PATCH 1/1] Prevent segfault by obtaining style context associated to widget
+
+Signed-off-by: c4pp4
+---
+ lib/source.vala | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/lib/source.vala b/lib/source.vala
+index 9ce7bd3..44f6145 100644
+--- a/lib/source.vala
++++ b/lib/source.vala
+@@ -334,12 +334,12 @@ public class Indicator.Keyboard.Source : Object {
+ 			Gdk.Screen? screen = Gdk.Screen.get_default ();
+ 
+ 			if (screen != null) {
+-				var style_context = new Gtk.StyleContext ();
++				var menu_item = new Gtk.MenuItem();
++				var style_context = menu_item.get_style_context();
+ 				style_context.set_screen ((!) screen);
+ 
+ 				var path = new Gtk.WidgetPath ();
+ 				path.append_type (typeof (Gtk.MenuItem));
+-				style_context.set_path (path);
+ 
+ 				context = style_context;
+ 			}
+-- 
+2.49.1
+

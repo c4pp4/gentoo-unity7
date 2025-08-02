@@ -49,7 +49,10 @@ DEPEND="${COMMON_DEPEND}
 
 S="${S}${UVER}"
 
-PATCHES=( "${FILESDIR}"/optional-fcitx.patch )
+PATCHES=(
+	"${FILESDIR}"/optional-fcitx.patch
+	"${FILESDIR}"/Prevent-segfault-by-obtaining-style-context-associated-to-widget.patch
+)
 
 src_prepare() {
 	use charmap || ( sed -i \
