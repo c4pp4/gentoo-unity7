@@ -1,0 +1,33 @@
+From d14c59539bc3ea1628f8bf32b3ec93cae8f58140 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Mon, 4 Aug 2025 04:14:27 +0200
+Subject: [PATCH 1/1] Start notify-osd
+
+Signed-off-by: c4pp4
+---
+ src/unity-greeter.vala | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/src/unity-greeter.vala b/src/unity-greeter.vala
+index 929fa2c..e88c240 100644
+--- a/src/unity-greeter.vala
++++ b/src/unity-greeter.vala
+@@ -666,6 +666,15 @@ public class UnityGreeter
+             {
+                 warning ("Error starting nm-applet: %s", e.message);
+             }
++
++            try
++            {
++                Process.spawn_command_line_async ("/usr/libexec/notify-osd");
++            }
++            catch (Error e)
++            {
++                warning ("Error starting notify-osd: %s", e.message);
++            }
+         }
+         else
+             greeter.show ();
+-- 
+2.49.1
+

@@ -68,15 +68,16 @@ src_install() {
 
 	save_config src/{bubble,defaults,dnd}.c
 
-	# https://bugs.debian.org/640120 #
-	if [[ -n $(grep org.freedesktop.Notifications$ /usr/share/dbus-1/services/* | grep -v org.freedesktop.Notifications.service) ]]; then
-		rm "${ED}"/usr/share/dbus-1/services/org.freedesktop.Notifications.service || die
-		sed -i "/Autostart/{s/false/true/}" debian/notify-osd.desktop || die
-		echo "OnlyShowIn=Unity;" >> debian/notify-osd.desktop || die
-		echo "NoDisplay=true" >> debian/notify-osd.desktop || die
+	pushd debian >/dev/null || die
+		sed -i \
+			-e "/NotShowIn/d" \
+			-e "/Autostart/d" \
+			${PN}.desktop || die
+		echo "OnlyShowIn=Unity;" >> ${PN}.desktop || die
+		echo "NoDisplay=true" >> ${PN}.desktop || die
 		insinto /etc/xdg/autostart
-		doins debian/notify-osd.desktop
-	fi
+		doins ${PN}.desktop
+	popd >/dev/null || die
 }
 
 pkg_postinst() {

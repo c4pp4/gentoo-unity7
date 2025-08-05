@@ -15,7 +15,7 @@ SRC_URI=""
 LICENSE="metapackage"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="+accessibility +apps chat +core +extra +fonts +games gnome +xdm"
+IUSE="+accessibility +apps chat +core +extra +fonts +games gnome"
 REQUIRED_USE="gnome? ( extra )"
 RESTRICT="binchecks strip test"
 
@@ -24,8 +24,8 @@ RDEPEND="
 	media-fonts/dejavu
 	unity-base/overlay-scrollbar
 	unity-base/unity
+	unity-extra/unity-greeter
 	x11-misc/gtk3-nocsd
-	x11-misc/notify-osd
 
 	accessibility? (
 		app-accessibility/at-spi2-atk
@@ -158,12 +158,6 @@ RDEPEND="
 		games-puzzle/lightsoff
 		games-puzzle/quadrapassel
 		games-puzzle/swell-foop
-	)
-	xdm? (
-		|| (
-			unity-extra/unity-greeter
-			gnome-base/gdm
-		)
 	)
 "
 

@@ -74,6 +74,7 @@ RDEPEND="${COMMON_DEPEND}
 	>=x11-libs/libX11-1.2.99.901
 	x11-libs/libXext
 	x11-libs/libXrender
+	x11-misc/notify-osd
 	>=x11-themes/unity-asset-pool-0.8.18
 
 	hud? ( unity-base/hud )

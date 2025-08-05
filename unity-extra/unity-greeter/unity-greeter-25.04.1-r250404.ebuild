@@ -44,6 +44,7 @@ RDEPEND="${COMMON_DEPEND}
 	x11-libs/libX11
 	x11-libs/libXext
 	>=x11-libs/pango-1.14.0
+	x11-misc/notify-osd
 
 	battery? ( unity-indicators/indicator-power )
 	networkmanager? ( gnome-extra/nm-applet )
@@ -70,6 +71,7 @@ S="${WORKDIR}/${PN}-24.10.1"
 
 PATCHES=(
 	"${FILESDIR}"/environment-variables.patch # Import DISPLAY and XDG_SESSION_CLASS1, set XDG_CURRENT_DESKTOP
+	"${FILESDIR}"/start-notify-osd.patch
 )
 
 src_prepare() {
@@ -90,6 +92,12 @@ src_prepare() {
 			-e "s/ indicator-sound//" \
 			src/unity-greeter.vala || die
 	fi
+
+	# Panel icon size and padding #
+	sed -i \
+		-e "/entry.image.show.connect/i entry.image.set_pixel_size(22);" \
+		-e "/hbox.pack_start (entry.image/{s/0/3/}" \
+		"${S}"/src/menubar.vala || die
 
 	# Patch 'at-spi-bus-launcher' path #
 	sed -i \

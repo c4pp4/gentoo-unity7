@@ -3,12 +3,12 @@ From: c4pp4
 Date: Mon, 25 Mar 2019 02:59:20 +0100
 Subject: [PATCH 1/1] Fix environment variables
 
-Set XDG_CURRENT_DESKTOP environment variable to use an icon theme
-according to gsettings override per session. Import DISPLAY environment
-variable into the systemd manager environment block to show nm-applet
-notifications and fix keyboard layout to correspond with
-indicator-keyboard icon. Import XDG_SESSION_CLASS environment variable
-used by indicator-sound.
+Set the XDG_CURRENT_DESKTOP environment variable for gsettings overrides
+per session. Import the DISPLAY environment variable into the systemd
+manager environment block to show nm-applet notifications and to fix
+the keyboard layout to correspond with the indicator-keyboard icon.  
+Import the XDG_SESSION_CLASS environment variable, which is used
+by indicator-sound.
 ---
  src/unity-greeter.vala | 11 +++++++++++
  1 file changed, 11 insertions(+)
