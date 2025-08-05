@@ -6,13 +6,10 @@ button-sleep = 'suspend'
 critical-battery-action = 'suspend'
 sleep-inactive-ac-timeout = 0
 
-## nm-applet icon theme, password field cursor ##
+## nm-applet and indicator-keyboard icon theme, password field cursor ##
 [org.gnome.desktop.interface:unity-greeter]
-cursor-theme = 'DMZ-White'
-
-## indicator-keyboard icon theme ##
-[org.gnome.desktop.interface]
 icon-theme = 'ubuntu-mono-dark'
+cursor-theme = 'DMZ-White'
 
 ## libnotify font rendering (nm-applet notification) ##
 [org.gnome.settings-daemon.plugins.xsettings.deprecated:unity-greeter]
