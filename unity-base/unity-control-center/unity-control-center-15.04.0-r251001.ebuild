@@ -48,7 +48,7 @@ COMMON_DEPEND="
 
 	colord? ( >=x11-misc/colord-1.4.3:=[vala] )
 	cups? ( >=net-print/cups-1.6.0 )
-	gnome-online-accounts? ( <net-libs/gnome-online-accounts-3.49.0 )
+	gnome-online-accounts? ( >=net-libs/gnome-online-accounts-3.18.0 )
 	input_devices_wacom? ( >=dev-libs/libwacom-1.1 )
 	kerberos? ( >=app-crypt/mit-krb5-1.8 )
 	networkmanager? (
