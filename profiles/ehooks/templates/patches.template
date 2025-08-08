@@ -15,6 +15,8 @@ ehooks() {
 			&& echo "${color_bold}>>> Processing Debian archive file patchset${color_norm} ..." \
 			&& eapply "${debian_patches[@]}" \
 			&& echo "${color_bold}>>> Done.${color_norm}"
+	elif [[ -r "${EHOOKS_FILESDIR}"/series ]]; then
+		die "ehooks: no patch available"
 	fi
 
 	for x in "${EHOOKS_FILESDIR}"/*.{diff,patch}; do

@@ -250,6 +250,9 @@ src_prepare() {
 		-e "s/event->text && //" \
 		a11y/unity-util-accessible.cpp || die
 
+	# Remove upstart integration #
+	sed -i "/[Uu]pstart/d" lockscreen/LockScreenController.{cpp,h}
+
 	python_fix_shebang tools
 
 	if use uwidgets; then

@@ -1,8 +1,0 @@
-ehooks() {
-	local \
-		blake=96608dc336e78318620f0f4e36e1265e84c03621bbc0e914393d7a376075c0db7dbf7dcd71f21aa291d0655636477233dac801d841d121b6c3f851ae67fa2f4a \
-		uver=libwnck3_43.2-1
-
-	source "${EHOOKS_PATH}"/templates/fetch_debian.template
-	fetch_debian "${blake}" "${uver}"
-}

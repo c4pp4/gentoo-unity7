@@ -34,7 +34,6 @@
 >www-client/firefox-129:esr
 >x11-libs/gtk+-2.24.33-r3:2
 >x11-libs/gtk+-3.24.49-r1:3
->x11-libs/libwnck-43.2:3
 >x11-libs/vte-0.78.5:2.91
 >x11-misc/lightdm-1.32.0-r5
 >x11-plugins/pidgin-libnotify-0.14-r3
