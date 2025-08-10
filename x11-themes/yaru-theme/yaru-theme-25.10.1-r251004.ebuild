@@ -14,7 +14,7 @@ SRC_URI="${UURL}-${UREV}.tar.xz"
 
 LICENSE="CC-BY-SA-4.0 GPL-3 LGPL-2.1 LGPL-3"
 SLOT="0"
-KEYWORDS="amd64"
+KEYWORDS="~amd64"
 IUSE="cinnamon gnome-shell gtk mate +unity xfwm"
 RESTRICT="binchecks strip test"
 
@@ -37,23 +37,24 @@ S="${WORKDIR}/${PN}-${UREV}"
 
 PATCHES=(
 	"${FILESDIR}"/Adjust-window-shadow-and-bottom-corners.patch
-	"${FILESDIR}"/Adjust-GTK4-windowcontrols.patch
 	"${FILESDIR}"/Create-Ambiance-GTK4-theme.patch
 )
 
 src_prepare() {
-	## Fix mate-terminal background color ##
-	sed -i \
-		-e '/vte-terminal {/{n;s/$_mate_terminal_bg_color/#300A24/}' \
-		gtk/src/default/gtk-3.0/apps/_mate-terminal.scss || die
+	if use unity; then
+		## Fix mate-terminal background color ##
+		sed -i \
+			-e '/vte-terminal {/{n;s/$_mate_terminal_bg_color/#300A24/}' \
+			gtk/src/default/gtk-3.0/apps/_mate-terminal.scss || die
 
-	## Add nemo nautilus-like theme ##
-	cat "${FILESDIR}"/nemo.css >> \
-		gtk/src/default/gtk-3.0/apps/_nemo.scss || die
+		## Add nemo nautilus-like theme ##
+		cat "${FILESDIR}"/nemo.css >> \
+			gtk/src/default/gtk-3.0/apps/_nemo.scss || die
 
-	## Add widget fixes ##
-	cat "${FILESDIR}"/gtk-widgets.css >> \
-		gtk/src/default/gtk-3.0/_tweaks.scss || die
+		## Add widget fixes ##
+		cat "${FILESDIR}"/gtk-widgets.css >> \
+			gtk/src/default/gtk-3.0/_tweaks.scss || die
+	fi
 
 	ubuntu-versionator_src_prepare
 

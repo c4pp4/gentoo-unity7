@@ -10,6 +10,11 @@ decoration {
 
 /* remove HdyHeaderBar rounded top corners */
 .background:not(.tiled):not(.maximized):not(.solid-csd) headerbar.titlebar {
- border-top-left-radius: 0;
- border-top-right-radius: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+/* remove the light border in the corner of the context menu */
+.csd.popup decoration {
+    box-shadow: none;
 }
