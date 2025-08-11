@@ -15,7 +15,7 @@ SRC_URI=""
 LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="+files +fontconfig lowgfx +music +photos ubuntu-classic +ubuntu-cursor +ubuntu-sounds ubuntu-unity +video"
+IUSE="+accessibility +files +fontconfig lowgfx +music +photos ubuntu-classic +ubuntu-cursor +ubuntu-sounds ubuntu-unity +video"
 REQUIRED_USE="ubuntu-classic? ( fontconfig )"
 RESTRICT="binchecks strip test"
 
@@ -67,6 +67,10 @@ src_install() {
 
 	use ubuntu-unity && [[ -f "${ED}${index_dir}"/index.theme ]] && \
 		( sed -i "s/DMZ-White/Yaru/" "${ED}${index_dir}"/index.theme || die )
+
+	use accessibility || sed -i \
+		-e "/toolkit-accessibility/d" \
+		"${ED}${gschema_dir}/${gschema}" || die
 
 	use ubuntu-sounds || sed -i \
 		-e "/org.gnome.desktop.sound/,+2 d" \

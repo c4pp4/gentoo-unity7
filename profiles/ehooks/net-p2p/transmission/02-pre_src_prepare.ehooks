@@ -1,0 +1,4 @@
+ehooks() {
+	# Yaru orange progressbar #
+	sed -i "s/\"steelblue\"/\"#E95420\"/" gtk/TorrentCellRenderer.cc || die
+}

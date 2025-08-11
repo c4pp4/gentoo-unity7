@@ -34,6 +34,7 @@ icon-theme = 'ubuntu-mono-dark'
 cursor-theme = 'DMZ-White'
 font-name = 'Ubuntu 11'
 monospace-font-name = 'Ubuntu Mono 13'
+toolkit-accessibility = true
 
 [org.gnome.desktop.peripherals.touchpad:Unity]
 tap-to-click = true

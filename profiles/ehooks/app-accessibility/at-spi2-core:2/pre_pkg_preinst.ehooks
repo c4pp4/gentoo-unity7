@@ -1,10 +1,4 @@
 ehooks() {
-	## Accessibility is now always started by default, ready for use.
-	sed -i \
-		-e "/OnlyShowIn/d" \
-		-e "/AutostartCondition/d" \
-		"${ED}"/etc/xdg/autostart/at-spi-dbus-bus.desktop || die
-
 	## Enable QT4 and QT5 accessibility by default.
 	exeinto /etc/X11/xinit/xinitrc.d
 	doexe "${EHOOKS_FILESDIR}"/90qt-a11y

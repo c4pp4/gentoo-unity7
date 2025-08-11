@@ -32,6 +32,7 @@ RDEPEND="
 		app-accessibility/at-spi2-core:2
 		app-accessibility/onboard
 		app-accessibility/orca
+		unity-base/unity-settings[accessibility]
 	)
 	apps? (
 		|| (
