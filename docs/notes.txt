@@ -42,6 +42,7 @@ gnome-base/gnome-session		# Installs session files for launching Unity7 user int
 					#  ubuntu/dbus_request_shutdown.patch
 					#  revert_remove_gnome_session_properties.patch
 gnome-base/gsettings-desktop-schemas	# Add a new preference to lock the screen when the system suspends
+gnome-extra/evolution-data-server	# Use libnotify when available (evolution-alarm-notify)
 gnome-extra/gnome-calendar		# Use unity-control-center as the fallback
 gnome-extra/gnome-contacts		# Use unity-control-center as the fallback
 gnome-extra/nemo			# Add Unity Launcher support, enable StartupNotify
@@ -55,7 +56,7 @@ gnome-extra/polkit-gnome		# Patched to have polkit-gnome-authentication-agent-1 
 					#  04-autorestart.patch
 					#  06-authentication-failure-string.patch
 gnome-extra/yelp			# Only show desktop launcher in Gnome as we have own launcher
-gui-libs/gtk:4				# Remove window buttons when window is maximized
+gui-libs/gtk:4				# Remove window buttons when window is maximized, disable global menu via UBUNTU_MENUPROXY
 gui-libs/libadwaita:1			# Support Yaru accent colors, remove window buttons when window is maximized
 gui-libs/libhandy:1			# Disable headerbar close button when not in GNOME
 mate-extra/mate-system-monitor		# Add Unity branding when in Unity
@@ -80,6 +81,7 @@ net-im/pidgin				# Add chat section into messaging menu (Available, Away, Busy, 
 net-im/telegram-desktop			# Add ubuntu-mono-dark and Yaru-dark tray icons
 net-im/telegram-desktop-bin		# Add ubuntu-mono-dark and Yaru-dark tray icons
 net-libs/libsoup:2.4			# Portage tree version forces '--without-gnome' and has removed net-libs/libsoup-gnome which provided '--with-gnome'
+net-p2p/transmission			# Disable global menu, use GTK3 and libappindicator (global menu bug: https://github.com/transmission/transmission/issues/5332)
 sys-apps/accountsservice		# Requires patching for SetInputSources as needed by unity-indicators/indicator-keyboard and u-c-c text entry settings
 					#  Ubuntu patchset:
 					#  0001-formats-locale-property.patch
@@ -93,7 +95,7 @@ www-client/firefox:esr			# ESR version, add Unity menubar and desktop launcher w
 www-client/firefox-bin:rapid		# Add desktop launcher with quicklist and translations
 www-client/firefox-bin:esr		# ESR version, add desktop launcher with quicklist and translations
 x11-libs/gtk+:2				# Support for dynamically loading overlay scrollbars, have the local menubars hidding under unity in favor of the unity ones
-x11-libs/gtk+:3				# Needed for global appmenu, fix firefox/thunderbird global submenus to be initially populated
+x11-libs/gtk+:3				# Needed for global appmenu, fix firefox/thunderbird global submenus to be initially populated, disable global menu via UBUNTU_MENUPROXY
 					#  Ubuntu patchset:
 					#  bzg_gtkcellrenderer_grabbing_modifier.patch
 					#  ubuntu_gtk_custom_menu_items.patch

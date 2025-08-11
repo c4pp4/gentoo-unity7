@@ -1,0 +1,131 @@
+From 09a83bcfa61ef153a8572a926c14068978c23183 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Mon, 11 Aug 2025 02:10:07 +0200
+Subject: [PATCH 1/1] Use libnotify when available (evolution-alarm-notify)
+
+Signed-off-by: c4pp4
+---
+ .../evolution-alarm-notify/CMakeLists.txt     | 10 +++++++
+ .../evolution-alarm-notify/e-alarm-notify.c   | 27 +++++++++++++++++++
+ .../evolution-alarm-notify.c                  | 12 +++++++++
+ 3 files changed, 49 insertions(+)
+
+diff --git a/src/services/evolution-alarm-notify/CMakeLists.txt b/src/services/evolution-alarm-notify/CMakeLists.txt
+index a4c0a41..3a69598 100644
+--- a/src/services/evolution-alarm-notify/CMakeLists.txt
++++ b/src/services/evolution-alarm-notify/CMakeLists.txt
+@@ -22,6 +22,16 @@ target_compile_definitions(evolution-alarm-notify PRIVATE
+ 	-DLOCALEDIR=\"${LOCALE_INSTALL_DIR}\"
+ )
+ 
++find_package(PkgConfig REQUIRED)
++pkg_check_modules(LIBNOTIFY libnotify)
++
++if(LIBNOTIFY_FOUND)
++    target_compile_definitions(evolution-alarm-notify PRIVATE -DHAVE_LIBNOTIFY)
++    target_compile_options(evolution-alarm-notify PUBLIC ${LIBNOTIFY_CFLAGS})
++    target_include_directories(evolution-alarm-notify PUBLIC ${LIBNOTIFY_INCLUDE_DIRS})
++    target_link_libraries(evolution-alarm-notify ${LIBNOTIFY_LDFLAGS})
++endif()
++
+ target_compile_options(evolution-alarm-notify PUBLIC
+ 	${CANBERRA_CFLAGS}
+ 	${DATA_SERVER_CFLAGS}
+diff --git a/src/services/evolution-alarm-notify/e-alarm-notify.c b/src/services/evolution-alarm-notify/e-alarm-notify.c
+index fa7a8a8..bfd79ab 100644
+--- a/src/services/evolution-alarm-notify/e-alarm-notify.c
++++ b/src/services/evolution-alarm-notify/e-alarm-notify.c
+@@ -32,6 +32,9 @@
+ #include "libedataserverui/libedataserverui.h"
+ 
+ #include "e-alarm-notify.h"
++#ifdef HAVE_LIBNOTIFY
++#include <libnotify/notify.h>
++#endif
+ 
+ #ifdef DBUS_SERVICES_PREFIX
+ #define APPLICATION_ID DBUS_SERVICES_PREFIX "." "org.gnome.Evolution-alarm-notify"
+@@ -307,6 +310,20 @@ e_alarm_notify_build_notif_id (const EReminderData *rd)
+ 	return g_string_free (string, FALSE);
+ }
+ 
++#ifdef HAVE_LIBNOTIFY
++static void
++e_alarm_notify_libnotify(const gchar *summary, const gchar *body)
++{
++	if (!notify_is_initted())
++		return;
++
++	NotifyNotification *n = notify_notification_new(summary, body, "appointment-soon");
++	notify_notification_set_timeout(n, NOTIFY_EXPIRES_DEFAULT);
++	notify_notification_show(n, NULL);
++	g_object_unref(n);
++}
++#endif
++
+ static gboolean
+ e_alarm_notify_display (EAlarmNotify *an,
+ 			const EReminderData *rd,
+@@ -324,6 +341,13 @@ e_alarm_notify_display (EAlarmNotify *an,
+ 
+ 	if (g_settings_get_boolean (an->priv->settings, "notify-enable-display") &&
+ 	    !g_hash_table_contains (an->priv->notification_ids, notif_id)) {
++
++#ifdef HAVE_LIBNOTIFY
++		if (notify_is_initted()) {
++			e_alarm_notify_libnotify(_("Reminders"), description);
++		} else
++        if (G_IS_APPLICATION(an)) {
++#endif
+ 		GNotification *notification;
+ 		GIcon *icon;
+ 		gchar *detailed_action;
+@@ -345,6 +369,9 @@ e_alarm_notify_display (EAlarmNotify *an,
+ 		g_application_send_notification (G_APPLICATION (an), notif_id, notification);
+ 
+ 		g_object_unref (notification);
++#ifdef HAVE_LIBNOTIFY
++		}
++#endif
+ 
+ 		g_hash_table_insert (an->priv->notification_ids, notif_id, NULL);
+ 	} else {
+diff --git a/src/services/evolution-alarm-notify/evolution-alarm-notify.c b/src/services/evolution-alarm-notify/evolution-alarm-notify.c
+index 555b44d..ea4867e 100644
+--- a/src/services/evolution-alarm-notify/evolution-alarm-notify.c
++++ b/src/services/evolution-alarm-notify/evolution-alarm-notify.c
+@@ -26,6 +26,10 @@
+ 
+ #include "e-alarm-notify.h"
+ 
++#ifdef HAVE_LIBNOTIFY
++#include <libnotify/notify.h>
++#endif
++
+ #ifdef G_OS_UNIX
+ #include <glib-unix.h>
+ 
+@@ -62,6 +66,10 @@ main (gint argc,
+ 
+ 	gtk_init (&argc, &argv);
+ 
++#ifdef HAVE_LIBNOTIFY
++	notify_init ("Evolution Alarm Notify");
++#endif
++
+ 	e_xml_initialize_in_main ();
+ 	_libedataserverui_init_icon_theme ();
+ 
+@@ -83,5 +91,9 @@ main (gint argc,
+ 
+ 	g_object_unref (alarm_notify);
+ 
++#ifdef HAVE_LIBNOTIFY
++	notify_uninit();
++#endif
++
+ 	return exit_status;
+ }
+-- 
+2.49.1
+

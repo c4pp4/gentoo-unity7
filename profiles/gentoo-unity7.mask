@@ -10,6 +10,7 @@
 >gnome-base/gnome-desktop-44.1-r300:3
 >gnome-base/gnome-menus-3.36.0-r1:3
 >gnome-base/gnome-session-47.0.1-r2
+>gnome-extra/evolution-data-server-3.56.2
 >gnome-extra/gnome-calendar-47.0
 >gnome-extra/gnome-contacts-47.1.1
 >gnome-extra/nemo-6.4.5
@@ -28,6 +29,7 @@
 >media-sound/rhythmbox-3.4.8-r1
 >media-video/totem-43.2
 >net-im/telegram-desktop-5.16.2-r1
+>net-p2p/transmission-4.0.6-r6
 >sys-apps/accountsservice-23.13.9
 >sys-devel/gcc-15
 >www-client/firefox-142:rapid

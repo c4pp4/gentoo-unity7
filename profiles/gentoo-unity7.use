@@ -20,7 +20,7 @@ net-libs/gnome-online-accounts -gnome
 net-libs/libnma vala
 net-misc/modemmanager vala
 net-misc/networkmanager vala
-net-p2p/transmission appindicator -gtk	# GTK3 global menu bug (https://github.com/transmission/transmission/issues/5332)
+net-p2p/transmission appindicator -qt6
 sys-libs/zlib minizip			# net-im/telegram-desktop
 virtual/notification-daemon -gnome	# Needed to avoid blocks because of 'x11-misc/notify-osd' if 'gnome-base/gnome-shell' is not installed
 x11-base/xorg-server xvfb		# x11-misc/xvfb-run
