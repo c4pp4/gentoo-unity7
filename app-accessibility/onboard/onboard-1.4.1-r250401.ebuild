@@ -64,6 +64,15 @@ DEPEND="${COMMON_DEPEND}
 	')
 "
 
+src_prepare() {
+	# Don't define bool #
+	sed -i \
+		-e "s/typedef enum { false, true } bool;/#include <stdbool.h>/" \
+		Onboard/osk/osk_module.h || die
+
+	ubuntu-versionator_src_prepare
+}
+
 src_install() {
 	distutils-r1_src_install
 
