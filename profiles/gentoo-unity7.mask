@@ -1,6 +1,6 @@
 ## These are packages maintained via ehooks that must be checked before bump ##
 >app-i18n/ibus-1.5.31-r1
->app-office/libreoffice-25.2.4.3-r1
+>app-office/libreoffice-25.2.5.2
 >app-text/evince-48.0-r1
 >dev-cpp/gtest-1.14.0-r2
 >dev-libs/glib-2.84.3:2
