@@ -16,7 +16,7 @@ media-fonts/noto -extra
 media-libs/freetype harfbuzz		# x11-libs/pango
 media-libs/libvpx postproc		# mail-client/thunderbird, www-client/firefox
 media-video/ffmpeg opus
-net-libs/gnome-online-accounts -gnome
+net-libs/gnome-online-accounts vala
 net-libs/libnma vala
 net-misc/modemmanager vala
 net-misc/networkmanager vala
