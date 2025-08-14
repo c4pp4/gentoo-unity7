@@ -14,7 +14,7 @@ SRC_URI="${UURL}-${UREV}.tar.xz"
 
 LICENSE="CC-BY-SA-4.0 GPL-3 LGPL-2.1 LGPL-3"
 SLOT="0"
-KEYWORDS="amd64"
+KEYWORDS="~amd64"
 IUSE="cinnamon gnome-shell gtk mate +unity xfwm"
 RESTRICT="binchecks strip test"
 
@@ -37,7 +37,6 @@ S="${WORKDIR}/${PN}-${UREV}"
 
 PATCHES=(
 	"${FILESDIR}"/Adjust-window-shadow-and-bottom-corners.patch
-	"${FILESDIR}"/Adjust-GTK4-windowcontrols.patch
 	"${FILESDIR}"/Create-Ambiance-GTK4-theme.patch
 )
 
@@ -56,6 +55,11 @@ src_prepare() {
 		cat "${FILESDIR}"/gtk-widgets.css >> \
 			gtk/src/default/gtk-3.0/_tweaks.scss || die
 	fi
+
+	## gedit requires version attribute ##
+	sed -i \
+		-e'/<style-scheme/{s/>/ version="1.0">/}' \
+		gtksourceview/gtksourceview/{default,dark}.xml.in
 
 	ubuntu-versionator_src_prepare
 

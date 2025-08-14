@@ -75,9 +75,8 @@ titlebar-uses-system-font = false
 [org.gnome.eog.ui:Unity]
 sidebar = false
 
-# Tango and Classic scheme is misconfigured with Ambiance #
 [org.gnome.gedit.preferences.editor:Unity]
-scheme = 'kate'
+scheme = 'Yaru-dark'
 
 [com.canonical.unity.settings-daemon.plugins.power:Unity]
 button-power = 'interactive'
