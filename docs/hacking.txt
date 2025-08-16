@@ -23,4 +23,3 @@
     see docs/ehooks.md
 * When creating or bumping ebuilds that are also maintained within the main portage tree,
     try to keep them as identical to the portage tree ebuilds as possible
-* To disable the global menu, you can use the environment variable UBUNTU_MENUPROXY=0

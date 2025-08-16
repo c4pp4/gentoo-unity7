@@ -10,3 +10,7 @@
 - The tray icon is not shown when using packages based on the Electron framework, such as Joplin or Discord.
   https://github.com/electron/electron/issues/38979
     * Use the exec prefix 'env XDG_CURRENT_DESKTOP=Unity7' as a workaround.
+
+- Some applications using ActionGroup may not display items in the global menu correctly.
+  (indicator-appmenu/src/window-menu-model.c: window_menu_model_new is uncomplete)
+    * Use the exec prefix 'env UBUNTU_MENUPROXY=0' as a workaround. This will launch the application with the classic menu.
