@@ -42,7 +42,8 @@ S="${WORKDIR}"
 
 PATCHES=(
 	"${FILESDIR}"/0002-productsearch.ubuntu.com-only-accepts-locale-string.patch
-	"${FILESDIR}"/remove-software-center-and-1kb-filter-option-and-fix-100kb.patch
+	"${FILESDIR}"/Remove-Software-center-and-1kB-filter-option-and-fix-100kB.patch
+	"${FILESDIR}"/Do-not-retry-null-SmartScopesClient.patch
 )
 
 src_configure() {

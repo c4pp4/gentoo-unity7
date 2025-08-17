@@ -1,0 +1,28 @@
+From 083472ba62b715d54a04a949809171688631656c Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sun, 17 Aug 2025 09:11:37 +0200
+Subject: [PATCH 1/1] Do not retry null SmartScopesClient
+
+Signed-off-by: c4pp4
+---
+ src/scope.vala | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/scope.vala b/src/scope.vala
+index 78cda0f..418ead2 100644
+--- a/src/scope.vala
++++ b/src/scope.vala
+@@ -294,6 +294,10 @@ public class HomeScope : Unity.AggregatorScope
+ 
+   internal bool request_remote_scopes_retry ()
+   {
++    if (sss_client == null) {
++        debug ("SmartScopesClient is not initialized.");
++        return false;
++    }
+     request_remote_scopes.begin ();
+     return false; // don't run this timeout callback anymore
+   }
+-- 
+2.49.1
+
