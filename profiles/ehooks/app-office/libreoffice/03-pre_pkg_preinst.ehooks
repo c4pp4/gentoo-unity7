@@ -1,4 +1,9 @@
 ehooks() {
+	## b.g.o #593514
+	if ehooks_use libreoffice && [[ -e ${ED}/usr/$(get_libdir)/libreoffice/program/liblibreofficekitgtk.so && ! -e ${ED}/usr/$(get_libdir)/liblibreofficekitgtk.so ]]; then
+		dosym libreoffice/program/liblibreofficekitgtk.so /usr/$(get_libdir)/liblibreofficekitgtk.so
+	fi
+
 	if ehooks_use fontconfig; then
 		local dir="${ED}"/usr/"$(get_libdir)"/libreoffice/share/fonts/truetype
 

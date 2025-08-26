@@ -60,8 +60,8 @@ COMMON_DEPEND="
 	webkit? ( >=net-libs/webkit-gtk-2.15.1:4.1 )
 "
 RDEPEND="${COMMON_DEPEND}
+	>=app-accessibility/at-spi2-core-2.46.0:2
 	app-text/iso-codes
-	>=dev-libs/atk-1.12.4
 	gnome-extra/polkit-gnome
 	>=media-libs/fontconfig-2.12.6:1.0
 	media-libs/libglvnd

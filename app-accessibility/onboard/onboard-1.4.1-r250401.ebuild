@@ -52,7 +52,7 @@ RDEPEND="${COMMON_DEPEND}
 	>=x11-libs/pango-1.29.3[introspection]
 
 	accessibility? (
-		app-accessibility/at-spi2-core:2
+		>=app-accessibility/at-spi2-core-2.46.0:2
 		gnome-extra/mousetweaks
 	)
 "

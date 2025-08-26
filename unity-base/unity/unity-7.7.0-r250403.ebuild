@@ -25,8 +25,8 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="test"
 
 COMMON_DEPEND="
+	>=app-accessibility/at-spi2-core-2.46.0:2
 	>=dev-libs/appstream-glib-0.5.1
-	>=dev-libs/atk-2.2.0
 	>=dev-libs/dee-1.2.6:0=[${PYTHON_SINGLE_USEDEP}]
 	>=dev-libs/glib-2.41.1:2
 	>=dev-libs/ido-13.10.0:0=
@@ -55,7 +55,6 @@ COMMON_DEPEND="
 	${PYTHON_DEPS}
 "
 RDEPEND="${COMMON_DEPEND}
-	>=app-accessibility/at-spi2-atk-2.5.3:2
 	gnome-base/dconf
 	gnome-base/gnome-session[systemd]
 	gnome-extra/nemo

@@ -20,6 +20,7 @@ IUSE="+battery +networkmanager nls +sound"
 RESTRICT="test"
 
 COMMON_DEPEND="
+	>=app-accessibility/at-spi2-core-2.46.0:2
 	>=dev-libs/ido-13.10.0:0=
 	>=dev-libs/libindicator-0.4.90:3
 	>=media-libs/libcanberra-gtk3-0.2
@@ -28,7 +29,6 @@ COMMON_DEPEND="
 	>=x11-misc/lightdm-1.20.0[vala]
 "
 RDEPEND="${COMMON_DEPEND}
-	>=dev-libs/atk-1.12.4
 	>=dev-libs/glib-2.43.92:2
 	gnome-base/dconf
 	sys-apps/systemd
@@ -51,7 +51,6 @@ RDEPEND="${COMMON_DEPEND}
 	sound? ( unity-indicators/indicator-sound )
 "
 DEPEND="${COMMON_DEPEND}
-	app-accessibility/at-spi2-core:2
 	>=app-eselect/eselect-lightdm-0.1
 	gnome-base/gnome-common
 	gnome-base/gnome-desktop:3=

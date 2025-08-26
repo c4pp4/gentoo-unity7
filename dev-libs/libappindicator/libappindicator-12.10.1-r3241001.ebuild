@@ -29,7 +29,7 @@ RDEPEND="${COMMON_DEPEND}
 	>=sys-libs/glibc-2.4
 "
 DEPEND="${COMMON_DEPEND}
-	app-accessibility/at-spi2-core:2
+	>=app-accessibility/at-spi2-core-2.46.0:2
 	dev-libs/gobject-introspection
 	dev-libs/libxml2:2[${MULTILIB_USEDEP}]
 	gnome-base/gnome-common

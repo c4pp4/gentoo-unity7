@@ -27,7 +27,7 @@ COMMON_DEPEND="
 	>=x11-libs/libwnck-3.4.0:3
 "
 RDEPEND="${COMMON_DEPEND}
-	>=dev-libs/atk-1.12.4
+	>=app-accessibility/at-spi2-core-2.46.0:2
 	gnome-base/dconf
 	gnome-base/gsettings-desktop-schemas
 	>=sys-libs/glibc-2.34

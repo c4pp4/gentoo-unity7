@@ -54,7 +54,7 @@ COMMON_DEPEND="
 	$(python_gen_cond_dep '>=dev-libs/libxml2-2.7.4:2[${PYTHON_USEDEP}]')
 "
 RDEPEND="${COMMON_DEPEND}
-	>=dev-libs/atk-1.12.4
+	>=app-accessibility/at-spi2-core-2.46.0:2
 	>=dev-libs/libsigc++-2.2.0:2
 	gnome-base/dconf
 	>=gnome-base/gnome-settings-daemon-3.4.2

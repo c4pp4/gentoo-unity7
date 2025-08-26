@@ -28,8 +28,7 @@ RDEPEND="
 	x11-misc/gtk3-nocsd
 
 	accessibility? (
-		app-accessibility/at-spi2-atk
-		app-accessibility/at-spi2-core:2
+		>=app-accessibility/at-spi2-core-2.46.0:2
 		app-accessibility/onboard
 		app-accessibility/orca
 		unity-base/unity-settings[accessibility]
