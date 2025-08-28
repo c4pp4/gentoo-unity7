@@ -7,7 +7,7 @@ repos=(
 	universe
 )
 
-## Don't check these packages ##
+## Don't check these packages.
 remove=(
 	app-eselect/eselect-lightdm
 	dev-java/jayatana
@@ -24,6 +24,14 @@ remove=(
 	unity-scopes/smart-scopes
 	x11-plugins/mailnag-messagingmenu-plugin
 	x11-themes/adwaita-icon-theme
+)
+
+## Temporarily accept_keywords.
+akwords=(
+	app-backup/deja-dup
+	net-im/telegram-desktop
+	www-client/firefox:esr
+	www-client/firefox:rapid
 )
 
 color_blink=$(tput blink)
@@ -271,6 +279,9 @@ portage_updates() {
 	## Temporarily unmask packages maintained via ehooks.
 	install -m 666 /dev/null /tmp/"${tmp_um}" || exit 1
 	ln -fs /tmp/"${tmp_um}" /etc/portage/package.unmask/zzzz_"${tmp_um}" || exit 1
+	## Temporarily accept_keywords from the list.
+	install -m 666 /dev/null /tmp/"${tmp_ak}" || exit 1
+	ln -fs /tmp/"${tmp_ak}" /etc/portage/package.accept_keywords/zzzz_"${tmp_ak}" || exit 1
 
 {
 	while read -r line; do
@@ -284,30 +295,28 @@ portage_updates() {
 		[[ -n ${start_reading} ]] && [[ ${line} == "#"* ]] && break
 		echo "${line}" > /tmp/"${tmp_um}"
 
-		if [[ ${line} == ">www-client/firefox"* ]] && [[ ${line} != *":esr" ]]; then
-			## Temporarily accept_keywords www-client/firefox.
-			install -m 666 /dev/null /tmp/"${tmp_ak}" || exit 1
-			ln -fs /tmp/"${tmp_ak}" /etc/portage/package.accept_keywords/zzzz_"${tmp_ak}" || exit 1
-			echo "www-client/firefox:rapid::gentoo ~amd64" > /tmp/"${tmp_ak}"
+		for x in "${akwords[@]}"; do
+			slot=$(get_slot "${x}")
+			[[ -n ${slot} ]] && slot=":${slot}"
+			[[ ${line} == ">"${x%${slot}}*${slot} ]] && echo "${x}" > /tmp/"${tmp_ak}"
+		done
+		if [[ -s /tmp/${tmp_ak} ]]; then
 			update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "|~amd64$" | tail -1 | sed "s/|.*$//")
-		elif [[ ${line} == ">app-backup/deja-dup"* ]] || [[ ${line} == ">x11-misc/zim"* ]]; then
-			update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "|~amd64$" | tail -1 | sed "s/|.*$//")
+			touch /tmp/"${tmp_ak}"
 		else
 			update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "|amd64$" | tail -1 | sed "s/|.*$//")
 		fi
 		[[ -n ${update} ]] && updates+=( "${line}|${update}" )
-
-		if [[ -h /etc/portage/package.accept_keywords/zzzz_"${tmp_ak}" ]]; then
-			## Remove temporary www-client/firefox accept_keywords file.
-			rm /etc/portage/package.accept_keywords/zzzz_"${tmp_ak}" || exit 1
-			rm /tmp/"${tmp_ak}" || exit 1
-		fi
 	done < "${pmask}"
 } 2>/dev/null
 
 	## Remove temporary unmask file.
 	rm /etc/portage/package.unmask/zzzz_"${tmp_um}" || exit 1
 	rm /tmp/"${tmp_um}" || exit 1
+	## Remove temporary accept_keywords file.
+	rm /etc/portage/package.accept_keywords/zzzz_"${tmp_ak}" || exit 1
+	rm /tmp/"${tmp_ak}" || exit 1
+
 	printf "\b\b%s\n\n" "... done!"
 
 	if [[ ! -e ${pmask} ]]; then

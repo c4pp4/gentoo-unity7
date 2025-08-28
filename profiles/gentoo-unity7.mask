@@ -28,7 +28,7 @@
 >media-sound/audacious-4.4.2
 >media-sound/rhythmbox-3.4.8-r1
 >media-video/totem-43.2
->net-im/telegram-desktop-5.16.2-r1
+>net-im/telegram-desktop-6.0.2
 >net-p2p/transmission-4.0.6-r6
 >sys-apps/accountsservice-23.13.9
 >sys-devel/gcc-15
