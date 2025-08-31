@@ -26,12 +26,18 @@ remove=(
 	x11-themes/adwaita-icon-theme
 )
 
-## Temporarily accept_keywords.
+## Temporarily accept keywords from testing branch.
 akwords=(
 	app-backup/deja-dup
-	net-im/telegram-desktop
 	www-client/firefox:esr
 	www-client/firefox:rapid
+)
+
+## Packages with the major version (without slot).
+majorver=(
+	mail-client/thunderbird
+	sys-devel/gcc
+	www-client/firefox
 )
 
 color_blink=$(tput blink)
@@ -339,18 +345,13 @@ portage_updates() {
 			printf "%s" " * Test command 'EHOOKS_PATH=${pmask%/*}/ehooks ebuild \$(portageq get_repo_path / gentoo)/${new_pkg%-[0-9]*}/${new_pkg#*/}.ebuild clean prepare clean'${color_blink}...${color_norm}"
 			if EHOOKS_PATH="${pmask%/*}/ehooks" ebuild "${main_repo}/${new_pkg%-[0-9]*}/${new_pkg#*/}".ebuild clean prepare clean 1>/dev/null; then
 				printf "\b\b\b%s\n" "... ${color_blue}[ ${color_green}passed ${color_blue}]${color_norm}"
-				if [[ ${new_pkg} == "www-client/firefox"* ]]; then
-					y="${new_pkg#*firefox-}"; y="${y%%.*}"; y=$((y + 1))
-					new_pkg="www-client/firefox-${y}"
-				fi
-				if [[ ${new_pkg} == "mail-client/thunderbird"* ]]; then
-					y="${new_pkg#*thunderbird-}"; y="${y%%.*}"; y=$((y + 1))
-					new_pkg="mail-client/thunderbird-${y}"
-				fi
-				if [[ ${new_pkg} == "sys-devel/gcc"* ]]; then
-					y="${new_pkg#*gcc-}"; y="${y%%.*}"; y=$((y + 1))
-					new_pkg="sys-devel/gcc-${y}"
-				fi
+				for y in "${majorver[@]}"; do
+					if [[ ${new_pkg} == "${y}"* ]]; then
+						z="${new_pkg#*${y#*/}-}"; z="${z%%.*}"; z=$((z + 1))
+						new_pkg="${y}-${z}"
+						break
+					fi
+				done
 				if [[ -n ${slot} ]]; then
 					old_pkg="${old_pkg}:${slot}"
 					new_pkg="${new_pkg}:${slot}"

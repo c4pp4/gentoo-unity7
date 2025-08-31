@@ -16,7 +16,7 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 
 	EHOOKS_SOURCE=()
 
-	for pkg in generic ${CATEGORY}/{${P}-${PR},${P},${P%.*},${P%.*.*},${PN}}{:${SLOT%/*},}; do
+	for pkg in generic ${CATEGORY}/{${PN},${P},${P%.*},${P%.*.*},${P}-${PR}}{,:${SLOT%/*}}; do
 		if [[ -d ${EHOOKS_PATH:=${basedir}}/${pkg} ]]; then
 			true
 		elif [[ -d ${basedir}/${pkg} ]]; then
