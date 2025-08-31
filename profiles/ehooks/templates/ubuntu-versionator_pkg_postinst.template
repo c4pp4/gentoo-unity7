@@ -1,3 +1,0 @@
-ehooks() {
-	[[ -x $(type -p bamf-index-create) ]] && bamf-index-create triggered
-}

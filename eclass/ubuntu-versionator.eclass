@@ -179,7 +179,9 @@ ubuntu-versionator_pkg_postinst() {
 		xdg_pkg_postinst
 	fi
 
-	[[ -x $(type -p bamf-index-create) ]] && bamf-index-create triggered
+	if [[ ${#XDG_ECLASS_DESKTOPFILES[@]} -gt 0 ]]; then
+		[[ -x $(type -p bamf-index-create) ]] && bamf-index-create triggered
+	fi
 }
 
 EXPORT_FUNCTIONS pkg_setup src_prepare pkg_postinst

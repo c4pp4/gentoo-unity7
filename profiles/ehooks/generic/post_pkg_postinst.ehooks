@@ -1,0 +1,5 @@
+ehooks() {
+	if [[ ${#XDG_ECLASS_DESKTOPFILES[@]} -gt 0 ]]; then
+		[[ -x $(type -p bamf-index-create) ]] && bamf-index-create triggered
+	fi
+}
