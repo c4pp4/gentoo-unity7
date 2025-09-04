@@ -22,6 +22,7 @@ remove=(
 	unity-indicators/unity-indicators-meta
 	unity-lenses/unity-lens-meta
 	unity-scopes/smart-scopes
+	x11-misc/gtk3-nocsd
 	x11-plugins/mailnag-messagingmenu-plugin
 	x11-themes/adwaita-icon-theme
 )
