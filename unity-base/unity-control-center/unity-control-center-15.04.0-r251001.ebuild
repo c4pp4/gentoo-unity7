@@ -63,6 +63,7 @@ RDEPEND="${COMMON_DEPEND}
 	>=app-accessibility/at-spi2-core-2.46.0:2
 	app-text/iso-codes
 	gnome-extra/polkit-gnome
+	gui-libs/gdk-pixbuf-loader-webp
 	>=media-libs/fontconfig-2.12.6:1.0
 	media-libs/libglvnd
 	>=unity-base/gsettings-ubuntu-touch-schemas-0.0.1

@@ -1,20 +1,20 @@
-From b8f3073344201255f7d185f77fb94018f5f28ba4 Mon Sep 17 00:00:00 2001
+From dd3e3868c02786977918caf1d670955642f2da39 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Thu, 18 Jan 2024 18:41:25 +0100
+Date: Sat, 6 Sep 2025 00:05:23 +0200
 Subject: [PATCH 1/1] Configure with Human icon theme
 
 Signed-off-by: c4pp4
 ---
  configure.ac                         | 4 ++--
- vcl/source/app/IconThemeSelector.cxx | 6 ++++--
+ vcl/source/app/IconThemeSelector.cxx | 9 +++++++--
  vcl/source/image/ImplImageTree.cxx   | 2 ++
- 3 files changed, 8 insertions(+), 4 deletions(-)
+ 3 files changed, 11 insertions(+), 4 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index 03c8d6c6a..2e6e2a697 100644
+index bec6c26fa..5c84daedf 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -13259,14 +13259,14 @@ dnl ===================================================================
+@@ -14068,14 +14068,14 @@ dnl ===================================================================
  AC_MSG_CHECKING([which themes to include])
  # if none given use default subset of available themes
  if test "x$with_theme" = "x" -o "x$with_theme" = "xyes"; then
@@ -32,11 +32,11 @@ index 03c8d6c6a..2e6e2a697 100644
          esac
      done
 diff --git a/vcl/source/app/IconThemeSelector.cxx b/vcl/source/app/IconThemeSelector.cxx
-index 6b8dfc0f4..b3d93246c 100644
+index 7c621aa93..499ef0d8c 100644
 --- a/vcl/source/app/IconThemeSelector.cxx
 +++ b/vcl/source/app/IconThemeSelector.cxx
-@@ -83,12 +83,14 @@ IconThemeSelector::GetIconThemeForDesktopEnvironment(const OUString& desktopEnvi
-             r = "sukapura_dark";
+@@ -84,12 +84,17 @@ IconThemeSelector::GetIconThemeForDesktopEnvironment(const OUString& desktopEnvi
+             r = "sukapura_dark_svg";
      }
      else if ( desktopEnvironment.equalsIgnoreAsciiCase("gnome") ||
 -         desktopEnvironment.equalsIgnoreAsciiCase("mate") ||
@@ -48,15 +48,18 @@ index 6b8dfc0f4..b3d93246c 100644
              r = "sifr_dark";
 +    }
 +    else if ( desktopEnvironment.equalsIgnoreAsciiCase("unity") ) {
-+        r = "human";
++        if (!bPreferDarkIconTheme)
++            r = "human";
++        else
++            r = "sifr_dark";
      } else
      {
          if (!bPreferDarkIconTheme)
 diff --git a/vcl/source/image/ImplImageTree.cxx b/vcl/source/image/ImplImageTree.cxx
-index bdd4fcedf..e8ff3869c 100644
+index e2409a847..384894dc2 100644
 --- a/vcl/source/image/ImplImageTree.cxx
 +++ b/vcl/source/image/ImplImageTree.cxx
-@@ -330,6 +330,8 @@ OUString ImplImageTree::fallbackStyle(std::u16string_view rsStyle)
+@@ -338,6 +338,8 @@ OUString ImplImageTree::fallbackStyle(std::u16string_view rsStyle)
  
      if (rsStyle == u"colibre" || rsStyle == u"helpimg")
          sResult = "";
@@ -66,5 +69,5 @@ index bdd4fcedf..e8ff3869c 100644
          sResult = "breeze";
      else if (rsStyle == u"sifr_dark" )
 -- 
-2.43.0
+2.49.1
 
