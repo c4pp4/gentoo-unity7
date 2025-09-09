@@ -26,7 +26,7 @@
 >media-gfx/shotwell-0.32.10-r1
 >media-plugins/audacious-plugins-4.4.2-r1
 >media-sound/audacious-4.4.2
->media-sound/rhythmbox-3.4.8-r1
+>media-sound/rhythmbox-3.4.8-r2
 >media-video/totem-43.2
 >net-p2p/transmission-4.0.6-r6
 >sys-apps/accountsservice-23.13.9
