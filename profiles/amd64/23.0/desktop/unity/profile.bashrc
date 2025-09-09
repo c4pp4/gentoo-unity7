@@ -18,7 +18,7 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 
 	for pkg in generic ${CATEGORY}/{${PN},${P},${P%.*},${P%.*.*},${P}-${PR}}{,:${SLOT%/*}}; do
 		if [[ -d ${EHOOKS_PATH:-${basedir}}/${pkg} ]]; then
-			real_path="${EHOOKS_PATH}"
+			real_path="${EHOOKS_PATH:-${basedir}}"
 		elif [[ -d ${basedir}/${pkg} ]]; then
 			real_path="${basedir}"
 		else
