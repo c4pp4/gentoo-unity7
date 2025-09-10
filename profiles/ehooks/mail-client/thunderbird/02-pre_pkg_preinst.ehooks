@@ -1,9 +1,10 @@
 ehooks() {
-	# Install system-wide preferences
+	# Disable titlebar in system-wide preferences #
 	if [[ -e ${ED}${MOZILLA_FIVE_HOME}/defaults/pref/gentoo-prefs.js ]]; then
 		echo 'pref("mail.tabs.drawInTitlebar",           false);' \
 			>> ${ED}${MOZILLA_FIVE_HOME}/defaults/pref/gentoo-prefs.js
 	fi
 
+	# Add desktop launcher with quicklist and translations #
 	domenu "${EHOOKS_FILESDIR}/${PN}-esr.desktop"
 }
