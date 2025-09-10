@@ -3,6 +3,6 @@ ehooks() {
 		blake=eb732605366abf7a5bae47af6e0ca30c5af36646aea21c5b5f795ea0fcac81fb1502585f10d4fbfcde967ff24ec1062871e8af8a1ef6faaa0943f14544e0cb6a \
 		uver=rhythmbox_3.4.8-1ubuntu2
 
-	source "${EHOOKS_PATH}"/templates/fetch_debian.template
+	source "${EHOOKS_ROOT}"/templates/fetch_debian.template
 	fetch_debian "${blake}" "${uver}"
 }

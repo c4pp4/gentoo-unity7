@@ -19,7 +19,7 @@
 >gui-libs/gtk-4.16.13:4
 >gui-libs/libadwaita-1.6.2-r1:1
 >gui-libs/libhandy-1.8.3:1
->mail-client/thunderbird-129
+>mail-client/thunderbird-141
 >mate-extra/mate-system-monitor-1.28.1-r1
 >mate-extra/mate-utils-1.28.0-r1
 >media-gfx/eog-47.0:1

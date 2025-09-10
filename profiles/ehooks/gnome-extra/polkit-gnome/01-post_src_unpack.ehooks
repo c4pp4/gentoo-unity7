@@ -3,6 +3,6 @@ ehooks() {
 		blake=1afc5dc1a44f8fe8bab450d4dc708b57f71c41455ed16c8ac54ba1979f00c736537710a7209b3d93b076b1ce87ac6b2ca9e14d63715cc7c58e208033344995b8 \
 		uver=policykit-1-gnome_0.105-8
 
-	source "${EHOOKS_PATH}"/templates/fetch_debian.template
+	source "${EHOOKS_ROOT}"/templates/fetch_debian.template
 	fetch_debian "${blake}" "${uver}"
 }

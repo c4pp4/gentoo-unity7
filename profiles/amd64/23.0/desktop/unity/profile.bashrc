@@ -11,23 +11,23 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 
 	## Look for ehooks in setup phase.
 	local \
-		basedir="${REPO_ROOT}"/profiles/ehooks \
-		pkg real_path
+		pkg \
+		basedir="${REPO_ROOT}"/profiles/ehooks
 
 	EHOOKS_SOURCE=()
 
-	for pkg in generic ${CATEGORY}/{${PN},${P},${P%.*},${P%.*.*},${P}-${PR}}{,:${SLOT%/*}}; do
+	for pkg in generic ${CATEGORY}/{${P}-${PR},${P},${P%.*},${P%.*.*},${PN}}{:${SLOT%/*},}; do
 		if [[ -d ${EHOOKS_PATH:-${basedir}}/${pkg} ]]; then
-			real_path="${EHOOKS_PATH:-${basedir}}"
+			EHOOKS_ROOT="${EHOOKS_PATH:-${basedir}}"
 		elif [[ -d ${basedir}/${pkg} ]]; then
-			real_path="${basedir}"
+			EHOOKS_ROOT="${basedir}"
 		else
 			continue
 		fi
 
 		local prev_shopt=$(shopt -p nullglob)
 		shopt -s nullglob
-		EHOOKS_SOURCE+=( "${real_path}/${pkg}"/*.ehooks )
+		EHOOKS_SOURCE+=( "${EHOOKS_ROOT}/${pkg}"/*.ehooks )
 		${prev_shopt}
 		[[ ${pkg} != "generic" ]] && break
 	done
