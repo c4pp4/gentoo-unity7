@@ -12,6 +12,9 @@ cursor-theme = 'Yaru'
 [org.gnome.desktop.wm.preferences:Unity]
 theme = 'Yaru-dark'
 
+[org.gnome.gedit.preferences.editor:Unity]
+scheme = 'Yaru-dark'
+
 ## Unity Greeter ##
 
 [com.canonical.unity-greeter]

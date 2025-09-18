@@ -76,7 +76,7 @@ titlebar-uses-system-font = false
 sidebar = false
 
 [org.gnome.gedit.preferences.editor:Unity]
-scheme = 'Yaru-dark'
+scheme = 'Yaru'
 
 [com.canonical.unity.settings-daemon.plugins.power:Unity]
 button-power = 'interactive'

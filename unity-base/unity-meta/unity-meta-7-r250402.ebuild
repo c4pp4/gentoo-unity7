@@ -67,16 +67,16 @@ RDEPEND="
 			( app-arch/file-roller gnome-extra/nemo-fileroller )
 		)
 		|| (
-			app-editors/pluma
 			app-editors/gedit
+			app-editors/pluma
 		)
 		|| (
-			app-text/atril
 			app-text/evince
+			app-text/atril
 		)
 		|| (
-			mate-extra/mate-calc
 			gnome-extra/gnome-calculator
+			mate-extra/mate-calc
 		)
 		mate-extra/mate-utils
 		|| (
