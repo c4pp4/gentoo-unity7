@@ -46,6 +46,3 @@ x11-misc/notify-osd::gentoo             ## the latest version in the Gentoo tree
 x11-themes/adwaita-icon-theme::gentoo   ## Keep legacy icons to avoid missing icons (LP: #1961495)
 x11-themes/notify-osd-icons::gentoo     ## the latest version in the Gentoo tree is 0.7 (2010-11-15)
 x11-themes/ubuntu-wallpapers::gentoo    ## version in the Gentoo tree doesn't control download size via USE flags
-
-# Temporarily mask Nemo version 6.4.5 due to slow sidebar response #
-~gnome-extra/nemo-6.4.5
