@@ -4,8 +4,8 @@
 EAPI=8
 PYTHON_COMPAT=( python3_{10..14} )
 
-UVER=+22.10.20220822
-UREV=0ubuntu16
+UVER=+25.10.20250930
+UREV=0ubuntu1
 
 inherit gnome2 cmake python-single-r1 ubuntu-versionator
 
@@ -90,7 +90,7 @@ BDEPEND="
 "
 PDEPEND="unity-base/unity[gles2=]"
 
-S="${S}${UVER}"
+S="${WORKDIR}/${PN}"
 
 MAKEOPTS="${MAKEOPTS} -j1"
 

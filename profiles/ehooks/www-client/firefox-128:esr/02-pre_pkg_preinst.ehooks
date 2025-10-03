@@ -1,4 +1,0 @@
-ehooks() {
-	# Add desktop launcher with quicklist and translations #
-	domenu "${EHOOKS_FILESDIR}/${PN}-esr.desktop"
-}
