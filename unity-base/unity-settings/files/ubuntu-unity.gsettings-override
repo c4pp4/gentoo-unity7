@@ -15,6 +15,9 @@ theme = 'Yaru-dark'
 [org.gnome.gedit.preferences.editor:Unity]
 scheme = 'Yaru-dark'
 
+[org.mate.pluma:Unity]
+color-scheme = 'Yaru-dark'
+
 ## Unity Greeter ##
 
 [com.canonical.unity-greeter]

@@ -7,5 +7,8 @@ ehooks() {
 
 	# If a .desktop file does not have inline
 	# translations, fall back to calling gettext
-	echo "X-GNOME-Gettext-Domain=${PN}-${PV%%.*}" >> "data/${PN}-properties.desktop.in"
+	echo "X-GNOME-Gettext-Domain=${PN}" >> "data/${PN}-properties.desktop.in"
+
+	# Drop version suffix #
+	sed -i "/GETTEXT_PACKAGE/{s/session_api_name/'${PN}'/}" meson.build || die
 }

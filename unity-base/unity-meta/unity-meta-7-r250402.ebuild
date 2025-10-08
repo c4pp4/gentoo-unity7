@@ -67,8 +67,8 @@ RDEPEND="
 			( app-arch/file-roller gnome-extra/nemo-fileroller )
 		)
 		|| (
-			app-editors/gedit
 			app-editors/pluma
+			app-editors/gedit
 		)
 		|| (
 			app-text/evince

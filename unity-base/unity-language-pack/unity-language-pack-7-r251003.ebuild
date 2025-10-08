@@ -20,130 +20,130 @@ setvar() {
 }
 
 #[fnc] [L10N]		[pack]         [pack-gnome]   [ubuntu tag]
-setvar af		25.10+20250915 25.10+20250915
+setvar af		25.10+20251003 25.10+20251003
 setvar am		25.04+20250122 25.04+20250122
 setvar an		25.04+20250122 25.04+20250122
-setvar ar		25.10+20250915 25.10+20250915
-setvar as		25.10+20250915 25.10+20250915
-setvar ast		25.10+20250915 25.10+20250915
+setvar ar		25.10+20251003 25.10+20251003
+setvar as		25.10+20251003 25.10+20251003
+setvar ast		25.10+20251003 25.10+20251003
 setvar az		25.04+20250122 25.04+20250122
-setvar be		25.10+20250915 25.10+20250915
-setvar bg		25.10+20250915 25.10+20250915
-setvar bn		25.10+20250915 25.10+20250915
+setvar be		25.10+20251003 25.10+20251003
+setvar bg		25.10+20251003 25.10+20251003
+setvar bn		25.10+20251003 25.10+20251003
 setvar bo		14.10+20140909 14.10+20140909
 setvar br		25.04+20250122 25.04+20250122
-setvar bs		25.10+20250915 25.10+20250915
-setvar ca		25.10+20250915 25.10+20250915
-setvar ca-valencia	25.10+20250915 25.10+20250915 ca
-setvar ckb		25.10+20250915 25.10+20250915
-setvar cs		25.10+20250915 25.10+20250915
+setvar bs		25.10+20251003 25.10+20251003
+setvar ca		25.10+20251003 25.10+20251003
+setvar ca-valencia	25.10+20251003 25.10+20251003 ca
+setvar ckb		25.10+20251003 25.10+20251003
+setvar cs		25.10+20251003 25.10+20251003
 setvar cy		25.04+20250122 25.04+20250122
-setvar da		25.10+20250915 25.10+20250915
-setvar de		25.10+20250915 25.10+20250915
+setvar da		25.10+20251003 25.10+20251003
+setvar de		25.10+20251003 25.10+20251003
 setvar dv		14.04+20150804 14.04+20150804
 setvar dz		25.04+20250122 25.04+20250122
-setvar el		25.10+20250915 25.10+20250915
-setvar en		25.10+20250915 25.10+20250915
-setvar eo		25.10+20250915 25.10+20250915
-setvar es		25.10+20250915 25.10+20250915
-setvar et		25.10+20250915 25.10+20250915
-setvar eu		25.10+20250915 25.10+20250915
-setvar fa		25.10+20250915 25.10+20250915
+setvar el		25.10+20251003 25.10+20251003
+setvar en		25.10+20251003 25.10+20251003
+setvar eo		25.10+20251003 25.10+20251003
+setvar es		25.10+20251003 25.10+20251003
+setvar et		25.10+20251003 25.10+20251003
+setvar eu		25.10+20251003 25.10+20251003
+setvar fa		25.10+20251003 25.10+20251003
 setvar ff		14.04+20150804 14.04+20150804
-setvar fi		25.10+20250915 25.10+20250915
+setvar fi		25.10+20251003 25.10+20251003
 setvar fil		14.04+20150804 14.04+20150804
 setvar fo		14.04+20150804 14.04+20150804
-setvar fr		25.10+20250915 25.10+20250915
-setvar fur		25.10+20250915 25.10+20250915
+setvar fr		25.10+20251003 25.10+20251003
+setvar fur		25.10+20251003 25.10+20251003
 setvar fy		14.04+20150804 14.04+20150804
 setvar ga		25.04+20250122 25.04+20250122
-setvar gd		25.10+20250915 25.10+20250915
-setvar gl		25.10+20250915 25.10+20250915
-setvar gu		25.10+20250915 25.10+20250915
-setvar he		25.10+20250915 25.10+20250915
-setvar hi		25.10+20250915 25.10+20250915
-setvar hr		25.10+20250915 25.10+20250915
+setvar gd		25.10+20251003 25.10+20251003
+setvar gl		25.10+20251003 25.10+20251003
+setvar gu		25.10+20251003 25.10+20251003
+setvar he		25.10+20251003 25.10+20251003
+setvar hi		25.10+20251003 25.10+20251003
+setvar hr		25.10+20251003 25.10+20251003
 setvar ht		14.04+20150804 14.04+20150804
-setvar hu		25.10+20250915 25.10+20250915
+setvar hu		25.10+20251003 25.10+20251003
 setvar hy		14.04+20150804 14.04+20150804
 setvar ia		25.04+20250122 25.04+20250122
-setvar id		25.10+20250915 25.10+20250915
-setvar is		25.10+20250915 25.10+20250915
-setvar it		25.10+20250915 25.10+20250915
-setvar ja		25.10+20250915 25.10+20250915
-setvar ka		25.10+20250915 25.10+20250915
-setvar kab		25.10+20250915 25.10+20250915
-setvar kk		25.10+20250915 25.10+20250915
-setvar km		25.10+20250915 25.10+20250915
-setvar kn		25.10+20250915 25.10+20250915
-setvar ko		25.10+20250915 25.10+20250915
+setvar id		25.10+20251003 25.10+20251003
+setvar is		25.10+20251003 25.10+20251003
+setvar it		25.10+20251003 25.10+20251003
+setvar ja		25.10+20251003 25.10+20251003
+setvar ka		25.10+20251003 25.10+20251003
+setvar kab		25.10+20251003 25.10+20251003
+setvar kk		25.10+20251003 25.10+20251003
+setvar km		25.10+20251003 25.10+20251003
+setvar kn		25.10+20251003 25.10+20251003
+setvar ko		25.10+20251003 25.10+20251003
 setvar ks		14.04+20150804 14.04+20150804
 setvar ku		25.04+20250122 25.04+20250122
 setvar ky		14.04+20150804 14.04+20150804
 setvar lb		14.04+20150804 14.04+20150804
 setvar lo		14.04+20150804 14.04+20150804
-setvar lt		25.10+20250915 25.10+20250915
-setvar lv		25.10+20250915 25.10+20250915
+setvar lt		25.10+20251003 25.10+20251003
+setvar lv		25.10+20251003 25.10+20251003
 setvar mai		18.04+20180423 18.04+20180423
 setvar mi		14.04+20150804 14.04+20150804
 setvar mk		25.04+20250122 25.04+20250122
-setvar ml		25.10+20250915 25.10+20250915
+setvar ml		25.10+20251003 25.10+20251003
 setvar mn		16.04+20160214 16.04+20160214
-setvar mr		25.10+20250915 25.10+20250915
-setvar ms		25.10+20250915 25.10+20250915
+setvar mr		25.10+20251003 25.10+20251003
+setvar ms		25.10+20251003 25.10+20251003
 setvar mt		14.04+20150804 14.04+20150804
-setvar my		25.10+20250915 25.10+20250915
-setvar nb		25.10+20250915 25.10+20250915
-setvar ne		25.10+20250915 25.10+20250915
-setvar nl		25.10+20250915 25.10+20250915
-setvar nn		25.10+20250915 25.10+20250915
+setvar my		25.10+20251003 25.10+20251003
+setvar nb		25.10+20251003 25.10+20251003
+setvar ne		25.10+20251003 25.10+20251003
+setvar nl		25.10+20251003 25.10+20251003
+setvar nn		25.10+20251003 25.10+20251003
 setvar nso		14.04+20150804 14.04+20150804
-setvar oc		25.10+20250915 25.10+20250915
+setvar oc		25.10+20251003 25.10+20251003
 setvar om		14.04+20150804 14.04+20150804
-setvar or		25.10+20250915 25.10+20250915
-setvar pa		25.10+20250915 25.10+20250915
-setvar pl		25.10+20250915 25.10+20250915
+setvar or		25.10+20251003 25.10+20251003
+setvar pa		25.10+20251003 25.10+20251003
+setvar pl		25.10+20251003 25.10+20251003
 setvar ps		14.04+20150804 14.04+20150804
-setvar pt		25.10+20250915 25.10+20250915
-setvar pt-BR		25.10+20250915 25.10+20250915 pt
-setvar ro		25.10+20250915 25.10+20250915
-setvar ru		25.10+20250915 25.10+20250915
+setvar pt		25.10+20251003 25.10+20251003
+setvar pt-BR		25.10+20251003 25.10+20251003 pt
+setvar ro		25.10+20251003 25.10+20251003
+setvar ru		25.10+20251003 25.10+20251003
 setvar rw		14.04+20150804 14.04+20150804
 setvar sa		14.04+20150804 14.04+20150804
 setvar sc		14.04+20150804 14.04+20150804
 setvar sd		14.04+20150804 14.04+20150804
 setvar si		25.04+20250122 25.04+20250122
-setvar sk		25.10+20250915 25.10+20250915
-setvar sl		25.10+20250915 25.10+20250915
+setvar sk		25.10+20251003 25.10+20251003
+setvar sl		25.10+20251003 25.10+20251003
 setvar so		14.04+20150804 13.04+20130418
-setvar sq		25.10+20250915 25.10+20250915
-setvar sr		25.10+20250915 25.10+20250915
-setvar sr-Latn		25.10+20250915 25.10+20250915 sr
+setvar sq		25.10+20251003 25.10+20251003
+setvar sr		25.10+20251003 25.10+20251003
+setvar sr-Latn		25.10+20251003 25.10+20251003 sr
 setvar st		14.04+20150804 14.04+20150804
-setvar sv		25.10+20250915 25.10+20250915
+setvar sv		25.10+20251003 25.10+20251003
 setvar sw		14.04+20150804 14.04+20150804
 setvar szl		25.04+20250122 25.04+20250122
-setvar ta		25.10+20250915 25.10+20250915
-setvar te		25.10+20250915 25.10+20250915
+setvar ta		25.10+20251003 25.10+20251003
+setvar te		25.10+20251003 25.10+20251003
 setvar tg		25.04+20250122 25.04+20250122
-setvar th		25.10+20250915 25.10+20250915
+setvar th		25.10+20251003 25.10+20251003
 setvar ti		14.04+20150804 14.04+20150804
 setvar tk		14.04+20150804 14.04+20150804
 setvar tl		14.04+20150804 14.04+20150804
-setvar tr		25.10+20250915 25.10+20250915
+setvar tr		25.10+20251003 25.10+20251003
 setvar ts		14.04+20150804 14.04+20150804
 setvar tt		14.04+20150804 14.04+20150804
-setvar ug		25.10+20250915 25.10+20250915
-setvar uk		25.10+20250915 25.10+20250915
+setvar ug		25.10+20251003 25.10+20251003
+setvar uk		25.10+20251003 25.10+20251003
 setvar ur		14.04+20150804 14.04+20150804
 setvar uz		16.04+20160214 16.04+20160214
 setvar ve		14.04+20150804 14.04+20150804
-setvar vi		25.10+20250915 25.10+20250915
+setvar vi		25.10+20251003 25.10+20251003
 setvar xh		25.04+20250122 25.04+20250122
 setvar yi		14.04+20150804 14.04+20150804
 setvar yo		14.04+20150804 14.04+20150804
-setvar zh-CN		25.10+20250915 25.10+20250915 zh-hans
-setvar zh-TW		25.10+20250915 25.10+20250915 zh-hant
+setvar zh-CN		25.10+20251003 25.10+20251003 zh-hans
+setvar zh-TW		25.10+20251003 25.10+20251003 zh-hant
 setvar zu		14.04+20150804 14.04+20150804
 # Add a new line and launch 'gentoo-unity-ver -u' #
 #setvar [xy]		none none
@@ -458,13 +458,13 @@ src_install() {
 	)
 
 	local \
-		pofile msgid gcc_src gs_src ls_src x ylp_src \
+		pofile msgid x \
 		u_po="unity.po" \
 		ul_po="unity.legacy" \
 		ucc_po="unity-control-center.po" \
 		uccl_po="unity-control-center.legacy" \
 		gccl_po="gnome-control-center-2.0.legacy" \
-		gs_po="gnome-session-47.po" \
+		gs_po="gnome-session.po" \
 		gsl_po="gnome-session.legacy" \
 		ls_po="language-selector.po" \
 		is_po="indicator-session.po" \
@@ -473,7 +473,6 @@ src_install() {
 
 	# Remove all translations except those we need
 	find "${S}" -type f \
-		! -name 'gnome-session-*' \
 		! -name 'indicator-*' \
 		! -name ${ls_po} \
 		! -name 'libdbusmenu.po' \
@@ -494,10 +493,10 @@ src_install() {
 
 	process_msgids() {
 		local src pofile
-		
+
 		src="$1"; shift
 		pofile="$1"; shift
-		if [[ -e ${src} ]]; then
+		if [[ -e ${src} ]] && [[ -e ${pofile} ]]; then
 			for msgid in "$@"; do
 				if ! grep -Fq "^\(msgid\|msgctxt\)\s\"${msgid}\"$" "${pofile}"; then
 					msgid="$(awk "/^(msgid\s|msgctxt\s|)\"${msgid}\"\$/ { p = 1 } p { print } /^\$/ { p = 0 }" "${src}" 2>/dev/null)"
@@ -530,7 +529,8 @@ src_install() {
 	prepare_translations "unity-translations-kinetic" "${ul_po}"
 	prepare_translations "unity-control-center-translations-kinetic" "${uccl_po}"
 	prepare_translations "gnome-control-center-2.0-translations-jammy" "${gccl_po}"
-	prepare_translations "gnome-session-3.0-translations-xenial" "${gsl_po}"
+	prepare_translations "gnome-session-translations-questing" "${gs_po}"
+	prepare_translations "gnome-session-translations-xenial" "${gsl_po}"
 
 	_progress_counter=0
 	_progress_indicator() {
@@ -547,7 +547,9 @@ src_install() {
 	ls1_msgids+=("${sh_msgids[@]}" "${net_msgids[@]}" "${oa_msgids[@]}")
 
 	for pofile in $( \
-		find "${S}" -type f -name "*.po" \
+		find "${S}" -type f \
+			\( -name "*.po" \
+			-o -name "${gsl_po}" \) \
 			! -name "${ls_po}" \
 			! -name "${ylp_po}" \
 	); do
@@ -560,34 +562,42 @@ src_install() {
 
 			# Add translations for langselector, sharing panel, network panel and online-accounts desktop launcher
 			sed -i -e "/\"Sharing\"/,+1 d" "${pofile}" || die # remove old identical msgid
-			gcc_src=${pofile/${ucc_po}/${gccl_po}}
-			process_msgids "${gcc_src}" "${pofile}" "${ls1_msgids[@]}"
+			process_msgids "${pofile/${ucc_po}/${gccl_po}}" "${pofile}" "${ls1_msgids[@]}"
 
 			_progress_indicator
 
 			# Add translations for langselector panel
-			ls_src=${pofile/${ucc_po}/${ls_po}}
-			ls_src=${ls_src/gnome-}
-			process_msgids "${ls_src}" "${pofile}" "${ls2_msgids[@]}"
+			x=${pofile/${ucc_po}/${ls_po}}
+			x=${x/gnome-}
+			process_msgids "${x}" "${pofile}" "${ls2_msgids[@]}"
 		fi
 
 		# Add translations for gnome-session-properties
-		if [[ ${pofile##*/} == "gnome-session-"* ]]; then
+		if [[ ${pofile##*/} == ${gs_po} ]]; then
 			_progress_indicator
 
-			mv "${pofile}" "${pofile%/*}/${gs_po}" 2>/dev/null
-			pofile="${pofile%/*}/${gs_po}"
-			gs_src=${pofile/${gs_po}/${gsl_po}}
-			process_msgids "${gs_src}" "${pofile}" "${gs_msgids[@]}"
+			process_msgids "${pofile/${gs_po}/${gsl_po}}" "${pofile}" "${gs_msgids[@]}"
+			[[ -e ${pofile} ]] || continue
+		fi
+		if [[ ${pofile##*/} == ${gsl_po} ]]; then
+			_progress_indicator
+
+			process_msgids "${pofile}" "${pofile/${gsl_po}/${gs_po}}" "${gs_msgids[@]}"
+			if [[ -e ${pofile} ]]; then
+				mv "${pofile}" "${pofile/${gsl_po}/${gs_po}}"
+				pofile="${pofile/${gsl_po}/${gs_po}}"
+			else
+				continue
+			fi
 		fi
 
 		# Add translations for Unity help desktop launcher
-		ylp_src=${pofile/${is_po}/${ylp_po}}
-		if [[ ${pofile##*/} == ${is_po} ]] && [[ -e ${ylp_src} ]]; then
+		x=${pofile/${is_po}/${ylp_po}}
+		if [[ ${pofile##*/} == ${is_po} ]] && [[ -e ${x} ]]; then
 			_progress_indicator
 
-			sed -i -e "s/GNOME/Unity/g" "${ylp_src}" || die
-			process_msgids "${ylp_src}" "${pofile}" "${is_msgids[@]}"
+			sed -i -e "s/GNOME/Unity/g" "${x}" || die
+			process_msgids "${x}" "${pofile}" "${is_msgids[@]}"
 		fi
 
 		# Process translations for Unity
@@ -605,6 +615,13 @@ src_install() {
 		msgfmt -o "${pofile%.po}.mo" "${pofile}"
 		rm "${pofile}" 2>/dev/null
 	done
+
+	# Clean up the leftovers
+	find "${S}" -type f \
+		\( -name "*.po" \
+		-o -name "*.legacy" \) \
+			-delete || die
+	find "${S}" -mindepth 1 -type d -empty -delete || die
 
 	insinto /usr/share/locale
 	doins -r "${S}"/language-pack-*-base/data/*

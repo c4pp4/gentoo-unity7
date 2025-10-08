@@ -1,7 +1,7 @@
 ehooks() {
 	local \
 		blake=ea205cbf17e9c3c9a7c191642b1c563b9c803aea05178b44913472c1210abc75f781e823708f59adeb1b6e66bf400627e94152c665248c782433b63488465690 \
-		uver=gnome-session_47.0.1-2ubuntu3 # unity-language-pack gnome-session-47
+		uver=gnome-session_47.0.1-2ubuntu3
 
 	source "${EHOOKS_ROOT}"/templates/fetch_debian.template
 	fetch_debian "${blake}" "${uver}"
