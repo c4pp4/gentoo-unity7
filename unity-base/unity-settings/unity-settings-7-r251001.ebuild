@@ -97,7 +97,7 @@ src_install() {
 		>> "${ED}${gschema_dir}/${gschema}"
 
 
-	# Add language-selector-0.227 fontconfig #
+	# Add language-selector-0.228 fontconfig #
 	if use fontconfig; then
 		insinto /etc/fonts/conf.avail
 		doins -r "${FILESDIR}"/language-selector/*

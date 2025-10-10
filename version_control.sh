@@ -1,7 +1,7 @@
 #!/bin/bash
 
-stable="plucky"
-dev="questing"
+stable="questing"
+dev="resolute"
 repos=(
 	main
 	universe

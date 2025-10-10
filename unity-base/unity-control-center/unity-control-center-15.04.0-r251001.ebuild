@@ -15,7 +15,7 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="+accessibility +bluetooth +colord +cups +gnome-online-accounts +input_devices_wacom +kerberos +networkmanager +v4l wayland +webkit"
 RESTRICT="test"
 

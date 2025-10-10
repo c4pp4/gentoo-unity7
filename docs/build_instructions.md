@@ -1,6 +1,6 @@
 # Build instructions
 
-1. **Use** [stage3-amd64-systemd⬀][s3] tarball or **switch to** [systemd⬀][sysd] init system.
+1. **Use** the [stage3-amd64-systemd⬀][s3] tarball for a new installation, or **switch to** the [systemd⬀][sysd] init system on an existing installation.
 
    WARNING: If you are using [Gentoo binhost⬀][gbph], add the EMERGE_DEFAULT_OPTS portage variable with the `--usepkg-exclude` option into the `/etc/portage/make.conf` configuration file, use [our setting][edo], see more in the [wiki guide⬀][pkge].
 
