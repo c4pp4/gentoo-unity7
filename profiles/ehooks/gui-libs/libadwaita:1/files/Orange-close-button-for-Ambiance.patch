@@ -19,9 +19,9 @@ index 71f6915..bbe1e90 100644
 --- a/src/adw-style-manager.c
 +++ b/src/adw-style-manager.c
 @@ -56,6 +56,7 @@ struct _AdwStyleManager
-   GtkCssProvider *provider;
    GtkCssProvider *colors_provider;
    GtkCssProvider *accent_provider;
+   GtkCssProvider *fonts_provider;
 +  GtkCssProvider *ambiance_provider;
  
    AdwColorScheme color_scheme;
@@ -77,12 +77,12 @@ index 71f6915..bbe1e90 100644
  
      self->animations_provider = gtk_css_provider_new ();
 @@ -376,6 +406,7 @@ adw_style_manager_dispose (GObject *object)
-   g_clear_object (&self->colors_provider);
    g_clear_object (&self->animations_provider);
    g_clear_object (&self->accent_provider);
+   g_clear_object (&self->fonts_provider);
 +  g_clear_object (&self->ambiance_provider);
- 
-   G_OBJECT_CLASS (adw_style_manager_parent_class)->dispose (object);
+   g_clear_pointer (&self->document_font_name, g_free);
+   g_clear_pointer (&self->monospace_font_name, g_free);
  }
 diff --git a/src/stylesheet/_tweaks-ambiance.scss b/src/stylesheet/_tweaks-ambiance.scss
 new file mode 100644
@@ -141,21 +141,21 @@ index 7335851..a0d0dc8 100644
 --- a/src/stylesheet/meson.build
 +++ b/src/stylesheet/meson.build
 @@ -21,6 +21,7 @@ if not fs.exists('base.css')
-       '_drawing.scss',
-       '_palette.scss',
-       '_widgets.scss',
-+      '_tweaks-ambiance.scss',
+     '_drawing.scss',
+     '_palette.scss',
+     '_widgets.scss',
++    '_tweaks-ambiance.scss',
  
-       'widgets/_avatar.scss',
-       'widgets/_bottom-sheet.scss',
+     'widgets/_avatar.scss',
+     'widgets/_bottom-sheet.scss',
 @@ -72,6 +73,7 @@ if not fs.exists('base.css')
-       'base-hc',
-       'defaults-light',
-       'defaults-dark',
-+      'ambiance',
-     ]
+     'base-hc',
+     'defaults-light',
+     'defaults-dark',
++    'ambiance',
+   ]
  
-     foreach scss: scss_files
+   if build_yaru_accent_colors
 -- 
 2.49.1
 

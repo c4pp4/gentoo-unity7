@@ -1,7 +1,7 @@
 ehooks() {
 	local \
-		blake=9895987be9ef67d4ef72dc82944595177f2352b3464e65c4152c80a333374ce4cdfd6e1b9cee5e2899e7a4e4e546ece2e3ac4659c3f918f23d01dcda45c48414 \
-		uver=libadwaita-1_1.6.2-1ubuntu1
+		blake=e59a5be21085ba9c6d898e07ee01623ccd05877d5f87e4fbd6cc51e83f07ce63b2f5bfc158a17b012033dc166645346243e6dfab630f5ff4121842cee069177c \
+		uver=libadwaita-1_1.8~alpha-0ubuntu1 
 
 	source "${EHOOKS_ROOT}"/templates/fetch_debian.template
 	fetch_debian "${blake}" "${uver}"

@@ -19,9 +19,9 @@ index 18f2d8e..c55c1f4 100644
 -  if (!same_bus)
 +  const char *menu_proxy = g_getenv ("UBUNTU_MENUPROXY");
 +  if (!same_bus || (menu_proxy && g_strcmp0 (menu_proxy, "0") == 0))
-     g_object_set (gtk_settings_get_default (),
-                   "gtk-shell-shows-app-menu", FALSE,
-                   "gtk-shell-shows-menubar", FALSE,
+     {
+       g_object_set (gtk_settings_get_default (),
+                     "gtk-shell-shows-app-menu", FALSE,
 -- 
 2.49.1
 

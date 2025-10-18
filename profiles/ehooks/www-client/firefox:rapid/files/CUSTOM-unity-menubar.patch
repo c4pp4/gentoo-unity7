@@ -1,6 +1,6 @@
 From 66d1f805bed2bcd069cf99b0cf6df707b691aa55 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Thu, 21 Aug 2025 06:46:45 +0200
+Date: Sat, 18 Oct 2025 22:05:52 +0200
 Subject: [PATCH 1/1] Custom Unity menubar
 
 Original patch taken from firefox bionic (113.0.2+build1-0ubuntu0.18.04.1).
@@ -1215,7 +1215,7 @@ index 0000000000..255eb390e5
 +                                                             this,
 +                                                             100,
 +                                                             nsITimer::TYPE_ONE_SHOT,
-+                                                             "nsMenu::DoOpenCallback"))) {
++                                                             "nsMenu::DoOpenCallback"_ns))) {
 +        mOpenDelayTimer = nullptr;
 +    }
 +}
@@ -4206,7 +4206,7 @@ index 0000000000..3a361743d5
 +nsNativeMenuDocListener::AttributeChanged(mozilla::dom::Element *aElement,
 +                                          int32_t aNameSpaceID,
 +                                          nsAtom *aAttribute,
-+                                          int32_t aModType,
++                                          AttrModType aModType,
 +                                          const nsAttrValue* aOldValue)
 +{
 +    if (sUpdateBlockersCount == 0) {

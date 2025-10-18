@@ -77,7 +77,6 @@ RDEPEND="${COMMON_DEPEND}
 		app-admin/system-config-printer
 		net-print/cups-pk-helper
 	)
-	wayland? ( >=dev-libs/wayland-1.0.2 )
 "
 DEPEND="${COMMON_DEPEND}
 	>=dev-libs/dbus-glib-0.32
