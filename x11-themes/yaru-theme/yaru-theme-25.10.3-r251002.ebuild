@@ -93,3 +93,14 @@ src_configure() {
 	)
 	meson_src_configure
 }
+
+pkg_preinst() {
+	## Remove obsolete symlink from x11-themes/ubuntu-themes ##
+	local sl="${EROOT}"/usr/share/themes/Ambiance/gtk-4.0
+	if [[ -L ${sl} ]]; then
+		einfo "Removing obsolete symlink ${sl#${EROOT}}"
+		rm "${sl}" || die
+	fi
+
+	xdg_pkg_preinst
+}

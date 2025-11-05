@@ -18,3 +18,9 @@ decoration {
 .csd.popup decoration {
     box-shadow: none;
 }
+
+/* u-c-c background */
+window box notebook scrolledwindow viewport box frame box iconview,
+window box notebook scrolledwindow viewport box frame box iconview:backdrop {
+    background-color: rgba(0, 0, 0, 0);
+}

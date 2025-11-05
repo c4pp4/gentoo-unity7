@@ -1,14 +1,15 @@
-From a1eaddd4d5e858986e931c5aaeec901c4de025f9 Mon Sep 17 00:00:00 2001
+From a7c4a3ca5cfb42ee9ce0b909c27926bccace35c6 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Thu, 24 Jul 2025 03:19:06 +0200
+Date: Tue, 28 Oct 2025 15:11:14 +0100
 Subject: [PATCH 1/1] Create Ambiance GTK4 theme (the rest code is in ebuild)
 
 Signed-off-by: c4pp4
 ---
- common/meson.build  | 1 +
- gtk/src/meson.build | 3 +++
- meson_options.txt   | 1 +
- 3 files changed, 5 insertions(+)
+ common/meson.build      |  1 +
+ gtk/src/meson.build     | 29 +++++++++++++++++++----------
+ gtk/src/post_install.py |  2 ++
+ meson_options.txt       |  1 +
+ 4 files changed, 23 insertions(+), 10 deletions(-)
 
 diff --git a/common/meson.build b/common/meson.build
 index cce24a8..f7f812a 100644
@@ -23,10 +24,46 @@ index cce24a8..f7f812a 100644
  
  foreach flavour: available_flavours
 diff --git a/gtk/src/meson.build b/gtk/src/meson.build
-index 2b59866..f4936c6 100644
+index 2b59866..95ea95a 100644
 --- a/gtk/src/meson.build
 +++ b/gtk/src/meson.build
-@@ -67,6 +67,9 @@ foreach flavour: yaru_flavours
+@@ -12,8 +12,12 @@ gtk_yaru_colors_defs = {}
+ 
+ foreach flavour: yaru_flavours
+   message('Configuring flavour ' + flavour)
+-  suffix = flavour == 'default' ? '' : '-@0@'.format(flavour)
+-  theme_name = meson.project_name() + suffix
++  if flavour == 'unity-ambiance'
++    theme_name = 'Ambiance'
++  else
++    suffix = flavour == 'default' ? '' : '-@0@'.format(flavour)
++    theme_name = meson.project_name() + suffix
++  endif
+   is_dark = flavour == 'dark' or flavour.endswith('-dark')
+   base_theme_name = is_dark ? flavour.split('-dark')[0] : flavour
+   is_accent = enabled_accent_colors.contains(base_theme_name)
+@@ -56,17 +60,22 @@ foreach flavour: yaru_flavours
+   conf_data.set('AccentName', is_accent ? base_theme_name : 'default')
+   conf_data.set('AccentColor', is_accent ? accent_color_code : '')
+   conf_data.set('AccentColorOptimized', is_accent ? accent_color_optimized_code : '')
+-  install_data(
+-    configure_file(input: 'index.theme.in',
+-      output: '@0@-index.theme'.format(theme_name),
+-      configuration: conf_data,
+-    ),
+-    install_dir: theme_dir,
+-    rename: 'index.theme',
+-  )
++  if flavour != 'unity-ambiance'
++    install_data(
++      configure_file(input: 'index.theme.in',
++        output: '@0@-index.theme'.format(theme_name),
++        configuration: conf_data,
++      ),
++      install_dir: theme_dir,
++      rename: 'index.theme',
++    )
++  endif
  
    # build and install gtk data
    foreach gtk_ver: gtk_versions
@@ -36,6 +73,19 @@ index 2b59866..f4936c6 100644
      gtk_dir = 'gtk-@0@'.format(gtk_ver)
      base_path = (flavour.startswith('mate') ? base_theme_name : 'default') / gtk_dir
      dark_path = is_dark ? 'dark' : base_path
+diff --git a/gtk/src/post_install.py b/gtk/src/post_install.py
+index e5a6686..9a7da77 100755
+--- a/gtk/src/post_install.py
++++ b/gtk/src/post_install.py
+@@ -16,6 +16,8 @@ themes_dir = path.join(PREFIX, data_dir, 'themes')
+ for f in flavours:
+     if f == 'default':
+         flavour_name = project_name
++    elif f == 'unity-ambiance':
++        flavour_name = 'Ambiance'
+     else:
+         flavour_name = "{project}-{flavour}".format(project=project_name, flavour=f)
+ 
 diff --git a/meson_options.txt b/meson_options.txt
 index f149600..0ae3279 100644
 --- a/meson_options.txt
@@ -49,5 +99,5 @@ index f149600..0ae3279 100644
  option('cinnamon', type: 'boolean', value: false, description:'build Yaru with Cinnamon flavour')
  option('cinnamon-dark', type: 'boolean', value: false, description:'build Yaru with Cinnamon dark flavour')
 -- 
-2.49.1
+2.51.0
 
