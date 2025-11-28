@@ -6,7 +6,7 @@
 
    - see the [code][code]
 
-- Overlay's ehooks are located in the [gentoo-unity7/profiles/ehooks][ehooks] directory.
+- Overlay's ehooks are located in the [gentoo-unity7/ehooks][ehooks] directory.
 
 - **Changes** are managed via the **unity-base/gentoo-unity-env** package. The package looks for ehooks changes, generates the emerge command that needs to be applied, and displays it as a warning message in the pkg_postinst phase.
 
@@ -91,7 +91,7 @@
 
   - it's possible to use any [ebuild function⬀][efn]
 
-  - **templates** are in [gentoo-unity7/profiles/ehooks/templates][templates] directory
+  - **templates** are in [gentoo-unity7/ehooks/templates][templates] directory
 
 	 the preferred way of using templates are **symbolic links**:
 
@@ -136,7 +136,7 @@
    - e.g. `EHOOKS_PATH="/home/ehooks"`
    - own directory **overrides** overlay's directory of the same name
    - own empty directory **disables** overlay's directory of the same name
-   - e.g. **/home/ehooks/app-arch/file-roller** overrides or disables **gentoo-unity7/profiles/ehooks/app-arch/file-roller**
+   - e.g. **/home/ehooks/app-arch/file-roller** overrides or disables **gentoo-unity7/ehooks/app-arch/file-roller**
 
 - **Generic ehooks:**
   - it's possible to use ehooks to be applied to every package
@@ -176,11 +176,11 @@
 [cenv]: ../profiles/gentoo-unity7.conf.env
 [code]: ../profiles/amd64/23.0/desktop/unity/profile.bashrc
 [efn]: https://devmanual.gentoo.org/function-reference/index.html
-[ehooks]: ../profiles/ehooks
+[ehooks]: ../ehooks
 [env]: ../profiles/gentoo-unity7.env
-[fconf]: ../profiles/ehooks/media-libs/fontconfig:1.0/01-pre_pkg_preinst.ehooks
-[gnome-session]: ../profiles/ehooks/gnome-base/gnome-session
-[libreoffice]: ../profiles/ehooks/app-office/libreoffice/03-pre_pkg_preinst.ehooks
-[templates]: ../profiles/ehooks/templates
+[fconf]: ../ehooks/media-libs/fontconfig:1.0/01-pre_pkg_preinst.ehooks
+[gnome-session]: ../ehooks/gnome-base/gnome-session
+[libreoffice]: ../ehooks/app-office/libreoffice/03-pre_pkg_preinst.ehooks
+[templates]: ../ehooks/templates
 [uflags]: ../unity-base/gentoo-unity-env/metadata.xml
 [warch]: https://web.archive.org/web/20191226202345/https://wiki.gentoo.org/wiki//etc/portage/patches#Enabling_.2Fetc.2Fportage.2Fpatches_for_all_ebuilds

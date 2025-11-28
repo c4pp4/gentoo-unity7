@@ -12,7 +12,7 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 	## Look for ehooks in setup phase.
 	local \
 		pkg \
-		basedir="${REPO_ROOT}"/profiles/ehooks
+		basedir="${REPO_ROOT}"/ehooks
 
 	EHOOKS_SOURCE=()
 

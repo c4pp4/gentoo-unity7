@@ -67,7 +67,7 @@ eerror() {
 get_subdirs() {
 	local prev_shopt=$(shopt -p nullglob)
 	shopt -s nullglob
-	local -a result=( "$1"profiles/ehooks/$2 )
+	local -a result=( "$1"ehooks/$2 )
 	${prev_shopt}
 
 	echo "${result[@]}"
@@ -216,9 +216,9 @@ find_tree_changes() {
 ehooks_changes() {
 	local -a result
 
-	if [[ -n $1 ]] && ( [[ ! -w $(get_repo_root)/profiles/ehooks ]] || [[ ! -w /etc/gentoo-unity7/timestamps ]] ); then
+	if [[ -n $1 ]] && ( [[ ! -w $(get_repo_root)/ehooks ]] || [[ ! -w /etc/gentoo-unity7/timestamps ]] ); then
 		## Get ownership when write permission denied.
-		result=( $(stat -c '%U:%G' $(get_repo_root)/profiles/ehooks) $(stat -c '%U:%G' /etc/gentoo-unity7/timestamps) )
+		result=( $(stat -c '%U:%G' $(get_repo_root)/ehooks) $(stat -c '%U:%G' /etc/gentoo-unity7/timestamps) )
 		# Remove duplicates.
 		result=( $(printf "%s\n" "${result[@]}" | sort -u) )
 		echo
@@ -309,7 +309,7 @@ portage_updates() {
 		done
 		if [[ -s /tmp/${tmp_ak} ]]; then
 			update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "|~amd64$" | tail -1 | sed "s/|.*$//")
-			touch /tmp/"${tmp_ak}"
+			> /tmp/"${tmp_ak}"
 		else
 			update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "|amd64$" | tail -1 | sed "s/|.*$//")
 		fi

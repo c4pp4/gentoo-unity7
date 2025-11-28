@@ -1,8 +1,0 @@
-ehooks() {
-	local \
-		blake=3878525cd3c05f2b9f43918299eb01d6fefaba993821cab32aca8348a5908a90e63eab9f1ce590e41566a54ec8756dbc4ee7bc9c4b22efd75fe5931fdf9e8b69 \
-		uver=gtk+3.0_3.24.49-3ubuntu1
-
-	source "${EHOOKS_ROOT}"/templates/fetch_debian.template
-	fetch_debian "${blake}" "${uver}"
-}

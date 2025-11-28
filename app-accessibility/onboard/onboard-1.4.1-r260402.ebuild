@@ -8,7 +8,7 @@ DISTUTILS_USE_PEP517=setuptools
 PYTHON_COMPAT=( python3_{10..14} )
 
 UVER=
-UREV=10.1
+UREV=11
 
 inherit gnome2 distutils-r1 ubuntu-versionator
 
@@ -51,10 +51,7 @@ RDEPEND="${COMMON_DEPEND}
 	>=x11-libs/libXi-1.2.99.4
 	>=x11-libs/pango-1.29.3[introspection]
 
-	accessibility? (
-		>=app-accessibility/at-spi2-core-2.46.0:2
-		gnome-extra/mousetweaks
-	)
+	accessibility? ( >=app-accessibility/at-spi2-core-2.46.0:2 )
 "
 DEPEND="${COMMON_DEPEND}
 	wayland? ( dev-libs/wayland )

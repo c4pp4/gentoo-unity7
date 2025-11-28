@@ -23,9 +23,9 @@ A Gentoo overlay to build the Unity7 user interface.
 [acck]: profiles/gentoo-unity7.accept_keywords
 [addp]: docs/additional_packages.md
 [build]: docs/build_instructions.md
-[fesr]: profiles/ehooks/www-client/firefox:esr/files
+[fesr]: ehooks/www-client/firefox:esr/files
 [fork]: https://github.com/shiznix/unity-gentoo
-[ftlr]: profiles/ehooks/www-client/firefox:rapid/files
+[ftlr]: ehooks/www-client/firefox:rapid/files
 [preview_image]: https://github.com/c4pp4/gentoo-unity7/blob/master/docs/assets/preview.png "Preview of Gentoo Unity⁷ Desktop"
 [preview_image_url]: https://raw.githubusercontent.com/c4pp4/gentoo-unity7/master/docs/assets/preview.png
 [tg]: https://t.me/gentoo_unity7

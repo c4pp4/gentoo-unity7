@@ -19,7 +19,7 @@
 * Development Ubuntu release versions of ebuilds are always masked by ~arch package.keywords
 * Any ebuild that installs *.desktop file(s) AND specifies pkg_postinst(), must specify ubuntu-versionator_pkg_postinst
     within pkg_postinst() {...} so that /usr/share/applications/bamf-2.index remains up-to-date
-* Custom patches for packages that we only wish to patch and not maintain are placed in the profiles/ehooks directory
+* Custom patches for packages that we only wish to patch and not maintain are placed in the ehooks directory
     see docs/ehooks.md
 * When creating or bumping ebuilds that are also maintained within the main portage tree,
     try to keep them as identical to the portage tree ebuilds as possible

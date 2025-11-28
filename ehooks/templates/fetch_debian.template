@@ -6,7 +6,7 @@ fetch_debian() {
 
 	pushd "${S}" >/dev/null || die
 		ebegin "Downloading ${color_bold}${archive}${color_norm}"
-			wget "https://launchpad.net/ubuntu/+archive/primary/+files/${archive}" -O "${archive}" -o ${wlog}
+			wget --secure-protocol=TLSv1_3 "https://launchpad.net/ubuntu/+archive/primary/+files/${archive}" -O "${archive}" -o ${wlog}
 		eend $?
 		grep -iqs "failed\|error" ${wlog} && cat ${wlog} >> ${log}
 		[[ -s ${archive} ]] || die "ehooks: archive not fetched"

@@ -31,5 +31,5 @@
   ```
 
 [//]: # (LINKS)
-[eh]: ../profiles/ehooks/templates/fetch_debian.template#L9
+[eh]: ../ehooks/templates/fetch_debian.template#L9
 [ec]: ../eclass/ubuntu-versionator.eclass#L34

@@ -76,6 +76,12 @@ src_prepare() {
 		cmake_comment_add_subdirectory tests
 	fi
 
+	# Fix build with CMake 4 #
+	sed -i "/cmake_minimum_required/{s/2\.8\.9/3.10/}" CMakeLists.txt || die
+
+	# Error: ‘uint32_t’ was not declared in this scope #
+	sed -i '/#include <vector>/a #include <cstdint>' src/haptic.cpp || die
+
 	# Fix schema errors and sandbox violations #
 	sed -i \
 		-e 's:SEND_ERROR:WARNING:g' \
@@ -92,6 +98,7 @@ src_prepare() {
 src_configure() {
 	local mycmakeargs=(
 		-DCMAKE_INSTALL_FULL_LOCALEDIR=/usr/share/locale
+		-DCMAKE_POLICY_VERSION_MINIMUM=3.10
 		-DWITH_EDS="$(usex eds)"
 		-Wno-dev
 	)

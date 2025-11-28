@@ -54,7 +54,7 @@ src_install() {
 		## Get ehooks containing USE flag.
 		prev_shopt=$(shopt -p nullglob)
 		shopt -s nullglob
-		ehk=( $(grep -El "ehooks_(use|require) ${x}" "${REPO_ROOT}"/profiles/ehooks/*/*/*.ehooks) )
+		ehk=( $(grep -El "ehooks_(use|require) ${x}" "${REPO_ROOT}"/ehooks/*/*/*.ehooks) )
 		${prev_shopt}
 
 		for m in "${ehk[@]}"; do

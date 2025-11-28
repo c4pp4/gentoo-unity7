@@ -51,6 +51,9 @@ src_prepare() {
 	# GNOME_COMMON_INIT: command not found #
 	sed -i "/GNOME_COMMON_INIT/d" configure.in || die
 
+	# Disable tests #
+	sed -i "/SUBDIRS/{s/ tests//}" Makefile.am || die
+
 	# Fix icons dir and don't include README #
 	sed -i \
 		-e "s/pkgdatadir/datadir/" \

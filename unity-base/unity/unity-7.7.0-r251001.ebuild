@@ -159,6 +159,7 @@ src_prepare() {
 		sed -i '/#include "Indicator.h"/a #include <algorithm>' UnityCore/AppmenuIndicator.h || die
 		sed -i '/#include "Scopes.h"/a #include <algorithm>' UnityCore/GSettingsScopes.h || die
 		sed -i '/#include "Scope.h"/a #include <algorithm>' UnityCore/Scopes.h || die
+		sed -i '/#include <memory>/a #include <cstdint>' UnityCore/{ActionHandle,GLibDBusNameWatcher,GLibSignal,GLibSource,IndicatorEntry}.h || die
 	fi
 
 	# see https://launchpad.net/bugs/974480 #
