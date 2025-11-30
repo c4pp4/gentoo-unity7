@@ -112,6 +112,7 @@ Icon=thunderbird
 Categories=Application;Network;Email;
 MimeType=x-scheme-handler/mailto;application/x-xpinstall;x-scheme-handler/webcal;x-scheme-handler/mid;message/rfc822;
 StartupNotify=true
+StartupWMClass=thunderbird
 Actions=Compose;Contacts
 
 [Desktop Action Compose]

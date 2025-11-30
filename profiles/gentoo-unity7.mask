@@ -19,7 +19,8 @@
 >gui-libs/gtk-4.18.6-r1:4
 >gui-libs/libadwaita-1.7.7-r1:1
 >gui-libs/libhandy-1.8.3:1
->mail-client/thunderbird-141
+>mail-client/thunderbird-141:0/esr
+>mail-client/thunderbird-146:0/stable
 >mate-extra/mate-system-monitor-1.28.1-r1
 >mate-extra/mate-utils-1.28.0-r1
 >media-gfx/eog-47.0:1
@@ -31,8 +32,8 @@
 >net-p2p/transmission-4.0.6-r6
 >sys-apps/accountsservice-23.13.9
 >sys-devel/gcc-16
->www-client/firefox-146:rapid
 >www-client/firefox-141:esr
+>www-client/firefox-146:rapid
 >x11-libs/gtk+-2.24.33-r3:2
 >x11-libs/gtk+-3.24.51:3
 >x11-libs/vte-0.80.4:2.91

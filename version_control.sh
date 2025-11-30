@@ -30,6 +30,8 @@ remove=(
 ## Temporarily accept keywords from testing branch.
 akwords=(
 	app-backup/deja-dup
+	mail-client/thunderbird:0/esr
+	mail-client/thunderbird:0/stable
 	www-client/firefox:esr
 	www-client/firefox:rapid
 )
@@ -307,12 +309,13 @@ portage_updates() {
 			[[ -n ${slot} ]] && slot=":${slot}"
 			[[ ${line} == ">"${x%${slot}}*${slot} ]] && echo "${x}" > /tmp/"${tmp_ak}"
 		done
+		update=""
 		if [[ -s /tmp/${tmp_ak} ]]; then
 			update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "|~amd64$" | tail -1 | sed "s/|.*$//")
 			> /tmp/"${tmp_ak}"
-		else
-			update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "|amd64$" | tail -1 | sed "s/|.*$//")
 		fi
+		[[ -z ${update} ]] && \
+			update=$(equery -q l -p -F '$cpv|$mask2' "${line}" | grep "|amd64$" | tail -1 | sed "s/|.*$//")
 		[[ -n ${update} ]] && updates+=( "${line}|${update}" )
 	done < "${pmask}"
 } 2>/dev/null
