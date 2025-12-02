@@ -24,7 +24,7 @@ DEPEND="
 "
 PDEPEND="unity-base/unity"
 
-S="${WORKDIR}/${PN}-1.3"
+S="${S}${UVER}"
 
 src_configure() {
 	./build.sh

@@ -17,6 +17,8 @@ KEYWORDS="~amd64"
 SLOT="0"
 RESTRICT="binchecks strip test"
 
+S="${S}${UVER}"
+
 src_install() {
 	default
 
