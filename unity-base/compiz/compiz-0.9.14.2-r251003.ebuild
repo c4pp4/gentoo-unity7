@@ -165,6 +165,11 @@ src_install() {
 
 	doman debian/{ccsm,compiz,gtk-window-decorator}.1
 
+	dosym -r /usr/share/gnome-control-center/keybindings/50-compiz-navigation.xml \
+		/usr/share/unity-control-center/keybindings/50-compiz-navigation.xml
+	dosym -r /usr/share/gnome-control-center/keybindings/50-compiz-windows.xml \
+		/usr/share/unity-control-center/keybindings/50-compiz-windows.xml
+
 	use mate && dosym -r /usr/share/applications/compiz.desktop \
 		/usr/share/mate/wm-properties/compiz.desktop
 }
