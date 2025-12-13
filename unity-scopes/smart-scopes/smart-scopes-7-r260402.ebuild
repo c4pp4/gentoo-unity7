@@ -51,7 +51,7 @@ setvar gallica			0.1+13.10.20130816.2	0ubuntu1 + "$(python_gen_cond_dep 'dev-pyt
 #setvar gdrive			0.9+13.10.20130723	0ubuntu1 - ""									## doesn't work (account-plugins package not available)
 setvar github			0.1+13.10.20130723	0ubuntu1 + ""									## works
 setvar gmusicbrowser		0.1+13.10.20130723	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/dbus-python[${PYTHON_USEDEP}]')"	## not tested
-setvar gnote			0.1+13.10.20130723	0ubuntu3 - ""									## not tested
+setvar gnote			0.1+13.10.20130723	0ubuntu4 - ""									## not tested
 #setvar googlenews		0.1+13.10.20130723	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/feedparser[${PYTHON_USEDEP}]')"	## doesn't work
 #setvar gourmet			0.1+13.10.20130723	0ubuntu1 - ""									## doesn't work (gourmet package not available)
 setvar guayadeque		0.1+13.10.20130927.1	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/dbus-python[${PYTHON_USEDEP}]')"	## not tested
