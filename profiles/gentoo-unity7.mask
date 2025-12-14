@@ -20,7 +20,7 @@
 >gui-libs/libadwaita-1.7.7-r1:1
 >gui-libs/libhandy-1.8.3:1
 >mail-client/thunderbird-141:0/esr
->mail-client/thunderbird-146:0/stable
+>mail-client/thunderbird-147:0/stable
 >mate-extra/mate-system-monitor-1.28.1-r1
 >mate-extra/mate-utils-1.28.0-r1
 >media-gfx/eog-47.0:1
