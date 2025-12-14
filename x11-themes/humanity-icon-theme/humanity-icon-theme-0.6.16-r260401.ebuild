@@ -34,6 +34,8 @@ DEPEND="
 	)
 "
 
+S="${S}${UVER}"
+
 src_configure() { :; }
 
 src_install() {

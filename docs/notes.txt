@@ -1,188 +1,188 @@
 ========================================================================
 * Reasons for patching/maintaining packages:
 ========================================================================
-dev-python/python-zombie-imp		# Copy of the 'imp' module that was removed in Python 3.12
-media-fonts/fonts-noto-cjk		# Repacked version with reduced size
-media-fonts/fonts-ubuntu		# Newer version of Ubuntu fonts
-media-libs/glewmx			# Needed by unity-base/nux, MX discontinued as of GLEW v2.0.0
-x11-misc/notify-osd::gentoo		# The latest version in the Gentoo tree is 0.9.34 (2012-03-23)
-x11-themes/notify-osd-icons::gentoo	# The latest version in the Gentoo tree is 0.7 (2010-11-15)
-x11-themes/ubuntu-wallpapers::gentoo	# Version in the Gentoo tree doesn't control download size via USE flags
+dev-python/python-zombie-imp            # Copy of the 'imp' module that was removed in Python 3.12
+media-fonts/fonts-noto-cjk              # Repacked version with reduced size
+media-fonts/fonts-ubuntu                # Newer version of Ubuntu fonts
+media-libs/glewmx                       # Needed by unity-base/nux, MX discontinued as of GLEW v2.0.0
+x11-misc/notify-osd::gentoo             # The latest version in the Gentoo tree is 0.9.34 (2012-03-23)
+x11-themes/notify-osd-icons::gentoo     # The latest version in the Gentoo tree is 0.7 (2010-11-15)
+x11-themes/ubuntu-wallpapers::gentoo    # Version in the Gentoo tree doesn't control download size via USE flags
 
 ========================================================================
 * Reasons for maintaining ehooks:
 ========================================================================
-app-accessibility/at-spi2-core:2	# Start 'accessibility bus' by default (https://wiki.debian.org/accessibility-devel)
-app-admin/system-config-printer		# Fix Unity Control Center icon and About dialog icon
-app-backup/deja-dup			# Make Deja Dup appear in unity-control-center
-app-i18n/ibus				# Patched for indicator-keyboard support
-app-text/evince				# Add traditional menu bar (https://bugzilla.gnome.org/show_bug.cgi?id=736419), add menu translations
-dev-cpp/gtest				# Install /usr/src/{gmock,gtest}/* source files lacking from main tree ebuild
-dev-libs/glib:2				# Patched to call gettext if .desktop file does not have inline translations, don't try DBusActivatable when in Unity user interface and fallback on Exec=
-games-board/iagno			# Disable headerbar quit button when not in GNOME
-games-puzzle/gnome-taquin		# Disable headerbar quit button when not in GNOME
-gnome-base/dconf-editor			# Disable headerbar quit button when not in GNOME
-gnome-base/gnome-desktop:3		# Adjust background color detection for Unity (04_compute_average_color.patch, tweak_color_computation.patch)
-gnome-base/gnome-menus:3		# Needed for some menu patches
-					#  Ubuntu patchset:
-					#  04_fix-other.patch
-					#  08_settings-menus.patch
-					#  09_games-menu.patch
-					#  11_science-menu.patch
-					#  translate-Debian-directories.patch
-					#  80_file_monitor_delayed.patch
-					#  ubuntu_gcc_translations.patch
-gnome-base/gnome-session		# Installs session files for launching Unity7 user interface
-					#  Ubuntu patchset:
-					#  debian/Revert-main-Remove-GNOME_DESKTOP_SESSION_ID-envvar.patch
-					#  ubuntu/support_autostart_delay.patch
-					#  ubuntu/ubuntu-sessions.patch
-					#  ubuntu/remove_session_saving_from_gui.patch
-					#  ubuntu/add_sessionmigration.patch
-					#  ubuntu/dbus_request_shutdown.patch
-					#  revert_remove_gnome_session_properties.patch
-gnome-base/gsettings-desktop-schemas	# Add a new preference to lock the screen when the system suspends
-gnome-extra/evolution-data-server	# Use libnotify when available (evolution-alarm-notify)
-gnome-extra/gnome-calendar		# Use unity-control-center as the fallback
-gnome-extra/gnome-contacts		# Use unity-control-center as the fallback
-gnome-extra/nemo			# Add Unity Launcher support, enable StartupNotify
-gnome-extra/nm-applet			# Show nm-applet in indicator panel (Have-the-appindicator-enabled-by-default.patch), show notifications via libnotify when in Unity
-gnome-extra/polkit-gnome		# Patched to have polkit-gnome-authentication-agent-1 xdg-autostart on Unity login
-					#  Ubuntu patchset:
-					#  0001-Select-the-current-user-to-authenticate-with-by-defa.patch
-					#  0002-Auth-dialog-Make-the-label-wrap-at-70-chars.patch
-					#  0003-Get-user-icon-from-accountsservice-instead-of-lookin.patch
-					#  0004-Use-fresh-X11-timestamps-when-displaying-authenticat.patch
-					#  04-autorestart.patch
-					#  06-authentication-failure-string.patch
-gnome-extra/yelp			# Only show desktop launcher in Gnome as we have own launcher
-gui-libs/gtk:4				# Remove window buttons when window is maximized, disable global menu via UBUNTU_MENUPROXY
-gui-libs/libadwaita:1			# Support Yaru accent colors, remove window buttons when window is maximized
-gui-libs/libhandy:1			# Disable headerbar close button when not in GNOME
-mate-extra/mate-system-monitor		# Add Unity branding when in Unity
-mate-extra/mate-utils			# mate-screenshot: add quicklist options and use ubuntu help when in Unity
-mail-client/thunderbird			# Add Unity menubar, desktop launcher with quicklist and translations and disable titlebar in system-wide preferences
-mail-client/thunderbird-bin		# Add desktop launcher with quicklist and translations
-media-fonts/ubuntu-font-family		# Add medium size of Ubuntu classic fonts (e.g. used by unity-indicators/indicator-keyboard)
-media-gfx/eog:1				# Add traditional menu bar (https://bugzilla.gnome.org/749976, https://bugs.debian.org/793445), add menu translations
-media-gfx/gnome-photos			# Use unity-control-center as the fallback
-media-gfx/shotwell			# Patched for integration with Unity online accounts
-media-libs/libcanberra-gtk3		# Configure with gtk2 as well
-media-plugins/audacious-plugins		# Add Unity Shortcuts Plugin (former GNOME Shortcuts Plugin)
-media-sound/audacious			# First run in GTK mode
-media-sound/audacity			# Fix Exec command to use Unity menubar properly
-media-sound/rhythmbox			# Patched for indicator-sound support, add Unity MediaKeys plugin, add menu quicklist
-					#  Ubuntu patchset:
-					#  05_hide_on_quit.patch
-					#  07_quicklists.patch
-					#  08_stop_quit.patch
-media-video/totem			# Add traditional menubar (https://bugzilla.gnome.org/show_bug.cgi?id=749695)
-net-im/pidgin				# Add chat section into messaging menu (Available, Away, Busy, Invisible, Offline)
-net-im/telegram-desktop			# Add ubuntu-mono-dark and Yaru-dark tray icons
-net-im/telegram-desktop-bin		# Add ubuntu-mono-dark and Yaru-dark tray icons
-net-libs/libsoup:2.4			# Portage tree version forces '--without-gnome' and has removed net-libs/libsoup-gnome which provided '--with-gnome'
-net-p2p/transmission			# Disable global menu, use GTK3 and libappindicator (global menu bug: https://github.com/transmission/transmission/issues/5332)
-sys-apps/accountsservice		# Requires patching for SetInputSources as needed by unity-indicators/indicator-keyboard and u-c-c text entry settings
-					#  Ubuntu patchset:
-					#  0001-formats-locale-property.patch
-					#  0011-add-background-file-support.patch
-					#  0012-add-keyboard-layout-support.patch
-					#  0016-add-input-sources-support.patch
-sys-apps/dbus				# Don't run dbuslaunch when DESKTOP_SESSION is unity (fix systemd startx problem)
-www-client/chromium			# Required to support Unity Launcher icon effects (no duplicate icons, quicklist menu, progress bar, window title bar fixes etc.)
-www-client/firefox:rapid		# Latest version, add Unity menubar and desktop launcher with quicklist and translations
-www-client/firefox:esr			# ESR version, add Unity menubar and desktop launcher with quicklist and translations
-www-client/firefox-bin:rapid		# Add desktop launcher with quicklist and translations
-www-client/firefox-bin:esr		# ESR version, add desktop launcher with quicklist and translations
-x11-libs/gtk+:2				# Support for dynamically loading overlay scrollbars, have the local menubars hidding under unity in favor of the unity ones
-x11-libs/gtk+:3				# Needed for global appmenu, fix firefox/thunderbird global submenus to be initially populated, disable global menu via UBUNTU_MENUPROXY
-					#  Ubuntu patchset:
-					#  bzg_gtkcellrenderer_grabbing_modifier.patch
-					#  ubuntu_gtk_custom_menu_items.patch
-					#  x-canonical-accel.patch
-					#  message-dialog-restore-traditional-look-on-unity.patch
-					#  0001-gtkwindow-set-transparent-background-color.patch
-					#  unity-border-radius.patch
-					#  unity-headerbar-maximized-mode.patch
-x11-libs/libwnck:3			# Fix segfault in invalidate_icons (LP: #1990263)
-x11-libs/vte:2.91			# Add the style context provider with FALLBACK priority; see x11-terms/mate-terminal
-x11-misc/lightdm			# Custom fixes for Xsession profile sourcing and multi-monitor display
-x11-misc/zim				# Add Yaru-dark tray icons
-x11-plugins/pidgin-libnotify		# Fix Unity messaging menu support
-					#  Ubuntu patchset:
-					#  de_po.diff
-					#  force-load.patch
-					#  best_name.patch
-					#  it_po.diff
-					#  add-cs-translation.diff
-					#  replace-pidgin-action-requests.diff
-					#  ubuntu_notify_support.patch
-					#  messaging_menu.patch
-x11-terms/mate-terminal			# Set as default terminal under Unity, add style classes and CSS names to some of our widgets, use theme transparency, draw proper background under the scrollbar (https://bugzilla.gnome.org/show_bug.cgi?id=754796, LP #1493964)
+app-accessibility/at-spi2-core:2        # Start 'accessibility bus' by default (https://wiki.debian.org/accessibility-devel)
+app-admin/system-config-printer         # Fix Unity Control Center icon and About dialog icon
+app-backup/deja-dup                     # Make Deja Dup appear in unity-control-center
+app-i18n/ibus                           # Patched for indicator-keyboard support
+app-text/evince                         # Add traditional menu bar (https://bugzilla.gnome.org/show_bug.cgi?id=736419), add menu translations
+dev-cpp/gtest                           # Install /usr/src/{gmock,gtest}/* source files lacking from main tree ebuild
+dev-libs/glib:2                         # Patched to call gettext if .desktop file does not have inline translations, don't try DBusActivatable when in Unity user interface and fallback on Exec=
+games-board/iagno                       # Disable headerbar quit button when not in GNOME
+games-puzzle/gnome-taquin               # Disable headerbar quit button when not in GNOME
+gnome-base/dconf-editor                 # Disable headerbar quit button when not in GNOME
+gnome-base/gnome-desktop:3              # Adjust background color detection for Unity (04_compute_average_color.patch, tweak_color_computation.patch)
+gnome-base/gnome-menus:3                # Needed for some menu patches
+                                        #  Ubuntu patchset:
+                                        #  04_fix-other.patch
+                                        #  08_settings-menus.patch
+                                        #  09_games-menu.patch
+                                        #  11_science-menu.patch
+                                        #  translate-Debian-directories.patch
+                                        #  80_file_monitor_delayed.patch
+                                        #  ubuntu_gcc_translations.patch
+gnome-base/gnome-session                # Installs session files for launching Unity7 user interface
+                                        #  Ubuntu patchset:
+                                        #  debian/Revert-main-Remove-GNOME_DESKTOP_SESSION_ID-envvar.patch
+                                        #  ubuntu/support_autostart_delay.patch
+                                        #  ubuntu/ubuntu-sessions.patch
+                                        #  ubuntu/remove_session_saving_from_gui.patch
+                                        #  ubuntu/add_sessionmigration.patch
+                                        #  ubuntu/dbus_request_shutdown.patch
+                                        #  revert_remove_gnome_session_properties.patch
+gnome-base/gsettings-desktop-schemas    # Add a new preference to lock the screen when the system suspends
+gnome-extra/evolution-data-server       # Use libnotify when available (evolution-alarm-notify)
+gnome-extra/gnome-calendar              # Use unity-control-center as the fallback
+gnome-extra/gnome-contacts              # Use unity-control-center as the fallback
+gnome-extra/nemo                        # Add Unity Launcher support, enable StartupNotify
+gnome-extra/nm-applet                   # Show nm-applet in indicator panel (Have-the-appindicator-enabled-by-default.patch), show notifications via libnotify when in Unity
+gnome-extra/polkit-gnome                # Patched to have polkit-gnome-authentication-agent-1 xdg-autostart on Unity login
+                                        #  Ubuntu patchset:
+                                        #  0001-Select-the-current-user-to-authenticate-with-by-defa.patch
+                                        #  0002-Auth-dialog-Make-the-label-wrap-at-70-chars.patch
+                                        #  0003-Get-user-icon-from-accountsservice-instead-of-lookin.patch
+                                        #  0004-Use-fresh-X11-timestamps-when-displaying-authenticat.patch
+                                        #  04-autorestart.patch
+                                        #  06-authentication-failure-string.patch
+gnome-extra/yelp                        # Only show desktop launcher in Gnome as we have own launcher
+gui-libs/gtk:4                          # Remove window buttons when window is maximized, disable global menu via UBUNTU_MENUPROXY
+gui-libs/libadwaita:1                   # Support Yaru accent colors, remove window buttons when window is maximized
+gui-libs/libhandy:1                     # Disable headerbar close button when not in GNOME
+mate-extra/mate-system-monitor          # Add Unity branding when in Unity
+mate-extra/mate-utils                   # mate-screenshot: add quicklist options and use ubuntu help when in Unity
+mail-client/thunderbird                 # Latest version, add Unity menubar, desktop launcher with quicklist and translations and disable titlebar in system-wide preferences
+mail-client/thunderbird-140             # ESR version, add Unity menubar, desktop launcher with quicklist and translations and disable titlebar in system-wide preferences
+mail-client/thunderbird-bin             # Add desktop launcher with quicklist and translations
+media-fonts/ubuntu-font-family          # Add medium size of Ubuntu classic fonts (e.g. used by unity-indicators/indicator-keyboard)
+media-gfx/eog:1                         # Add traditional menu bar (https://bugzilla.gnome.org/749976, https://bugs.debian.org/793445), add menu translations
+media-gfx/gnome-photos                  # Use unity-control-center as the fallback
+media-gfx/shotwell                      # Patched for integration with Unity online accounts
+media-libs/libcanberra-gtk3             # Configure with gtk2 as well
+media-plugins/audacious-plugins         # Add Unity Shortcuts Plugin (former GNOME Shortcuts Plugin)
+media-sound/audacious                   # First run in GTK mode
+media-sound/audacity                    # Fix Exec command to use Unity menubar properly
+media-sound/rhythmbox                   # Patched for indicator-sound support, add Unity MediaKeys plugin, add menu quicklist
+                                        #  Ubuntu patchset:
+                                        #  05_hide_on_quit.patch
+                                        #  07_quicklists.patch
+                                        #  08_stop_quit.patch
+media-video/totem                       # Add traditional menubar (https://bugzilla.gnome.org/show_bug.cgi?id=749695)
+net-im/pidgin                           # Add chat section into messaging menu (Available, Away, Busy, Invisible, Offline)
+net-im/telegram-desktop                 # Add ubuntu-mono-dark and Yaru-dark tray icons
+net-im/telegram-desktop-bin             # Add ubuntu-mono-dark and Yaru-dark tray icons
+net-libs/libsoup:2.4                    # Portage tree version forces '--without-gnome' and has removed net-libs/libsoup-gnome which provided '--with-gnome'
+net-p2p/transmission                    # Disable global menu, use GTK3 and libappindicator (global menu bug: https://github.com/transmission/transmission/issues/5332)
+sys-apps/accountsservice                # Requires patching for SetInputSources as needed by unity-indicators/indicator-keyboard and u-c-c text entry settings
+                                        #  Ubuntu patchset:
+                                        #  0001-formats-locale-property.patch
+                                        #  0011-add-background-file-support.patch
+                                        #  0012-add-keyboard-layout-support.patch
+                                        #  0016-add-input-sources-support.patch
+sys-apps/dbus                           # Don't run dbuslaunch when DESKTOP_SESSION is unity (fix systemd startx problem)
+www-client/chromium                     # Required to support Unity Launcher icon effects (no duplicate icons, quicklist menu, progress bar, window title bar fixes etc.)
+www-client/firefox:rapid                # Latest version, add Unity menubar and desktop launcher with quicklist and translations
+www-client/firefox:esr                  # ESR version, add Unity menubar and desktop launcher with quicklist and translations
+www-client/firefox-bin                  # Add desktop launcher with quicklist and translations
+x11-libs/gtk+:2                         # Support for dynamically loading overlay scrollbars, have the local menubars hidding under unity in favor of the unity ones
+x11-libs/gtk+:3                         # Needed for global appmenu, fix firefox/thunderbird global submenus to be initially populated, disable global menu via UBUNTU_MENUPROXY
+                                        #  Ubuntu patchset:
+                                        #  bzg_gtkcellrenderer_grabbing_modifier.patch
+                                        #  ubuntu_gtk_custom_menu_items.patch
+                                        #  x-canonical-accel.patch
+                                        #  message-dialog-restore-traditional-look-on-unity.patch
+                                        #  0001-gtkwindow-set-transparent-background-color.patch
+                                        #  unity-border-radius.patch
+                                        #  unity-headerbar-maximized-mode.patch
+x11-libs/libwnck:3                      # Fix segfault in invalidate_icons (LP: #1990263)
+x11-libs/vte:2.91                       # Add the style context provider with FALLBACK priority; see x11-terms/mate-terminal
+x11-misc/lightdm                        # Custom fixes for Xsession profile sourcing and multi-monitor display
+x11-misc/zim                            # Add Yaru-dark tray icons
+x11-plugins/pidgin-libnotify            # Fix Unity messaging menu support
+                                        #  Ubuntu patchset:
+                                        #  de_po.diff
+                                        #  force-load.patch
+                                        #  best_name.patch
+                                        #  it_po.diff
+                                        #  add-cs-translation.diff
+                                        #  replace-pidgin-action-requests.diff
+                                        #  ubuntu_notify_support.patch
+                                        #  messaging_menu.patch
+x11-terms/mate-terminal                 # Set as default terminal under Unity, add style classes and CSS names to some of our widgets, use theme transparency, draw proper background under the scrollbar (https://bugzilla.gnome.org/show_bug.cgi?id=754796, LP #1493964)
 
 ========================================================================
 * Optional ehooks managed via unity-base/gentoo-unity-env USE flags:
 ========================================================================
-app-office/libreoffice			# Add Human icon theme and make it the default, create fontconfig configuration (30-opensymbol.conf) symlink
-					#  Add custom icons (savemodified_{large,small}.png)
-					#  https://github.com/LibreOffice/core/tree/3498ed37527b7af795f00dc6a55c11e65a313186/icon-themes/human
-app-office/libreoffice-bin		# Create fontconfig configuration (30-opensymbol.conf) symlink
-media-fonts/dejavu			# Create fontconfig configuration symlinks
-media-fonts/noto-cjk			# Create fontconfig configuration symlinks
-media-fonts/urw-fonts			# Create fontconfig configuration symlinks
-media-libs/fontconfig:1.0		# Adjust fonts configuration according to Ubuntu
+app-office/libreoffice                  # Add Human icon theme and make it the default, create fontconfig configuration (30-opensymbol.conf) symlink
+                                        #  Add custom icons (savemodified_{large,small}.png)
+                                        #  https://github.com/LibreOffice/core/tree/3498ed37527b7af795f00dc6a55c11e65a313186/icon-themes/human
+app-office/libreoffice-bin              # Create fontconfig configuration (30-opensymbol.conf) symlink
+media-fonts/dejavu                      # Create fontconfig configuration symlinks
+media-fonts/noto-cjk                    # Create fontconfig configuration symlinks
+media-fonts/urw-fonts                   # Create fontconfig configuration symlinks
+media-libs/fontconfig:1.0               # Adjust fonts configuration according to Ubuntu
 
 ========================================================================
 * By design, some indicators or their features will not appear until they meet certain criteria
 ========================================================================
-	- indicator-messages	# Won't appear until a messaging type application is run first (eg. evolution, mailnag (via mailnag-messagingmenu-plugin), pidgin)
-	- indicator-keyboard	# Won't appear until at least one input source is specified and 'Show current input source in menu bar' is checked in System Settings > Text Entry
-	- indicator-session	# Won't show username until 'Show my login name in the menu bar' is checked in System Settings > User Accounts
-					and then only if user has been added to /etc/passwd using useradd's '--comment' GECOS field
+        - indicator-messages    # Won't appear until a messaging type application is run first (eg. evolution, mailnag (via mailnag-messagingmenu-plugin), pidgin)
+        - indicator-keyboard    # Won't appear until at least one input source is specified and 'Show current input source in menu bar' is checked in System Settings > Text Entry
+        - indicator-session     # Won't show username until 'Show my login name in the menu bar' is checked in System Settings > User Accounts
+                                        and then only if user has been added to /etc/passwd using useradd's '--comment' GECOS field
 
 ========================================================================
 * Unity user specific settings locations
 ========================================================================
-	- Dconf registry accessible via gsettings or dconf-editor
-	- ~/.{cache,config,local}/...
-	- /var/lib/AccountsService/users/<user>
+        - Dconf registry accessible via gsettings or dconf-editor
+        - ~/.{cache,config,local}/...
+        - /var/lib/AccountsService/users/<user>
 
 ========================================================================
 * Debugging Unity
 ========================================================================
-	- Emerge unity-base/unity with the 'debug' USE flag enabled, and restart xsession
-	- Check ~/.xsession-errors and syslog
-	- gsettings get org.compiz.core:/org/compiz/profiles/unity/plugins/core/ active-plugins
+        - Emerge unity-base/unity with the 'debug' USE flag enabled, and restart xsession
+        - Check ~/.xsession-errors and syslog
+        - gsettings get org.compiz.core:/org/compiz/profiles/unity/plugins/core/ active-plugins
 
 ========================================================================
 * Debugging top panel systray/indicator icons and menus
 ========================================================================
-	- In desktop user's xterm, issue the following command:
-		killall indicator-application-service; G_MESSAGES_DEBUG=all /usr/libexec/indicator-application/indicator-application-service
-	- Get list of currently running indicators with the following command:
-		dbus-send --type=method_call --print-reply --dest=com.canonical.indicator.application \
-			/com/canonical/indicator/application/service com.canonical.indicator.application.service.GetApplications
+        - In desktop user's xterm, issue the following command:
+                killall indicator-application-service; G_MESSAGES_DEBUG=all /usr/libexec/indicator-application/indicator-application-service
+        - Get list of currently running indicators with the following command:
+                dbus-send --type=method_call --print-reply --dest=com.canonical.indicator.application \
+                        /com/canonical/indicator/application/service com.canonical.indicator.application.service.GetApplications
 
 ========================================================================
 ## Systemd Session Launch ##
 ========================================================================
 * Unity session is launched as follows:
-	- Display manager (eg.lightdm) executes /usr/share/xsessions/unity.desktop:
-		- '/usr/share/xsessions/unity.desktop' executes '/usr/libexec/run-systemd-session unity-session.target'
-			OR
-	- Started from console with 'XSESSION=unity startx':
-		- '/etc/X11/xinit/xinitrc.d/99unity-session_systemd' executes '/usr/libexec/run-systemd-session unity-session.target'
+        - Display manager (eg.lightdm) executes /usr/share/xsessions/unity.desktop:
+                - '/usr/share/xsessions/unity.desktop' executes '/usr/libexec/run-systemd-session unity-session.target'
+                        OR
+        - Started from console with 'XSESSION=unity startx':
+                - '/etc/X11/xinit/xinitrc.d/99unity-session_systemd' executes '/usr/libexec/run-systemd-session unity-session.target'
 
-		- '/usr/libexec/run-systemd-session unity-session.target' runs 'systemctl --user start --wait unity-session.target'
-		- '/usr/lib/systemd/user/unity-session.target' starts:
-			- 'gnome-session.service' which in turn executes 'gnome-session --session=unity'
-			- 'unity7.service' is auto-started due to existence of '/usr/lib/systemd/user/unity-session.target.requires/unity7.service' symlink
-		- All other Unity systemd service units are then started as being 'PartOf=graphical-session.target'
-		- Most importantly, unity7.service unit does the following:
-			- Executes '/usr/lib/unity/systemd-prestart-check' to check if we're in an upstart or systemd session
-			- Sets the compizconfig profile to 'COMPIZ_CONFIG_PROFILE=ubuntu' via '/usr/lib/unity/compiz-profile-selector'
-			- Performs 'ExecStart=/usr/bin/compiz'
-			- Pulls in and starts {unity-settings-daemon,unity-panel-service,bamfdaemon}.service units
+                - '/usr/libexec/run-systemd-session unity-session.target' runs 'systemctl --user start --wait unity-session.target'
+                - '/usr/lib/systemd/user/unity-session.target' starts:
+                        - 'gnome-session.service' which in turn executes 'gnome-session --session=unity'
+                        - 'unity7.service' is auto-started due to existence of '/usr/lib/systemd/user/unity-session.target.requires/unity7.service' symlink
+                - All other Unity systemd service units are then started as being 'PartOf=graphical-session.target'
+                - Most importantly, unity7.service unit does the following:
+                        - Executes '/usr/lib/unity/systemd-prestart-check' to check if we're in an upstart or systemd session
+                        - Sets the compizconfig profile to 'COMPIZ_CONFIG_PROFILE=ubuntu' via '/usr/lib/unity/compiz-profile-selector'
+                        - Performs 'ExecStart=/usr/bin/compiz'
+                        - Pulls in and starts {unity-settings-daemon,unity-panel-service,bamfdaemon}.service units
 
 ========================================================================
 ## Compiz performance settings for 'ccsm' ##
@@ -191,4 +191,4 @@ media-libs/fontconfig:1.0		# Adjust fonts configuration according to Ubuntu
  Make sure "Sync to V blank" is selected, that Texture Compression is NOT selected, and make sure Frame Buffer, Vertex Buffer, and Always Use Buffer Swapping ARE all selected.
  Scroll down to "Image Loading" and make sure all options (jpeg, png, svg, and text) ARE selected.
  * Some applications such as Steam or Chromium with hardware acceleration enabled may lose window focus particularly after unminising the window or waking from screen lock/blank
-	- Enabling the 'Keep previews' option under 'Compiz Workarounds' fixes this issue
+        - Enabling the 'Keep previews' option under 'Compiz Workarounds' fixes this issue
