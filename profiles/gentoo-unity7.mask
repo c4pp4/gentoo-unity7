@@ -9,7 +9,7 @@
 >gnome-base/dconf-editor-45.0.1
 >gnome-base/gnome-desktop-44.4-r300:3
 >gnome-base/gnome-menus-3.36.0-r1:3
->gnome-base/gnome-session-48.0-r1
+>gnome-base/gnome-session-48.0-r2
 >gnome-extra/evolution-data-server-3.56.2-r1
 >gnome-extra/gnome-calendar-48.1
 >gnome-extra/gnome-contacts-47.1.1
