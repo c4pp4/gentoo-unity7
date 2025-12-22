@@ -36,7 +36,7 @@
 >www-client/firefox-147:rapid
 >x11-libs/gtk+-2.24.33-r3:2
 >x11-libs/gtk+-3.24.51:3
->x11-libs/vte-0.80.4:2.91
+>x11-libs/vte-0.80.4-r1:2.91
 >x11-misc/lightdm-1.32.0-r5
 >x11-plugins/pidgin-libnotify-0.14-r3
 >x11-terms/mate-terminal-1.28.1
