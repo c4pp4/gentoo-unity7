@@ -17,7 +17,7 @@ A Gentoo overlay to build the Unity7 user interface.
 
 #
 
-###### It defaults to the Gentoo stable software branch for the system's architecture amd64. You can build `www-client/firefox` from the Gentoo testing branch, as *unity-menubar.patch* is available for both branches: the stable ([extended support release][fesr]) and the testing ([the latest stable release][ftlr]). The same applies to `mail-client/thunderbird`.
+###### It defaults to the Gentoo stable software branch for the system's architecture amd64 and requires systemd. You can build `www-client/firefox` from the Gentoo testing branch since the *unity-menubar.patch* is available for both branches: stable ([Extended Support Release][fesr]) and testing ([Rapid Release][ftlr]). The same applies to `mail-client/thunderbird`.
 
 [//]: # (LINKS)
 [addp]: docs/additional_packages.md
