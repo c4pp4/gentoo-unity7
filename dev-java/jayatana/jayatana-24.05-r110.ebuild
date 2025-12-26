@@ -12,18 +12,26 @@ HOMEPAGE="https://gitlab.com/vala-panel-project/vala-panel-appmenu/tree/master/s
 SRC_URI="https://gitlab.com/vala-panel-project/vala-panel-appmenu/uploads/${COMMIT}/${P}.tar.xz"
 
 LICENSE="MIT"
-SLOT="0"
+SLOT="11"
 KEYWORDS="amd64"
-IUSE="+system-wide"
+IUSE="system-wide"
 RESTRICT="mirror test"
 
 RDEPEND="
 	>=dev-libs/glib-2.40.0:2
 	>=dev-libs/libdbusmenu-16.04.0
-	>=virtual/jdk-1.8.0
+	virtual/jdk:${SLOT}
 	>=x11-libs/libxkbcommon-0.5.0
 "
-DEPEND="${RDEPEND}"
+DEPEND="${RDEPEND}
+
+	system-wide? (
+		!dev-java/jayatana:8[system-wide]
+		!dev-java/jayatana:17[system-wide]
+		!dev-java/jayatana:21[system-wide]
+		!dev-java/jayatana:25[system-wide]
+	)
+"
 
 S="${WORKDIR}/${PN}-24.02"
 
@@ -32,22 +40,21 @@ src_prepare() {
 
 	# Fix .jar dir #
 	sed -i \
-		-e "/java_install_path =/{s:'java':'${PN}/lib':}" \
+		-e "/java_install_path =/{s:'java':'${PN}-${SLOT}/lib':}" \
 		java/meson.build || die
+
 	sed -i \
-		-e "/@CMAKE_INSTALL_FULL_DATAROOTDIR@/{s:java:${PN}/lib:}" \
+		-e "s:/jayatana/:/jayatana-${SLOT}/:" \
+		java/com/jarego/jayatana/{Agent.java.in,basic/NativeLibraries.java.in} || die
+
+	sed -i \
+		-e "/LIBDIR/{s/jayatana/jayatana-${SLOT}/}" \
+		-e "/@CMAKE_INSTALL_FULL_DATAROOTDIR@/{s:java:${PN}-${SLOT}/lib:}" \
 		lib/config.h.in || die
 
-	# Fix JDK 9+ related options #
-	local active_vm=$(java-config -f)
-	if [[ ${active_vm##*-} == "8" ]]; then
-		sed -i \
-			-e "/args/d" \
-			-e "/command/{s/-f/uvfm/}" \
-			-e "/command/{s/'-u', '-m',//}" \
-			-e "/command/{s/, '-v'//}" \
-			java/meson.build || die
-	fi
+	sed -i \
+		-e "/libdir/{s/jayatana/jayatana-${SLOT}/}" \
+		lib/meson.build || die
 }
 
 src_install() {
@@ -58,7 +65,7 @@ src_install() {
 	)
 	meson_src_install
 
-	java-pkg_regjar "${ED}"/usr/share/"${PN}"/lib/*.jar
+	java-pkg_regjar "${ED}"/usr/share/"${PN}-${SLOT}"/lib/*.jar
 
 	if use system-wide; then
 		exeinto /etc/X11/xinit/xinitrc.d
@@ -70,7 +77,7 @@ src_install() {
 pkg_postinst() {
 	if ! use system-wide; then
 		echo
-		elog "Enabling Jayatana"
+		elog "Enabling Jayatana for Java ${SLOT}"
 		elog "1. System-wide way (recommended only if you have many Java programs with menus):"
 		elog "   Set 'system-wide' USE flag."
 		elog "2. Application-specific ways (useful if you usually have one or 2 Java programs, like Android Studio) and if above does not work."

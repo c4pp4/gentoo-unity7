@@ -15,7 +15,7 @@ SRC_URI=""
 LICENSE="metapackage"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="appearance +battery bluetooth +cups +datetime java +keyboard mail +notifications paste sensors +session +sound weather"
+IUSE="appearance +battery bluetooth +cups +datetime java8 java11 java17 java21 java25 +keyboard mail +notifications paste sensors +session +sound weather"
 RESTRICT="binchecks strip test"
 
 RDEPEND="
@@ -29,7 +29,11 @@ RDEPEND="
 	battery? ( unity-indicators/indicator-power )
 	bluetooth? ( unity-indicators/indicator-bluetooth )
 	cups? ( unity-indicators/indicator-printers )
-	java? ( dev-java/jayatana )
+	java8? ( dev-java/jayatana:8 )
+	java11? ( dev-java/jayatana:11 )
+	java17? ( dev-java/jayatana:17 )
+	java21? ( dev-java/jayatana:21 )
+	java25? ( dev-java/jayatana:25 )
 	keyboard? ( unity-indicators/indicator-keyboard )
 	mail? ( net-mail/mailnag[messagingmenu] )
 	notifications? ( unity-indicators/indicator-notifications )

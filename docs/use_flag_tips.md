@@ -17,7 +17,7 @@
 - You can enable Java global menu support **dev-java/jayatana** if you are using some Java applications:
 
   ```
-  unity-indicators/unity-indicators-meta java
+  unity-indicators/unity-indicators-meta java8 java11 java17 java21 java25
   ```
 
 - You can try **Ubuntu Unity** theme as the default one if you don't like **Ambiance**:
