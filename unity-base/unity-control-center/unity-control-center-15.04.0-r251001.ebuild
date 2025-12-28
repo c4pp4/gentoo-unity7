@@ -48,7 +48,7 @@ COMMON_DEPEND="
 
 	colord? ( >=x11-misc/colord-1.4.3:=[vala] )
 	cups? ( >=net-print/cups-1.6.0 )
-	gnome-online-accounts? ( <net-libs/gnome-online-accounts-3.49.0 )
+	gnome-online-accounts? ( gnome-extra/gnome-online-accounts-gtk )
 	input_devices_wacom? ( >=dev-libs/libwacom-1.1 )
 	kerberos? ( >=app-crypt/mit-krb5-1.8 )
 	networkmanager? (
@@ -116,15 +116,10 @@ PATCHES=(
 src_prepare() {
 	use cups && eapply "${FILESDIR}"/printers-fix_launcher.patch
 
-	if use gnome-online-accounts; then
-		# Needed by gnome-extra/gnome-calendar #
-		eapply "${FILESDIR}"/online-accounts-enable_passing_data.patch
-
-		# Use .desktop Comment from g-c-c we can translate #
-		sed -i \
-			-e "/Comment/{s/your online accounts/to your online accounts and decide what to use them for/}" \
-			panels/online-accounts/unity-online-accounts-panel.desktop.in.in || die
-	fi
+	# Install only online-accounts icons #
+	use gnome-online-accounts && ( sed -i \
+		-e "s:online-accounts:online-accounts/icons:" \
+		panels/Makefile.am || die )
 
 	# Branding #
 	cp "${FILESDIR}"/branding/UnityLogo.svg panels/info/GnomeLogoVerticalMedium.svg || die
@@ -239,13 +234,6 @@ src_install() {
 pkg_postinst() {
 	ubuntu-versionator_pkg_postinst
 
-	if use gnome-online-accounts; then
-		echo
-		ewarn "USE flag 'gnome-online-accounts' declared:"
-		ewarn "Compatible $("${PORTAGE_QUERY_TOOL}" best_version / net-libs/gnome-online-accounts) package installed"
-		ewarn "but it's not maintained and tested anymore."
-		echo
-	fi
 	if ! use webkit; then
 		echo
 		elog "Searching in the dash - Legal notice:"

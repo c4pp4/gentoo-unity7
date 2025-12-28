@@ -3,7 +3,7 @@
 app-accessibility/brltty                python                          # app-accessibility/orca[braille]
 app-dicts/myspell-en                    l10n_en-US
 app-i18n/ibus appindicator              gtk2 vala
-app-office/libreoffice                  gtk3            -gtk4 -qt6      # prefer gtk3
+app-office/libreoffice                  gtk3            -gtk4 -qt6      # Prefer gtk3
 dev-libs/boost                          python                          # dev-libs/libcolumbus
 dev-libs/libdbusmenu                    gtk3                            # dev-libs/libappindicator:3, dev-libs/libindicate, unity-indicators/indicator-appmenu
 dev-libs/libpcre2                       pcre32                          # app-accessibility/brltty
@@ -16,7 +16,7 @@ media-fonts/noto                                        -extra
 media-libs/freetype                     harfbuzz                        # x11-libs/pango
 media-libs/libvpx                       postproc                        # mail-client/thunderbird, www-client/firefox
 media-video/ffmpeg                      opus
-net-libs/gnome-online-accounts          vala
+net-libs/gnome-online-accounts          vala            -gnome          # Don't install gnome-base/gnome-control-center
 net-libs/libnma                         vala
 net-misc/modemmanager                   vala
 net-misc/networkmanager                 vala

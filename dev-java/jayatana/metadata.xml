@@ -6,5 +6,10 @@
 	</maintainer>
 	<use>
 		<flag name="system-wide">Enable Jayatana system-wide way</flag>
+		<flag name="java8">Enable Jayatana for Java 8</flag>
+		<flag name="java11">Enable Jayatana for Java 11</flag>
+		<flag name="java17">Enable Jayatana for Java 17</flag>
+		<flag name="java21">Enable Jayatana for Java 21</flag>
+		<flag name="java25">Enable Jayatana for Java 25</flag>
 	</use>
 </pkgmetadata>

@@ -445,12 +445,6 @@ src_install() {
 		"Configure multiple and native language support on your system"
 	)
 
-	# online-accounts desktop launcher msgids
-	local -a oa_msgids=(
-		"Online Accounts"
-		"Connect to your online accounts and decide what to use them for"
-	)
-
 	# Unity help desktop launcher msgids
 	local -a is_msgids=(
 		"Unity Help"
@@ -544,7 +538,7 @@ src_install() {
 	printf "%s  " "Processing translation files"
 	_progress_indicator
 
-	ls1_msgids+=("${sh_msgids[@]}" "${net_msgids[@]}" "${oa_msgids[@]}")
+	ls1_msgids+=("${sh_msgids[@]}" "${net_msgids[@]}")
 
 	for pofile in $( \
 		find "${S}" -type f \
@@ -560,7 +554,7 @@ src_install() {
 			x="${pofile/${ucc_po}/${uccl_po}}"
 			merge_translations "${x}" "${pofile}"
 
-			# Add translations for langselector, sharing panel, network panel and online-accounts desktop launcher
+			# Add translations for langselector, sharing panel and network panel
 			sed -i -e "/\"Sharing\"/,+1 d" "${pofile}" || die # remove old identical msgid
 			process_msgids "${pofile/${ucc_po}/${gccl_po}}" "${pofile}" "${ls1_msgids[@]}"
 
