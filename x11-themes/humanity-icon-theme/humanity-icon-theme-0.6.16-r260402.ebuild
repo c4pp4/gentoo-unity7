@@ -39,9 +39,16 @@ S="${S}${UVER}"
 src_configure() { :; }
 
 src_install() {
+	# Add AdwaitaLegacy icons support #
+	sed -i "s/Inherits=/Inherits=AdwaitaLegacy,/" Humanity/index.theme || die
+
 	insinto /usr/share/icons
 	doins -r Humanity
 	doins -r Humanity-Dark
+
+	# Fix unity-control-center printers panel icon #
+	dosym -r /usr/share/icons/Humanity/devices/48/printer.svg \
+		/usr/share/icons/Humanity/devices/48/printers.svg
 
 	# Optimize icons #
 	if use optimize; then

@@ -75,7 +75,7 @@ diff -Nur a/panels/printers/unity-printers-panel.desktop.in.in b/panels/printers
 -Exec=unity-control-center printers
 -Icon=printer
 +Exec=system-config-printer
-+Icon=printer1
++Icon=printers
  Terminal=false
  Type=Application
  StartupNotify=true

@@ -8,6 +8,6 @@ ehooks() {
 		"${ED}"/etc/xdg/autostart/Gentoo-print-applet.desktop || die
 
 	sed -i \
-		-e "s:\(self.AboutDialog.set_\)\(icon_name('printer\):\1logo_\21:" \
+		-e "s:\(self.AboutDialog.set_\)\(icon_name('printer\):\1logo_\2s:" \
 		"${ED}"/usr/share/"${PN}"/"${PN}".py || die
 }
