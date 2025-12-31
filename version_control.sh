@@ -239,8 +239,10 @@ ehooks_changes() {
 	if [[ -z ${result[@]} ]]; then
 		einfo "No rebuild needed"
 	elif [[ ${result[0]} == *"/"* ]] && ( [[ -z ${result[1]} ]] || [[ ${result[1]} == *"/"* ]] ); then
+		echo " ${color_blink}------------------------------------------------------------${color_norm}"
 		ewarn "Rebuild the following packages affected by ehooks changes:"
 		ewarn "emerge -av1 ${result[@]}"
+		echo " ${color_blink}------------------------------------------------------------${color_norm}"
 	else
 		case ${result[@]} in
 			applied|"applied reset"|"reset applied")

@@ -30,8 +30,10 @@
    ```
    >>> Looking for ehooks changes... done!
 
+    ------------------------------------------------------------
     * Rebuild the following packages affected by ehooks changes:
     * emerge -av1 app-i18n/ibus gnome-base/gnome-menus gnome-base/gnome-session gnome-base/gsettings-desktop-schemas gnome-extra/polkit-gnome x11-libs/gtk+:2 x11-libs/gtk+:3
+    ------------------------------------------------------------
    ```
 
    WARNING: If you don't see a similar message, don't continue with the installation. Please create an issue report or write to our Telegram group.

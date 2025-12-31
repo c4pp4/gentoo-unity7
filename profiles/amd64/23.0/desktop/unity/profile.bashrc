@@ -9,6 +9,9 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 		die "portageq: gentoo-unity7 repo path not found. If you have recently updated sys-apps/portage then you should re-run 'emerge -avuDU --with-bdeps=y @world' to catch any updates."
 	fi
 
+	## Don't look for ehooks for packages from gentoo-unity7 overlay.
+	[[ ${PORTAGE_REPO_NAME} == "gentoo-unity7" ]] && return 0
+
 	## Look for ehooks in setup phase.
 	local \
 		pkg \
