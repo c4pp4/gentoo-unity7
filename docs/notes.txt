@@ -119,6 +119,7 @@ x11-plugins/pidgin-libnotify            # Fix Unity messaging menu support
                                         #  ubuntu_notify_support.patch
                                         #  messaging_menu.patch
 x11-terms/mate-terminal                 # Set as default terminal under Unity, add style classes and CSS names to some of our widgets, use theme transparency, draw proper background under the scrollbar (https://bugzilla.gnome.org/show_bug.cgi?id=754796, LP #1493964)
+x11-themes/adwaita-icon-theme-legacy    # Inherit Adwaita icons before hicolor
 
 ========================================================================
 * Optional ehooks managed via unity-base/gentoo-unity-env USE flags:

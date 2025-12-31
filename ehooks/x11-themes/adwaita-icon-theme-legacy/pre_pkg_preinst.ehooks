@@ -1,0 +1,6 @@
+ehooks() {
+	# Inherit Adwaita icons before hicolor #
+	sed -i \
+		-e "s/Inherits=/Inherits=Adwaita,/" \
+		"${ED}"/usr/share/icons/AdwaitaLegacy/index.theme || die
+}
