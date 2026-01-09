@@ -42,6 +42,14 @@ PATCHES=(
 
 src_prepare() {
 	if use unity; then
+		## Don't set window's title bar name alignment ##
+		## to center, it prevents title bar name from being ##
+		## partially cropped by window's title bar menu ##
+		sed -i \
+			-e "/UnityDecoration-title-indent/{s/0px/10px/}" \
+			-e "/UnityDecoration-title-alignment/d" \
+			gtk/src/default/gtk-3.0/apps/_unity7.scss || die
+
 		## Fix mate-terminal background color ##
 		sed -i \
 			-e '/vte-terminal {/{n;s/$_mate_terminal_bg_color/#300A24/}' \
