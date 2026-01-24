@@ -15,17 +15,14 @@ SRC_URI=""
 LICENSE="metapackage"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="appearance +battery bluetooth +cups +datetime java8 java11 java17 java21 java25 +keyboard mail +notifications paste sensors +session +sound weather"
+IUSE="+appearance +battery bluetooth +cups +datetime java8 java11 java17 java21 java25 +keyboard mail +notifications paste sensors +session +sound weather"
 RESTRICT="binchecks strip test"
 
 RDEPEND="
 	unity-indicators/indicator-appmenu
 	unity-indicators/indicator-datetime
 
-	appearance? (
-		unity-base/unity-settings[ubuntu-unity]
-		unity-indicators/unity-indicator-appearance
-	)
+	appearance? ( unity-indicators/unity-indicator-appearance )
 	battery? ( unity-indicators/indicator-power )
 	bluetooth? ( unity-indicators/indicator-bluetooth )
 	cups? ( unity-indicators/indicator-printers )

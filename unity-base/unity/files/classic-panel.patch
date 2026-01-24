@@ -1,13 +1,39 @@
 From f6d9318d88fafad96c66b2ac288f9328a541277a Mon Sep 17 00:00:00 2001
 From: c4pp4
 Date: Mon, 5 May 2025 19:45:26 +0200
-Subject: [PATCH 1/1] Revert panel shadow
+Subject: [PATCH 1/1] Classic non-transparent panel with shadow
 
 Signed-off-by: c4pp4
 ---
  plugins/unityshell/src/unityshell.cpp | 64 +++++++++++++++++++++++++++
  1 file changed, 64 insertions(+)
 
+diff --git a/panel/PanelController.cpp b/panel/PanelController.cpp
+index c6496b7..f24eb46 100644
+--- a/panel/PanelController.cpp
++++ b/panel/PanelController.cpp
+@@ -66,7 +66,7 @@ Controller::Impl::Impl(Controller* parent, menu::Manager::Ptr const& indicators,
+   : parent_(parent)
+   , indicators_(indicators)
+   , edge_barriers_(edge_barriers)
+-  , opacity_(0.7f)
++  , opacity_(1.0f)
+   , opacity_maximized_toggle_(false)
+ {
+   UScreen* screen = UScreen::GetDefault();
+diff --git a/panel/PanelView.cpp b/panel/PanelView.cpp
+index 1a54ab1..fd492b6 100644
+--- a/panel/PanelView.cpp
++++ b/panel/PanelView.cpp
+@@ -58,7 +58,7 @@ PanelView::PanelView(MockableBaseWindow* parent, menu::Manager::Ptr const& menus
+   , opacity_maximized_toggle_(false)
+   , needs_geo_sync_(false)
+   , overlay_is_open_(false)
+-  , opacity_(0.7f)
++  , opacity_(1.0f)
+   , monitor_(0)
+   , stored_dash_width_(0)
+   , bg_effect_helper_(this)
 diff --git a/plugins/unityshell/src/unityshell.cpp b/plugins/unityshell/src/unityshell.cpp
 index 38f433a..ff739f6 100644
 --- a/plugins/unityshell/src/unityshell.cpp

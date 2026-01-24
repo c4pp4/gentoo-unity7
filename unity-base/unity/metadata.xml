@@ -5,12 +5,12 @@
 		<name>gentoo-unity7</name>
 	</maintainer>
 	<use>
-		<flag name="classic">Revert Dash classic look - horizontal
+		<flag name="classic-dash">Classic horizontal Dash
 			with bottom scope bar</flag>
+		<flag name="classic-panel">Classic non-transparent
+			panel with shadow</flag>
 		<flag name="gles2">Use OpenGL ES 2.0</flag>
 		<flag name="hud">Enable the backend for Unity's HUD</flag>
-		<flag name="no-panel-shadow">Don't install panel shadow
-			(Ubuntu Unity theme)</flag>
 		<flag name="pch">Build using pre-compiled headers
 			(it can lead to unclear build failures!)</flag>
 		<flag name="systray">Enable system tray support

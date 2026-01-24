@@ -1,6 +1,6 @@
-From 6434165758bd81d8437203dbab6c43199494f3b5 Mon Sep 17 00:00:00 2001
+From 8c5dbf54d810c7d91800ee754b59f1640a877544 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Mon, 25 Mar 2019 02:59:20 +0100
+Date: Fri, 23 Jan 2026 05:43:19 +0100
 Subject: [PATCH 1/1] Fix environment variables
 
 Set the XDG_CURRENT_DESKTOP environment variable for gsettings overrides
@@ -9,18 +9,20 @@ manager environment block to show nm-applet notifications and to fix
 the keyboard layout to correspond with the indicator-keyboard icon.  
 Import the XDG_SESSION_CLASS environment variable, which is used
 by indicator-sound.
+
+Signed-off-by: c4pp4
 ---
- src/unity-greeter.vala | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ src/unity-greeter.vala | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
 diff --git a/src/unity-greeter.vala b/src/unity-greeter.vala
-index a683836..81fcc22 100644
+index 929fa2c..a5db5f7 100644
 --- a/src/unity-greeter.vala
 +++ b/src/unity-greeter.vala
-@@ -543,6 +543,17 @@ public class UnityGreeter
-         /* Protect memory from being paged to disk, as we deal with passwords */
-         Posix.mlockall (Posix.MCL_CURRENT | Posix.MCL_FUTURE);
+@@ -540,6 +540,16 @@ public class UnityGreeter
  
+     public static int main (string[] args)
+     {
 +        try
 +        {
 +            Process.spawn_command_line_sync ("systemctl --user import-environment DISPLAY XDG_SESSION_CLASS");
@@ -31,9 +33,9 @@ index a683836..81fcc22 100644
 +        }
 +
 +        Environment.set_variable ("XDG_CURRENT_DESKTOP", "unity-greeter", false);
-+
+ 
          /* Disable the stupid global menubar */
          Environment.unset_variable ("UBUNTU_MENUPROXY");
- 
 -- 
-2.19.2
+2.52.0
+

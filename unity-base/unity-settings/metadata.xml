@@ -5,15 +5,14 @@
 		<name>gentoo-unity7</name>
 	</maintainer>
 	<use>
+		<flag name="classic-fonts">Prefer Ubuntu classic and DejaVu fonts</flag>
+		<flag name="classic-theme">Set Ambiance theme as the default one</flag>
 		<flag name="files">Enable Files lens in Dash</flag>
 		<flag name="fontconfig">Add Ubuntu's fontconfig</flag>
 		<flag name="lowgfx">Enable Low Graphics Mode</flag>
 		<flag name="music">Enable Music lens in Dash</flag>
 		<flag name="photos">Enable Photos lens in Dash</flag>
-		<flag name="ubuntu-classic">Prefer Ubuntu classic and DejaVu fonts (legacy)</flag>
-		<flag name="ubuntu-cursor">Enable DMZ-White - Ubuntu's default cursor theme</flag>
 		<flag name="ubuntu-sounds">Enable Ubuntu's default audio theme</flag>
-		<flag name="ubuntu-unity">Set Ubuntu Unity theme as the default one</flag>
 		<flag name="video">Enable Video lens in Dash</flag>
 	</use>
 </pkgmetadata>

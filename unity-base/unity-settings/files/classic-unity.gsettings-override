@@ -1,0 +1,37 @@
+## Unity ##
+
+[org.gnome.desktop.background:Unity]
+picture-uri = 'file:///usr/share/backgrounds/warty-final-ubuntu.png'
+
+[org.gnome.desktop.interface:Unity]
+gtk-theme = 'Ambiance'
+icon-theme = 'ubuntu-mono-dark'
+cursor-theme = 'DMZ-White'
+monospace-font-name = 'Ubuntu Mono 13'
+
+[org.mate.interface:Unity]
+monospace-font-name = 'Ubuntu Mono 13'
+
+[org.gnome.desktop.wm.preferences:Unity]
+theme = 'Ambiance'
+
+[org.gnome.gedit.preferences.editor:Unity]
+scheme = 'Yaru'
+
+[org.mate.pluma:Unity]
+color-scheme = 'Tango'
+
+## Unity Greeter ##
+
+[com.canonical.unity-greeter]
+draw-grid = true
+
+[com.canonical.unity-greeter:unity-greeter]
+background = '/usr/share/backgrounds/warty-final-ubuntu.png'
+theme-name = 'Ambiance'
+icon-theme-name = 'ubuntu-mono-dark'
+
+## nm-applet and indicator-keyboard icon theme, password field cursor ##
+[org.gnome.desktop.interface:unity-greeter]
+icon-theme = 'ubuntu-mono-dark'
+cursor-theme = 'DMZ-White'

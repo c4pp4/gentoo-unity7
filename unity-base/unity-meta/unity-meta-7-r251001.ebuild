@@ -15,7 +15,7 @@ SRC_URI=""
 LICENSE="metapackage"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="+accessibility +apps chat +core +extra +fonts +games gnome"
+IUSE="+accessibility +apps chat classic-unity +core +extra +fonts +games gnome"
 REQUIRED_USE="gnome? ( extra )"
 RESTRICT="binchecks strip test"
 
@@ -60,6 +60,10 @@ RDEPEND="
 			net-im/telegram-desktop-bin
 			( net-im/pidgin x11-plugins/pidgin-libnotify )
 		)
+	)
+	classic-unity? (
+		unity-base/unity[classic-dash,classic-panel]
+		unity-base/unity-settings[classic-fonts,classic-theme]
 	)
 	core? (
 		|| (

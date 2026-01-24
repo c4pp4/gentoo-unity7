@@ -33,7 +33,7 @@ COMMON_DEPEND="
 	>=gnome-base/libgtop-2.22.3:2=
 	>=media-libs/libcanberra-0.25[pulseaudio]
 	>=media-libs/libcanberra-gtk3-0.25
-	>=media-libs/libpulse-2.0[glib]
+	>=media-sound/pulseaudio-daemon-2.0[glib]
 	>=net-libs/geonames-0.1
 	>=sys-apps/accountsservice-0.6.34
 	sys-auth/polkit[gtk]
@@ -173,15 +173,15 @@ src_prepare() {
 		-e 's/"faces"/"ucc-faces"/' \
 		panels/user-accounts/um-photo-dialog.c || die
 
-	# Add legacy themes #
+	# Add more themes and accent colors #
 	sed -i \
 		-e 's/\(themes_id\[] = {\)/\1 "Adwaita", "Ambiance", "Radiance", "HighContrast",/' \
 		-e 's/\(themes_name\[] = {\)/\1 "Adwaita", "Ambiance", "Radiance", "High Contrast",/' \
 		-e 's/\(colors_id\[] = {\)/\1 "Adwaita", "ubuntu-mono-dark", "ubuntu-mono-light", "HighContrast",/' \
 		-e 's/\(colors_name\[] = {\)/\1 "Adwaita", "Ambiance", "Radiance", "High Contrast",/' \
-		-e "/colors_name/{s/Default (Yaru)/Yaru/}" \
-		-e "/colors_name/{s/Default (Yaru-dark)/Yaru-dark/}" \
-		-e "s/prefer-light/default/" \
+		-e '/colors_id/{s/"Yaru-viridian-dark"/"Yaru-viridian-dark", "Yaru-wartybrown", "Yaru-wartybrown-dark", "Yaru-yellow", "Yaru-yellow-dark"/}' \
+		-e '/colors_name/{s/"Viridian (Yaru-dark)"/"Viridian (Yaru-dark)", "Warty Brown (Yaru)", "Warty Brown (Yaru-dark)", "Yellow (Yaru)", "Yellow (Yaru-dark)"/}' \
+		-e '/"-dark"/{s/NULL/NULL || strstr(gtk_theme, "Ambiance") != NULL/}' \
 		panels/appearance/cc-appearance-panel.c || die
 
 	# Revert button event background color #

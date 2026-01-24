@@ -62,6 +62,11 @@ src_prepare() {
 		## Add widget fixes ##
 		cat "${FILESDIR}"/gtk-widgets.css >> \
 			gtk/src/default/gtk-3.0/_tweaks.scss || die
+
+		## Add Bark and Viridian accent colors ##
+		sed -i \
+			-e "/value: \[/a 'bark',\n'viridian'," \
+			meson_options.txt || die
 	fi
 
 	## gedit requires version attribute ##

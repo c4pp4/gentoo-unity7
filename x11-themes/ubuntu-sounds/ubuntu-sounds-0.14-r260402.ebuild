@@ -3,7 +3,7 @@
 
 EAPI=8
 
-UVER=
+UVER=build1
 UREV=
 
 inherit ubuntu-versionator
@@ -13,13 +13,18 @@ HOMEPAGE="https://launchpad.net/ubuntu-sounds"
 SRC_URI="${UURL}.tar.xz"
 
 LICENSE="CC-BY-SA-2.0 GPL-2+"
-KEYWORDS="amd64"
+KEYWORDS="~amd64"
 SLOT="0"
 RESTRICT="binchecks strip test"
+
+S="${S}${UVER}"
 
 src_install() {
 	default
 
 	insinto /usr/share/sounds
 	doins -r ubuntu
+
+	dosym -r /usr/share/sounds/ubuntu/stereo/dialog-question.ogg \
+		/usr/share/sounds/ubuntu/stereo/system-ready.ogg
 }

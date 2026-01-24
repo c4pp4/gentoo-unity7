@@ -20,22 +20,17 @@
   unity-indicators/unity-indicators-meta java8 java11 java17 java21 java25
   ```
 
-- You can try **Ubuntu Unity** theme as the default one if you don't like **Ambiance**:
+- You can try **classic Unity look** (Ambiance theme, ubuntu-font-family, non-transparent panel with shadow, and horizontal Dash):
 
   ```
-  unity-base/unity-settings ubuntu-unity
+  unity-base/unity-meta classic-unity
   ```
 
-- You can try **Dash** classic look - horizontal with bottom scope bar:
+  or you can choose individual changes yourself:
 
   ```
-  unity-base/unity classic
-  ```
-
-- You can try classic fonts **media-fonts/ubuntu-font-family** instead of newer **media-fonts/fonts-ubuntu**:
-
-  ```
-  unity-base/unity-settings ubuntu-classic
+  unity-base/unity classic-dash classic-panel
+  unity-base/unity-settings classic-fonts classic-theme
   ```
 
 - You can try to turn on **system tray** support for all applications if you are missing some icons:

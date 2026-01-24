@@ -32,7 +32,7 @@ COMMON_DEPEND="
 	>=media-libs/fontconfig-2.12.6:1.0
 	>=media-libs/lcms-2.2:2
 	>=media-libs/libcanberra-gtk3-0.25
-	>=media-libs/libpulse-2.0[glib]
+	>=media-sound/pulseaudio-daemon-2.0[glib]
 	>=net-misc/networkmanager-1.0.0
 	>=sys-apps/accountsservice-0.6.40
 	>=sys-power/upower-0.99.1:=

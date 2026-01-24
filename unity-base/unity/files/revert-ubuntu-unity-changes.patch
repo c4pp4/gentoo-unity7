@@ -3,9 +3,8 @@ From: c4pp4
 Date: Mon, 5 May 2025 19:43:37 +0200
 Subject: [PATCH 1/1] Revert Ubuntu Unity changes
 
-Revert panel transparency and padding, revert dash preview,
-dash and launcher icon size, online search tooltip, drag & drop,
-icon desaturation on hud activation.
+Revert panel padding, dash preview, dash and launcher icon size, online
+search tooltip, drag & drop, and icon desaturation on hud activation.
 
 Signed-off-by: c4pp4
 ---
@@ -13,12 +12,11 @@ Signed-off-by: c4pp4
  launcher/BFBLauncherIcon.cpp         |   4 +-
  launcher/Launcher.cpp                | 312 ++++++++++++++++++++++++++-
  lockscreen/LockScreenPanel.cpp       |   4 +-
- panel/PanelController.cpp            |   2 +-
  panel/PanelIndicatorsView.cpp        |   1 -
- panel/PanelView.cpp                  |   4 +-
+ panel/PanelView.cpp                  |   2 +-
  plugins/unityshell/unityshell.xml.in |   2 +-
  unity-shared/DashStyle.cpp           |  51 +++--
- 9 files changed, 476 insertions(+), 33 deletions(-)
+ 8 files changed, 474 insertions(+), 31 deletions(-)
 
 diff --git a/dash/DashView.cpp b/dash/DashView.cpp
 index 0fd0597..f064616 100644
@@ -554,19 +552,6 @@ index b3087a5..e54e2f1 100644
  }
  
  using namespace indicator;
-diff --git a/panel/PanelController.cpp b/panel/PanelController.cpp
-index c6496b7..f24eb46 100644
---- a/panel/PanelController.cpp
-+++ b/panel/PanelController.cpp
-@@ -66,7 +66,7 @@ Controller::Impl::Impl(Controller* parent, menu::Manager::Ptr const& indicators,
-   : parent_(parent)
-   , indicators_(indicators)
-   , edge_barriers_(edge_barriers)
--  , opacity_(0.7f)
-+  , opacity_(1.0f)
-   , opacity_maximized_toggle_(false)
- {
-   UScreen* screen = UScreen::GetDefault();
 diff --git a/panel/PanelIndicatorsView.cpp b/panel/PanelIndicatorsView.cpp
 index 8bf3c80..20f0638 100644
 --- a/panel/PanelIndicatorsView.cpp
@@ -583,15 +568,6 @@ diff --git a/panel/PanelView.cpp b/panel/PanelView.cpp
 index 1a54ab1..fd492b6 100644
 --- a/panel/PanelView.cpp
 +++ b/panel/PanelView.cpp
-@@ -58,7 +58,7 @@ PanelView::PanelView(MockableBaseWindow* parent, menu::Manager::Ptr const& menus
-   , opacity_maximized_toggle_(false)
-   , needs_geo_sync_(false)
-   , overlay_is_open_(false)
--  , opacity_(0.7f)
-+  , opacity_(1.0f)
-   , monitor_(0)
-   , stored_dash_width_(0)
-   , bg_effect_helper_(this)
 @@ -539,7 +539,7 @@ PanelView::UpdateBackground()
  
    if (overlay_is_open_ || wm.IsScaleActive())

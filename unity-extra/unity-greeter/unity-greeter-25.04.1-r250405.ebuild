@@ -16,7 +16,7 @@ SRC_URI="${UURL}-${UREV}.tar.xz"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="+battery +networkmanager nls +sound"
+IUSE="nls +ready-sound"
 RESTRICT="test"
 
 COMMON_DEPEND="
@@ -31,12 +31,15 @@ COMMON_DEPEND="
 RDEPEND="${COMMON_DEPEND}
 	>=dev-libs/glib-2.43.92:2
 	gnome-base/dconf
+	gnome-extra/nm-applet
 	sys-apps/systemd
 	>=sys-libs/glibc-2.34
 	unity-indicators/indicator-application
 	unity-indicators/indicator-datetime
 	unity-indicators/indicator-keyboard
+	unity-indicators/indicator-power
 	unity-indicators/indicator-session
+	unity-indicators/indicator-sound
 	x11-apps/xhost
 	x11-apps/xrandr
 	>=x11-libs/cairo-1.10.0[glib]
@@ -46,9 +49,7 @@ RDEPEND="${COMMON_DEPEND}
 	>=x11-libs/pango-1.14.0
 	x11-misc/notify-osd
 
-	battery? ( unity-indicators/indicator-power )
-	networkmanager? ( gnome-extra/nm-applet )
-	sound? ( unity-indicators/indicator-sound )
+	ready-sound? ( x11-themes/ubuntu-sounds )
 "
 DEPEND="${COMMON_DEPEND}
 	>=app-eselect/eselect-lightdm-0.1
@@ -74,24 +75,6 @@ PATCHES=(
 )
 
 src_prepare() {
-	use battery || sed -i \
-		-e "s/ indicator-power//" \
-		src/unity-greeter.vala || die
-
-	use networkmanager || sed -i \
-		-e "/command_line_async (\"nm-applet\")/d" \
-		src/unity-greeter.vala || die
-
-	if use sound; then
-		sed -i \
-			-e "s/\"system-ready\"/\"dialog-question\"/" \
-			src/unity-greeter.vala || die
-	else
-		sed -i \
-			-e "s/ indicator-sound//" \
-			src/unity-greeter.vala || die
-	fi
-
 	# Panel icon size and padding #
 	sed -i \
 		-e "/entry.image.show.connect/i entry.image.set_pixel_size(22);" \
@@ -121,24 +104,19 @@ src_install() {
 	default
 
 	local \
-		gschema="10_unity-greeter.gschema.override" \
+		gschema="10_ubuntu-${PN}.gschema.override" \
 		gschema_dir="/usr/share/glib-2.0/schemas"
 
 	insinto "${gschema_dir}"
-	newins "${FILESDIR}"/${PN}.gsettings-override \
+	newins "${FILESDIR}"/ubuntu-${PN}.gsettings-override \
 		"${gschema}"
 
 	insinto /usr/share/${PN}
 	newins "${FILESDIR}/branding/gentoo_logo.png" logo.png
 	newins "${FILESDIR}/branding/gentoo_cof.png" cof.png # Gentoo logo for multi monitor usage
 
-	use sound && ( sed -i \
+	use ready-sound && ( sed -i \
 		-e "/play-ready-sound/d" \
-		"${ED}${gschema_dir}/${gschema}" || die )
-
-	# Remove schema override if it's not used #
-	use sound && ( sed -i \
-		-e "/com.canonical.unity-greeter:unity-greeter/,+1 d" \
 		"${ED}${gschema_dir}/${gschema}" || die )
 
 	# Install polkit privileges config #

@@ -20,7 +20,7 @@ SRC_URI="${UURL}-${UREV}.tar.xz"
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="classic debug doc gles2 +hud no-panel-shadow pch systray +uwidgets"
+IUSE="classic-dash classic-panel debug doc gles2 +hud pch systray +uwidgets"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="test"
 
@@ -135,15 +135,23 @@ wrap_distutils() {
 }
 
 src_prepare() {
-	sed -i \
-		-e 's/"Ubuntu Desktop"/"Gentoo Unity⁷ Desktop"/' \
-		panel/PanelMenuView.cpp || die
+	if use classic-dash; then
+		# Classic horizontal Dash with bottom scope bar #
+		eapply "${FILESDIR}"/classic-dash.patch
+	else
+		# Tweak preview width #
+		sed -i \
+			-e "/preview_width =/{s/770/700/}" \
+			unity-shared/PreviewStyle.cpp || die
+	fi
 
-	# Dash classic look #
-	use classic && eapply "${FILESDIR}"/dash-classic.patch
-
-	# Panel shadow #
-	use no-panel-shadow || eapply "${FILESDIR}"/revert-panel-shadow.patch
+	if use classic-panel; then
+		# Classic non-transparent panel with shadow #
+		eapply "${FILESDIR}"/classic-panel.patch
+	else
+		# Fix panel transparency #
+		eapply "${FILESDIR}"/fix-panel-transparency.patch
+	fi
 
 	# Preprocessor fixes #
 	if ! use pch; then
@@ -166,6 +174,10 @@ src_prepare() {
 	use systray && ( sed -i \
 		-e "s/bool accept = FilterTray(title.Str(), res_name.Str(), res_class.Str());/bool accept = true;/" \
 		panel/PanelTray.cpp || die )
+
+	sed -i \
+		-e 's/"Ubuntu Desktop"/"Gentoo Unity⁷ Desktop"/' \
+		panel/PanelMenuView.cpp || die
 
 	# Setup Unity side launcher default applications #
 	sed -i \
@@ -240,11 +252,6 @@ src_prepare() {
 		-e "/const int FONT_SIZE_PX/{s/10/12/}" \
 		dash/FilterMultiRangeButton.cpp || die
 
-	# Tweak preview width #
-	! use classic && ( sed -i \
-		-e "/preview_width =/{s/770/700/}" \
-		unity-shared/PreviewStyle.cpp || die )
-
 	# Fix warning: the address of ‘nux::Event::text’ will never be NULL #
 	sed -i \
 		-e "s/event->text && //" \
@@ -302,10 +309,11 @@ src_install() {
 	doins "${FILESDIR}/branding/launcher_bfb.svg"
 	# Gentoo logo on lock-screen on multi head system #
 	doins "${FILESDIR}/branding/lockscreen_cof.png"
-	# Panel shadow #
-	doins "${FILESDIR}/resources/panel_shadow.png"
-	# Dash classic look #
-	if use classic; then
+
+	# Panel classic look - shadow #
+	use classic-panel && doins "${FILESDIR}/resources/panel_shadow.png"
+	# Dash classic look - border #
+	if use classic-dash; then
 		doins "${FILESDIR}/resources/dash_bottom_border_tile.png"
 		doins "${FILESDIR}/resources/dash_bottom_left_corner.png"
 		doins "${FILESDIR}/resources/dash_bottom_left_corner_mask.png"

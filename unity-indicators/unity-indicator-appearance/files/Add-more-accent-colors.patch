@@ -1,0 +1,39 @@
+From 66c88f939f5f74ecf901bb2d1e81986fb431b5d2 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Fri, 23 Jan 2026 04:06:59 +0100
+Subject: [PATCH 1/1] Add more accent colors
+
+Signed-off-by: c4pp4
+---
+ unity-indicator-appearance | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/unity-indicator-appearance b/unity-indicator-appearance
+index 6f78433..5349d56 100755
+--- a/unity-indicator-appearance
++++ b/unity-indicator-appearance
+@@ -90,6 +90,12 @@ def build_menu():
+     viridian_item = gtk.MenuItem(label=_('Viridian'))
+     viridian_item.connect('activate', switch_color, 'viridian')
+ 
++    wartybrown_item = gtk.MenuItem(label=_('Warty Brown'))
++    wartybrown_item.connect('activate', switch_color, 'wartybrown')
++
++    yellow_item = gtk.MenuItem(label=_('Yellow'))
++    yellow_item.connect('activate', switch_color, 'yellow')
++
+     # add colors to submenu
+     accent_color_submenu.append(default_item)
+     accent_color_submenu.append(bark_item)
+@@ -101,6 +107,8 @@ def build_menu():
+     accent_color_submenu.append(red_item)
+     accent_color_submenu.append(sage_item)
+     accent_color_submenu.append(viridian_item)
++    accent_color_submenu.append(wartybrown_item)
++    accent_color_submenu.append(yellow_item)
+ 
+     # add more appearance settings
+     menu.append(item_autohide_launcher)
+-- 
+2.52.0
+

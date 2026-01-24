@@ -15,8 +15,8 @@ SRC_URI=""
 LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="+accessibility +files +fontconfig lowgfx +music +photos ubuntu-classic +ubuntu-cursor +ubuntu-sounds ubuntu-unity +video"
-REQUIRED_USE="ubuntu-classic? ( fontconfig )"
+IUSE="+accessibility classic-fonts classic-theme +files +fontconfig lowgfx +music +photos +ubuntu-sounds +video"
+REQUIRED_USE="classic-fonts? ( fontconfig )"
 RESTRICT="binchecks strip test"
 
 # media-fonts/ubuntu-font-family dependency #
@@ -27,13 +27,14 @@ RDEPEND="
 		media-fonts/ubuntu-font-family
 	)
 	x11-themes/ubuntu-themes
+	x11-themes/ubuntu-unity-backgrounds
 	x11-themes/ubuntu-wallpapers
+	x11-themes/yaru-theme
 
-	ubuntu-classic? ( media-fonts/ubuntu-font-family )
+	classic-fonts? ( media-fonts/ubuntu-font-family )
+	classic-theme? ( x11-themes/vanilla-dmz-xcursors )
 	fontconfig? ( media-libs/freetype:2[adobe-cff,cleartype-hinting] )
-	ubuntu-cursor? ( x11-themes/vanilla-dmz-xcursors )
 	ubuntu-sounds? ( x11-themes/ubuntu-sounds )
-	ubuntu-unity? ( x11-themes/ubuntu-unity-backgrounds )
 "
 PDEPEND="
 	unity-base/gentoo-unity-env[fontconfig=]
@@ -44,29 +45,25 @@ S="${FILESDIR}"
 
 src_install() {
 	local \
-		gschema="10_gentoo-unity.gschema.override" \
+		gschema="10_ubuntu-unity.gschema.override" \
 		gschema_dir="/usr/share/glib-2.0/schemas"
 
 	insinto "${gschema_dir}"
-	newins "${FILESDIR}"/gentoo-unity.gsettings-override "${gschema}"
-	use ubuntu-unity && newins "${FILESDIR}"/ubuntu-unity.gsettings-override 11_ubuntu-unity.gschema.override
+	newins "${FILESDIR}"/ubuntu-unity.gsettings-override "${gschema}"
+	use classic-theme && newins "${FILESDIR}"/classic-unity.gsettings-override 11_classic-unity.gschema.override
 
-	if use ubuntu-cursor || use ubuntu-unity; then
-		# Do the following only if there is no file collision detected #
-		local index_dir="/usr/share/cursors/xorg-x11/default"
-		[[ -e "${EROOT}${index_dir}"/index.theme ]] \
-			&& local index_owner=$("${PORTAGE_QUERY_TOOL}" owners "${EROOT}/" "${EROOT}${index_dir}"/index.theme 2>/dev/null | grep "${CATEGORY}/${PN}-[0-9]" 2>/dev/null)
-		# Pass when not null or unset #
-		if [[ -n "${index_owner-unset}" ]]; then
-			insinto "${index_dir}"
-			doins "${FILESDIR}"/index.theme
-		fi
-	else
-		sed -i "/cursor-theme/d" "${ED}${gschema_dir}/${gschema}" || die
+	# Do the following only if there is no file collision detected #
+	local index_dir="/usr/share/cursors/xorg-x11/default"
+	[[ -e "${EROOT}${index_dir}"/index.theme ]] \
+		&& local index_owner=$("${PORTAGE_QUERY_TOOL}" owners "${EROOT}/" "${EROOT}${index_dir}"/index.theme 2>/dev/null | grep "${CATEGORY}/${PN}-[0-9]" 2>/dev/null)
+	# Pass when not null or unset #
+	if [[ -n "${index_owner-unset}" ]]; then
+		insinto "${index_dir}"
+		doins "${FILESDIR}"/index.theme
 	fi
 
-	use ubuntu-unity && [[ -f "${ED}${index_dir}"/index.theme ]] && \
-		( sed -i "s/DMZ-White/Yaru/" "${ED}${index_dir}"/index.theme || die )
+	use classic-theme && [[ -f "${ED}${index_dir}"/index.theme ]] && \
+		( sed -i "s/Yaru/DMZ-White/" "${ED}${index_dir}"/index.theme || die )
 
 	use accessibility || sed -i \
 		-e "/toolkit-accessibility/d" \
@@ -101,7 +98,7 @@ src_install() {
 	if use fontconfig; then
 		insinto /etc/fonts/conf.avail
 		doins -r "${FILESDIR}"/language-selector/*
-		use ubuntu-classic \
+		use classic-fonts \
 			&& mv "${ED}"/etc/fonts/conf.avail/56-language-selector-prefer.conf \
 				"${ED}"/etc/fonts/conf.avail/64-language-selector-prefer.conf
 		einfo "Creating fontconfig configuration symlinks ..."

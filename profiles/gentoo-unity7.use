@@ -1,4 +1,4 @@
-*/*                                     X               -nautilus
+*/*                                     pulseaudio X    -nautilus
 
 app-accessibility/brltty                python                          # app-accessibility/orca[braille]
 app-dicts/myspell-en                    l10n_en-US
@@ -16,6 +16,7 @@ media-fonts/noto                                        -extra
 media-libs/freetype                     harfbuzz                        # x11-libs/pango
 media-libs/libvpx                       postproc                        # mail-client/thunderbird, www-client/firefox
 media-video/ffmpeg                      opus
+media-video/pipewire                                    -sound-server   # Default is pulseaudio
 net-libs/gnome-online-accounts          vala            -gnome          # Don't install gnome-base/gnome-control-center
 net-libs/libnma                         vala
 net-misc/modemmanager                   vala

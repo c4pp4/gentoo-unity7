@@ -6,9 +6,6 @@ exec = 'mate-terminal'
 [org.gnome.desktop.default-applications.terminal:Unity]
 exec = 'mate-terminal'
 
-[org.mate.interface:Unity]
-monospace-font-name = 'Ubuntu Mono 13'
-
 [org.mate.terminal.profile:Unity]
 background-darkness = 0.95
 background-type = 'transparent'

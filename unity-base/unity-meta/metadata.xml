@@ -12,12 +12,16 @@
 			and <pkg>app-office/libreoffice</pkg></flag>
 		<flag name="chat">Install instant messenger, defaults to
 			<pkg>net-im/pidgin</pkg></flag>
+		<flag name="classic-unity">Install classic Unity look
+			with Ambiance theme, ubuntu-font-family,
+			non-transparent panel with shadow,
+			and horizontal Dash</flag>
 		<flag name="core">Install Unity core applications</flag>
 		<flag name="extra">Install Unity extra applications</flag>
 		<flag name="fonts">Install additional fonts</flag>
 		<flag name="games">Install games</flag>
 		<flag name="gnome">Install Gnome extra applications depending on
-			<pkg>gui-libs/libadwaita</pkg> (theming is not fully supported)</flag>
+			<pkg>gui-libs/libadwaita</pkg></flag>
 		<flag name="xdm">Use a display manager, defaults to
 			<pkg>x11-misc/lightdm</pkg> and
 			<pkg>unity-extra/unity-greeter</pkg></flag>

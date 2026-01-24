@@ -5,7 +5,6 @@
 		<name>gentoo-unity7</name>
 	</maintainer>
 	<use>
-		<flag name="battery">Use power state indicator for login screen</flag>
-		<flag name="sound">Use sound indicator for login screen</flag>
+		<flag name="ready-sound">Play system ready sound</flag>
 	</use>
 </pkgmetadata>

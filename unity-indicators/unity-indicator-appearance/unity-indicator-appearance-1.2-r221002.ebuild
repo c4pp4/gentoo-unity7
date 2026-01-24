@@ -31,6 +31,8 @@ RDEPEND="
 
 S="${WORKDIR}/${PN}"
 
+PATCHES=( "${FILESDIR}"/Add-more-accent-colors.patch )
+
 src_install() {
 	default
 
@@ -42,4 +44,7 @@ src_install() {
 
 	insinto /usr/share/icons/hicolor/scalable/apps
 	doins icons/"${PN}".svg
+
+	insinto /usr/share
+	doins -r "${FILESDIR}"/icons
 }
