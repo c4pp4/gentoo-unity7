@@ -310,21 +310,20 @@ src_install() {
 	# Gentoo logo on lock-screen on multi head system #
 	doins "${FILESDIR}/branding/lockscreen_cof.png"
 
-	# Panel classic look - shadow #
+	# Dash (classic) and Hud borders #
+	doins "${FILESDIR}/resources/dash_bottom_border_tile.png"
+	doins "${FILESDIR}/resources/dash_bottom_left_corner.png"
+	doins "${FILESDIR}/resources/dash_bottom_left_corner_mask.png"
+	doins "${FILESDIR}/resources/dash_bottom_right_corner.png"
+	doins "${FILESDIR}/resources/dash_left_tile.png"
+	doins "${FILESDIR}/resources/dash_right_border_tile.png"
+	doins "${FILESDIR}/resources/dash_top_edge.png"
+	doins "${FILESDIR}/resources/dash_top_right_corner.png"
+	doins "${FILESDIR}/resources/dash_top_right_corner_mask.png"
+	doins "${FILESDIR}/resources/dash_top_tile.png"
+
+	# Panel shadow #
 	use classic-panel && doins "${FILESDIR}/resources/panel_shadow.png"
-	# Dash classic look - border #
-	if use classic-dash; then
-		doins "${FILESDIR}/resources/dash_bottom_border_tile.png"
-		doins "${FILESDIR}/resources/dash_bottom_left_corner.png"
-		doins "${FILESDIR}/resources/dash_bottom_left_corner_mask.png"
-		doins "${FILESDIR}/resources/dash_bottom_right_corner.png"
-		doins "${FILESDIR}/resources/dash_left_tile.png"
-		doins "${FILESDIR}/resources/dash_right_border_tile.png"
-		doins "${FILESDIR}/resources/dash_top_edge.png"
-		doins "${FILESDIR}/resources/dash_top_right_corner.png"
-		doins "${FILESDIR}/resources/dash_top_right_corner_mask.png"
-		doins "${FILESDIR}/resources/dash_top_tile.png"
-	fi
 
 	exeinto /etc/X11/xinit/xinitrc.d/
 	doexe "${FILESDIR}/70im-config"			# Configure input method (xim/ibus)

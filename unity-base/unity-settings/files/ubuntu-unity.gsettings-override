@@ -33,11 +33,11 @@ color-scheme = 'prefer-dark'
 icon-theme = 'Yaru-purple-dark'
 cursor-theme = 'Yaru'
 font-name = 'Ubuntu 11'
-monospace-font-name = 'Ubuntu Mono 11'
+monospace-font-name = 'Ubuntu Mono 13'
 toolkit-accessibility = true
 
 [org.mate.interface:Unity]
-monospace-font-name = 'Ubuntu Mono 11'
+monospace-font-name = 'Ubuntu Mono 13'
 
 [org.gnome.desktop.peripherals.touchpad:Unity]
 tap-to-click = true

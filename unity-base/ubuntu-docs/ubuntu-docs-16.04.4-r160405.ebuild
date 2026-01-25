@@ -99,7 +99,7 @@ src_prepare() {
 	popd >/dev/null || die
 
 	pushd ubuntu-help/C >/dev/null || die
-		sed -i "s/ addremove//" index.page || die
+		sed -i -e "s/ addremove//" -e 's/16/11/g' index.page || die
 		sed -i "/Install languages/d" prefs-language.page || die
 		sed -i '/id="complex"/,+49 d' keyboard-layouts.page || die
 		sed -i "/dozens of languages/,+3 d" session-language.page || die
@@ -107,15 +107,21 @@ src_prepare() {
 	popd >/dev/null || die
 
 	pushd ubuntu-help/C/figures >/dev/null || die
-		cp "${FILESDIR}"/gentoo_signet.png ubuntu-logo.png || die
-		cp "${FILESDIR}"/unity_logo.png ubuntu-mascot-creature.png || die
+		cp "${FILESDIR}"/gentoo-unity7-logo.png ubuntu-logo.png || die
+		cp "${FILESDIR}"/gentoo-unity7-word-mark.png ubuntu-mascot-creature.png || die
+		cp "${FILESDIR}"/nautilus.png . || die
 		cp "${FILESDIR}"/unity.png . || die
+		cp "${FILESDIR}"/unity-appmenu-intro.png . || die
 		cp "${FILESDIR}"/unity-dash.png . || die
 		cp "${FILESDIR}"/unity-dash-intro.png . || die
 		cp "${FILESDIR}"/unity-dash-sample.png . || die
+		cp "${FILESDIR}"/unity-exit.png . || die
 		cp "${FILESDIR}"/unity-launcher.png . || die
+		cp "${FILESDIR}"/unity-launcher-apps.png . || die
 		cp "${FILESDIR}"/unity-launcher-intro.png . || die
 		cp "${FILESDIR}"/unity-overview.png . || die
+		cp "${FILESDIR}"/unity-windows.png . || die
+		cp "${FILESDIR}"/unity-workspace-intro.png . || die
 	popd >/dev/null || die
 
 	local -a \

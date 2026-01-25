@@ -7,10 +7,6 @@ picture-uri = 'file:///usr/share/backgrounds/warty-final-ubuntu.png'
 gtk-theme = 'Ambiance'
 icon-theme = 'ubuntu-mono-dark'
 cursor-theme = 'DMZ-White'
-monospace-font-name = 'Ubuntu Mono 13'
-
-[org.mate.interface:Unity]
-monospace-font-name = 'Ubuntu Mono 13'
 
 [org.gnome.desktop.wm.preferences:Unity]
 theme = 'Ambiance'

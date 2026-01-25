@@ -7,7 +7,7 @@ FONT_PN="ubuntu"
 UVER=+git20240321
 UREV=0ubuntu1
 
-inherit font ubuntu-versionator
+inherit font gnome2-utils ubuntu-versionator
 
 DESCRIPTION="The Ubuntu variable font with adjustable weight and width axes."
 HOMEPAGE="https://design.ubuntu.com/font/"
@@ -44,10 +44,28 @@ src_install() {
 	echo " * ${f}"
 	dosym -r /etc/fonts/conf.avail/"${f}" /etc/fonts/conf.d/"${f}"
 
+	# Override ubuntu-font-family monospace settings #
+	insinto /usr/share/glib-2.0/schemas
+	newins "${FILESDIR}"/"${PN}".gsettings-override 11_"${PN}".gschema.override
+
 	# Console fonts #
 	if use extra; then
 		insinto /usr/share/consolefonts
 		doins "${WORKDIR}"/debian/console/UbuntuMono-*.psf
 		newins "${WORKDIR}"/debian/console/README README.Ubuntu
 	fi
+}
+
+pkg_preinst() {
+	# Modified gnome2_schemas_savelist to find *.gschema.override files #
+	export GNOME2_ECLASS_GLIB_SCHEMAS=$(find "${ED}/usr/share/glib-2.0/schemas" -name "*.gschema.override" 2>/dev/null)
+}
+
+pkg_postinst() {
+        gnome2_schemas_update
+	ubuntu-versionator_pkg_postinst
+}
+
+pkg_postrm() {
+        gnome2_schemas_update
 }

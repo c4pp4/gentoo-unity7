@@ -1,0 +1,7 @@
+## fonts-ubuntu monospace settings ##
+
+[org.gnome.desktop.interface:Unity]
+monospace-font-name = 'Ubuntu Mono 11'
+
+[org.mate.interface:Unity]
+monospace-font-name = 'Ubuntu Mono 11'
