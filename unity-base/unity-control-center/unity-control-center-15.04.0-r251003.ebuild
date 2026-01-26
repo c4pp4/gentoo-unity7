@@ -33,7 +33,7 @@ COMMON_DEPEND="
 	>=gnome-base/libgtop-2.22.3:2=
 	>=media-libs/libcanberra-0.25[pulseaudio]
 	>=media-libs/libcanberra-gtk3-0.25
-	>=media-sound/pulseaudio-daemon-2.0[glib]
+	>=media-libs/libpulse-2.0[glib]
 	>=net-libs/geonames-0.1
 	>=sys-apps/accountsservice-0.6.34
 	sys-auth/polkit[gtk]
