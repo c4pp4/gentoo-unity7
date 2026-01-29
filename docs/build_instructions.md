@@ -54,7 +54,9 @@
 
 NOTES:
 
-- Don't forget to enable systemd services, such as [LightDM⬀][ldm], [PulseAudio⬀][pa], [NetworkManager⬀][nm], [CUPS⬀][cups], or [Bluetooth⬀][bt].
+- Don't forget to enable systemd services, such as:
+  <br/>
+  [LightDM⬀][ldm], [PipeWire⬀][pw], [WirePlumber⬀][wp], [NetworkManager⬀][nm], [CUPS⬀][cups], and [Bluetooth⬀][bt].
 
 - In case of starting Unity7 with the `startx` command, use [our .xinitrc file][xirc] to ensure all needed services are started.
 
@@ -72,8 +74,9 @@ NOTES:
 [ldm]: https://wiki.gentoo.org/wiki/LightDM#systemd
 [mu]: https://wiki.gentoo.org/wiki/Merge-usr
 [nm]: https://wiki.gentoo.org/wiki/NetworkManager#systemd
-[pa]: https://wiki.gentoo.org/wiki/PulseAudio#systemd
+[pw]: https://wiki.gentoo.org/wiki/PipeWire#systemd
 [pkge]: https://wiki.gentoo.org/wiki/Binary_package_guide#Additional_client_settings
 [s3]: https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Stage#Downloading_the_stage_file
 [sysd]: https://wiki.gentoo.org/wiki/Systemd
+[wp]: https://wiki.gentoo.org/wiki/WirePlumber#systemd
 [xirc]: /unity-base/unity/files/xinitrc

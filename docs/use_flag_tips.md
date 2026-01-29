@@ -33,6 +33,8 @@
   unity-base/unity-settings classic-fonts classic-theme
   ```
 
+  NOTE: If you want to revert back to fonts-ubuntu, you must also run the command `emerge --oneshot media-fonts/fonts-ubuntu`
+
 - You can try to turn on **system tray** support for all applications if you are missing some icons:
 
   ```
