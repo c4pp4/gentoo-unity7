@@ -117,9 +117,11 @@ src_prepare() {
 	use cups && eapply "${FILESDIR}"/printers-fix_launcher.patch
 
 	# Install only online-accounts icons #
-	use gnome-online-accounts && ( sed -i \
-		-e "s:online-accounts:online-accounts/icons:" \
-		panels/Makefile.am || die )
+	if use gnome-online-accounts; then
+		sed -i \
+			-e "s:online-accounts:online-accounts/icons:" \
+			panels/Makefile.am || die
+	fi
 
 	# Branding #
 	cp "${FILESDIR}"/branding/UnityLogo.svg panels/info/GnomeLogoVerticalMedium.svg || die

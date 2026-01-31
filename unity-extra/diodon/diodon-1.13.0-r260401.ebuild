@@ -48,11 +48,13 @@ PATCHES=( "${FILESDIR}"/fix-first-run.patch )
 
 src_prepare() {
 	# Make test optional #
-	use test || sed -i \
-		-e "/testdatadir/d" \
-		-e "/xvfb_run/d" \
-		-e "/subdir('tests')/d" \
-		meson.build || die
+	if ! use test; then
+		sed -i \
+			-e "/testdatadir/d" \
+			-e "/xvfb_run/d" \
+			-e "/subdir('tests')/d" \
+			meson.build || die
+	fi
 
 	ubuntu-versionator_src_prepare
 }

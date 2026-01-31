@@ -88,8 +88,10 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 			die "$(<${log})"
 		fi
 
-		declare -F ehooks 1>/dev/null \
-			&& ( echo "ehooks: function name collision" > "${log}" && die "$(<${log})" )
+		if declare -F ehooks 1>/dev/null; then
+			echo "ehooks: function name collision" > "${log}"
+			die "$(<${log})"
+		fi
 
 		echo "${color_red}${color_bold}>>> Loading gentoo-unity7 ehooks ...${color_norm}"
 		for x in "${EHOOKS_SOURCE[@]}"; do
@@ -97,15 +99,19 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 		## Process current phase.
 		if [[ ${x} == *"${FUNCNAME[1]}.ehooks" ]]; then
 
-		[[ -r ${x} ]] \
-			|| ( echo "${x##*/}: file not readable" > "${log}" && die "$(<${log})" )
+		if [[ ! -r ${x} ]]; then
+			echo "${x##*/}: file not readable" > "${log}"
+			die "$(<${log})"
+		fi
 
 		source "${x}" 2>"${log}"
 		[[ -s ${log} ]] \
 			&& die "$(<${log})"
 
-		declare -F ehooks 1>/dev/null \
-			|| ( echo "ehooks: function not found" > "${log}" && die "$(<${log})" )
+		if ! declare -F ehooks 1>/dev/null; then
+			echo "ehooks: function not found" > "${log}"
+			die "$(<${log})"
+		fi
 
 		einfo "Processing ${x} ..."
 
@@ -127,14 +133,18 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 				)
 
 				for x in "${fn_source[@]}"; do
-					[[ -f ${x} ]] \
-						|| ( echo "${x}: file not found" > "${log}" && die "$(<${log})" )
+					if [[ ! -f ${x} ]]; then
+						echo "${x}: file not found" > "${log}"
+						die "$(<${log})"
+					fi
 
 					source <(awk "/^(${eautoreconf_names// /|})(\(\)|=\(\$)/ { p = 1 } p { print } /(^(}|\))|; })\$/ { p = 0 }" ${x} 2>/dev/null)
 				done
 
-				declare -F eautoreconf 1>/dev/null \
-					|| ( echo "eautoreconf: function not found" > "${log}" && die "$(<${log})" )
+				if ! declare -F eautoreconf 1>/dev/null; then
+					echo "eautoreconf: function not found" > "${log}"
+					die "$(<${log})"
+				fi
 			fi
 		fi
 

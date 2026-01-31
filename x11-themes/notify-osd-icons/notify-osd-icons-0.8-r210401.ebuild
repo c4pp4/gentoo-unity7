@@ -30,7 +30,9 @@ src_install() {
 
 	# Optimize SVG files #
 	for x in "${ED}${path}"/*.svg; do
-		[[ -f ${x} ]] && ( scour -i "${x}" -o "${x}.tmp" && mv "${x}.tmp" "${x}" || rm "${x}.tmp" )
+		if [[ -f ${x} ]]; then
+			scour -i "${x}" -o "${x}.tmp" && mv "${x}.tmp" "${x}" || rm "${x}.tmp"
+		fi
 	done
 
 	dosym notification-battery-000.svg ${path}/notification-battery-empty.svg

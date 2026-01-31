@@ -93,15 +93,19 @@ wrap_distutils() {
 src_prepare() {
 	# As of focal 14.10+17.10.20170619-0ubuntu3, disable #
 	# gtkdoc-mktmpl as it was removed from gtk-doc 1.26. #
-	use doc && ( sed -i \
-		-e '/subdirectory(libhud/d' \
-		docs/CMakeLists.txt || die )
+	if use doc; then
+		sed -i \
+			-e '/subdirectory(libhud/d' \
+			docs/CMakeLists.txt || die
+	fi
 
 	# Don't try to find test deps #
-	use test || sed -i \
-		-e '/QTDBUSTEST/d' \
-		-e '/QTDBUSMOCK/d' \
-		CMakeLists.txt || die
+	if ! use test; then
+		sed -i \
+			-e '/QTDBUSTEST/d' \
+			-e '/QTDBUSMOCK/d' \
+			CMakeLists.txt || die
+	fi
 
 	# Stop cmake doing the job of distutils #
 	sed -i \

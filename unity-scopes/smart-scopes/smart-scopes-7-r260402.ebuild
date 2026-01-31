@@ -136,10 +136,14 @@ src_install() {
 pkg_postinst() {
 	ubuntu-versionator_pkg_postinst
 
-	local ylp dvh rs
+	local ylp dvh tlc rs
 
 	has_version "gnome-extra/yelp" || ylp="to install gnome-extra/yelp package and "
 	has_version "dev-util/devhelp" || dvh="to install dev-util/devhelp package and "
+	tlc="${dvh}"
+	has_version "app-text/texlive-core[doc]" \
+		&& tlc="${tlc/ and /.}" \
+		|| tlc="${tlc}to install app-text/texlive-core[doc] package."
 
 	echo
 	use audacious && ! has_version "media-sound/audacious" && elog "audacious scope needs to install media-sound/audacious package." && echo
@@ -147,8 +151,8 @@ pkg_postinst() {
 	use chromiumbookmarks && ! has_version "www-client/chromium" && elog "chromiumbookmarks scope needs to install www-client/chromium package." && echo
 	use devhelp && [[ -n ${dvh} ]] && elog "devhelp scope needs ${dvh/ and /.}" && echo
 	use firefoxbookmarks && ! has_version "www-client/firefox" && elog "firefoxbookmarks scope needs to install www-client/firefox package." && echo
-	use manpages && elog "manpages scope needs ${ylp}to run mandb to create or update the manual page index caches." && echo
-	use texdoc && ([[ -n ${dvh} ]] || ! has_version "app-text/texlive-core[doc]") && elog "texdoc scope needs ${dvh}to install app-text/texlive-core[doc] package." && echo
+	use manpages && elog "manpages scope needs ${ylp}to run 'mandb' command to create or update the manual page index caches." && echo
+	use texdoc && [[ -n ${tlc} ]] && elog "texdoc scope needs ${tlc}" && echo
 	use virtualbox && ! has_version "app-emulation/virtualbox" && elog "virtualbox scope needs to install app-emulation/virtualbox package." && echo
 	use yelp && [[ -n ${ylp} ]] && elog "yelp scope needs ${ylp/ and /.}" && echo
 

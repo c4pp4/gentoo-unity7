@@ -62,20 +62,27 @@ src_install() {
 		doins "${FILESDIR}"/index.theme
 	fi
 
-	use classic-theme && [[ -f "${ED}${index_dir}"/index.theme ]] && \
-		( sed -i "s/Yaru/DMZ-White/" "${ED}${index_dir}"/index.theme || die )
+	if use classic-theme && [[ -f "${ED}${index_dir}"/index.theme ]]; then
+		sed -i "s/Yaru/DMZ-White/" "${ED}${index_dir}"/index.theme || die
+	fi
 
-	use accessibility || sed -i \
-		-e "/toolkit-accessibility/d" \
-		"${ED}${gschema_dir}/${gschema}" || die
+	if ! use accessibility; then
+		sed -i \
+			-e "/toolkit-accessibility/d" \
+			"${ED}${gschema_dir}/${gschema}" || die
+	fi
 
-	use ubuntu-sounds || sed -i \
-		-e "/org.gnome.desktop.sound/,+2 d" \
-		"${ED}${gschema_dir}/${gschema}" || die
+	if ! use ubuntu-sounds; then
+		sed -i \
+			-e "/org.gnome.desktop.sound/,+2 d" \
+			"${ED}${gschema_dir}/${gschema}" || die
+	fi
 
-	use lowgfx && echo -e \
-		"\n[com.canonical.Unity:Unity]\nlowgfx = true" \
-		>> "${ED}${gschema_dir}/${gschema}"
+	if use lowgfx; then
+		echo -e \
+			"\n[com.canonical.Unity:Unity]\nlowgfx = true" \
+			>> "${ED}${gschema_dir}/${gschema}"
+	fi
 
 	# Scopes: files, music, photos, video #
 	local \

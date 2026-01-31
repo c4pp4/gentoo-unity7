@@ -20,7 +20,7 @@ SRC_URI="${UURL}-${UREV}.tar.xz"
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="classic-dash classic-panel debug doc gles2 +hud pch systray +uwidgets"
+IUSE="bfb13 bfb23 classic-dash classic-panel debug doc gles2 +hud pch systray +uwidgets"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="test"
 
@@ -171,9 +171,11 @@ src_prepare() {
 	fi
 
 	# see https://launchpad.net/bugs/974480 #
-	use systray && ( sed -i \
-		-e "s/bool accept = FilterTray(title.Str(), res_name.Str(), res_class.Str());/bool accept = true;/" \
-		panel/PanelTray.cpp || die )
+	if use systray; then
+		sed -i \
+			-e "s/bool accept = FilterTray(title.Str(), res_name.Str(), res_class.Str());/bool accept = true;/" \
+			panel/PanelTray.cpp || die
+	fi
 
 	sed -i \
 		-e 's/"Ubuntu Desktop"/"Gentoo Unity⁷ Desktop"/' \
@@ -304,10 +306,18 @@ src_install() {
 		doexe "${FILESDIR}/99unity-debug"
 	fi
 
-	insinto /usr/share/unity/icons
-	# Gentoo dash launcher icon #
-	doins "${FILESDIR}/branding/launcher_bfb.svg"
+	# Dash home button #
+	if use bfb13; then
+		rm "${ED}"/usr/share/unity/icons/launcher_bfb.svg || die
+	elif use bfb23; then
+		:
+	else
+		insinto /usr/share/unity/icons
+		doins "${FILESDIR}/branding/launcher_bfb.svg"
+	fi
+
 	# Gentoo logo on lock-screen on multi head system #
+	insinto /usr/share/unity/icons
 	doins "${FILESDIR}/branding/lockscreen_cof.png"
 
 	# Dash (classic) and Hud borders #

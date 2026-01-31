@@ -71,13 +71,17 @@ src_prepare() {
 	# Remove Apport support #
 	rm debian/source_unity-tweak-tool.py || die
 
-	use bluetooth || sed -i \
-		-e "/indicator.bluetooth/d" \
-		UnityTweakTool/section/spaghetti/gsettings.py || die
+	if ! use bluetooth; then
+		sed -i \
+			-e "/indicator.bluetooth/d" \
+			UnityTweakTool/section/spaghetti/gsettings.py || die
+	fi
 
-	use files || sed -i \
-		-e "/FilesLens/d" \
-		UnityTweakTool/section/spaghetti/gsettings.py || die
+	if ! use files; then
+		sed -i \
+			-e "/FilesLens/d" \
+			UnityTweakTool/section/spaghetti/gsettings.py || die
+	fi
 
 	ubuntu-versionator_src_prepare
 }

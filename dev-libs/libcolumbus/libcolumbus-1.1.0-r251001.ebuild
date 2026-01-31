@@ -65,8 +65,9 @@ src_configure() {
 	)
 	CMAKE_BUILD_TYPE=$(usex coverage coverage Gentoo) cmake_src_configure
 
-	use pch && \
-		( cp python/pch/colpython_pch.hh "${BUILD_DIR}"/python/colpython_pch.hh || die )
+	if use pch; then
+		cp python/pch/colpython_pch.hh "${BUILD_DIR}"/python/colpython_pch.hh || die
+	fi
 }
 
 src_install() {

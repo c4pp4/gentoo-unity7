@@ -69,9 +69,11 @@ src_prepare() {
 	if use test; then
 		sed -i "s/return/exit/" tests/run-eds-ics-test.sh || die
 
-		use eds || sed -i \
-			-e "/^add_eds_ics_test_by_name/d" \
-			tests/CMakeLists.txt || die
+		if ! use eds; then
+			sed -i \
+				-e "/^add_eds_ics_test_by_name/d" \
+				tests/CMakeLists.txt || die
+		fi
 	else
 		cmake_comment_add_subdirectory tests
 	fi

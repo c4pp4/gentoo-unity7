@@ -217,7 +217,7 @@ find_tree_changes() {
 ehooks_changes() {
 	local -a result
 
-	if [[ -n $1 ]] && ( [[ ! -w $(get_repo_root)/ehooks ]] || [[ ! -w /etc/gentoo-unity7/timestamps ]] ); then
+	if [[ -n $1 ]] && [[ ! -w $(get_repo_root)/ehooks || ! -w /etc/gentoo-unity7/timestamps ]]; then
 		## Get ownership when write permission denied.
 		result=( $(stat -c '%U:%G' $(get_repo_root)/ehooks) $(stat -c '%U:%G' /etc/gentoo-unity7/timestamps) )
 		# Remove duplicates.
@@ -238,7 +238,7 @@ ehooks_changes() {
 
 	if [[ -z ${result[@]} ]]; then
 		einfo "No rebuild needed"
-	elif [[ ${result[0]} == *"/"* ]] && ( [[ -z ${result[1]} ]] || [[ ${result[1]} == *"/"* ]] ); then
+	elif [[ ${result[0]} == *"/"* ]] && [[ -z ${result[1]} || ${result[1]} == *"/"* ]]; then
 		echo " ${color_blink}------------------------------------------------------------${color_norm}"
 		ewarn "Rebuild the following packages affected by ehooks changes:"
 		ewarn "emerge -av1 ${result[@]}"

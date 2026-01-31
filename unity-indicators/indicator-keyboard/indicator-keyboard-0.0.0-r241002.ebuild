@@ -55,9 +55,11 @@ PATCHES=(
 )
 
 src_prepare() {
-	use charmap || ( sed -i \
-		-e "/Character Map/d" \
-		lib/indicator-menu.vala || die )
+	if ! use charmap; then
+		sed -i \
+			-e "/Character Map/d" \
+			lib/indicator-menu.vala || die
+	fi
 
 	# Disable tests #
 	sed -i "s/ tests//" Makefile.am || die

@@ -44,7 +44,10 @@ BDEPEND="
 S="${WORKDIR}"
 
 src_prepare() {
-	use doc || sed -i ":api/html:,+1 d" doc/Makefile.am || die
+	if ! use doc; then
+		sed -i ":api/html:,+1 d" doc/Makefile.am || die
+	fi
+
 	ubuntu-versionator_src_prepare
 }
 

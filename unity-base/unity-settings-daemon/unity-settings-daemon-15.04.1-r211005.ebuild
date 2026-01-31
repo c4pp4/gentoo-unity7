@@ -96,9 +96,11 @@ PATCHES=(
 
 src_prepare() {
 	# https://bugzilla.gnome.org/show_bug.cgi?id=621836
-	use short-touchpad-timeout && ( sed -i \
-		-e "/g_ptr_array_add/{s/1.0/0.5/}" \
-		plugins/mouse/gsd-mouse-manager.c || die )
+	if use short-touchpad-timeout; then
+		sed -i \
+			-e "/g_ptr_array_add/{s/1.0/0.5/}" \
+			plugins/mouse/gsd-mouse-manager.c || die
+	fi
 
 	# Ensure libunity-settings-daemon.so.1 gets linked to libudev.so #
 	sed -i 's:-lm :-lm -ludev :g' gnome-settings-daemon/Makefile.am || die

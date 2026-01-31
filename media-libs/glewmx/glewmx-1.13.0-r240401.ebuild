@@ -37,11 +37,13 @@ src_prepare() {
 		-e '/$(CC) $(CFLAGS) -o/s:$(CFLAGS):$(CFLAGS) $(LDFLAGS):' \
 		Makefile || die
 
-	use static-libs || sed -i \
+	if ! use static-libs; then
+		sed -i \
 			-e '/glew.lib:/s|lib/$(LIB.STATIC) ||' \
 			-e '/glew.lib.mx:/s|lib/$(LIB.STATIC.MX) ||' \
 			-e '/INSTALL.*LIB.STATIC/d' \
 			Makefile || die
+	fi
 
 	ubuntu-versionator_src_prepare
 

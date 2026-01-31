@@ -38,7 +38,9 @@ src_prepare() {
 	sed -i "s:/doc/libzeitgeist:/doc/${PF}:" Makefile.am || die
 
 	# Make gtk-doc-html really optional #
-	use doc || sed -i "/doc /d" Makefile.am || die
+	if ! use doc; then
+		sed -i "/doc /d" Makefile.am || die
+	fi
 
 	ubuntu-versionator_src_prepare
 }

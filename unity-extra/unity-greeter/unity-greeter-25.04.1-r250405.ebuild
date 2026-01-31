@@ -115,9 +115,11 @@ src_install() {
 	newins "${FILESDIR}/branding/gentoo_logo.png" logo.png
 	newins "${FILESDIR}/branding/gentoo_cof.png" cof.png # Gentoo logo for multi monitor usage
 
-	use ready-sound && ( sed -i \
-		-e "/play-ready-sound/d" \
-		"${ED}${gschema_dir}/${gschema}" || die )
+	if use ready-sound; then
+		sed -i \
+			-e "/play-ready-sound/d" \
+			"${ED}${gschema_dir}/${gschema}" || die
+	fi
 
 	# Install polkit privileges config #
 	insinto /var/lib/polkit-1/localauthority/10-vendor.d

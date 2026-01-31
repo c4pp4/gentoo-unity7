@@ -34,5 +34,5 @@ src_install() {
 		-e "s:/usr/lib:/usr/lib64:" \
 		"${ED}"/usr/share/cmake/QmlPlugins/QmlPluginsConfig.cmake
 
-	use examples && ( dodoc -r examples || die )
+	use examples && dodoc -r examples
 }
