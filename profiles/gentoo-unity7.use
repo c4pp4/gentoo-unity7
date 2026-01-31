@@ -12,7 +12,6 @@ dev-qt/qtgui:5                          ibus
 dev-qt/qtmultimedia:5                   widgets                         # dev-python/pyqt5 (unity-extra/meteo-qt)
 gnome-base/gvfs                         fuse mtp samba
 gnome-extra/nm-applet                   appindicator
-media-fonts/noto                                        -extra
 media-libs/freetype                     harfbuzz                        # x11-libs/pango
 media-libs/libvpx                       postproc                        # mail-client/thunderbird, www-client/firefox
 media-video/ffmpeg                      opus
