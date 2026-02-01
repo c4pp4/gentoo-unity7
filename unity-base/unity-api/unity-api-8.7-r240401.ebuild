@@ -47,6 +47,9 @@ src_prepare() {
 		sed -i "/Doxygen/,+15 d" CMakeLists.txt || die
 	fi
 
+	# Fix build with CMake 4 #
+	sed -i "/cmake_minimum_required/{s/2\.8\.10/3.10/}" CMakeLists.txt || die
+
 	# Fix libdir #
 	sed -i \
 		-e 's:lib/${CMAKE_LIBRARY_ARCHITECTURE}:${CMAKE_INSTALL_LIBDIR}:' \
