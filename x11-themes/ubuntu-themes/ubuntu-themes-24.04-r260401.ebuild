@@ -68,7 +68,7 @@ src_install() {
 
 		for x in "${ED}"/usr/share/icons/*/*/*/*.svg; do
 			if [[ -f ${x} ]]; then
-				scour -i "${x}" -o "${x}.tmp" && mv "${x}.tmp" "${x}" || rm "${x}.tmp"
+				scour -i "${x}" -o "${x}.tmp" 2>/dev/null && mv "${x}.tmp" "${x}" || rm "${x}.tmp"
 			fi
 		done
 

@@ -107,6 +107,9 @@ src_prepare() {
 			CMakeLists.txt || die
 	fi
 
+	# Fix build with CMake 4 #
+	sed -i "/cmake_minimum_required/{s/2\.8\.9/3.10/}" CMakeLists.txt || die
+
 	# Stop cmake doing the job of distutils #
 	sed -i \
 		-e '/add_subdirectory(hudkeywords)/d' \
@@ -130,6 +133,7 @@ src_configure() {
 	local mycmakeargs=(
 		-DBUILD_SHARED_LIBS=OFF
 		-DCMAKE_INSTALL_DATADIR=/usr/share
+		-DCMAKE_POLICY_VERSION_MINIMUM=3.10
 		-DENABLE_BAMF=ON
 		-DENABLE_DOCUMENTATION=$(usex doc ON OFF)
 		-DENABLE_TESTS=$(usex test ON OFF)

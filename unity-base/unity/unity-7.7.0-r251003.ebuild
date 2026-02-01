@@ -154,7 +154,12 @@ src_prepare() {
 	fi
 
 	# Preprocessor fixes #
-	if ! use pch; then
+	if use pch; then
+		sed -i '/#include <memory>/a #include <cstdint>' UnityCore/GLibSignal.h || die
+		sed -i '/#include <functional>/a #include <cstdint>' UnityCore/pch/unitycore_pch.hh || die
+		sed -i '/#include <list>/a #include <algorithm>' unity-shared/StandaloneWindowManager.h || die
+		sed -i '/#include <memory>/a #include <algorithm>' unity-shared/pch/unity-shared_pch.hh || die
+	else
 		sed -i '/#include "GLibWrapper.h"/a #include <iostream>' UnityCore/GLibWrapper.cpp || die
 		sed -i '/#include <functional>/a #include <string>' UnityCore/GLibSource.h || die
 		sed -i '/#include "GLibWrapper.h"/a #include <vector>' UnityCore/ScopeData.h || die

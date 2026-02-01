@@ -48,6 +48,9 @@ src_prepare() {
 	local diff_file="${WORKDIR}/${PN}_${PV}${UVER}-${UREV}.diff"
 	mv "${diff_file}" "${diff_file}.ignore"
 
+	# Fix build with CMake 4 #
+	sed -i "/cmake_minimum_required/{s/2\.8\.9/3.10/}" CMakeLists.txt || die
+
 	ubuntu-versionator_src_prepare
 
 	echo "$(tput bold)>>> Processing Ubuntu diff file$(tput sgr0) ..."
