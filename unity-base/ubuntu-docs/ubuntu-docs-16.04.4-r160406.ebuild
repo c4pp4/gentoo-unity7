@@ -99,7 +99,7 @@ src_prepare() {
 	popd >/dev/null || die
 
 	pushd ubuntu-help/C >/dev/null || die
-		sed -i -e "s/ addremove//" -e 's/16/11/g' index.page || die
+		sed -i "s/ addremove//" index.page || die
 		sed -i "/Install languages/d" prefs-language.page || die
 		sed -i '/id="complex"/,+49 d' keyboard-layouts.page || die
 		sed -i "/dozens of languages/,+3 d" session-language.page || die
@@ -107,7 +107,7 @@ src_prepare() {
 	popd >/dev/null || die
 
 	pushd ubuntu-help/C/figures >/dev/null || die
-		cp "${FILESDIR}"/gentoo-unity7-logo.png ubuntu-logo.png || die
+		cp "${FILESDIR}"/empty.png ubuntu-logo.png || die
 		cp "${FILESDIR}"/gentoo-unity7-word-mark.png ubuntu-mascot-creature.png || die
 		cp "${FILESDIR}"/nautilus.png . || die
 		cp "${FILESDIR}"/unity.png . || die
@@ -132,6 +132,12 @@ src_prepare() {
 		po_files+=( "ubuntu-help/${use_flag}/${use_flag}.po" )
 	done
 
+	sed -i \
+		-e "/ubuntu-logo\.png/{s/media> /media>/; n; s/media> /media>/}" \
+		"${page_files[@]}" "${po_files[@]}" || die
+	sed -i \
+		-e "N; /\n.*ubuntu-logo\.png/ s/16/0/g; P; D" \
+		"${page_files[@]}" "${po_files[@]}" || die
 	sed -i \
 		-e "s/Ubuntu Desktop/Gentoo Unity⁷ Desktop/" \
 		-e "s/Ubuntu desktop/Gentoo Unity⁷ Desktop/" \
