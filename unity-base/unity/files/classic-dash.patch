@@ -1,37 +1,37 @@
-From 0d020760ab7d6fa2d264755de04884e51684c733 Mon Sep 17 00:00:00 2001
+From 21e8ea703fce7a1f158f9a056d1986c050837fa9 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Wed, 12 Jun 2024 19:47:39 +0200
+Date: Mon, 9 Feb 2026 01:15:16 +0100
 Subject: [PATCH 1/1] Classic horizontal Dash with bottom scope bar
 
 Signed-off-by: c4pp4
 ---
- dash/DashView.cpp                | 36 ++++++++---------
- dash/PlacesGroup.cpp             |  4 --
- dash/ScopeBar.cpp                |  2 +-
- unity-shared/DashStyle.cpp       |  5 ---
- unity-shared/DashStyle.h         |  2 -
- unity-shared/OverlayRenderer.cpp | 49 ++++++++----------------
- unity-shared/SearchBar.cpp       | 66 ++++++++++++++++++++++++++++++--
- unity-shared/SearchBar.h         |  1 +
- 8 files changed, 99 insertions(+), 66 deletions(-)
+ dash/DashView.cpp          | 25 +++++++++++++--
+ dash/PlacesGroup.cpp       |  4 ---
+ dash/ScopeBar.cpp          |  2 +-
+ unity-shared/DashStyle.cpp |  5 ---
+ unity-shared/DashStyle.h   |  2 --
+ unity-shared/SearchBar.cpp | 66 ++++++++++++++++++++++++++++++++++++--
+ unity-shared/SearchBar.h   |  1 +
+ 7 files changed, 87 insertions(+), 18 deletions(-)
 
 diff --git a/dash/DashView.cpp b/dash/DashView.cpp
-index 0fd0597..ac8ee69 100644
+index 0fd0597..407d4fe 100644
 --- a/dash/DashView.cpp
 +++ b/dash/DashView.cpp
-@@ -485,11 +485,6 @@ void DashView::SetupViews()
+@@ -485,10 +485,12 @@ void DashView::SetupViews()
    content_view_->SetLayout(content_layout_);
    layout_->AddView(content_view_, 1, nux::MINOR_POSITION_START, nux::MINOR_SIZE_FULL);
  
--  scope_bar_ = new ScopeBar();
--  AddChild(scope_bar_);
--  scope_bar_->scope_activated.connect(sigc::mem_fun(this, &DashView::OnScopeBarActivated));
--  content_layout_->AddView(scope_bar_, 0, nux::MINOR_POSITION_CENTER);
--
++  /*
+   scope_bar_ = new ScopeBar();
+   AddChild(scope_bar_);
+   scope_bar_->scope_activated.connect(sigc::mem_fun(this, &DashView::OnScopeBarActivated));
+   content_layout_->AddView(scope_bar_, 0, nux::MINOR_POSITION_CENTER);
++  */
+ 
    search_bar_layout_ = new nux::HLayout();
    content_layout_->AddLayout(search_bar_layout_, 0, nux::MINOR_POSITION_CENTER, nux::MINOR_SIZE_FULL);
- 
-@@ -513,6 +508,11 @@ void DashView::SetupViews()
+@@ -513,6 +515,11 @@ void DashView::SetupViews()
    scopes_layout_ = new nux::VLayout();
    content_layout_->AddLayout(scopes_layout_, 1, nux::MINOR_POSITION_START);
  
@@ -43,17 +43,17 @@ index 0fd0597..ac8ee69 100644
    OnDPIChanged();
  }
  
-@@ -631,24 +631,24 @@ nux::Geometry DashView::GetBestFitGeometry(nux::Geometry const& for_geo)
+@@ -631,14 +638,24 @@ nux::Geometry DashView::GetBestFitGeometry(nux::Geometry const& for_geo)
                           style.GetPlacesGroupResultTopPadding().CP(scale) +
                           style.GetTileHeight().CP(scale));
  
 -  // let's show five tiles per row
 -  width = tile_width * 5;
 +  int half = for_geo.width / 2;
- 
++
 +  // if default dash size is bigger than half a screens worth of items, go for that.
 +  while ((width += tile_width) < half);
-+
+ 
 +  width = std::max(width, tile_width * DASH_TILE_HORIZONTAL_COUNT);
    width += style.GetVSeparatorSize().CP(scale);
    width += style.GetPlacesGroupResultLeftPadding().CP(scale) + DASH_RESULT_RIGHT_PAD.CP(scale);
@@ -67,16 +67,15 @@ index 0fd0597..ac8ee69 100644
 +
 +  // width/height shouldn't be bigger than the geo available.
    width = std::min(width, for_geo.width); // launcher width is taken into account in for_geo.
--  height = for_geo.height - vertical_offset;
--
--  if (Settings::Instance().launcher_position() == LauncherPosition::BOTTOM) {
--    height = style.GetHSeparatorSize().CP(scale);
--    height += style.GetDashViewTopPadding().CP(scale);
--    height += search_bar_->GetGeometry().height;
--    height += category_height * 3;
--    height += scope_bar_->GetGeometry().height;
--    height = std::min(height, for_geo.height - vertical_offset);
--  }
++  /*
+   height = for_geo.height - vertical_offset;
+ 
+   if (Settings::Instance().launcher_position() == LauncherPosition::BOTTOM) {
+@@ -649,6 +666,8 @@ nux::Geometry DashView::GetBestFitGeometry(nux::Geometry const& for_geo)
+     height += scope_bar_->GetGeometry().height;
+     height = std::min(height, for_geo.height - vertical_offset);
+   }
++  */
 +  height = std::min(height, for_geo.height - vertical_offset); // panel height is not taken into account in for_geo.
  
    return nux::Geometry(0, vertical_offset, width, height);
@@ -145,80 +144,6 @@ index dd127c4..f080297 100755
    BaseTexturePtr GetDashCorner(double scale) const;
    BaseTexturePtr GetDashCornerMask(double scale) const;
    BaseTexturePtr GetDashLeftCorner(double scale) const;
-diff --git a/unity-shared/OverlayRenderer.cpp b/unity-shared/OverlayRenderer.cpp
-index e35a3e8..648efa7 100644
---- a/unity-shared/OverlayRenderer.cpp
-+++ b/unity-shared/OverlayRenderer.cpp
-@@ -142,37 +142,20 @@ void OverlayRendererImpl::LoadScaledTextures()
-   double scale = parent->scale;
-   auto& style = dash::Style::Instance();
- 
--  if (parent->owner_type == OverlayOwner::Hud) {
--    horizontal_texture_ = style.GetDashHorizontalTile(scale);
--    horizontal_texture_mask_ = style.GetDashHorizontalTileMask(scale);
--    right_texture_ = style.GetDashRightTile(scale);
--    right_texture_mask_ = style.GetDashRightTileMask(scale);
--    top_left_texture_ = style.GetDashTopLeftTile(scale);
--    left_texture_ = style.GetDashLeftTile(scale);
--    top_texture_ = style.GetDashTopTile(scale);
--
--    corner_ = style.GetDashCorner(scale);
--    corner_mask_ = style.GetDashCornerMask(scale);
--    left_corner_ = style.GetDashLeftCorner(scale);
--    left_corner_mask_ = style.GetDashLeftCornerMask(scale);
--    right_corner_ = style.GetDashRightCorner(scale);
--    right_corner_mask_ = style.GetDashRightCornerMask(scale);
--  } else {
--    horizontal_texture_ = style.GetEmpty(scale);
--    horizontal_texture_mask_ = style.GetEmpty(scale);
--    right_texture_ = style.GetEmpty(scale);
--    right_texture_mask_ = style.GetEmpty(scale);
--    top_left_texture_ = style.GetEmpty(scale);
--    left_texture_ = style.GetEmpty(scale);
--    top_texture_ = style.GetEmpty(scale);
--
--    corner_ = style.GetEmpty(scale);
--    corner_mask_ = style.GetEmpty(scale);
--    left_corner_ = style.GetEmpty(scale);
--    left_corner_mask_ = style.GetEmpty(scale);
--    right_corner_ = style.GetEmpty(scale);
--    right_corner_mask_ = style.GetEmpty(scale);
--  }
-+  horizontal_texture_ = style.GetDashHorizontalTile(scale);
-+  horizontal_texture_mask_ = style.GetDashHorizontalTileMask(scale);
-+  right_texture_ = style.GetDashRightTile(scale);
-+  right_texture_mask_ = style.GetDashRightTileMask(scale);
-+  top_left_texture_ = style.GetDashTopLeftTile(scale);
-+  left_texture_ = style.GetDashLeftTile(scale);
-+  top_texture_ = style.GetDashTopTile(scale);
-+
-+  corner_ = style.GetDashCorner(scale);
-+  corner_mask_ = style.GetDashCornerMask(scale);
-+  left_corner_ = style.GetDashLeftCorner(scale);
-+  left_corner_mask_ = style.GetDashLeftCornerMask(scale);
-+  right_corner_ = style.GetDashRightCorner(scale);
-+  right_corner_mask_ = style.GetDashRightCornerMask(scale);
- }
- 
- void OverlayRendererImpl::OnBgColorChanged(nux::Color const& new_color)
-@@ -205,7 +188,7 @@ void OverlayRendererImpl::UpdateTextures()
-   rop.Blend = true;
-   rop.SrcBlend = GL_ZERO;
-   rop.DstBlend = GL_SRC_COLOR;
--  nux::Color darken_colour = nux::Color(1.0f, 1.0f, 1.0f, 1.0f);
-+  nux::Color darken_colour = nux::Color(0.9f, 0.9f, 0.9f, 1.0f);
- 
-   //When we are in low gfx mode then our darken layer will act as a background.
-   if (Settings::Instance().low_gfx())
-@@ -217,7 +200,7 @@ void OverlayRendererImpl::UpdateTextures()
-   }
- 
-   bg_darken_layer_ = std::make_shared<nux::ColorLayer>(darken_colour, false, rop);
--  // bg_shine_texture_ = dash::Style::Instance().GetDashShine()->GetDeviceTexture();
-+  bg_shine_texture_ = dash::Style::Instance().GetDashShine()->GetDeviceTexture();
- 
-   auto const& bg_refine_tex = dash::Style::Instance().GetRefineTextureDash();
- 
 diff --git a/unity-shared/SearchBar.cpp b/unity-shared/SearchBar.cpp
 index 8e90c58..9c3741f 100644
 --- a/unity-shared/SearchBar.cpp
@@ -325,5 +250,5 @@ index fa28332..c9af1db 100644
    void OnClearClicked(int x, int y, unsigned long button_flags, unsigned long key_flags);
    void OnEntryActivated();
 -- 
-2.44.2
+2.52.0
 

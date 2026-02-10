@@ -1,0 +1,369 @@
+From e46d60424bdf4266e6b398605a0e3b0d35e75eab Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Tue, 10 Feb 2026 02:28:09 +0100
+Subject: [PATCH 1/1] Dash and Hud border fixes
+
+Signed-off-by: c4pp4
+---
+ dash/DashView.cpp                |  5 +++
+ unity-shared/OverlayRenderer.cpp | 64 +++++++++++++++++++++++++++++---
+ unity-shared/UnitySettings.cpp   | 45 ++++++++++++++++++++++
+ unity-shared/UnitySettings.h     |  1 +
+ 4 files changed, 109 insertions(+), 6 deletions(-)
+
+diff --git a/dash/DashView.cpp b/dash/DashView.cpp
+index 0fd0597..bc8a57f 100644
+--- a/dash/DashView.cpp
++++ b/dash/DashView.cpp
+@@ -626,10 +626,12 @@ nux::Geometry DashView::GetBestFitGeometry(nux::Geometry const& for_geo)
+   int width = 0, height = 0;
+   int tile_width = style.GetTileWidth().CP(scale);
+ 
++  /*
+   int category_height = (style.GetPlacesGroupTopSpace().CP(scale) +
+                          style.GetCategoryIconSize().CP(scale) +
+                          style.GetPlacesGroupResultTopPadding().CP(scale) +
+                          style.GetTileHeight().CP(scale));
++  */
+ 
+   // let's show five tiles per row
+   width = tile_width * 5;
+@@ -642,12 +644,15 @@ nux::Geometry DashView::GetBestFitGeometry(nux::Geometry const& for_geo)
+   height = for_geo.height - vertical_offset;
+ 
+   if (Settings::Instance().launcher_position() == LauncherPosition::BOTTOM) {
++    /*
+     height = style.GetHSeparatorSize().CP(scale);
+     height += style.GetDashViewTopPadding().CP(scale);
+     height += search_bar_->GetGeometry().height;
+     height += category_height * 3;
+     height += scope_bar_->GetGeometry().height;
+     height = std::min(height, for_geo.height - vertical_offset);
++    */
++    height = for_geo.height - vertical_offset - renderer_.x_offset;
+   }
+ 
+   return nux::Geometry(0, vertical_offset, width, height);
+diff --git a/unity-shared/OverlayRenderer.cpp b/unity-shared/OverlayRenderer.cpp
+index e35a3e8..bb62fa0 100644
+--- a/unity-shared/OverlayRenderer.cpp
++++ b/unity-shared/OverlayRenderer.cpp
+@@ -633,19 +633,26 @@ void OverlayRendererImpl::Draw(nux::GraphicsEngine& gfx_context, nux::Geometry c
+ 
+   if (settings.form_factor() != FormFactor::NETBOOK || force_edges)
+   {
++    /*
+     int monitor = UScreen::GetDefault()->GetMonitorAtPosition(absolute_geo.x, absolute_geo.y);
+     auto const& monitor_geo = UScreen::GetDefault()->GetMonitorGeometry(monitor);
+     int launcher_size = Settings::Instance().LauncherSize(monitor);
+     int panel_height = panel::Style::Instance().PanelHeight(monitor);
++    */
+ 
+     int border_y = content_geo.y;
+     int border_height = larger_absolute_geo.height;
+-    if (parent->owner_type() == OverlayOwner::Dash && settings.launcher_position() == LauncherPosition::BOTTOM)
++    bool is_hud = (parent->owner_type == OverlayOwner::Hud);
++    bool is_dash = (parent->owner_type == OverlayOwner::Dash);
++    bool is_hide = settings.launcher_hide_enabled;
++    if (settings.launcher_position() == LauncherPosition::BOTTOM)
+     {
+-      border_y = panel_height;
+-      border_height = monitor_geo.height - launcher_size;
+       dash_position = OverlayPosition::BOTTOM;
+     }
++    else
++    {
++      dash_position = OverlayPosition::LEFT;
++    }
+ 
+     nux::Geometry geo_border(content_geo.x, border_y, larger_absolute_geo.width - content_geo.x, border_height);
+     gfx_context.PushClippingRectangle(geo_border);
+@@ -670,11 +677,13 @@ void OverlayRendererImpl::Draw(nux::GraphicsEngine& gfx_context, nux::Geometry c
+       auto const& right_corner_mask = right_corner_mask_;
+       auto const& horizontal_tile = top_texture_;
+ 
++      /*
+       if (dash_position == OverlayPosition::BOTTOM)
+       {
+         // Let's flip all the textures vertically
+         texxform.flip_v_coord = true;
+       }
++      */
+ 
+       int left_corner_offset = LEFT_CORNER_OFFSET.CP(scale);
+       int top_corner_offset = TOP_CORNER_OFFSET.CP(scale);
+@@ -684,14 +693,18 @@ void OverlayRendererImpl::Draw(nux::GraphicsEngine& gfx_context, nux::Geometry c
+ 
+       geo.width += corner_size.width - left_corner_offset;
+       geo.height += corner_size.height - top_corner_offset;
++      if (is_hud)
++      {
+       {
+         // Corner
+         texxform.SetTexCoordType(nux::TexCoordXForm::OFFSET_COORD);
+         texxform.SetWrap(nux::TEXWRAP_CLAMP_TO_BORDER, nux::TEXWRAP_CLAMP_TO_BORDER);
+         int corner_y = geo.y + (geo.height - corner_size.height);
+ 
++        /*
+         if (dash_position == OverlayPosition::BOTTOM)
+           corner_y = geo.y - corner_size.height + top_corner_offset;
++        */
+ 
+         // Selectively erase blur region in the curbe
+         gfx_context.QRP_ColorModTexAlpha(geo.x + (geo.width - corner_size.width),
+@@ -727,11 +740,19 @@ void OverlayRendererImpl::Draw(nux::GraphicsEngine& gfx_context, nux::Geometry c
+       }
+       {
+         // Horizontal repeated texture
++        if (dash_position == OverlayPosition::BOTTOM || is_hide)
++        {
++          left_corner_size.width = 0;
++          left_corner_offset = 0;
++        }
++
+         int real_width = geo.width - (left_corner_size.width - left_corner_offset) - corner_size.width;
+         int horizontal_y = geo.y + (geo.height - horizontal->GetHeight());
+ 
++        /*
+         if (dash_position == OverlayPosition::BOTTOM)
+           horizontal_y = geo.y - horizontal->GetHeight() + top_corner_offset;
++        */
+ 
+         texxform.SetTexCoordType(nux::TexCoordXForm::OFFSET_COORD);
+         texxform.SetWrap(nux::TEXWRAP_REPEAT, nux::TEXWRAP_REPEAT);
+@@ -768,17 +789,20 @@ void OverlayRendererImpl::Draw(nux::GraphicsEngine& gfx_context, nux::Geometry c
+                              texxform,
+                              nux::color::White);
+       }
++      if (dash_position == OverlayPosition::LEFT && !is_hide)
+       {
+         // Bottom left or top left corner
+         texxform.SetTexCoordType(nux::TexCoordXForm::OFFSET_COORD);
+         texxform.SetWrap(nux::TEXWRAP_CLAMP_TO_BORDER, nux::TEXWRAP_CLAMP_TO_BORDER);
+         int left_corner_y = geo.y + (geo.height - left_corner_size.height);
+ 
++        /*
+         if (dash_position == OverlayPosition::BOTTOM)
+           left_corner_y = geo.y - left_corner_size.height + top_corner_offset;
+ 
+         if (dash_position == OverlayPosition::LEFT)
+         {
++        */
+           // Selectively erase blur region in the curbe
+           gfx_context.QRP_ColorModTexAlpha(geo.x - left_corner_offset,
+                                            left_corner_y,
+@@ -798,7 +822,6 @@ void OverlayRendererImpl::Draw(nux::GraphicsEngine& gfx_context, nux::Geometry c
+                                left_corner_mask->GetDeviceTexture(),
+                                texxform,
+                                nux::color::White);
+-        }
+ 
+         gfx_context.GetRenderStates().SetBlend(true);
+         gfx_context.GetRenderStates().SetPremultipliedBlend(nux::SRC_OVER);
+@@ -812,6 +835,7 @@ void OverlayRendererImpl::Draw(nux::GraphicsEngine& gfx_context, nux::Geometry c
+                              texxform,
+                              nux::color::White);
+       }
++      if (dash_position == OverlayPosition::LEFT && !is_hide)
+       {
+         // Left repeated texture
+         nux::Geometry real_geo = geometry;
+@@ -819,6 +843,7 @@ void OverlayRendererImpl::Draw(nux::GraphicsEngine& gfx_context, nux::Geometry c
+         int offset = real_height % left_tile->GetHeight();
+         int left_texture_y = geo.y + geo.height;
+ 
++        /*
+         if (dash_position == OverlayPosition::BOTTOM)
+         {
+           left_texture_y = panel_height + top_left_texture_->GetHeight();
+@@ -828,6 +853,7 @@ void OverlayRendererImpl::Draw(nux::GraphicsEngine& gfx_context, nux::Geometry c
+         {
+           real_height -= launcher_size + top_left_texture_->GetWidth();
+         }
++        */
+ 
+         texxform.SetTexCoordType(nux::TexCoordXForm::OFFSET_COORD);
+         texxform.SetWrap(nux::TEXWRAP_REPEAT, nux::TEXWRAP_REPEAT);
+@@ -840,14 +866,20 @@ void OverlayRendererImpl::Draw(nux::GraphicsEngine& gfx_context, nux::Geometry c
+                              texxform,
+                              nux::color::White);
+       }
++      }
+       {
+         // Right edge
+         texxform.SetTexCoordType(nux::TexCoordXForm::OFFSET_COORD);
+         texxform.SetWrap(nux::TEXWRAP_REPEAT, nux::TEXWRAP_REPEAT);
+         int right_edge_y = geo.y + right_corner_size.height - top_corner_offset;
+ 
++        /*
+         if (dash_position == OverlayPosition::BOTTOM)
+           right_edge_y = geo.y + top_corner_offset;
++        */
++
++        if (is_dash && dash_position == OverlayPosition::LEFT)
++          corner_size.height = 0;
+ 
+         // Selectively erase blur region in the curbe
+         gfx_context.QRP_ColorModTexAlpha(geo.x + geo.width - right->GetWidth(),
+@@ -886,9 +918,16 @@ void OverlayRendererImpl::Draw(nux::GraphicsEngine& gfx_context, nux::Geometry c
+         texxform.SetTexCoordType(nux::TexCoordXForm::OFFSET_COORD);
+         texxform.SetWrap(nux::TEXWRAP_CLAMP_TO_BORDER, nux::TEXWRAP_CLAMP_TO_BORDER);
+         int right_corner_y = geo.y - top_corner_offset;
++        int pass_count = (is_dash && dash_position == OverlayPosition::BOTTOM) ? 2 : 1;
++        bool was_flipped = texxform.flip_v_coord;
+ 
+-        if (dash_position == OverlayPosition::BOTTOM)
++        for (int i = 0; i < pass_count; ++i)
++        {
++          if (i == 1)
++          {
++            texxform.flip_v_coord = true;
+           right_corner_y = geo.y + content_geo.height - right_corner_size.height + top_corner_offset;
++          }
+ 
+         // Selectively erase blur region in the curbe
+         gfx_context.QRP_ColorModTexAlpha(geo.x + geo.width - right->GetWidth(),
+@@ -920,15 +959,24 @@ void OverlayRendererImpl::Draw(nux::GraphicsEngine& gfx_context, nux::Geometry c
+                              right_corner->GetDeviceTexture(),
+                              texxform,
+                              nux::color::White);
++        }
++        texxform.flip_v_coord = was_flipped;
+       }
+       {
+         // Top or bottom edge
+         texxform.SetTexCoordType(nux::TexCoordXForm::OFFSET_COORD);
+         texxform.SetWrap(nux::TEXWRAP_REPEAT, nux::TEXWRAP_REPEAT);
+         int y = geo.y - top_corner_offset;
++        int pass_count = (is_dash && dash_position == OverlayPosition::BOTTOM) ? 2 : 1;
++        bool was_flipped = texxform.flip_v_coord;
+ 
+-        if (dash_position == OverlayPosition::BOTTOM)
++        for (int i = 0; i < pass_count; ++i)
++        {
++          if (i == 1)
++          {
++            texxform.flip_v_coord = true;
+           y = geo.y + content_geo.height - horizontal_tile->GetHeight() + top_corner_offset;
++          }
+ 
+         gfx_context.GetRenderStates().SetPremultipliedBlend(nux::SRC_OVER);
+         gfx_context.QRP_1Tex(geo.x + geo.width,
+@@ -938,7 +986,10 @@ void OverlayRendererImpl::Draw(nux::GraphicsEngine& gfx_context, nux::Geometry c
+                              horizontal_tile->GetDeviceTexture(),
+                              texxform,
+                              nux::color::White);
++        }
++        texxform.flip_v_coord = was_flipped;
+ 
++        /*
+         if (dash_position == OverlayPosition::BOTTOM)
+         {
+           // Top Left edge
+@@ -1000,6 +1051,7 @@ void OverlayRendererImpl::Draw(nux::GraphicsEngine& gfx_context, nux::Geometry c
+ 
+           texxform.flip_v_coord = was_flipped;
+         }
++        */
+       }
+     }
+ 
+diff --git a/unity-shared/UnitySettings.cpp b/unity-shared/UnitySettings.cpp
+index 96b014b..bb3eaaf 100644
+--- a/unity-shared/UnitySettings.cpp
++++ b/unity-shared/UnitySettings.cpp
+@@ -81,6 +81,13 @@ const std::string CCS_PROFILE_CHANGER_TOOL = "compiz-config-profile-setter";
+ const std::string CCS_PROFILE_DEFAULT = "unity";
+ const std::string CCS_PROFILE_LOWGFX = CCS_PROFILE_DEFAULT + "-lowgfx";
+ 
++const std::string UNITYSHELL_SCHEMA = "org.compiz.unityshell";
++const std::string LAUNCHER_HIDE_KEY = "launcher-hide-mode";
++enum LauncherHideMode {
++  NEVER = 0,
++  AUTOHIDE = 1
++};
++
+ const int DEFAULT_LAUNCHER_SIZE = 64;
+ const int MINIMUM_DESKTOP_HEIGHT = 800;
+ const int DESKTOP_SETTINGS_CHANGED_WAIT_SECONDS = 1;
+@@ -114,6 +121,7 @@ public:
+     , remote_content_enabled_(true)
+   {
+     InitializeLowGfx();
++    InitializeUnityshellSettings();
+ 
+     parent_->form_factor.SetGetterFunction(sigc::mem_fun(this, &Impl::GetFormFactor));
+     parent_->form_factor.SetSetterFunction(sigc::mem_fun(this, &Impl::SetFormFactor));
+@@ -131,6 +139,7 @@ public:
+ 
+     signals_.Add<void, GSettings*, const gchar*>(compiz_settings_, "changed::" + COMPIZ_PROFILE, [this] (GSettings*, const gchar *) {
+       parent_->low_gfx = (GetCurrentCompizProfile() == CCS_PROFILE_LOWGFX);
++      InitializeUnityshellSettings();
+     });
+ 
+     signals_.Add<void, GSettings*, const gchar*>(usettings_, "changed::" + LOWGFX, [this] (GSettings*, const gchar *) {
+@@ -510,6 +519,41 @@ public:
+     return remote_content_enabled_;
+   }
+ 
++  void InitializeUnityshellSettings()
++  {
++    std::string signal_name = "changed::" + LAUNCHER_HIDE_KEY;
++
++    if (unityshell_settings_)
++    {
++      signals_.Disconnect(unityshell_settings_, signal_name);
++    }
++
++    std::string unityshell_path = "/org/compiz/profiles/" + GetCurrentCompizProfile() + "/plugins/unityshell/";
++    unityshell_settings_ = g_settings_new_with_path(UNITYSHELL_SCHEMA.c_str(), unityshell_path.c_str());
++
++    signals_.Add<void, GSettings*, const gchar*>(unityshell_settings_, signal_name, [this] (GSettings*, const gchar*) {
++      UpdateLauncherHideEnabled();
++    });
++
++    UpdateLauncherHideEnabled();
++  }
++
++  void UpdateLauncherHideEnabled()
++  {
++    int mode;
++
++    if (unityshell_settings_)
++    {
++      mode = g_settings_get_int(unityshell_settings_, LAUNCHER_HIDE_KEY.c_str());
++    }
++    else
++    {
++      mode = NEVER;
++    }
++
++    parent_->launcher_hide_enabled = (mode == AUTOHIDE);
++  }
++
+   Settings* parent_;
+   glib::Object<GSettings> usettings_;
+   glib::Object<GSettings> compiz_settings_;
+@@ -520,6 +564,7 @@ public:
+   glib::Object<GSettings> ubuntu_ui_settings_;
+   glib::Object<GSettings> desktop_ui_settings_;
+   glib::Object<GSettings> remote_content_settings_;
++  glib::Object<GSettings> unityshell_settings_;
+   glib::Source::UniquePtr changing_desktop_settings_timeout_;
+   glib::SignalManager signals_;
+   std::vector<EMConverter::Ptr> em_converters_;
+diff --git a/unity-shared/UnitySettings.h b/unity-shared/UnitySettings.h
+index 144e2c1..36f19f0 100644
+--- a/unity-shared/UnitySettings.h
++++ b/unity-shared/UnitySettings.h
+@@ -75,6 +75,7 @@ public:
+   nux::Property<bool> gestures_launcher_drag;
+   nux::Property<bool> gestures_dash_tap;
+   nux::Property<bool> gestures_windows_drag_pinch;
++  nux::Property<bool> launcher_hide_enabled;
+ 
+   sigc::signal<void> dpi_changed;
+   sigc::signal<void> gestures_changed;
+-- 
+2.52.0
+

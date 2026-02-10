@@ -1,10 +1,11 @@
-From 5dcc55d005149441fdf6e8a81cc8d4a801c782c9 Mon Sep 17 00:00:00 2001
+From 0ef04e409479c2cc28d9a143ec2046fba6252060 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Mon, 5 May 2025 19:43:37 +0200
-Subject: [PATCH 1/1] Revert Ubuntu Unity changes
+Date: Mon, 9 Feb 2026 01:33:42 +0100
+Subject: [PATCH 1/1] Revert unwanted Ubuntu Unity changes
 
-Revert panel padding, dash preview, dash and launcher icon size, online
-search tooltip, drag & drop, and icon desaturation on hud activation.
+Revert panel padding, dash and hud border, dash preview,
+dash and launcher icon size, online search tooltip, drag & drop,
+and icon desaturation on hud activation.
 
 Signed-off-by: c4pp4
 ---
@@ -16,10 +17,11 @@ Signed-off-by: c4pp4
  panel/PanelView.cpp                  |   2 +-
  plugins/unityshell/unityshell.xml.in |   2 +-
  unity-shared/DashStyle.cpp           |  51 +++--
- 8 files changed, 474 insertions(+), 31 deletions(-)
+ unity-shared/OverlayRenderer.cpp     |   8 +-
+ 9 files changed, 479 insertions(+), 34 deletions(-)
 
 diff --git a/dash/DashView.cpp b/dash/DashView.cpp
-index 0fd0597..f064616 100644
+index bc8a57f..380840c 100644
 --- a/dash/DashView.cpp
 +++ b/dash/DashView.cpp
 @@ -232,12 +232,83 @@ void DashView::OnResultActivated(ResultView::ActivateType type, LocalResult cons
@@ -108,7 +110,7 @@ index 0fd0597..f064616 100644
  }
  
  void DashView::StartPreviewAnimation()
-@@ -1021,7 +1092,59 @@ void DashView::DrawPreviewResultTextures(nux::GraphicsEngine& graphics_engine, b
+@@ -1026,7 +1097,59 @@ void DashView::DrawPreviewResultTextures(nux::GraphicsEngine& graphics_engine, b
  }
  
  void DashView::DrawPreview(nux::GraphicsEngine& graphics_engine, bool force_draw)
@@ -565,10 +567,10 @@ index 8bf3c80..20f0638 100644
  
    LOG_DEBUG(logger) << "Indicators View Added: ";
 diff --git a/panel/PanelView.cpp b/panel/PanelView.cpp
-index 1a54ab1..fd492b6 100644
+index cffa311..02dd6e7 100644
 --- a/panel/PanelView.cpp
 +++ b/panel/PanelView.cpp
-@@ -539,7 +539,7 @@ PanelView::UpdateBackground()
+@@ -537,7 +537,7 @@ PanelView::UpdateBackground()
  
    if (overlay_is_open_ || wm.IsScaleActive())
    {
@@ -705,6 +707,53 @@ index b0c3eac..4d7cdff 100755
  }
  
  RawPixel Style::GetCategoryHeaderLeftPadding() const
+diff --git a/unity-shared/OverlayRenderer.cpp b/unity-shared/OverlayRenderer.cpp
+index 0298ac1..3267a3f 100644
+--- a/unity-shared/OverlayRenderer.cpp
++++ b/unity-shared/OverlayRenderer.cpp
+@@ -142,7 +142,7 @@ void OverlayRendererImpl::LoadScaledTextures()
+   double scale = parent->scale;
+   auto& style = dash::Style::Instance();
+ 
+-  if (parent->owner_type == OverlayOwner::Hud) {
++  //if (parent->owner_type == OverlayOwner::Hud) {
+     horizontal_texture_ = style.GetDashHorizontalTile(scale);
+     horizontal_texture_mask_ = style.GetDashHorizontalTileMask(scale);
+     right_texture_ = style.GetDashRightTile(scale);
+@@ -157,6 +157,7 @@ void OverlayRendererImpl::LoadScaledTextures()
+     left_corner_mask_ = style.GetDashLeftCornerMask(scale);
+     right_corner_ = style.GetDashRightCorner(scale);
+     right_corner_mask_ = style.GetDashRightCornerMask(scale);
++  /*
+   } else {
+     horizontal_texture_ = style.GetEmpty(scale);
+     horizontal_texture_mask_ = style.GetEmpty(scale);
+@@ -173,6 +174,7 @@ void OverlayRendererImpl::LoadScaledTextures()
+     right_corner_ = style.GetEmpty(scale);
+     right_corner_mask_ = style.GetEmpty(scale);
+   }
++  */
+ }
+ 
+ void OverlayRendererImpl::OnBgColorChanged(nux::Color const& new_color)
+@@ -205,7 +207,7 @@ void OverlayRendererImpl::UpdateTextures()
+   rop.Blend = true;
+   rop.SrcBlend = GL_ZERO;
+   rop.DstBlend = GL_SRC_COLOR;
+-  nux::Color darken_colour = nux::Color(1.0f, 1.0f, 1.0f, 1.0f);
++  nux::Color darken_colour = nux::Color(0.9f, 0.9f, 0.9f, 1.0f);
+ 
+   //When we are in low gfx mode then our darken layer will act as a background.
+   if (Settings::Instance().low_gfx())
+@@ -217,7 +219,7 @@ void OverlayRendererImpl::UpdateTextures()
+   }
+ 
+   bg_darken_layer_ = std::make_shared<nux::ColorLayer>(darken_colour, false, rop);
+-  // bg_shine_texture_ = dash::Style::Instance().GetDashShine()->GetDeviceTexture();
++  bg_shine_texture_ = dash::Style::Instance().GetDashShine()->GetDeviceTexture();
+ 
+   auto const& bg_refine_tex = dash::Style::Instance().GetRefineTextureDash();
+ 
 -- 
-2.49.0
+2.52.0
 

@@ -1,13 +1,13 @@
-From 5f5ec2e81c7f0e016aee0dc074aeb149c5430193 Mon Sep 17 00:00:00 2001
+From 0d38aa3e4a019c62a315d984f83884ca888a57cd Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Fri, 23 Jan 2026 04:02:43 +0100
-Subject: [PATCH 1/1] Fix panel transparency
+Date: Mon, 9 Feb 2026 01:23:51 +0100
+Subject: [PATCH 1/1] Transparent panel fixes
 
 Signed-off-by: c4pp4
 ---
- panel/PanelView.cpp                   |  7 ++-----
- plugins/unityshell/src/unityshell.cpp | 30 ---------------------------
- 2 files changed, 2 insertions(+), 35 deletions(-)
+ panel/PanelView.cpp                   | 7 ++-----
+ plugins/unityshell/src/unityshell.cpp | 6 ++----
+ 2 files changed, 4 insertions(+), 9 deletions(-)
 
 diff --git a/panel/PanelView.cpp b/panel/PanelView.cpp
 index 1a54ab1..cffa311 100644
@@ -48,7 +48,7 @@ index 1a54ab1..cffa311 100644
    ForceUpdateBackground();
  }
 diff --git a/plugins/unityshell/src/unityshell.cpp b/plugins/unityshell/src/unityshell.cpp
-index 38f433a..d33fb6a 100644
+index 38f433a..6fd9720 100644
 --- a/plugins/unityshell/src/unityshell.cpp
 +++ b/plugins/unityshell/src/unityshell.cpp
 @@ -892,8 +892,6 @@ void UnityScreen::paintOutput()
@@ -60,41 +60,31 @@ index 38f433a..d33fb6a 100644
    /* Bind the currently bound draw framebuffer to the read framebuffer binding.
     * The reason being that we want to use the results of nux images being
     * drawn to this framebuffer in glCopyTexSubImage2D operations */
-@@ -1010,34 +1008,6 @@ void UnityScreen::paintOutput()
+@@ -1010,6 +1008,7 @@ void UnityScreen::paintOutput()
    didShellRepaint = true;
  }
  
--void UnityScreen::DrawPanelUnderDash()
--{
--  if (!paint_panel_under_dash_ || (!dash_controller_->IsVisible() && !hud_controller_->IsVisible()))
--    return;
--
--  auto const& output_dev = screen->currentOutputDev();
--
--  if (last_output_->id() != output_dev.id())
--    return;
--
--  auto graphics_engine = nux::GetGraphicsDisplay()->GetGraphicsEngine();
--
--  if (!graphics_engine->UsingGLSLCodePath())
--    return;
--
--  graphics_engine->ResetModelViewMatrixStack();
--  graphics_engine->Push2DTranslationModelViewMatrix(0.0f, 0.0f, 0.0f);
--  graphics_engine->ResetProjectionMatrix();
--  graphics_engine->SetOrthographicProjectionMatrix(output_dev.width(), output_dev.height());
--
--  nux::TexCoordXForm texxform;
--  texxform.SetWrap(nux::TEXWRAP_REPEAT, nux::TEXWRAP_CLAMP);
--
--  int monitor = WM.MonitorGeometryIn(NuxGeometryFromCompRect(output_dev));
--  auto const& texture = panel_style_.GetBackground(monitor)->GetDeviceTexture();
--  graphics_engine->QRP_GLSL_1Tex(0, 0, output_dev.width(), texture->GetHeight(), texture, texxform, nux::color::White);
--}
--
++/*
+ void UnityScreen::DrawPanelUnderDash()
+ {
+   if (!paint_panel_under_dash_ || (!dash_controller_->IsVisible() && !hud_controller_->IsVisible()))
+@@ -1037,6 +1036,7 @@ void UnityScreen::DrawPanelUnderDash()
+   auto const& texture = panel_style_.GetBackground(monitor)->GetDeviceTexture();
+   graphics_engine->QRP_GLSL_1Tex(0, 0, output_dev.width(), texture->GetHeight(), texture, texxform, nux::color::White);
+ }
++*/
+ 
  bool UnityScreen::forcePaintOnTop()
  {
-   if (!allowWindowPaint ||
+@@ -3155,8 +3155,6 @@ bool UnityWindow::glDraw(const GLMatrix& matrix,
+     OVER_WINDOW,
+   };
+ 
+-  auto draw_panel_shadow = DrawPanelShadow::NO;
+-
+   deco_win_->Draw(matrix, attrib, region, mask);
+   bool ret = gWindow->glDraw(matrix, attrib, region, mask);
+ 
 -- 
 2.52.0
 

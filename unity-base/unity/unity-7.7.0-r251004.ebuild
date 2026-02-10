@@ -124,7 +124,7 @@ S="${S}${UVER}"
 PATCHES=(
 	"${FILESDIR}"/add-unity-version-xml.patch
 	"${FILESDIR}"/nemo-support.patch
-	"${FILESDIR}"/revert-ubuntu-unity-changes.patch
+	"${FILESDIR}"/revert-unwanted-ubuntu-unity-changes.patch
 	"${FILESDIR}"/prevent-compiz-segfault-by-guarding-pthread_join.patch
 )
 
@@ -143,14 +143,17 @@ src_prepare() {
 		sed -i \
 			-e "/preview_width =/{s/770/700/}" \
 			unity-shared/PreviewStyle.cpp || die
+
+		# Dash and Hud border fixes #
+		eapply "${FILESDIR}"/dash-and-hud-border-fixes.patch
 	fi
 
 	if use classic-panel; then
 		# Classic non-transparent panel with shadow #
 		eapply "${FILESDIR}"/classic-panel.patch
 	else
-		# Fix panel transparency #
-		eapply "${FILESDIR}"/fix-panel-transparency.patch
+		# Transparent panel fixes #
+		eapply "${FILESDIR}"/transparent-panel-fixes.patch
 	fi
 
 	# Preprocessor fixes #
@@ -325,7 +328,7 @@ src_install() {
 	insinto /usr/share/unity/icons
 	doins "${FILESDIR}/branding/lockscreen_cof.png"
 
-	# Dash (classic) and Hud borders #
+	# Dash and Hud border #
 	doins "${FILESDIR}/resources/dash_bottom_border_tile.png"
 	doins "${FILESDIR}/resources/dash_bottom_left_corner.png"
 	doins "${FILESDIR}/resources/dash_bottom_left_corner_mask.png"
