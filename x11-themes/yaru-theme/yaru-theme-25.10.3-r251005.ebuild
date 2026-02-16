@@ -50,12 +50,11 @@ src_prepare() {
 			-e "/UnityDecoration-title-alignment/d" \
 			gtk/src/default/gtk-3.0/apps/_unity7.scss || die
 
-		## Fix mate-terminal background color ##
-		sed -i \
-			-e '/vte-terminal {/{n;s/$_mate_terminal_bg_color/#300A24/}' \
+		## Tweak mate-terminal ##
+		cat "${FILESDIR}"/mate-terminal.css >> \
 			gtk/src/default/gtk-3.0/apps/_mate-terminal.scss || die
 
-		## Add nemo nautilus-like theme ##
+		## Tweak nemo ##
 		cat "${FILESDIR}"/nemo.css >> \
 			gtk/src/default/gtk-3.0/apps/_nemo.scss || die
 

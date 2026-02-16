@@ -1,0 +1,16 @@
+
+window.background.mate-terminal vte-terminal {
+  background-color: #300A24;
+}
+
+window.background.mate-terminal notebook stack box.vertical box.horizontal scrollbar.vertical {
+  background-color: transparent;
+}
+
+window.background.mate-terminal scrollbar.vertical slider {
+    min-width: 3px;
+}
+
+window.background.mate-terminal scrollbar.vertical:hover slider {
+    min-width: 6px;
+}
