@@ -104,7 +104,7 @@ src_prepare() {
 	# Fix Expo y-offset and y-bottom-offset #
 	echo -e \
 		"\n[org.compiz.expo]\ny-offset = 35\ny-bottom-offset = 5" \
-		>> debian/compiz-gnome.gsettings-override
+		>> debian/compiz-gnome.gsettings-override || die
 
 	# Disable recompiling GSettings schemas inside sandbox #
 	sed -i \

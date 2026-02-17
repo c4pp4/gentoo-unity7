@@ -5,8 +5,8 @@
 		<name>gentoo-unity7</name>
 	</maintainer>
 	<use>
-		<flag name="bfb13">Dash home button since 2013</flag>
-		<flag name="bfb23">Dash home button since 2023</flag>
+		<flag name="bfb2013">Classic Dash home button since 2013</flag>
+		<flag name="bfb2023">Ubuntu Unity Dash home button since 2023</flag>
 		<flag name="classic-dash">Classic horizontal Dash
 			with bottom scope bar</flag>
 		<flag name="classic-panel">Classic non-transparent

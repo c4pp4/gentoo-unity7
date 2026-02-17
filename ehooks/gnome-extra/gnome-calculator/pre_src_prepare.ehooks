@@ -1,0 +1,6 @@
+ehooks() {
+	# Workaround for https://gitlab.gnome.org/GNOME/gnome-calculator/-/issues/477 #
+	echo -e \
+		"\n.math-buttons button.suggested-action { font-size: 1.12em; }" \
+		>> src/ui/style.css || die
+}

@@ -20,7 +20,7 @@ SRC_URI="${UURL}-${UREV}.tar.xz"
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="bfb13 bfb23 classic-dash classic-panel debug doc gles2 +hud pch systray +uwidgets"
+IUSE="bfb2013 bfb2023 classic-dash classic-panel debug doc gles2 +hud pch systray +uwidgets"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="test"
 
@@ -314,19 +314,21 @@ src_install() {
 		doexe "${FILESDIR}/99unity-debug"
 	fi
 
-	# Dash home button #
-	if use bfb13; then
+	if use bfb2013; then
+		# Classic Dash home button since 2013 #
 		rm "${ED}"/usr/share/unity/icons/launcher_bfb.svg || die
-	elif use bfb23; then
+	elif use bfb2023; then
+		# Ubuntu Unity Dash home button since 2023 #
 		:
 	else
+		# Gentoo Unity⁷ Dash home button #
 		insinto /usr/share/unity/icons
 		doins "${FILESDIR}/branding/launcher_bfb.svg"
-	fi
 
-	# Gentoo logo on lock-screen on multi head system #
-	insinto /usr/share/unity/icons
-	doins "${FILESDIR}/branding/lockscreen_cof.png"
+		# Gentoo logo on lock-screen on multi head system #
+		insinto /usr/share/unity/icons
+		doins "${FILESDIR}/branding/lockscreen_cof.png"
+	fi
 
 	# Dash and Hud border #
 	doins "${FILESDIR}/resources/dash_bottom_border_tile.png"

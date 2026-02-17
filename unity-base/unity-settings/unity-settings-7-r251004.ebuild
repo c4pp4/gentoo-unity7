@@ -81,7 +81,7 @@ src_install() {
 	if use lowgfx; then
 		echo -e \
 			"\n[com.canonical.Unity:Unity]\nlowgfx = true" \
-			>> "${ED}${gschema_dir}/${gschema}"
+			>> "${ED}${gschema_dir}/${gschema}" || die
 	fi
 
 	# Scopes: files, music, photos, video #
@@ -96,10 +96,11 @@ src_install() {
 	use photos || dash="${dash/\'photos.scope\',}"
 	use video || dash="${dash/\'video.scope\',}"
 
-	[[ ${#dash} -ne ${dlen} ]] && echo -e \
-		"\n[com.canonical.Unity.Dash:Unity]\nscopes = ['home.scope','applications.scope',${dash}'social.scope']" \
-		>> "${ED}${gschema_dir}/${gschema}"
-
+	if [[ ${#dash} -ne ${dlen} ]]; then
+		echo -e \
+			"\n[com.canonical.Unity.Dash:Unity]\nscopes = ['home.scope','applications.scope',${dash}'social.scope']" \
+			>> "${ED}${gschema_dir}/${gschema}" || die
+	fi
 
 	# Add language-selector-0.228 fontconfig #
 	if use fontconfig; then
