@@ -24,6 +24,7 @@ draw-grid = true
 
 [com.canonical.unity-greeter:unity-greeter]
 background = '/usr/share/backgrounds/warty-final-ubuntu.png'
+background-color = '#2C001E'
 theme-name = 'Ambiance'
 icon-theme-name = 'ubuntu-mono-dark'
 

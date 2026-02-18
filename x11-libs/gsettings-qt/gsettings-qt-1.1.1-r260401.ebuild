@@ -4,14 +4,13 @@
 EAPI=8
 
 UVER=
-UREV=4build1
+UREV=1
 
 inherit cmake ubuntu-versionator
 
 DESCRIPTION="Qml bindings for GSettings."
 HOMEPAGE="https://gitlab.com/ubports/development/core/gsettings-qt"
-SRC_URI="${UURL}.orig.tar.bz2
-	${UURL}-${UREV}.debian.tar.xz"
+SRC_URI="${UURL}.orig.tar.bz2"
 
 LICENSE="GPL-3"
 SLOT="0"

@@ -4,6 +4,7 @@ draw-grid = false
 [com.canonical.unity-greeter:unity-greeter]
 play-ready-sound = false
 background = '/usr/share/backgrounds/ubuntu-unity/ubuntu-unity-default.png'
+background-color = '#6317A5'
 theme-name = 'Yaru-dark'
 icon-theme-name = 'Yaru-purple-dark'
 
