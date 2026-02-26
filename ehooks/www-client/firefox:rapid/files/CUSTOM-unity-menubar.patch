@@ -1385,7 +1385,7 @@ index 0000000000..252a60125d
 +
 +    gpointer user_data = nullptr;
 +    gdk_window_get_user_data(gdkWin, &user_data);
-+    if (!user_data || !GTK_IS_CONTAINER(user_data)) {
++    if (!user_data || !GTK_IS_WIDGET(user_data)) {
 +        return NS_ERROR_FAILURE;
 +    }
 +
