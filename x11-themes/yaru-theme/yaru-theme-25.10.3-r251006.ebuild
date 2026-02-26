@@ -38,6 +38,7 @@ S="${WORKDIR}/${PN}-${UREV}"
 PATCHES=(
 	"${FILESDIR}"/Adjust-window-shadow-and-bottom-corners.patch
 	"${FILESDIR}"/Create-Ambiance-GTK4-theme.patch
+	"${FILESDIR}"/Remove-light-edges-in-menu-corners.patch
 )
 
 src_prepare() {
