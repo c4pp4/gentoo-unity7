@@ -124,7 +124,7 @@ S="${S}${UVER}"
 PATCHES=(
 	"${FILESDIR}"/add-unity-version-xml.patch
 	"${FILESDIR}"/nemo-support.patch
-	"${FILESDIR}"/revert-unwanted-ubuntu-unity-changes.patch
+	"${FILESDIR}"/revert-unwanted-ubuntu-unity-changes-questing.patch
 	"${FILESDIR}"/prevent-compiz-segfault-by-guarding-pthread_join.patch
 )
 

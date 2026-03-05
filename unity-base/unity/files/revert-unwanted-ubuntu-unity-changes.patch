@@ -169,18 +169,6 @@ index 0fd0597..f064616 100644
  
  void DashView::OnActivateRequest(GVariant* args)
  {
-diff --git a/launcher/BFBLauncherIcon.cpp b/launcher/BFBLauncherIcon.cpp
-index eece73a..e509587 100644
---- a/launcher/BFBLauncherIcon.cpp
-+++ b/launcher/BFBLauncherIcon.cpp
-@@ -45,7 +45,6 @@ BFBLauncherIcon::BFBLauncherIcon()
-   UpdateDefaultSearchText();
- 
-   theme::Settings::Get()->theme.changed.connect(sigc::hide(sigc::mem_fun(this, &BFBLauncherIcon::UpdateIcon)));
--  Settings::Instance().remote_content.changed.connect(sigc::hide(sigc::mem_fun(this, &BFBLauncherIcon::UpdateDefaultSearchText)));
- 
-   mouse_enter.connect([this](int m) { ubus_manager_.SendMessage(UBUS_DASH_ABOUT_TO_SHOW, NULL); });
-   ubus_manager_.RegisterInterest(UBUS_OVERLAY_SHOWN, sigc::bind(sigc::mem_fun(this, &BFBLauncherIcon::OnOverlayShown), true));
 diff --git a/launcher/Launcher.cpp b/launcher/Launcher.cpp
 index a4f880a..fa7268d 100644
 --- a/launcher/Launcher.cpp
