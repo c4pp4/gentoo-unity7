@@ -1,0 +1,28 @@
+From 5f1b245d0f6e51d0fa6cc3b6439b5702e3a4a2e1 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Wed, 4 Mar 2026 11:51:15 +0100
+Subject: [PATCH 1/1] Remove Dash online search tab
+
+Signed-off-by: c4pp4
+---
+ src/activity-log-manager.vala | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/src/activity-log-manager.vala b/src/activity-log-manager.vala
+index b9a27e7..a3b486a 100644
+--- a/src/activity-log-manager.vala
++++ b/src/activity-log-manager.vala
+@@ -55,10 +55,6 @@ namespace Alm {
+ 				security_widget = new SecurityWidget();
+ 				var security_label = new Gtk.Label(_("Security"));
+ 				notebook.prepend_page(security_widget, security_label);
+-
+-				searchresults_widget = new SearchResultsWidget();
+-				var searchresults_label = new Gtk.Label(_("Search"));
+-				notebook.append_page(searchresults_widget, searchresults_label);
+ 			}
+ 
+ #if DIAGNOSTIC
+-- 
+2.52.0
+

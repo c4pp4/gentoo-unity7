@@ -42,32 +42,11 @@ setvar() {
 setvar audacious		0.1+13.10.20130927.1	0ubuntu1 + "$(python_gen_cond_dep 'dev-python/dbus-python[${PYTHON_USEDEP}]')"	## works with audacious 3.9
 setvar calculator		0.1+14.04.20140328	0ubuntu6 + ""									## works with gnome-calculator 3.32
 setvar chromiumbookmarks	0.1+13.10.20130723	0ubuntu1 + ""									## works with chromium 79 (fixed by patch)
-setvar clementine		0.1+13.10.20130723	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/dbus-python[${PYTHON_USEDEP}]')"	## not tested
-setvar colourlovers		0.1+13.10.20130723	0ubuntu1 + ""									## works
-setvar devhelp			0.1+14.04.20140328	0ubuntu5 + "$(python_gen_cond_dep 'dev-python/lxml[${PYTHON_USEDEP}]')"		## works
-setvar deviantart		0.1+13.10.20130723	0ubuntu1 + "$(python_gen_cond_dep 'dev-python/feedparser[${PYTHON_USEDEP}]')"	## works (fixed by patch)
+setvar devhelp			0.1+14.04.20140328	0ubuntu5 - "$(python_gen_cond_dep 'dev-python/lxml[${PYTHON_USEDEP}]')"		## works
 setvar firefoxbookmarks		0.1+13.10.20130809.1	0ubuntu1 + ""									## works with firefox 72 (fixed by patch)
-setvar gallica			0.1+13.10.20130816.2	0ubuntu1 + "$(python_gen_cond_dep 'dev-python/lxml[${PYTHON_USEDEP}]')"		## works (fixed by patch)
-#setvar gdrive			0.9+13.10.20130723	0ubuntu1 - ""									## doesn't work (account-plugins package not available)
-setvar github			0.1+13.10.20130723	0ubuntu1 + ""									## works
-setvar gmusicbrowser		0.1+13.10.20130723	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/dbus-python[${PYTHON_USEDEP}]')"	## not tested
-setvar gnote			0.1+13.10.20130723	0ubuntu4 - ""									## not tested
-#setvar googlenews		0.1+13.10.20130723	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/feedparser[${PYTHON_USEDEP}]')"	## doesn't work
-#setvar gourmet			0.1+13.10.20130723	0ubuntu1 - ""									## doesn't work (gourmet package not available)
-setvar guayadeque		0.1+13.10.20130927.1	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/dbus-python[${PYTHON_USEDEP}]')"	## not tested
-#setvar launchpad		0.1daily13.06.05	0ubuntu1 - ""									## doesn't work (python-launchpadlib package not available)
-setvar manpages			3.0+14.04.20140324	0ubuntu5 + "sys-apps/man-db x11-libs/gtk+:3"					## works
-setvar musique			0.1+13.10.20130723	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/dbus-python[${PYTHON_USEDEP}]')"	## not tested
-#setvar openclipart		0.1+13.10.20130723	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/feedparser[${PYTHON_USEDEP}]')"	## doesn't work (https://en.wikipedia.org/wiki/Openclipart#Lockdown_and_attempts_at_mirroring_the_library)
-#setvar openweathermap		0.1+13.10.20130828	0ubuntu1 - ""									## doesn't work (needs API key)
-setvar soundcloud		0.1+13.10.20130723	0ubuntu4 + ""									## works
-setvar sshsearch		0.1daily13.06.05	0ubuntu1 - "$(python_gen_cond_dep 'dev-python/paramiko[${PYTHON_USEDEP}]')"	## not tested
-setvar texdoc			0.1+14.04.20140328	0ubuntu1 + ""									## works
-#setvar tomboy			0.1+13.10.20130723	0ubuntu1 - ""									## doesn't work (tomboy package not available)
-setvar virtualbox		0.1+13.10.20130723	0ubuntu4 + ""									## works
-#setvar yahoostock		0.1+13.10.20130723	0ubuntu1 - ""									## doesn't work
-setvar yelp			0.1+13.10.20130723	0ubuntu1 + ""									## works
-setvar zotero			0.1+13.10.20130723	0ubuntu4 - ""									## not tested (Zotero 4.0 for Firefox is being replaced by a Zotero Connector for Firefox)
+setvar manpages			3.0+14.04.20140324	0ubuntu5 - "sys-apps/man-db x11-libs/gtk+:3"					## works
+setvar texdoc			0.1+14.04.20140328	0ubuntu1 - ""									## works
+setvar virtualbox		0.1+13.10.20130723	0ubuntu4 - ""									## works
 
 UURL="${UURL%/*}"; SRC_URI=""
 for i in ${packages[@]}; do
@@ -85,14 +64,7 @@ DEPEND="${RDEPEND}
 		dev-python/python-distutils-extra[${PYTHON_USEDEP}]
 	')
 "
-## gnome-base/gvfs[http]: show thumbnails when searching online in the Dash ##
-PDEPEND="
-	audacious? ( unity-lenses/unity-lens-meta[music] )
-	colourlovers? ( gnome-base/gvfs[http] )
-	deviantart? ( gnome-base/gvfs[http] )
-	gallica? ( gnome-base/gvfs[http] )
-	soundcloud? ( unity-lenses/unity-lens-meta[music] )
-"
+PDEPEND="audacious? ( unity-lenses/unity-lens-meta[music] )"
 
 S="${WORKDIR}"
 
@@ -108,7 +80,6 @@ src_prepare() {
 			echo "$(tput bold)>>> Done.$(tput sgr0)"
 			[[ -f ${FILESDIR}/${i}.patch ]] && eapply "${FILESDIR}/${i}.patch"
 			distutils-r1_src_prepare
-			grep -Fqsx "RemoteContent=true" "data/${i}.scope.in" && RSCOPES+=( ${i} )
 		popd >/dev/null || die
 	done
 }
@@ -136,7 +107,7 @@ src_install() {
 pkg_postinst() {
 	ubuntu-versionator_pkg_postinst
 
-	local ylp dvh tlc rs
+	local ylp dvh tlc
 
 	has_version "gnome-extra/yelp" || ylp="to install gnome-extra/yelp package and "
 	has_version "dev-util/devhelp" || dvh="to install dev-util/devhelp package and "
@@ -154,16 +125,4 @@ pkg_postinst() {
 	use manpages && elog "manpages scope needs ${ylp}to run 'mandb' command to create or update the manual page index caches." && echo
 	use texdoc && [[ -n ${tlc} ]] && elog "texdoc scope needs ${tlc}" && echo
 	use virtualbox && ! has_version "app-emulation/virtualbox" && elog "virtualbox scope needs to install app-emulation/virtualbox package." && echo
-	use yelp && [[ -n ${ylp} ]] && elog "yelp scope needs ${ylp/ and /.}" && echo
-
-	if [[ -n ${RSCOPES} ]]; then
-		elog "Remote scopes need 'Include online search results' option to be turned on."
-		elog "The option is located in System Settings > Security & Privacy > Search tab."
-		echo
-		elog "Installed remote scopes:"
-		for rs in "${RSCOPES[@]}"; do
-			elog "${rs}"
-		done
-		echo
-	fi
 }

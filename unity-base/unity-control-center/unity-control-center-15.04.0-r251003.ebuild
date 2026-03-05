@@ -108,8 +108,8 @@ S="${WORKDIR}"
 PATCHES=(
 	"${FILESDIR}"/01-langselector.patch # Based on g-c-c v3.24 Region & Language panel
 	"${FILESDIR}"/02-optional-bt-colord-kerberos-wacom.patch
-	"${FILESDIR}"/03-revert-searching-the-dash-legal-notice.patch
-	"${FILESDIR}"/04-ibus_init.patch
+	"${FILESDIR}"/revert-searching-the-dash-legal-notice.patch
+	"${FILESDIR}"/03-ibus_init.patch
 	"${FILESDIR}"/fix-sharing-panel-translation.patch
 )
 

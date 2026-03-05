@@ -16,7 +16,7 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="+accessibility +bluetooth +colord +cups +gnome-online-accounts +input_devices_wacom +kerberos +networkmanager +v4l wayland +webkit"
+IUSE="+accessibility +bluetooth +colord +cups +gnome-online-accounts +input_devices_wacom +kerberos +networkmanager +v4l wayland"
 RESTRICT="test"
 
 COMMON_DEPEND="
@@ -57,7 +57,6 @@ COMMON_DEPEND="
 		>=net-misc/networkmanager-1.2.0[vala]
 	)
 	v4l? ( >=media-video/cheese-3.18.0 )
-	webkit? ( >=net-libs/webkit-gtk-2.15.1:4.1 )
 "
 RDEPEND="${COMMON_DEPEND}
 	>=app-accessibility/at-spi2-core-2.46.0:2
@@ -108,8 +107,7 @@ S="${WORKDIR}"
 PATCHES=(
 	"${FILESDIR}"/01-langselector.patch # Based on g-c-c v3.24 Region & Language panel
 	"${FILESDIR}"/02-optional-bt-colord-kerberos-wacom.patch
-	"${FILESDIR}"/03-revert-searching-the-dash-legal-notice.patch
-	"${FILESDIR}"/04-ibus_init.patch
+	"${FILESDIR}"/03-ibus_init.patch
 	"${FILESDIR}"/fix-sharing-panel-translation.patch
 )
 
@@ -213,7 +211,6 @@ src_configure() {
 		$(use_enable kerberos)
 		$(use_enable gnome-online-accounts onlineaccounts)
 		$(use_with v4l cheese)
-		$(use_enable webkit)
 	)
 	gnome2_src_configure "${mygnome2args[@]}"
 }
@@ -231,15 +228,4 @@ src_install() {
 	for f in "${ED}"/usr/share/applications/*.desktop; do
 		echo "X-GNOME-Gettext-Domain=${PN}" >> "${f}"
 	done
-}
-
-pkg_postinst() {
-	ubuntu-versionator_pkg_postinst
-
-	if ! use webkit; then
-		echo
-		elog "Searching in the dash - Legal notice:"
-		elog "file:///usr/share/unity-control-center/searchingthedashlegalnotice.html"
-		echo
-	fi
 }

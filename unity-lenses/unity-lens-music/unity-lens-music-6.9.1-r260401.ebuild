@@ -44,7 +44,6 @@ PDEPEND="
 	|| (
 		media-sound/rhythmbox
 		unity-scopes/smart-scopes[audacious]
-		unity-scopes/smart-scopes[soundcloud]
 	)
 "
 

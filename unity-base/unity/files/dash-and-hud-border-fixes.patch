@@ -286,14 +286,12 @@ index 96b014b..bb3eaaf 100644
  const int DEFAULT_LAUNCHER_SIZE = 64;
  const int MINIMUM_DESKTOP_HEIGHT = 800;
  const int DESKTOP_SETTINGS_CHANGED_WAIT_SECONDS = 1;
-@@ -114,6 +121,7 @@ public:
-     , remote_content_enabled_(true)
+@@ -115,4 +122,5 @@ public:
    {
      InitializeLowGfx();
 +    InitializeUnityshellSettings();
  
      parent_->form_factor.SetGetterFunction(sigc::mem_fun(this, &Impl::GetFormFactor));
-     parent_->form_factor.SetSetterFunction(sigc::mem_fun(this, &Impl::SetFormFactor));
 @@ -131,6 +139,7 @@ public:
  
      signals_.Add<void, GSettings*, const gchar*>(compiz_settings_, "changed::" + COMPIZ_PROFILE, [this] (GSettings*, const gchar *) {
@@ -302,8 +300,7 @@ index 96b014b..bb3eaaf 100644
      });
  
      signals_.Add<void, GSettings*, const gchar*>(usettings_, "changed::" + LOWGFX, [this] (GSettings*, const gchar *) {
-@@ -510,6 +519,41 @@ public:
-     return remote_content_enabled_;
+@@ -511,5 +520,41 @@ public:
    }
  
 +  void InitializeUnityshellSettings()
@@ -342,16 +339,9 @@ index 96b014b..bb3eaaf 100644
 +  }
 +
    Settings* parent_;
++  glib::Object<GSettings> unityshell_settings_;
    glib::Object<GSettings> usettings_;
    glib::Object<GSettings> compiz_settings_;
-@@ -520,6 +564,7 @@ public:
-   glib::Object<GSettings> ubuntu_ui_settings_;
-   glib::Object<GSettings> desktop_ui_settings_;
-   glib::Object<GSettings> remote_content_settings_;
-+  glib::Object<GSettings> unityshell_settings_;
-   glib::Source::UniquePtr changing_desktop_settings_timeout_;
-   glib::SignalManager signals_;
-   std::vector<EMConverter::Ptr> em_converters_;
 diff --git a/unity-shared/UnitySettings.h b/unity-shared/UnitySettings.h
 index 144e2c1..36f19f0 100644
 --- a/unity-shared/UnitySettings.h

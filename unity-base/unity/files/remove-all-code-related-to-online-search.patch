@@ -1,0 +1,130 @@
+From 56c48ee90b99becbe91727d6ef1c96424830da83 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Wed, 4 Mar 2026 21:05:28 +0100
+Subject: [PATCH 1/1] Remove all code related to online search
+
+Signed-off-by: c4pp4
+---
+ launcher/BFBLauncherIcon.cpp   |  1 -
+ unity-shared/UnitySettings.cpp | 30 ------------------------------
+ unity-shared/UnitySettings.h   |  1 -
+ 3 files changed, 32 deletions(-)
+
+diff --git a/launcher/BFBLauncherIcon.cpp b/launcher/BFBLauncherIcon.cpp
+index eece73a..e509587 100644
+--- a/launcher/BFBLauncherIcon.cpp
++++ b/launcher/BFBLauncherIcon.cpp
+@@ -45,7 +45,6 @@ BFBLauncherIcon::BFBLauncherIcon()
+   UpdateDefaultSearchText();
+ 
+   theme::Settings::Get()->theme.changed.connect(sigc::hide(sigc::mem_fun(this, &BFBLauncherIcon::UpdateIcon)));
+-  Settings::Instance().remote_content.changed.connect(sigc::hide(sigc::mem_fun(this, &BFBLauncherIcon::UpdateDefaultSearchText)));
+ 
+   mouse_enter.connect([this](int m) { ubus_manager_.SendMessage(UBUS_DASH_ABOUT_TO_SHOW, NULL); });
+   ubus_manager_.RegisterInterest(UBUS_OVERLAY_SHOWN, sigc::bind(sigc::mem_fun(this, &BFBLauncherIcon::OnOverlayShown), true));
+diff --git a/unity-shared/UnitySettings.cpp b/unity-shared/UnitySettings.cpp
+index df6a5c9..a82aba0 100644
+--- a/unity-shared/UnitySettings.cpp
++++ b/unity-shared/UnitySettings.cpp
+@@ -69,9 +69,6 @@ const std::string DESKTOP_CURSOR_SIZE = "cursor-size";
+ const std::string DESKTOP_SCALE_FACTOR = "scaling-factor";
+ const std::string DESKTOP_TEXT_SCALE_FACTOR = "text-scaling-factor";
+ 
+-const std::string REMOTE_CONTENT_SETTINGS = "com.canonical.Unity.Lenses";
+-const std::string REMOTE_CONTENT_KEY = "remote-content-search";
+-
+ const std::string GESTURES_SETTINGS = "com.canonical.Unity.Gestures";
+ const std::string LAUNCHER_DRAG = "launcher-drag";
+ const std::string DASH_TAP = "dash-tap";
+@@ -113,5 +110,4 @@ public:
+     , ubuntu_ui_settings_(g_settings_new(UBUNTU_UI_SETTINGS.c_str()))
+     , desktop_ui_settings_(g_settings_new(UBUNTU_DESKTOP_UI_SETTINGS.c_str()))
+-    , remote_content_settings_(g_settings_new(REMOTE_CONTENT_SETTINGS.c_str()))
+     , launcher_sizes_(monitors::MAX, DEFAULT_LAUNCHER_SIZE)
+     , cached_launcher_position_(LauncherPosition::LEFT)
+@@ -119,5 +115,4 @@ public:
+     , cursor_scale_(1.0)
+     , cached_double_click_activate_(true)
+-    , remote_content_enabled_(true)
+   {
+     InitializeLowGfx();
+@@ -126,7 +121,6 @@ public:
+     parent_->form_factor.SetGetterFunction(sigc::mem_fun(this, &Impl::GetFormFactor));
+     parent_->form_factor.SetSetterFunction(sigc::mem_fun(this, &Impl::SetFormFactor));
+     parent_->double_click_activate.SetGetterFunction(sigc::mem_fun(this, &Impl::GetDoubleClickActivate));
+-    parent_->remote_content.SetGetterFunction(sigc::mem_fun(this, &Impl::GetRemoteContentEnabled));
+     parent_->launcher_position.SetGetterFunction(sigc::mem_fun(this, &Impl::GetLauncherPosition));
+     parent_->launcher_position.SetSetterFunction(sigc::mem_fun(this, &Impl::SetLauncherPosition));
+     parent_->desktop_type.SetGetterFunction(sigc::mem_fun(this, &Impl::GetDesktopType));
+@@ -195,10 +189,6 @@ public:
+       UpdateGesturesSetting();
+     });
+ 
+-    signals_.Add<void, GSettings*, const gchar*>(remote_content_settings_, "changed::" + REMOTE_CONTENT_KEY, [this] (GSettings*, const gchar* t) {
+-      UpdateRemoteContentSearch();
+-    });
+-
+     UScreen::GetDefault()->changed.connect(sigc::hide(sigc::hide(sigc::mem_fun(this, &Impl::UpdateDPI))));
+ 
+     // The order is important here, DPI is the last thing to be updated
+@@ -210,7 +200,6 @@ public:
+ 
+     CacheFormFactor();
+     CacheDoubleClickActivate();
+-    UpdateRemoteContentSearch();
+     CacheLauncherPosition();
+   }
+ 
+@@ -501,21 +490,4 @@ public:
+       return false;
+     }, glib::Source::Priority::LOW));
+-  }
+-
+-  void UpdateRemoteContentSearch()
+-  {
+-    glib::String remote_content(g_settings_get_string(remote_content_settings_, REMOTE_CONTENT_KEY.c_str()));
+-    bool remote_content_enabled = ((remote_content.Str() == "all") ? true : false);
+-
+-    if (remote_content_enabled != remote_content_enabled_)
+-    {
+-      remote_content_enabled_ = remote_content_enabled;
+-      parent_->remote_content.changed.emit(remote_content_enabled_);
+-    }
+-  }
+-
+-  bool GetRemoteContentEnabled() const
+-  {
+-    return remote_content_enabled_;
+   }
+ 
+@@ -564,7 +536,6 @@ public:
+   glib::Object<GSettings> ui_settings_;
+   glib::Object<GSettings> ubuntu_ui_settings_;
+   glib::Object<GSettings> desktop_ui_settings_;
+-  glib::Object<GSettings> remote_content_settings_;
+   glib::Source::UniquePtr changing_desktop_settings_timeout_;
+   glib::SignalManager signals_;
+   std::vector<EMConverter::Ptr> em_converters_;
+@@ -573,7 +544,6 @@ public:
+   FormFactor cached_form_factor_;
+   double cursor_scale_;
+   bool cached_double_click_activate_;
+-  bool remote_content_enabled_;
+ };
+ 
+ //
+diff --git a/unity-shared/UnitySettings.h b/unity-shared/UnitySettings.h
+index 36f19f0..1162c67 100644
+--- a/unity-shared/UnitySettings.h
++++ b/unity-shared/UnitySettings.h
+@@ -70,7 +70,6 @@ public:
+   nux::Property<unsigned> lim_double_click_wait;
+   nux::Property<bool> lim_unfocused_popup;
+   nux::Property<double> font_scaling;
+-  nux::ROProperty<bool> remote_content;
+   nux::RWProperty<LauncherPosition> launcher_position;
+   nux::Property<bool> gestures_launcher_drag;
+   nux::Property<bool> gestures_dash_tap;
+-- 
+2.52.0
+
