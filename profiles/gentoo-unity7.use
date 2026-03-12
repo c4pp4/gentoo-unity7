@@ -1,32 +1,31 @@
-*/*                                     pulseaudio X    -nautilus
+*/*                                     pulseaudio X            -nautilus
 
-app-accessibility/brltty                python                          # app-accessibility/orca[braille]
-app-accessibility/onboard                               -gnome-shell
-app-dicts/myspell-en                    l10n_en-US
-app-i18n/ibus appindicator              gtk2 vala
-app-office/libreoffice                  gtk3            -gtk4 -qt6      # Prefer gtk3
-dev-libs/boost                          python                          # dev-libs/libcolumbus
-dev-libs/libdbusmenu                    gtk3                            # dev-libs/libappindicator:3, dev-libs/libindicate, unity-indicators/indicator-appmenu
-dev-libs/libpcre2                       pcre32                          # app-accessibility/brltty
-dev-libs/xapian-bindings                python                          # REQUIRED_USE flag
+app-accessibility/brltty                python                                  # Required by app-accessibility/orca[braille]
+app-accessibility/onboard                                       -gnome-shell
+app-dicts/myspell-en                    l10n_en-US                              # REQUIRED_USE flag
+app-i18n/ibus                           appindicator gtk2 vala
+app-office/libreoffice                  gtk3                    -gtk4           # Prefer gtk3
+dev-libs/boost                          python                                  # Required by dev-libs/libcolumbus
+dev-libs/libdbusmenu                    gtk3                                    # Required by dev-libs/libappindicator:3, dev-libs/libindicate, unity-indicators/indicator-appmenu
+dev-libs/libpcre2                       pcre32                                  # Required by app-accessibility/brltty
+dev-libs/xapian-bindings                python                                  # REQUIRED_USE flag
 dev-qt/qtgui:5                          ibus
-dev-qt/qtmultimedia:5                   widgets                         # dev-python/pyqt5 (unity-extra/meteo-qt)
-gnome-base/gvfs                         fuse mtp samba
+gnome-base/gvfs                         fuse                                    # Required by app-backup/deja-dup
 gnome-extra/nm-applet                   appindicator
-media-libs/freetype                     harfbuzz                        # x11-libs/pango
-media-libs/libvpx                       postproc                        # mail-client/thunderbird, www-client/firefox
-media-video/ffmpeg                      opus
-net-libs/gnome-online-accounts          vala            -gnome          # Don't install gnome-base/gnome-control-center
+media-libs/freetype                     harfbuzz                                # Required by x11-libs/pango
+media-libs/libvpx                       postproc                                # Required by mail-client/thunderbird, www-client/firefox
+media-video/ffmpeg                      opus                                    # Required by net-im/telegram-desktop
+net-libs/gnome-online-accounts          vala                    -gnome          # Don't install gnome-base/gnome-control-center
 net-libs/libnma                         vala
 net-misc/modemmanager                   vala
 net-misc/networkmanager                 vala
-net-p2p/transmission                    appindicator    -qt6
-sys-libs/zlib                           minizip                         # net-im/telegram-desktop
-virtual/notification-daemon                             -gnome          # Prefer x11-misc/notify-osd
-x11-base/xorg-server                    xvfb                            # x11-misc/xvfb-run
-x11-libs/gsettings-qt                                   -qt6            # Prefer qt5
+net-p2p/transmission                    appindicator gtk        -qt6            # Prefer gtk
+sys-libs/zlib                           minizip                                 # Required by net-im/telegram-desktop
+virtual/notification-daemon                                     -gnome          # Prefer x11-misc/notify-osd
+x11-base/xorg-server                    xvfb                                    # Required by x11-misc/xvfb-run
+x11-libs/gsettings-qt                                           -qt6            # Prefer qt5
 x11-misc/colord                         vala
-x11-misc/lightdm                        vala            -gtk
-x11-misc/zim                            ubuntu-mono                     # Install ubuntu-mono-{dark,light} icons
-x11-themes/ubuntu-wallpapers                            -gnome
-x11-themes/yaru-theme                                   -gnome-shell
+x11-misc/lightdm                        vala                    -gtk            # Don't install x11-misc/lightdm-gtk-greeter
+x11-misc/zim                            ubuntu-mono                             # Install ubuntu-mono-{dark,light} icons
+x11-themes/ubuntu-wallpapers                                    -gnome          # Don't install x11-themes/gnome-backgrounds
+x11-themes/yaru-theme                                           -gnome-shell

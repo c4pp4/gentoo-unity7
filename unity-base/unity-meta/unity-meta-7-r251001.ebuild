@@ -62,6 +62,7 @@ RDEPEND="
 		)
 	)
 	classic-unity? (
+		unity-base/gentoo-unity-env[classic-libreoffice]
 		unity-base/unity[classic-dash,classic-panel]
 		unity-base/unity-settings[classic-fonts,classic-theme]
 	)

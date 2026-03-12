@@ -4,7 +4,7 @@
 ## https://github.com/LibreOffice/core/tree/be8020ff18f8971df091057ee4d8b4d06ecf61eb/icon-themes/tango
 
 ehooks() {
-	ehooks_use libreoffice \
+	ehooks_use classic-libreoffice \
 		&& unpack "${EHOOKS_FILESDIR}"/human-icon-theme.tar.xz \
 		&& unpack "${EHOOKS_FILESDIR}"/tango-icon-theme.tar.xz
 }

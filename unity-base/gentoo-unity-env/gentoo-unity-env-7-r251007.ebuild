@@ -17,7 +17,7 @@ SLOT="0"
 KEYWORDS="amd64"
 IUSE_EHOOKS="
 	+fontconfig
-	+libreoffice
+	classic-libreoffice
 "
 IUSE="dev ${IUSE_EHOOKS}"
 RESTRICT="binchecks strip test"
