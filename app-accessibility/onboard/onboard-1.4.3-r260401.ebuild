@@ -7,19 +7,19 @@ DISTUTILS_SINGLE_IMPL=1
 DISTUTILS_USE_PEP517=setuptools
 PYTHON_COMPAT=( python3_{10..14} )
 
-UVER=
-UREV=11
+UVER=+git20260213+ds
+UREV=2
 
 inherit gnome2 distutils-r1 ubuntu-versionator
 
 DESCRIPTION="Simple on-screen Keyboard with macros and easy layout creation"
 HOMEPAGE="https://launchpad.net/onboard"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
+SRC_URI="${UURL}.orig.tar.xz ${UURL}-${UREV}.debian.tar.xz"
 
-LICENSE="GPL-3+ BSD"
+LICENSE="CC-BY-4.0 GPL-3+ BSD"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="+accessibility debug wayland"
+IUSE="+accessibility debug gnome-shell wayland"
 RESTRICT="test"
 
 COMMON_DEPEND="
@@ -61,9 +61,26 @@ DEPEND="${COMMON_DEPEND}
 	')
 "
 
+S="${S}${UVER}"
+
+src_prepare() {
+	# Fix doc dir #
+	sed -i "s:share/doc/${PN}:share/doc/${PF}:" setup.py || die
+
+	ubuntu-versionator_src_prepare
+}
+
 src_install() {
 	distutils-r1_src_install
 
 	# Fix /etc/xdg/autostart path #
 	mv "${ED}/$(python_get_sitedir)"/etc "${ED}" || die
+
+	# drop package-contains-compiled-glib-schema
+	rm "${ED}"/usr/share/glib-2.0/schemas/gschemas.compiled || die
+
+	# drop gnome-shell-extension-onboard files
+	if ! use gnome-shell; then
+		rm -r "${ED}"/usr/share/gnome-shell || die
+	fi
 }

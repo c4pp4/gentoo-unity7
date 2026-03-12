@@ -1,6 +1,7 @@
 */*                                     pulseaudio X    -nautilus
 
 app-accessibility/brltty                python                          # app-accessibility/orca[braille]
+app-accessibility/onboard                               -gnome-shell
 app-dicts/myspell-en                    l10n_en-US
 app-i18n/ibus appindicator              gtk2 vala
 app-office/libreoffice                  gtk3            -gtk4 -qt6      # Prefer gtk3

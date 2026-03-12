@@ -8,8 +8,8 @@ DISTUTILS_SINGLE_IMPL=1
 DISTUTILS_USE_PEP517=setuptools
 PYTHON_COMPAT=( python3_{10..14} )
 
-UVER=+23.04.20230222.2
-UREV=0ubuntu8
+UVER=+26.04.20260306
+UREV=0ubuntu2
 
 inherit gnome2 distutils-r1 cmake pam systemd ubuntu-versionator
 
@@ -62,7 +62,6 @@ RDEPEND="${COMMON_DEPEND}
 	sys-auth/polkit-pkla-compat
 	>=sys-devel/gcc-7
 	>=sys-libs/glibc-2.29
-	unity-base/session-migration
 	unity-base/session-shortcuts
 	unity-base/unity-control-center
 	unity-base/unity-language-pack
@@ -119,7 +118,7 @@ BDEPEND="
 	)
 "
 
-S="${S}${UVER}"
+S="${WORKDIR}/${PN}"
 
 PATCHES=(
 	"${FILESDIR}"/add-unity-version-xml.patch
@@ -159,9 +158,7 @@ src_prepare() {
 
 	# Preprocessor fixes #
 	if use pch; then
-		sed -i '/#include <memory>/a #include <cstdint>' UnityCore/GLibSignal.h || die
 		sed -i '/#include <functional>/a #include <cstdint>' UnityCore/pch/unitycore_pch.hh || die
-		sed -i '/#include <list>/a #include <algorithm>' unity-shared/StandaloneWindowManager.h || die
 		sed -i '/#include <memory>/a #include <algorithm>' unity-shared/pch/unity-shared_pch.hh || die
 	else
 		sed -i '/#include "GLibWrapper.h"/a #include <iostream>' UnityCore/GLibWrapper.cpp || die
@@ -172,11 +169,10 @@ src_prepare() {
 		sed -i '/#include <glib.h>/a #include <cstdint>' unity-shared/IntrospectionData.h || die
 		sed -i '/#include <vector>/a #include <algorithm>' unity-shared/DecorationStyle.h || die
 		sed -i '/#include "FileManager.h"/a #include <algorithm>' unity-shared/GnomeFileManager.h || die
-		sed -i '/#include <list>/a #include <algorithm>' unity-shared/StandaloneWindowManager.h || die
 		sed -i '/#include "Indicator.h"/a #include <algorithm>' UnityCore/AppmenuIndicator.h || die
 		sed -i '/#include "Scopes.h"/a #include <algorithm>' UnityCore/GSettingsScopes.h || die
 		sed -i '/#include "Scope.h"/a #include <algorithm>' UnityCore/Scopes.h || die
-		sed -i '/#include <memory>/a #include <cstdint>' UnityCore/{ActionHandle,GLibDBusNameWatcher,GLibSignal,GLibSource,IndicatorEntry}.h || die
+		sed -i '/#include <memory>/a #include <cstdint>' UnityCore/{ActionHandle,GLibDBusNameWatcher,GLibSource,IndicatorEntry}.h || die
 	fi
 
 	# see https://launchpad.net/bugs/974480 #
@@ -376,9 +372,6 @@ src_install() {
 	unity-panel-service_dosym "unity-panel-service" "application bluetooth datetime keyboard messages power printers session sound"
 	# Top panel systemd indicator services required for unity-panel-service-lockscreen #
 	unity-panel-service_dosym "unity-panel-service-lockscreen" "datetime keyboard power session sound"
-
-	exeinto /usr/share/session-migration/scripts
-	doexe tools/migration-scripts/*
 
 	insinto /usr/lib/compiz/migration
 	doins tools/convert-files/*.convert

@@ -4,7 +4,7 @@
 EAPI=8
 
 UVER=
-UREV=1build3
+UREV=1build4
 
 inherit meson vala xdg ubuntu-versionator
 
