@@ -1,0 +1,204 @@
+From d083ce99e5781459f99de2d03d807e5566816119 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Thu, 12 Mar 2026 23:59:44 +0100
+Subject: [PATCH 1/1] Remove remote video support
+
+Signed-off-by: c4pp4
+---
+ configure.ac     |  3 ---
+ data/Makefile.am |  5 +----
+ po/POTFILES.in   |  3 ---
+ po/POTFILES.skip |  1 -
+ src/Makefile.am  | 57 ------------------------------------------------
+ 5 files changed, 1 insertion(+), 68 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 6df84f3..1099b96 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -73,8 +73,6 @@ PKG_CHECK_MODULES(SCOPE_DAEMON,
+                   gio-unix-2.0 >= $GLIB_REQUIRED
+                   dee-1.0 >= 1.0.7
+                   gee-0.8
+-                  libsoup-gnome-2.4
+-                  json-glib-1.0
+                   zeitgeist-1.0 >= 0.3.8
+                   unity >= 7.0.0
+                   unity-extras >= 6.91.11
+@@ -175,7 +173,6 @@ AC_CONFIG_FILES([
+   Makefile
+   data/Makefile
+   data/local.scope.in
+-  data/remote.scope.in
+   src/Makefile
+   po/Makefile.in
+   src/config.vala
+diff --git a/data/Makefile.am b/data/Makefile.am
+index e10dbd9..4398abf 100644
+--- a/data/Makefile.am
++++ b/data/Makefile.am
+@@ -1,6 +1,5 @@
+ dbus_servicesdir = $(DBUSSERVICEDIR)
+ service_in_files =  \
+-  unity-scope-video-remote.service.in \
+   unity-scope-video-local.service.in \
+   $(NULL)
+ 
+@@ -9,7 +8,7 @@ dbus_services_DATA = $(service_in_files:.service.in=.service)
+ %.service: %.service.in
+ 	$(AM_V_GEN)sed -e "s|\@pkglibexecdir\@|$(pkglibexecdir)|" $< > $@
+ 
+-scope_in_files = local.scope.in remote.scope.in
++scope_in_files = local.scope.in
+ scopedir = $(SCOPESDIR)/video
+ scope_DATA = $(scope_in_files:.scope.in=.scope)
+ 
+@@ -21,8 +20,6 @@ EXTRA_DIST = \
+   $(NULL)
+ 
+ CLEANFILES = \
+-  unity-scope-video-remote.service \
+   unity-lens-video.service \
+   local.scope \
+-  remote.scope \
+   $(NULL)
+diff --git a/po/POTFILES.in b/po/POTFILES.in
+index 283af11..b9c6de0 100644
+--- a/po/POTFILES.in
++++ b/po/POTFILES.in
+@@ -1,10 +1,7 @@
+ [encoding: UTF-8]
+ src/daemon.vala
+ src/main.vala
+-src/remote-scope.vala
+-src/remote-video-main.vala
+ src/scope.vala
+ src/ubuntu-video-search.vala
+ tests/unit/test-ubuntu-video-search.vala
+ [type: gettext/ini]data/local.scope.in.in
+-[type: gettext/ini]data/remote.scope.in.in
+diff --git a/po/POTFILES.skip b/po/POTFILES.skip
+index bc936b7..f8423ad 100644
+--- a/po/POTFILES.skip
++++ b/po/POTFILES.skip
+@@ -1,6 +1,5 @@
+ src/daemon.c
+ src/scope.c
+-src/remote-scope.c
+ src/ubuntu-video-search.c
+ tests/unit/test-ubuntu-video-search.c
+ tests/unit/ubuntu-video-search.c
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 24eb16d..119cba7 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -11,7 +11,6 @@ AM_LDFLAGS = $(COVERAGE_LDFLAGS)
+ 
+ pkglibexec_PROGRAMS = \
+ 	unity-video-lens-daemon \
+-	unity-scope-video-remote \
+ 	$(NULL)
+ 
+ unity_video_lens_daemon_CPPFLAGS = \
+@@ -24,16 +23,6 @@ unity_video_lens_daemon_CPPFLAGS = \
+   -I$(srcdir) \
+   $(NULL)
+ 
+-unity_scope_video_remote_CPPFLAGS = \
+-  -DDATADIR=\"$(DATADIR)\" \
+-  -DPKGDATADIR=\"$(PKGDATADIR)\" \
+-  -DGETTEXT_PACKAGE=\"$(GETTEXT_PACKAGE)\" \
+-  -DG_LOG_DOMAIN=\"unity-scope-video-remote\" \
+-  $(SCOPE_DAEMON_CFLAGS) \
+-  $(MAINTAINER_CFLAGS) \
+-  -I$(srcdir) \
+-  $(NULL)
+-
+ unity_video_lens_daemon_VALAFLAGS = \
+   -C \
+   --pkg dee-1.0 \
+@@ -50,34 +39,10 @@ unity_video_lens_daemon_VALAFLAGS = \
+   $(MAINTAINER_VALAFLAGS) \
+   $(NULL)
+ 
+-unity_scope_video_remote_VALAFLAGS = \
+-  -C \
+-  --pkg dee-1.0 \
+-  --pkg unity \
+-  --pkg unity-extras \
+-  --pkg gio-2.0 \
+-  --pkg gio-unix-2.0 \
+-  --pkg glib-2.0 \
+-  --pkg gee-0.8 \
+-  --pkg zeitgeist-1.0 \
+-  --pkg libsoup-gnome-2.4 \
+-  --pkg libsoup-2.4 \
+-  --pkg json-glib-1.0 \
+-  --vapidir $(srcdir) \
+-  --vapidir $(top_srcdir)/vapi \
+-  --target-glib=2.26 \
+-  $(MAINTAINER_VALAFLAGS) \
+-  $(NULL)
+-
+-
+ unity_video_lens_daemon_LDADD = \
+   $(SCOPE_DAEMON_LIBS) \
+   $(NULL)
+ 
+-unity_scope_video_remote_LDADD = \
+-  $(SCOPE_DAEMON_LIBS) \
+-  $(NULL)
+-
+ unity_video_lens_daemon_VALASOURCES = \
+   blacklist-tracker.vala \
+   daemon.vala \
+@@ -90,46 +55,24 @@ unity_video_lens_daemon_VALASOURCES = \
+   video-file.vala \
+   $(NULL)
+ 
+-unity_scope_video_remote_VALASOURCES = \
+-  config.vala \
+-  remote-scope-globals.vala \
+-  remote-video-main.vala \
+-  remote-scope.vala \
+-  ubuntu-video-search.vala \
+-  utils.vala \
+-  video-file.vala \
+-  $(NULL)
+-
+ unity_video_lens_daemon_SOURCES = \
+   $(unity_video_lens_daemon_VALASOURCES:.vala=.c) \
+   $(NULL)
+ 
+-unity_scope_video_remote_SOURCES = \
+-  $(unity_scope_video_remote_VALASOURCES:.vala=.c) \
+-  $(NULL)
+-
+ BUILT_SOURCES += \
+   unity_video_lens_daemon.vala.stamp \
+-  unity_scope_video_remote.vala.stamp \
+   $(NULL)
+ 
+ EXTRA_DIST += \
+   unity_video_lens_daemon.vala.stamp \
+-  unity_scope_video_remote.vala.stamp \
+   $(unity_video_lens_daemon_VALASOURCES) \
+-  $(unity_scope_video_remote_VALASOURCES) \
+   $(NULL)
+ 
+ unity_video_lens_daemon.vala.stamp: $(unity_video_lens_daemon_VALASOURCES)
+ 	$(AM_V_GEN) $(VALAC) $(unity_video_lens_daemon_VALAFLAGS) $^
+ 	@touch $@
+ 
+-unity_scope_video_remote.vala.stamp: $(unity_scope_video_remote_VALASOURCES)
+-	$(AM_V_GEN) $(VALAC) $(unity_scope_video_remote_VALAFLAGS) $^
+-	@touch $@
+-
+ CLEANFILES += \
+   *.stamp \
+   $(unity_video_lens_daemon_VALASOURCES:.vala=.c) \
+-  $(unity_scope_video_remote_VALASOURCES:.vala=.c) \
+   $(NULL)
+-- 
+2.52.0
+

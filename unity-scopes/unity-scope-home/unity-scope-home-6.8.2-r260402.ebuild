@@ -39,6 +39,8 @@ DEPEND="${COMMON_DEPEND}
 
 S="${WORKDIR}"
 
+PATCHES=( "${FILESDIR}"/Remove-Software-center-and-1kB-filter-option-and-fix-100kB.patch )
+
 src_configure() {
 	local myeconfargs=(
 		$(use_enable test headless-tests)

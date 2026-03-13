@@ -49,11 +49,4 @@ PDEPEND="
 
 S="${S}${UVER}"
 
-src_prepare() {
-	# Fix .desktop file name #
-	sed -i \
-		-e "s/rhythmbox\.desktop/org.gnome.Rhythmbox3.desktop/" \
-		src/daemon.vala || die
-
-	ubuntu-versionator_src_prepare
-}
+PATCHES=( "${FILESDIR}"/Remove-Banshee-support.patch )

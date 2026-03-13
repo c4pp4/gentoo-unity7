@@ -1,0 +1,126 @@
+From 56c403b68c77c753fa8d2f2af2e276067ef33315 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Thu, 12 Mar 2026 23:28:23 +0100
+Subject: [PATCH 1/1] Remove Banshee support
+
+Signed-off-by: c4pp4
+---
+ Makefile.am            |  1 -
+ configure.ac           |  1 -
+ po/POTFILES.in         |  2 --
+ po/POTFILES.skip       |  1 -
+ src/Makefile.am        |  5 -----
+ src/daemon.vala        | 14 +-------------
+ tests/unit/Makefile.am |  3 ---
+ 7 files changed, 1 insertion(+), 26 deletions(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index 46383ce..50a58d6 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -4,7 +4,6 @@ SUBDIRS = src data po tests
+ # Install the music.lens files
+ #
+ scope_in_files = \
+-  banshee.scope.in \
+   rhythmbox.scope.in
+ scopedir = $(SCOPESDIR)/music
+ scope_DATA = $(scope_in_files:.scope.in=.scope)
+diff --git a/configure.ac b/configure.ac
+index cf2400d..0c78930 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -142,7 +142,6 @@ AC_SUBST(SCOPESDIR)
+ #####################################################
+ AC_CONFIG_FILES([
+   Makefile
+-  banshee.scope.in
+   rhythmbox.scope.in
+   data/Makefile
+   src/Makefile
+diff --git a/po/POTFILES.in b/po/POTFILES.in
+index 8eebfb0..ac86c0c 100644
+--- a/po/POTFILES.in
++++ b/po/POTFILES.in
+@@ -1,9 +1,7 @@
+ [encoding: UTF-8]
+ src/daemon.vala
+ src/main.vala
+-src/banshee-scope.vala
+ src/rhythmbox-scope.vala
+ src/simple-scope.vala
+-[type: gettext/ini]banshee.scope.in.in
+ [type: gettext/ini]rhythmbox.scope.in.in
+ 
+diff --git a/po/POTFILES.skip b/po/POTFILES.skip
+index 32e2313..cd6b26c 100644
+--- a/po/POTFILES.skip
++++ b/po/POTFILES.skip
+@@ -2,5 +2,4 @@ src/main.c
+ src/daemon.c
+ src/utils.c
+ src/simple-scope.c
+-src/banshee-scope.c
+ src/rhythmbox-scope.c
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 0c0470e..c6c1efe 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -46,11 +46,6 @@ unity_music_daemon_LDADD = \
+ 
+ unity_music_daemon_VALASOURCES = \
+   album.vala \
+-  banshee-collection.vala \
+-  banshee-filter-parser.vala \
+-  banshee-filter-parser-decade.vala \
+-  banshee-filter-parser-genre.vala \
+-  banshee-scope.vala \
+   categories.vala \
+   config.vala \
+   daemon.vala \
+diff --git a/src/daemon.vala b/src/daemon.vala
+index dbbcb7c..14ffb8b 100644
+--- a/src/daemon.vala
++++ b/src/daemon.vala
+@@ -24,23 +24,11 @@ namespace Unity.MusicLens {
+   
+   public class Daemon : GLib.Object
+   {
+-    private BansheeScopeProxy banshee;
+     private RhythmboxScope rb;
+      
+     construct
+     {
+-      var app_check = new DesktopAppInfo ("banshee.desktop");
+-      if (app_check != null)
+-      {
+-        banshee = new BansheeScopeProxy ();
+-        try {
+-          banshee.scope.export ();
+-        } catch (GLib.IOError e) {
+-          stdout.printf ("error %s\n", e.message);
+-        }
+-      }
+-
+-      app_check = new DesktopAppInfo ("rhythmbox.desktop");
++      var app_check = new DesktopAppInfo ("org.gnome.Rhythmbox3.desktop");
+       if (app_check != null)
+       {
+         rb = new RhythmboxScope ();
+diff --git a/tests/unit/Makefile.am b/tests/unit/Makefile.am
+index 91be84c..44f35fe 100644
+--- a/tests/unit/Makefile.am
++++ b/tests/unit/Makefile.am
+@@ -52,9 +52,6 @@ test_rhythmbox_parser_SOURCES = \
+   $(top_srcdir)/src/genre.vala \
+   $(top_srcdir)/src/rhythmbox-collection.vala \
+   $(top_srcdir)/src/track.vala \
+-  $(top_srcdir)/src/banshee-filter-parser-decade.vala \
+-  $(top_srcdir)/src/banshee-filter-parser-genre.vala \
+-  $(top_srcdir)/src/banshee-filter-parser.vala \
+   $(top_srcdir)/src/dash-proxy.vala \
+   $(NULL)
+ 
+-- 
+2.52.0
+

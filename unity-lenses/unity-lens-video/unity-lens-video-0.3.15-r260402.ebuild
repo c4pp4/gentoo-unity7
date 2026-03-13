@@ -20,11 +20,9 @@ RESTRICT="test"
 COMMON_DEPEND="
 	>=dev-libs/dee-1.0.7:0=
 	>=dev-libs/glib-2.37.3:2
-	>=dev-libs/json-glib-0.12.0
 	>=dev-libs/libgee-0.8.3:0.8
 	>=dev-libs/libunity-7.0.9:0=
 	>=dev-libs/libzeitgeist-0.3.14
-	>=net-libs/libsoup-2.27.4:2.4
 "
 RDEPEND="${COMMON_DEPEND}
 	|| (
@@ -40,6 +38,8 @@ DEPEND="${COMMON_DEPEND}
 "
 
 S="${S}${UVER}"
+
+PATCHES=( "${FILESDIR}"/Remove-remote-video-support.patch )
 
 src_prepare() {
 	# Wait for updatedb #
