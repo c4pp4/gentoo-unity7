@@ -19,8 +19,8 @@ remove=(
 	unity-extra/indicator-netspeed
 	unity-extra/indicator-privacy
 	unity-indicators/unity-indicators-meta
-	unity-lenses/unity-lens-meta
-	unity-scopes/smart-scopes
+	unity-lens/unity-lens-meta
+	unity-lens/unity-scope-extras
 	x11-misc/gtk3-nocsd
 	x11-plugins/mailnag-messagingmenu-plugin
 	x11-themes/adwaita-icon-theme
@@ -654,7 +654,7 @@ update_scopes() {
 	tput sc
 	printf "%s" "Looking for updates ${indicator[0]}"
 
-	ebuilds=( $(find ${x} -type f -name "smart-scopes*.ebuild") )
+	ebuilds=( $(find ${x} -type f -name "unity-scope-extras*.ebuild") )
 	packages=( $(grep -- "^setvar " "${ebuilds[@]}" | cut -d " " -f 2 | sed -E 's/\t+/|/g' | sort -u) )
 	for pkg in "${packages[@]}"; do
 		printf "\b\b %s" "${indicator[${count}]}"
@@ -673,7 +673,7 @@ update_scopes() {
 					filename=$(grep -H -- "${pattern}" "${ebuilds[@]}" | cut -d ":" -f 1)
 					if [[ ${filename} == *".ebuild"*".ebuild"* ]]; then
 						printf "\b\b%s\n\n" "... error!"
-						printf "%s\n\n" " ${color_red}*${color_norm} unity-scopes/smart-scopes: multiple files with KEYWORDS=${pattern}"
+						printf "%s\n\n" " ${color_red}*${color_norm} unity-lens/unity-scope-extras: multiple files with KEYWORDS=${pattern}"
 						exit 1
 					fi
 					if [[ -n ${filename} ]] && [[ $(grep -- "^setvar ${pkg%%|*}" "${filename}") == *"${uver}"*"${urev}"* ]]; then
@@ -844,7 +844,7 @@ case $1 in
 		echo "		It looks for ehooks changes and set them as applied (it resets modification time)."
 		echo
 		echo "	${color_blue}-u${color_norm}, ${color_blue}--update${color_norm} [${color_cyan}$(tput smul)repo path$(tput rmul)${color_norm}]"
-		echo "		It updates gentoo-unity7.mask version entries (it needs temporary access to /etc/portage/package.unmask), unity-base/unity-language-pack version entries, unity-scopes/smart-scopes version entries and it looks for available packages updates."
+		echo "		It updates gentoo-unity7.mask version entries (it needs temporary access to /etc/portage/package.unmask), unity-base/unity-language-pack version entries, unity-lens/unity-scope-extras version entries and it looks for available packages updates."
 		echo
 		exit 1
 esac

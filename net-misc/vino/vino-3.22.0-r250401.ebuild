@@ -43,7 +43,7 @@ COMMON_DEPEND="
 		>=net-libs/telepathy-glib-0.18
 	)
 	zeroconf? ( >=net-dns/avahi-0.6.16:=[dbus] )
-	zlib? ( >=sys-libs/zlib-1.1.4:= )
+	zlib? ( >=virtual/zlib-1.1.4:= )
 "
 RDEPEND="${COMMON_DEPEND}
 	gnome-base/dconf

@@ -50,7 +50,7 @@ BDEPEND="
 S="${WORKDIR}"
 
 src_configure() {
-	# Fix gcc 14 build of unity-scopes/unity-scope-home #
+	# Fix gcc 14 build of unity-lens/unity-scope-home #
 	sed -i "/public bool filtering/{s/internal //}" src/unity-filters.vala || die
 
 	local myeconfargs=(

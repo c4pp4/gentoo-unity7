@@ -1,0 +1,8 @@
+move unity-lenses/unity-lens-applications unity-lens/unity-lens-applications
+move unity-lenses/unity-lens-files unity-lens/unity-lens-files
+move unity-lenses/unity-lens-meta unity-lens/unity-lens-meta
+move unity-lenses/unity-lens-music unity-lens/unity-lens-music
+move unity-lenses/unity-lens-photos unity-lens/unity-lens-photos
+move unity-lenses/unity-lens-video unity-lens/unity-lens-video
+move unity-scopes/unity-scope-home unity-lens/unity-scope-home
+move unity-scopes/smart-scopes unity-lens/unity-scope-extras

@@ -48,5 +48,5 @@
 
 - [Scopes for the Unity desktop⬀](https://launchpad.net/onehundredscopes) - additional Dash scopes
   ```
-  unity-scopes/smart-scopes
+  unity-lens/unity-scope-extras
   ```

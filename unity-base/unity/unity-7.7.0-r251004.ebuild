@@ -68,7 +68,7 @@ RDEPEND="${COMMON_DEPEND}
 	unity-base/unity-language-pack
 	unity-extra/unity-greeter
 	unity-indicators/unity-indicators-meta
-	unity-lenses/unity-lens-meta
+	unity-lens/unity-lens-meta
 	>=x11-libs/gdk-pixbuf-2.22.0:2
 	>=x11-libs/libX11-1.2.99.901
 	x11-libs/libXext

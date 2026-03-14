@@ -87,11 +87,11 @@ DEPEND="${RDEPEND}
 "
 ## gnome-base/gvfs[http]: show thumbnails when searching online in the Dash ##
 PDEPEND="
-	audacious? ( unity-lenses/unity-lens-meta[music] )
+	audacious? ( unity-lens/unity-lens-meta[music] )
 	colourlovers? ( gnome-base/gvfs[http] )
 	deviantart? ( gnome-base/gvfs[http] )
 	gallica? ( gnome-base/gvfs[http] )
-	soundcloud? ( unity-lenses/unity-lens-meta[music] )
+	soundcloud? ( unity-lens/unity-lens-meta[music] )
 "
 
 S="${WORKDIR}"

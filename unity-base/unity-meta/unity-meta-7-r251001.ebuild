@@ -106,8 +106,8 @@ RDEPEND="
 		app-crypt/seahorse
 		gnome-base/dconf-editor
 		|| (
-			mate-extra/mate-system-monitor
 			gnome-extra/gnome-system-monitor
+			mate-extra/mate-system-monitor
 		)
 		media-gfx/simple-scan
 		media-video/cheese

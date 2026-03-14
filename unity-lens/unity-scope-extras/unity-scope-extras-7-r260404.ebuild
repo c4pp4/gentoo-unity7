@@ -64,7 +64,7 @@ DEPEND="${RDEPEND}
 		dev-python/python-distutils-extra[${PYTHON_USEDEP}]
 	')
 "
-PDEPEND="audacious? ( unity-lenses/unity-lens-meta[music] )"
+PDEPEND="audacious? ( unity-lens/unity-lens-meta[music] )"
 
 S="${WORKDIR}"
 
@@ -100,6 +100,14 @@ src_install() {
 		eval "_name=${i}; _uver=\${_uver_${i}}"
 		pushd "${S}/unity-scope-${_name}-${_uver}" >/dev/null || die
 			BUILD_DIR="${S}/unity-scope-${_name}-${_uver}" distutils-r1_src_install
+
+			insinto /usr/share/doc/"${PF}"/unity-scope-${_name}-${_uver}
+			local x
+			for x in debian/changelog debian/copyright; do
+				if [[ -s ${x} ]]; then
+					doins "${x}"
+				fi
+			done
 		popd >/dev/null || die
 	done
 }

@@ -38,7 +38,7 @@ RDEPEND="
 "
 PDEPEND="
 	unity-base/gentoo-unity-env[fontconfig=]
-	unity-lenses/unity-lens-meta[files=,music=,photos=,video=]
+	unity-lens/unity-lens-meta[files=,music=,photos=,video=]
 "
 
 S="${FILESDIR}"

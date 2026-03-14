@@ -43,7 +43,7 @@ BDEPEND="virtual/pkgconfig"
 PDEPEND="
 	|| (
 		media-sound/rhythmbox
-		unity-scopes/smart-scopes[audacious]
+		unity-lens/unity-scope-extras[audacious]
 	)
 "
 

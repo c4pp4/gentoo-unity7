@@ -14,19 +14,19 @@ SRC_URI=""
 
 LICENSE="metapackage"
 SLOT="0"
-KEYWORDS="amd64"
-IUSE="+files +music +photos plugins +video"
+KEYWORDS="~amd64"
+IUSE="+files +music +photos +plugins +video"
 RESTRICT="binchecks strip test"
 
 RDEPEND="
-	unity-lenses/unity-lens-applications
-	unity-scopes/unity-scope-home
+	unity-lens/unity-lens-applications
+	unity-lens/unity-scope-home
 
-	files? ( unity-lenses/unity-lens-files )
-	music? ( unity-lenses/unity-lens-music )
-	photos? ( unity-lenses/unity-lens-photos )
-	plugins? ( unity-scopes/smart-scopes )
-	video? ( unity-lenses/unity-lens-video )
+	files? ( unity-lens/unity-lens-files )
+	music? ( unity-lens/unity-lens-music )
+	photos? ( unity-lens/unity-lens-photos )
+	plugins? ( unity-lens/unity-scope-extras )
+	video? ( unity-lens/unity-lens-video )
 "
 
 PDEPEND="unity-base/unity-settings[files=,music=,photos=,video=]"

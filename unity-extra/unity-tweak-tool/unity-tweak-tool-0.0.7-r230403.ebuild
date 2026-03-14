@@ -28,7 +28,7 @@ RDEPEND="
 	x11-libs/gtk+:3[introspection]
 
 	bluetooth? ( unity-indicators/unity-indicators-meta[bluetooth] )
-	files? ( unity-lenses/unity-lens-meta[files] )
+	files? ( unity-lens/unity-lens-meta[files] )
 
 	$(python_gen_cond_dep '
 		dev-python/pycairo[${PYTHON_USEDEP}]
