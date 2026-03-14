@@ -184,10 +184,6 @@ BDEPEND="sys-devel/gettext"
 S="${WORKDIR}"
 
 src_install() {
-	# Documentation
-	mv language-pack-en-base/COPYING .
-	default
-
 	# sharing panel msgids
 	local -a sh_msgids=(
 		"No networks selected for sharing"
@@ -473,6 +469,8 @@ src_install() {
 		! -name 'ubuntu-help.po' \
 		! -name 'unity*' \
 		! -name ${ylp_po} \
+		! -name changelog \
+		! -name copyright \
 			-delete || die
 	find "${S}" -mindepth 1 -type d -empty -delete || die
 
@@ -499,6 +497,7 @@ src_install() {
 							echo "${msgid}" >> "${pofile}"
 							;;
 						\")
+							_progress_indicator
 							echo "msgid \"\"${newline}${msgid}" >> "${pofile}"
 							;;
 					esac
@@ -548,8 +547,6 @@ src_install() {
 			! -name "${ylp_po}" \
 	); do
 		if [[ ${pofile##*/} == ${ucc_po} ]]; then
-			_progress_indicator
-
 			# Merge legacy translations
 			x="${pofile/${ucc_po}/${uccl_po}}"
 			merge_translations "${x}" "${pofile}"
@@ -557,8 +554,6 @@ src_install() {
 			# Add translations for langselector, sharing panel and network panel
 			sed -i -e "/\"Sharing\"/,+1 d" "${pofile}" || die # remove old identical msgid
 			process_msgids "${pofile/${ucc_po}/${gccl_po}}" "${pofile}" "${ls1_msgids[@]}"
-
-			_progress_indicator
 
 			# Add translations for langselector panel
 			x=${pofile/${ucc_po}/${ls_po}}
@@ -568,14 +563,10 @@ src_install() {
 
 		# Add translations for gnome-session-properties
 		if [[ ${pofile##*/} == ${gs_po} ]]; then
-			_progress_indicator
-
 			process_msgids "${pofile/${gs_po}/${gsl_po}}" "${pofile}" "${gs_msgids[@]}"
 			[[ -e ${pofile} ]] || continue
 		fi
 		if [[ ${pofile##*/} == ${gsl_po} ]]; then
-			_progress_indicator
-
 			process_msgids "${pofile}" "${pofile/${gsl_po}/${gs_po}}" "${gs_msgids[@]}"
 			if [[ -e ${pofile} ]]; then
 				mv "${pofile}" "${pofile/${gsl_po}/${gs_po}}"
@@ -588,16 +579,12 @@ src_install() {
 		# Add translations for Unity help desktop launcher
 		x=${pofile/${is_po}/${ylp_po}}
 		if [[ ${pofile##*/} == ${is_po} ]] && [[ -e ${x} ]]; then
-			_progress_indicator
-
 			sed -i -e "s/GNOME/Unity/g" "${x}" || die
 			process_msgids "${x}" "${pofile}" "${is_msgids[@]}"
 		fi
 
 		# Process translations for Unity
 		if [[ ${pofile##*/} == ${u_po} ]]; then
-			_progress_indicator
-
 			# Merge legacy translations
 			x="${pofile/${u_po}/${ul_po}}"
 			merge_translations "${x}" "${pofile}"
@@ -617,8 +604,18 @@ src_install() {
 			-delete || die
 	find "${S}" -mindepth 1 -type d -empty -delete || die
 
+	# LC_MESSAGES
 	insinto /usr/share/locale
 	doins -r "${S}"/language-pack-*-base/data/*
+
+	# Documentation
+	for x in "${S}"/language-pack-*-base/debian/*; do
+		_progress_indicator
+		newline="${x/${S}\/}"
+		newline="${newline/\/debian*}"
+		insinto /usr/share/doc/"${PF}"/"${newline}"
+		doins "${x}"
+	done
 
 	printf "\b\b%s\n" "... done!"
 }
