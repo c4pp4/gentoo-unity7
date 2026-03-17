@@ -61,7 +61,6 @@ RDEPEND="${COMMON_DEPEND}
 	gnome-base/dconf
 	media-libs/libglvnd
 	>=sys-libs/glibc-2.33
-	unity-base/session-migration
 	>=x11-libs/cairo-1.14.0
 	>=x11-libs/libXfixes-4.0.1
 	>=x11-libs/libXrandr-1.2.99.3

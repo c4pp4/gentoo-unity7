@@ -1,6 +1,6 @@
-From 2cf555f573901ecf5a49294fa3e582aeb52a0fb6 Mon Sep 17 00:00:00 2001
+From a7c4a3ca5cfb42ee9ce0b909c27926bccace35c6 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Tue, 17 Mar 2026 09:25:28 +0100
+Date: Tue, 28 Oct 2025 15:11:14 +0100
 Subject: [PATCH 1/1] Create Ambiance GTK4 theme (the rest code is in ebuild)
 
 Signed-off-by: c4pp4
@@ -8,12 +8,11 @@ Signed-off-by: c4pp4
  common/meson.build      |  1 +
  gtk/src/meson.build     | 29 +++++++++++++++++++----------
  gtk/src/post_install.py |  2 ++
- icons/meson.build       |  7 ++++++-
  meson_options.txt       |  1 +
- 5 files changed, 29 insertions(+), 11 deletions(-)
+ 4 files changed, 23 insertions(+), 10 deletions(-)
 
 diff --git a/common/meson.build b/common/meson.build
-index ba74d4cc..aeea2a6d 100644
+index cce24a8..f7f812a 100644
 --- a/common/meson.build
 +++ b/common/meson.build
 @@ -22,6 +22,7 @@ available_flavours = [
@@ -25,13 +24,13 @@ index ba74d4cc..aeea2a6d 100644
  
  foreach flavour: available_flavours
 diff --git a/gtk/src/meson.build b/gtk/src/meson.build
-index 809a5a1e..2ba0e4bb 100644
+index 2b59866..95ea95a 100644
 --- a/gtk/src/meson.build
 +++ b/gtk/src/meson.build
-@@ -15,8 +15,12 @@ cleanup_assets_gtk_ver_deps = {}
+@@ -12,8 +12,12 @@ gtk_yaru_colors_defs = {}
  
  foreach flavour: yaru_flavours
-   message('GTK: Configuring flavour ' + flavour)
+   message('Configuring flavour ' + flavour)
 -  suffix = flavour == 'default' ? '' : '-@0@'.format(flavour)
 -  theme_name = meson.project_name() + suffix
 +  if flavour == 'unity-ambiance'
@@ -42,8 +41,8 @@ index 809a5a1e..2ba0e4bb 100644
 +  endif
    is_dark = flavour == 'dark' or flavour.endswith('-dark')
    base_theme_name = is_dark ? flavour.split('-dark')[0] : flavour
-   is_mate = flavour.startswith('mate')
-@@ -61,17 +65,22 @@ foreach flavour: yaru_flavours
+   is_accent = enabled_accent_colors.contains(base_theme_name)
+@@ -56,17 +60,22 @@ foreach flavour: yaru_flavours
    conf_data.set('AccentName', is_accent ? base_theme_name : 'default')
    conf_data.set('AccentColor', is_accent ? accent_color_code : '')
    conf_data.set('AccentColorOptimized', is_accent ? accent_color_optimized_code : '')
@@ -72,10 +71,10 @@ index 809a5a1e..2ba0e4bb 100644
 +      continue
 +    endif
      gtk_dir = 'gtk-@0@'.format(gtk_ver)
-     base_path = (is_mate ? base_theme_name : 'default') / gtk_dir
+     base_path = (flavour.startswith('mate') ? base_theme_name : 'default') / gtk_dir
      dark_path = is_dark ? 'dark' : base_path
 diff --git a/gtk/src/post_install.py b/gtk/src/post_install.py
-index e5a66860..37fff992 100755
+index e5a6686..9a7da77 100755
 --- a/gtk/src/post_install.py
 +++ b/gtk/src/post_install.py
 @@ -16,6 +16,8 @@ themes_dir = path.join(PREFIX, data_dir, 'themes')
@@ -87,36 +86,18 @@ index e5a66860..37fff992 100755
      else:
          flavour_name = "{project}-{flavour}".format(project=project_name, flavour=f)
  
-diff --git a/icons/meson.build b/icons/meson.build
-index b31754c3..1ff456ec 100644
---- a/icons/meson.build
-+++ b/icons/meson.build
-@@ -3,7 +3,12 @@ PANEL_ONLY_ICONS_CATEGORIES = [
-   'panel',
- ]
- 
--icon_flavors = yaru_flavours
-+icon_flavors = []
-+foreach f : yaru_flavours
-+  if f != 'unity-ambiance'
-+    icon_flavors += [f]
-+  endif
-+endforeach
- 
- fullcolor_path = 'src' / 'fullcolor'
- xvfb_run = find_program('xvfb-run', required: false)
 diff --git a/meson_options.txt b/meson_options.txt
-index f1496006..3f7a2c06 100644
+index f149600..0ae3279 100644
 --- a/meson_options.txt
 +++ b/meson_options.txt
 @@ -16,6 +16,7 @@ option('dark', type: 'boolean', value: true, description:'build Yaru dark flavou
  option('mate', type: 'boolean', value: false, description:'build Yaru mate flavour')
  option('mate-dark', type: 'boolean', value: false, description:'build Yaru mate-dark flavour')
  option('ubuntu-unity', type: 'boolean', value: false, description:'build Yaru with Unity assets')
-+option('unity-ambiance', type: 'boolean', value: true, description:'build Yaru unity-ambiance flavour')
++option('unity-ambiance', type: 'boolean', value: true, description:'build Yaru unity-mbiance flavour')
  option('xfwm4', type: 'boolean', value: false, description:'build Yaru with xfwm4 assets')
  option('cinnamon', type: 'boolean', value: false, description:'build Yaru with Cinnamon flavour')
  option('cinnamon-dark', type: 'boolean', value: false, description:'build Yaru with Cinnamon dark flavour')
 -- 
-2.52.0
+2.51.0
 

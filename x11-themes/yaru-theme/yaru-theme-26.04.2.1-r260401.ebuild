@@ -3,18 +3,18 @@
 
 EAPI=8
 
-UVER=
-UREV=0ubuntu1
+UVER=ubuntu
+UREV=
 
 inherit meson xdg ubuntu-versionator
 
 DESCRIPTION="Yaru theme from the Ubuntu Community"
 HOMEPAGE="https://discourse.ubuntu.com/c/desktop/theme-refresh"
-SRC_URI="${UURL}-${UREV}.tar.xz"
+SRC_URI="${UURL}.tar.xz"
 
-LICENSE="CC-BY-SA-4.0 GPL-3 LGPL-2.1 LGPL-3"
+LICENSE="CC-BY-SA-4.0 GPL-2 GPL-3 GPL-3+ LGPL-2.1 LGPL-2.1+ LGPL-3"
 SLOT="0"
-KEYWORDS="amd64"
+KEYWORDS="~amd64"
 IUSE="cinnamon gnome-shell gtk mate +unity xfwm"
 RESTRICT="binchecks strip test"
 
@@ -32,11 +32,11 @@ BDEPEND="
 	dev-lang/sassc
 "
 
-S="${WORKDIR}/${PN}-${UREV}"
+S="${WORKDIR}/${P}${UVER}"
 
 PATCHES=(
 	"${FILESDIR}"/Adjust-window-shadow-and-bottom-corners.patch
-	"${FILESDIR}"/Create-Ambiance-GTK4-theme-questing.patch
+	"${FILESDIR}"/Create-Ambiance-GTK4-theme.patch
 	"${FILESDIR}"/Remove-light-edges-in-menu-corners.patch
 )
 
@@ -67,11 +67,6 @@ src_prepare() {
 			-e "/value: \[/a 'bark',\n'viridian'," \
 			meson_options.txt || die
 	fi
-
-	## gedit requires version attribute ##
-	sed -i \
-		-e'/<style-scheme/{s/>/ version="1.0">/}' \
-		gtksourceview/gtksourceview/{default,dark}.xml.in
 
 	ubuntu-versionator_src_prepare
 
@@ -104,15 +99,4 @@ src_configure() {
 		$(meson_use xfwm xfwm4 )
 	)
 	meson_src_configure
-}
-
-pkg_preinst() {
-	## Remove obsolete symlink from x11-themes/ubuntu-themes ##
-	local sl="${EROOT}"/usr/share/themes/Ambiance/gtk-4.0
-	if [[ -L ${sl} ]]; then
-		einfo "Removing obsolete symlink ${sl#${EROOT}}"
-		rm "${sl}" || die
-	fi
-
-	xdg_pkg_preinst
 }
