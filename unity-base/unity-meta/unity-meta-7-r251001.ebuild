@@ -20,7 +20,7 @@ REQUIRED_USE="gnome? ( extra )"
 RESTRICT="binchecks strip test"
 
 RDEPEND="
-	gnome-extra/nm-applet
+	gnome-extra/nm-applet[appindicator]
 	media-fonts/dejavu
 	unity-base/overlay-scrollbar
 	unity-base/unity

@@ -30,7 +30,7 @@ COMMON_DEPEND="
 	>=dev-libs/libdbusmenu-qt-0.9.3_pre20160218
 	>=dev-qt/qtcore-5.15.1:5
 	>=dev-qt/qtdbus-5.0.2:5
-	>=dev-qt/qtgui-5.0.2:5
+	>=dev-qt/qtgui-5.0.2:5[ibus]
 	>=dev-qt/qtsql-5.0.2:5[sqlite]
 	dev-qt/qttest:5
 	>=dev-qt/qtwidgets-5.0.2:5

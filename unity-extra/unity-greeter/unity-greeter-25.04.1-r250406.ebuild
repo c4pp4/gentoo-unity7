@@ -31,7 +31,7 @@ COMMON_DEPEND="
 RDEPEND="${COMMON_DEPEND}
 	>=dev-libs/glib-2.43.92:2
 	gnome-base/dconf
-	gnome-extra/nm-applet
+	gnome-extra/nm-applet[appindicator]
 	sys-apps/systemd
 	>=sys-libs/glibc-2.34
 	unity-indicators/indicator-application

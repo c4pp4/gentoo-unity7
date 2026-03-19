@@ -19,7 +19,7 @@ RESTRICT="test"
 COMMON_DEPEND="
 	dev-qt/qtcore:5
 	dev-qt/qtdbus:5
-	dev-qt/qtgui:5
+	dev-qt/qtgui:5[ibus]
 	dev-qt/qtwidgets:5
 "
 RDEPEND="${COMMON_DEPEND}"
