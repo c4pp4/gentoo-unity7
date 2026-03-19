@@ -11,7 +11,7 @@ UREV=
 
 inherit distutils-r1 ubuntu-versionator
 
-DESCRIPTION="Online scopes for the Unity Dash"
+DESCRIPTION="Extra scopes for the Unity Dash"
 HOMEPAGE="https://launchpad.net/onehundredscopes"
 
 LICENSE="GPL-3"

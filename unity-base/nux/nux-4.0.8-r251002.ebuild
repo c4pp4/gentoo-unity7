@@ -23,7 +23,7 @@ COMMON_DEPEND="
 	>=app-i18n/ibus-1.5.1
 	dev-libs/boost:=
 	>=dev-libs/glib-2.31.8:2
-	dev-libs/libpcre:3
+	dev-libs/libpcre2:=
 	>=dev-libs/libsigc++-2.8.0:2
 	media-libs/libpng:0=
 	>=sys-apps/pciutils-3.5.1
@@ -59,6 +59,8 @@ BDEPEND="doc? ( app-doc/doxygen[dot] )"
 PDEPEND="unity-base/unity[gles2=]"
 
 S="${WORKDIR}"
+
+PATCHES=( "${FILESDIR}"/migrate-validator-from-pcre-to-pcre2.patch )
 
 src_prepare() {
 	# Use headers from media-libs/glewmx package #

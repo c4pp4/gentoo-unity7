@@ -1,0 +1,143 @@
+From 62b765472fb50baab91922b3a1575093b0cdb122 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Thu, 19 Mar 2026 13:44:21 +0100
+Subject: [PATCH 1/1] Migrate Validator from PCRE to PCRE2
+
+Signed-off-by: c4pp4
+---
+ Nux/Validator.cpp | 55 ++++++++++++++++++++++++++++++-----------------
+ Nux/Validator.h   |  5 +++--
+ configure.ac      |  2 +-
+ 3 files changed, 39 insertions(+), 23 deletions(-)
+
+diff --git a/Nux/Validator.cpp b/Nux/Validator.cpp
+index 0723930..a760242 100644
+--- a/Nux/Validator.cpp
++++ b/Nux/Validator.cpp
+@@ -27,12 +27,18 @@ namespace nux
+ {
+ 
+   Validator::Validator()
++#if !defined(NUX_OS_WINDOWS)
++    : _regexp(nullptr)
++#endif
+   {
+   }
+ 
+   Validator::~Validator()
+   {
+-
++#if !defined(NUX_OS_WINDOWS)
++    if (_regexp)
++      pcre2_code_free(_regexp);
++#endif
+   }
+ 
+   bool Validator::InitRegExp()
+@@ -41,18 +47,23 @@ namespace nux
+     regex_ = _regexp_str.c_str();
+     return true;
+ #else
+-    const char *error;
+-    int   erroffset;
+-    _regexp = pcre_compile(
+-      _regexp_str.c_str(),    /* the pattern */
+-      PCRE_MULTILINE,
+-      &error,         /* for error message */
+-      &erroffset,     /* for error offset */
+-      0);             /* use default character tables */
++    int        errorcode;
++    PCRE2_SIZE erroroffset;
++    _regexp = pcre2_compile(
++      reinterpret_cast<PCRE2_SPTR>(_regexp_str.c_str()),  /* pattern */
++      PCRE2_ZERO_TERMINATED,                              /* pattern length */
++      PCRE2_MULTILINE,                                    /* option bits */
++      &errorcode,                                         /* error code */
++      &erroroffset,                                       /* error offset */
++      nullptr);                                           /* compile context */
+ 
+     if (!_regexp)
+     {
+-      nuxDebugMsg("[IntegerValidator::IntegerValidator] Invalid regular expression: %s", _regexp_str.c_str());
++      PCRE2_UCHAR buffer[256];
++      pcre2_get_error_message(errorcode, buffer, sizeof(buffer) / sizeof(buffer[0]));
++      nuxDebugMsg("[Validator::InitRegExp] Invalid regular expression '%s' "
++                  "at offset %d: %s",
++                  _regexp_str.c_str(), (int)erroroffset, buffer);
+       return false;
+     }    
+     return true;
+@@ -72,20 +83,24 @@ namespace nux
+     }
+     return Validator::Acceptable;
+ #else
+-    if (_regexp == 0)
++    if (!_regexp || !str)
+       return Validator::Invalid;
+ 
+-    int out_vector [10];
+-    unsigned int offset = 0;
+-    int len = (int) strlen(str);
++    pcre2_match_data *match_data =
++        pcre2_match_data_create_from_pattern(_regexp, nullptr);
++
++    int rc = pcre2_match(
++        _regexp,                                   /* compiled pattern */
++        reinterpret_cast<PCRE2_SPTR>(str),         /* subject string */
++        PCRE2_ZERO_TERMINATED,                     /* auto-determine length */
++        0,                                         /* start offset */
++        0,                                         /* match options */
++        match_data,                                /* match data block */
++        nullptr);                                  /* match context */
+ 
+-    // See the "PCRE DISCUSSION OF STACK USAGE" and why it maybe necessary to limit the stack usage.
+-    pcre_extra extra;
+-    extra.flags = PCRE_EXTRA_MATCH_LIMIT_RECURSION;
+-    extra.match_limit_recursion = 2000; 
++    pcre2_match_data_free(match_data);
+ 
+-    int rc = pcre_exec(_regexp, &extra, str, len, offset, 0, out_vector, 10);
+-    if (rc <= -1)
++    if (rc < 0)
+     {
+       return Validator::Invalid;
+     }
+diff --git a/Nux/Validator.h b/Nux/Validator.h
+index ed729fc..4d7e9a5 100644
+--- a/Nux/Validator.h
++++ b/Nux/Validator.h
+@@ -26,7 +26,8 @@
+ #if defined(NUX_OS_WINDOWS)
+   #include <regex>
+ #else
+-  #include <pcre.h>
++  #define PCRE2_CODE_UNIT_WIDTH 8
++  #include <pcre2.h>
+ #endif
+ 
+ namespace nux
+@@ -57,7 +58,7 @@ namespace nux
+ #if defined(NUX_OS_WINDOWS)
+     std::regex regex_;
+ #else
+-    pcre *_regexp;
++    pcre2_code *_regexp;
+ #endif
+   };
+ }
+diff --git a/configure.ac b/configure.ac
+index a375300..8b047e7 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -196,7 +196,7 @@ PKG_CHECK_MODULES(NUX,
+                   sigc++-2.0
+                   pango
+                   pangocairo
+-                  libpcre
++                  libpcre2-8
+                   )
+ AC_SUBST(NUX_CFLAGS)
+ AC_SUBST(NUX_LIBS)
+-- 
+2.52.0
+
