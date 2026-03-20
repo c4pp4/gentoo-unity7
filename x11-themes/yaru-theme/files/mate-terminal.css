@@ -14,3 +14,25 @@ window.background.mate-terminal scrollbar.vertical slider {
 window.background.mate-terminal scrollbar.vertical:hover slider {
     min-width: 6px;
 }
+
+window.background.mate-terminal scrollbar.vertical:hover:dir(ltr),
+window.background.mate-terminal scrollbar.vertical:active:dir(ltr) {
+    margin-left: 2px;
+}
+
+window.background.mate-terminal scrollbar.vertical:hover:dir(rtl),
+window.background.mate-terminal scrollbar.vertical:active:dir(rtl) {
+    margin-right: 2px;
+}
+
+window.background.mate-terminal scrollbar.vertical:dir(ltr):not(:hover):not(.dragging) {
+    margin-left: 5px;
+}
+
+window.background.mate-terminal scrollbar.vertical:dir(rtl):not(:hover):not(.dragging) {
+    margin-right: 5px;
+}
+
+window.background.mate-terminal scrollbar {
+    transition: none;
+}
