@@ -1,14 +1,15 @@
-From 62b765472fb50baab91922b3a1575093b0cdb122 Mon Sep 17 00:00:00 2001
+From f75712b58b206aaccbf1f374096bd0d2cae84437 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Thu, 19 Mar 2026 13:44:21 +0100
+Date: Fri, 20 Mar 2026 07:19:08 +0100
 Subject: [PATCH 1/1] Migrate Validator from PCRE to PCRE2
 
 Signed-off-by: c4pp4
 ---
  Nux/Validator.cpp | 55 ++++++++++++++++++++++++++++++-----------------
  Nux/Validator.h   |  5 +++--
+ Nux/nux.pc.in     |  2 +-
  configure.ac      |  2 +-
- 3 files changed, 39 insertions(+), 23 deletions(-)
+ 4 files changed, 40 insertions(+), 24 deletions(-)
 
 diff --git a/Nux/Validator.cpp b/Nux/Validator.cpp
 index 0723930..a760242 100644
@@ -125,6 +126,16 @@ index ed729fc..4d7e9a5 100644
  #endif
    };
  }
+diff --git a/Nux/nux.pc.in b/Nux/nux.pc.in
+index a5f6c14..a0f8c0c 100644
+--- a/Nux/nux.pc.in
++++ b/Nux/nux.pc.in
+@@ -8,4 +8,4 @@ Description: Nux OpenGL Toolkit
+ Version: @VERSION@
+ Libs: -L${libdir} -lnux-@NUX_API_VERSION@
+ Cflags: -I${includedir}/Nux-@NUX_API_VERSION@
+-Requires: glib-2.0 nux-core-@NUX_API_VERSION@ nux-graphics-@NUX_API_VERSION@ @GL_PKGS@ sigc++-2.0 libpcre
++Requires: glib-2.0 nux-core-@NUX_API_VERSION@ nux-graphics-@NUX_API_VERSION@ @GL_PKGS@ sigc++-2.0 libpcre2-8
 diff --git a/configure.ac b/configure.ac
 index a375300..8b047e7 100644
 --- a/configure.ac

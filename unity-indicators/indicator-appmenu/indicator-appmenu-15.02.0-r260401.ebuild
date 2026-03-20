@@ -5,14 +5,14 @@ EAPI=8
 GNOME2_EAUTORECONF="yes"
 GNOME2_LA_PUNT="yes"
 
-UVER=+20.10.20200617.2
-UREV=0ubuntu5
+UVER=+20.10.20260311
+UREV=0ubuntu1
 
 inherit gnome2 ubuntu-versionator
 
 DESCRIPTION="Indicator for application menus used by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/indicator-appmenu"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+SRC_URI="${UURL}-${UREV}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -32,8 +32,8 @@ COMMON_DEPEND="
 RDEPEND="${COMMON_DEPEND}
 	gnome-base/dconf
 	>=sys-libs/glibc-2.4
-	unity-base/unity-gtk-module
 	x11-libs/libX11
+	x11-misc/appmenu-gtk-module[gtk2]
 "
 DEPEND="${COMMON_DEPEND}
 	dev-libs/libappindicator:3
@@ -45,7 +45,7 @@ BDEPEND="
 	dev-util/intltool
 "
 
-S="${WORKDIR}"
+S="${WORKDIR}/${PN}.git"
 
 src_prepare() {
 	# ,: command not found #
