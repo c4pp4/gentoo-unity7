@@ -36,7 +36,7 @@
     ------------------------------------------------------------
    ```
 
-   WARNING: If you don't see a similar message, don't continue with the installation. Please create an issue report or write to our Telegram group.
+   WARNING: If you don't see a similar message, don't continue with the installation. Please write to our [Telegram group⬀][tg] or create an issue report.
 
 7. **Update the whole system**:
 
@@ -78,5 +78,6 @@ NOTES:
 [pkge]: https://wiki.gentoo.org/wiki/Binary_package_guide#Additional_client_settings
 [s3]: https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Stage#Downloading_the_stage_file
 [sysd]: https://wiki.gentoo.org/wiki/Systemd
+[tg]: https://t.me/gentoo_unity7
 [wp]: https://wiki.gentoo.org/wiki/WirePlumber#systemd
 [xirc]: /unity-base/unity/files/xinitrc
