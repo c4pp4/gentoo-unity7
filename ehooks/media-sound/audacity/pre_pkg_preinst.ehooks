@@ -1,5 +1,5 @@
 ehooks() {
 	sed -i \
-		-e "/^Exec=/{s/env UBUNTU_MENUPROXY=0 //}" \
+		-e "/^Exec=/{s/UBUNTU_MENUPROXY=0/UBUNTU_MENUPROXY=1/}" \
 		"${ED}/usr/share/applications/audacity.desktop" || die
 }
