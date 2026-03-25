@@ -375,9 +375,6 @@ src_install() {
 	# Top panel systemd indicator services required for unity-panel-service-lockscreen #
 	unity-panel-service_dosym "unity-panel-service-lockscreen" "datetime keyboard power session sound"
 
-	exeinto /usr/share/session-migration/scripts
-	doexe tools/migration-scripts/*
-
 	insinto /usr/lib/compiz/migration
 	doins tools/convert-files/*.convert
 
