@@ -40,6 +40,8 @@ DEPEND="${COMMON_DEPEND}
 
 S="${WORKDIR}"
 
+MAKEOPTS="${MAKEOPTS} -j1"
+
 src_prepare() {
 	# CHECK_XORG_GTEST: command not found #
 	sed -i "/CHECK_XORG_GTEST/d" configure.ac || die
