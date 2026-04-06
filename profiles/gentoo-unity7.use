@@ -7,6 +7,8 @@ app-i18n/ibus                           appindicator gtk2 vala                  
 app-office/libreoffice                  gtk3                    -gtk4           # Prefer gtk3
 dev-libs/boost                          python                                  # Required by dev-libs/libcolumbus
 dev-libs/libdbusmenu                    gtk3                                    # Required by dev-libs/libappindicator:3, dev-libs/libindicate, unity-indicators/indicator-appmenu
+dev-libs/libqtdbusmock                  qt5                     -qt6            # Prefer qt5, required by unity-base/hud[test]
+dev-libs/libqtdbustest                  qt5                     -qt6            # Prefer qt5, required by unity-base/hud[test]
 dev-libs/xapian-bindings                python                                  # REQUIRED_USE flag
 dev-qt/qtgui:5                          ibus                                    # Required by unity-base/hud, dev-libs/libdbusmenu-qt
 gnome-base/gvfs                         fuse                                    # Required by app-backup/deja-dup
@@ -22,7 +24,7 @@ net-p2p/transmission                    appindicator gtk        -qt6            
 sys-libs/zlib                           minizip                                 # Required by net-im/telegram-desktop
 virtual/notification-daemon                                     -gnome          # Prefer x11-misc/notify-osd
 x11-base/xorg-server                    xvfb                                    # Required by x11-misc/xvfb-run
-x11-libs/gsettings-qt                                           -qt6            # Prefer qt5
+x11-libs/gsettings-qt                   qt5                     -qt6            # Prefer qt5, required by unity-base/hud
 x11-misc/appmenu-gtk-module             gtk2                                    # Required by unity-indicators/indicator-appmenu
 x11-misc/colord                         vala                                    # Required by unity-base/unity-control-center
 x11-misc/lightdm                        vala                    -gtk            # Required by unity-extra/unity-greeter, unity-indicators/indicator-keyboard; don't install x11-misc/lightdm-gtk-greeter

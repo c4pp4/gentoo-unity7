@@ -1,0 +1,74 @@
+From 86b6d507806319da6fddac4237bb322ed3eaab95 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sun, 5 Apr 2026 21:48:01 +0200
+Subject: [PATCH 1/1] Fix qt6 compilation
+
+Signed-off-by: c4pp4
+---
+ src/libqtdbustest/DBusTestRunner.h      | 2 +-
+ src/libqtdbustest/QProcessDBusService.h | 2 +-
+ src/qdbus-test-runner/CMakeLists.txt    | 5 +++++
+ src/watchdog/CMakeLists.txt             | 5 +++++
+ 4 files changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/src/libqtdbustest/DBusTestRunner.h b/src/libqtdbustest/DBusTestRunner.h
+index 984ae3b..cf227b0 100644
+--- a/src/libqtdbustest/DBusTestRunner.h
++++ b/src/libqtdbustest/DBusTestRunner.h
+@@ -29,7 +29,7 @@ namespace QtDBusTest {
+ 
+ class DBusTestRunnerPrivate;
+ 
+-class Q_DECL_EXPORT DBusTestRunner {
++class __attribute__((visibility("default"))) DBusTestRunner {
+ public:
+ 	explicit DBusTestRunner(const QString &dbusSessionConfigFile =
+ 			DBUS_SESSION_CONFIG_FILE, const QString &dbusSystemConfigFile =
+diff --git a/src/libqtdbustest/QProcessDBusService.h b/src/libqtdbustest/QProcessDBusService.h
+index 35d54cf..7b3f8b4 100644
+--- a/src/libqtdbustest/QProcessDBusService.h
++++ b/src/libqtdbustest/QProcessDBusService.h
+@@ -29,7 +29,7 @@ namespace QtDBusTest {
+ 
+ class QProcessDBusServicePrivate;
+ 
+-class Q_DECL_EXPORT QProcessDBusService: public DBusService {
++class __attribute__((visibility("default"))) QProcessDBusService: public DBusService {
+ 
+ public:
+ 	explicit QProcessDBusService(const QString &name,
+diff --git a/src/qdbus-test-runner/CMakeLists.txt b/src/qdbus-test-runner/CMakeLists.txt
+index 00525f9..559e9bc 100644
+--- a/src/qdbus-test-runner/CMakeLists.txt
++++ b/src/qdbus-test-runner/CMakeLists.txt
+@@ -4,6 +4,11 @@ add_executable(
+ 	qdbus-simple-test-runner.cpp
+ )
+ 
++set_target_properties(
++	qdbus-simple-test-runner
++	PROPERTIES OUTPUT_NAME "qdbus-simple-test-runner${QT_SUFFIX}"
++)
++
+ target_link_libraries(
+ 	qdbus-simple-test-runner
+ 	qtdbustest${QT_SUFFIX}
+diff --git a/src/watchdog/CMakeLists.txt b/src/watchdog/CMakeLists.txt
+index 63e4043..acf7a12 100644
+--- a/src/watchdog/CMakeLists.txt
++++ b/src/watchdog/CMakeLists.txt
+@@ -5,6 +5,11 @@ add_executable(
+ 	main.cpp
+ )
+ 
++set_target_properties(
++	watchdog
++	PROPERTIES OUTPUT_NAME "watchdog${QT_SUFFIX}"
++)
++
+ target_link_libraries(
+ 	watchdog
+ 	Qt::Core
+-- 
+2.52.0
+

@@ -3,7 +3,7 @@
 >app-office/libreoffice-25.2.7.2-r1
 >app-text/evince-48.1
 >dev-cpp/gtest-1.17.0
->dev-libs/glib-2.84.4:2
+>dev-libs/glib-2.84.4-r3:2
 >games-board/iagno-3.38.1-r1
 >games-puzzle/gnome-taquin-3.38.1-r1
 >gnome-base/dconf-editor-45.0.1

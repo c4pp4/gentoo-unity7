@@ -5,13 +5,13 @@ EAPI=8
 GNOME2_EAUTORECONF="yes"
 
 UVER=+23.04.20230220
-UREV=0ubuntu12
+UREV=0ubuntu13
 
 inherit gnome2 ubuntu-versionator vala
 
 DESCRIPTION="Unity Desktop Configuration Tool"
 HOMEPAGE="https://wiki.ubuntu.com/Unity"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+SRC_URI="${UURL}-${UREV}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -102,7 +102,7 @@ PDEPEND="
 	bluetooth? ( unity-indicators/indicator-bluetooth )
 "
 
-S="${WORKDIR}"
+S="${WORKDIR}/${PN}"
 
 PATCHES=(
 	"${FILESDIR}"/01-langselector.patch # Based on g-c-c v3.24 Region & Language panel

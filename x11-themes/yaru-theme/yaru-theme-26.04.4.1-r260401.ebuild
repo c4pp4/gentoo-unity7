@@ -12,7 +12,7 @@ DESCRIPTION="Yaru theme from the Ubuntu Community"
 HOMEPAGE="https://discourse.ubuntu.com/c/desktop/theme-refresh"
 SRC_URI="${UURL}.tar.xz"
 
-LICENSE="CC-BY-SA-4.0 GPL-2 GPL-3 GPL-3+ LGPL-2.1 LGPL-2.1+ LGPL-3"
+LICENSE="CC-BY-SA-4.0 GPL-2 GPL-3 GPL-3+ LGPL-2.1 LGPL-2.1+ LGPL-3 MIT"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="cinnamon gnome-shell gtk mate +unity xfwm"
