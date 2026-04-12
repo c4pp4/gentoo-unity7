@@ -123,9 +123,10 @@ S="${WORKDIR}/${PN}"
 PATCHES=(
 	"${FILESDIR}"/add-unity-version-xml.patch
 	"${FILESDIR}"/nemo-support.patch
-	"${FILESDIR}"/revert-unwanted-ubuntu-unity-changes.patch
-	"${FILESDIR}"/remove-all-code-related-to-online-search.patch
 	"${FILESDIR}"/prevent-compiz-segfault-by-guarding-pthread_join.patch
+	"${FILESDIR}"/remove-all-code-related-to-online-search.patch
+	"${FILESDIR}"/revert-unwanted-ubuntu-unity-changes.patch
+	"${FILESDIR}"/set-desktop-name.patch
 )
 
 wrap_distutils() {
@@ -182,10 +183,6 @@ src_prepare() {
 			panel/PanelTray.cpp || die
 	fi
 
-	sed -i \
-		-e 's/"Ubuntu Desktop"/"Gentoo Unity⁷ Desktop"/' \
-		panel/PanelMenuView.cpp || die
-
 	# Setup Unity side launcher default applications #
 	sed -i \
 		-e "s/org.gnome.Nautilus/nemo/" \
@@ -202,11 +199,6 @@ src_prepare() {
 	sed -i \
 		-e 's:ubuntu.session:unity.session:g' \
 		tools/{systemd,upstart}-prestart-check || die
-
-	# Related to /etc/os-release NAME check #
-	sed -i \
-		-e 's:"Ubuntu":"Gentoo":' \
-		panel/PanelMenuView.cpp || die
 
 	# Don't kill -9 unity-panel-service when launched using PANEL_USE_LOCAL_SERVICE env variable #
 	#  It slows down the launch of unity-panel-service in lockscreen mode #

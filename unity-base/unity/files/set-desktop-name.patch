@@ -1,0 +1,47 @@
+From a4dddd5a2ef9aff0e3c6e0a48223797ef07b297e Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Mon, 6 Apr 2026 11:58:28 +0200
+Subject: [PATCH 1/1] Set desktop name
+
+Signed-off-by: c4pp4
+---
+ panel/PanelMenuView.cpp | 23 +----------------------
+ 1 file changed, 1 insertion(+), 22 deletions(-)
+
+diff --git a/panel/PanelMenuView.cpp b/panel/PanelMenuView.cpp
+index abaa420..7665ab8 100644
+--- a/panel/PanelMenuView.cpp
++++ b/panel/PanelMenuView.cpp
+@@ -58,28 +58,7 @@ namespace
+ 
+ std::string get_current_desktop()
+ {
+-  std::ifstream fin("/etc/os-release");
+-  std::string temp;
+-  std::string os_release_name("Ubuntu");
+-
+-  if (fin.is_open())
+-  {
+-    while (getline(fin, temp))
+-    {
+-      if (temp.substr(0, 4) == "NAME")
+-      {
+-        os_release_name = boost::erase_all_copy(temp.substr(temp.find_last_of('=')+1), "\"");
+-        break;
+-      }
+-    }
+-    fin.close();
+-  }
+-
+-  //this is done to avoid breaking translation before 14.10.
+-  if (os_release_name.empty() || os_release_name == "Ubuntu")
+-    return _("Ubuntu Desktop");
+-  else
+-    return glib::String(g_strdup_printf(_("%s Desktop"), os_release_name.c_str())).Str();
++  return _("Gentoo Unity⁷ Desktop");
+ }
+ }
+ 
+-- 
+2.52.0
+
