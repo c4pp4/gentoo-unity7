@@ -58,10 +58,6 @@ src_prepare() {
 		cat "${FILESDIR}"/nemo.css >> \
 			gtk/src/default/gtk-3.0/apps/_nemo.scss || die
 
-		## Add widget fixes ##
-		cat "${FILESDIR}"/gtk-widgets.css >> \
-			gtk/src/default/gtk-3.0/_tweaks.scss || die
-
 		## Add Bark and Viridian accent colors ##
 		sed -i \
 			-e "/value: \[/a 'bark',\n'viridian'," \

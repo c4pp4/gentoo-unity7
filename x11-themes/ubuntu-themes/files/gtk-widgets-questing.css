@@ -17,3 +17,18 @@ headerbar button.horizontal.radio {
 overlay > revealer > box > toolbar {
  background-color: @bg_color;
 }
+
+/* avoid unwanted black frame when using HdyHeaderBar */
+decoration {
+    margin: 0;
+}
+
+.background.csd decoration {
+    margin: 10px;
+}
+
+/* remove HdyHeaderBar rounded top corners */
+.background:not(.tiled):not(.maximized):not(.solid-csd) headerbar.titlebar {
+ border-top-left-radius: 0;
+ border-top-right-radius: 0;
+}
