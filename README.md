@@ -14,6 +14,7 @@ A Gentoo overlay to build the Unity7 user interface.
 
 - [Forked from unity-gentoo][fork]
 - [About Unity7⬀][wiki]
+- [Gentoo Lomiri Desktop⬀ (formerly Unity8)][gld]
 
 #
 
@@ -25,9 +26,10 @@ A Gentoo overlay to build the Unity7 user interface.
 [fesr]: ehooks/www-client/firefox:esr/files
 [fork]: https://github.com/shiznix/unity-gentoo
 [ftlr]: ehooks/www-client/firefox:rapid/files
+[gld]: https://gitlab.com/renegart/gentoo-lomiri
 [preview_image]: https://github.com/c4pp4/gentoo-unity7/blob/master/docs/assets/preview.png "Preview of Gentoo Unity⁷ Desktop"
 [preview_image_url]: https://raw.githubusercontent.com/c4pp4/gentoo-unity7/master/docs/assets/preview.png
-[tg]: https://t.me/gentoo_unity7
+[tg]: https://t.me/gentoo_unity7_lomiri
 [tips]: docs/use_flag_tips.md
 [uris]: docs/source_uris.md
 [wiki]: https://en.wikipedia.org/wiki/Unity_(user_interface)
