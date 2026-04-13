@@ -109,6 +109,7 @@ PATCHES=(
 	"${FILESDIR}"/02-optional-bt-colord-kerberos-wacom.patch
 	"${FILESDIR}"/03-ibus_init.patch
 	"${FILESDIR}"/fix-sharing-panel-translation.patch
+	"${FILESDIR}"/fix-theme-selection-and-hover.patch
 )
 
 src_prepare() {
@@ -183,12 +184,6 @@ src_prepare() {
 		-e '/colors_name/{s/"Viridian (Yaru-dark)"/"Viridian (Yaru-dark)", "Warty Brown (Yaru)", "Warty Brown (Yaru-dark)", "Yellow (Yaru)", "Yellow (Yaru-dark)"/}' \
 		-e '/"-dark"/{s/NULL/NULL || strstr(gtk_theme, "Ambiance") != NULL/}' \
 		panels/appearance/cc-appearance-panel.c || die
-
-	# Revert button event background color #
-	sed -i \
-		-e "/GdkRGBA rgba/d" \
-		-e "/gtk_widget_override_background_color/d" \
-		shell/cc-shell-item-view.c || die
 
 	# Disable all language files as they can be incomplete #
 	#  due to being provided by Ubuntu's language-pack packages #

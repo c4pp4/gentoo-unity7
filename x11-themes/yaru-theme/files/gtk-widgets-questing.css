@@ -13,3 +13,9 @@ decoration {
     border-top-left-radius: 0;
     border-top-right-radius: 0;
 }
+
+/* u-c-c background */
+window box notebook scrolledwindow viewport box frame box iconview,
+window box notebook scrolledwindow viewport box frame box iconview:backdrop {
+    background-color: rgba(0, 0, 0, 0);
+}

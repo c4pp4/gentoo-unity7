@@ -59,7 +59,7 @@ src_prepare() {
 			gtk/src/default/gtk-3.0/apps/_nemo.scss || die
 
 		## Add widget fixes ##
-		cat "${FILESDIR}"/gtk-widgets.css >> \
+		cat "${FILESDIR}"/gtk-widgets-questing.css >> \
 			gtk/src/default/gtk-3.0/_tweaks.scss || die
 
 		## Add Bark and Viridian accent colors ##

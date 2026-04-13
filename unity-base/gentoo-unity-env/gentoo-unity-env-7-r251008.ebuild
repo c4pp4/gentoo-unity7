@@ -26,7 +26,8 @@ S="${WORKDIR}"
 
 pkg_setup() {
 	ubuntu-versionator_pkg_setup
-	[[ -f ${EROOT}/etc/ehooks/timestamps ]] && cp "${EROOT}"/etc/ehooks/timestamps "${S}"/timestamps.old
+
+	## Backup timestamps file before a new one is generated.
 	[[ -f ${EROOT}/etc/gentoo-unity7/timestamps ]] && cp "${EROOT}"/etc/gentoo-unity7/timestamps "${S}"/timestamps.old
 }
 

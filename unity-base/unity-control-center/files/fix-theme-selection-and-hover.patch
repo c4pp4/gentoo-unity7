@@ -1,0 +1,38 @@
+From 5ece7695a3e0c3a3676d2e17d38a6d03c5dadab4 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Mon, 13 Apr 2026 00:47:04 +0200
+Subject: [PATCH 1/1] Fix background to respect theme selection and hover
+
+Signed-off-by: c4pp4
+---
+ shell/cc-shell-item-view.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/shell/cc-shell-item-view.c b/shell/cc-shell-item-view.c
+index dc132fc..4e95f39 100644
+--- a/shell/cc-shell-item-view.c
++++ b/shell/cc-shell-item-view.c
+@@ -211,8 +211,18 @@ cc_shell_item_view_init (CcShellItemView *self)
+   g_signal_connect (self, "button-release-event",
+                     G_CALLBACK (iconview_button_release_event_cb), self);
+ 
+-  GdkRGBA rgba = {0, 0, 0, 0};
+-  gtk_widget_override_background_color (self, GTK_STATE_FLAG_NORMAL, &rgba);
++  GdkRGBA normal = {0, 0, 0, 0};
++  GdkRGBA prelight;
++  GdkRGBA selected;
++
++  GtkStyleContext *context;
++  context = gtk_widget_get_style_context (GTK_WIDGET (self));
++  gtk_style_context_get_background_color (context, GTK_STATE_FLAG_PRELIGHT, &prelight);
++  gtk_style_context_get_background_color (context, GTK_STATE_FLAG_SELECTED, &selected);
++
++  gtk_widget_override_background_color (GTK_WIDGET (self), GTK_STATE_FLAG_NORMAL, &normal);
++  gtk_widget_override_background_color (GTK_WIDGET (self), GTK_STATE_FLAG_PRELIGHT, &prelight);
++  gtk_widget_override_background_color (GTK_WIDGET (self), GTK_STATE_FLAG_SELECTED, &selected);
+ }
+ 
+ GtkWidget *
+-- 
+2.52.0
+
