@@ -20,7 +20,7 @@
 
 5. **Set up** the Gentoo Unity⁷ Desktop **build environment**:
 
-   `emerge -av gentoo-unity-env`
+   `emerge gentoo-unity-env`
 
    WARNING: Don't use the portage variable EMERGE_DEFAULT_OPTS with the `--jobs N` option, as it causes informational and warning messages to be ignored. Such messages are important mainly in the next step.
 
@@ -44,7 +44,7 @@
 
    NOTE: A circular dependencies error may appear between *'media-libs/freetype'* and *'media-libs/harfbuzz'*. Before the update, try:
    <br/>
-   `USE="-harfbuzz" emerge -av1 media-libs/freetype`
+   `USE="-harfbuzz" emerge --oneshot media-libs/freetype`
 
 8. **Install Unity7**:
 
