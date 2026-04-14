@@ -14,7 +14,7 @@ SRC_URI=""
 
 LICENSE="GPL-2+"
 SLOT="0"
-KEYWORDS="amd64"
+KEYWORDS="~amd64"
 IUSE="+accessibility classic-fonts classic-theme +files +fontconfig lowgfx +music +photos +ubuntu-sounds +video"
 REQUIRED_USE="classic-fonts? ( fontconfig )"
 RESTRICT="binchecks strip test"
@@ -49,7 +49,7 @@ src_install() {
 		gschema_dir="/usr/share/glib-2.0/schemas"
 
 	insinto "${gschema_dir}"
-	newins "${FILESDIR}"/ubuntu-unity-questing.gsettings-override "${gschema}"
+	newins "${FILESDIR}"/ubuntu-unity.gsettings-override "${gschema}"
 	use classic-theme && newins "${FILESDIR}"/classic-unity.gsettings-override 11_classic-unity.gschema.override
 
 	# Do the following only if there is no file collision detected #

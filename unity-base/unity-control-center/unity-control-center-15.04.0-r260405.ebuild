@@ -108,8 +108,10 @@ PATCHES=(
 	"${FILESDIR}"/01-langselector.patch # Based on g-c-c v3.24 Region & Language panel
 	"${FILESDIR}"/02-optional-bt-colord-kerberos-wacom.patch
 	"${FILESDIR}"/03-ibus_init.patch
-	"${FILESDIR}"/fix-sharing-panel-translation.patch
-	"${FILESDIR}"/fix-theme-selection-and-hover.patch
+	"${FILESDIR}"/sharing-fix_translation.patch
+	"${FILESDIR}"/shell-fix_theme_selection_and_hover.patch
+	"${FILESDIR}"/backgrounds-ignore_screenshots_from_mate_screenshot.patch
+	"${FILESDIR}"/backgrounds-process_filename_dark_files.patch
 )
 
 src_prepare() {

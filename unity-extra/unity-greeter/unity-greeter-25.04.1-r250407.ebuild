@@ -15,7 +15,7 @@ SRC_URI="${UURL}-${UREV}.tar.xz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="amd64"
+KEYWORDS="~amd64"
 IUSE="nls +ready-sound"
 RESTRICT="test"
 
@@ -108,7 +108,7 @@ src_install() {
 		gschema_dir="/usr/share/glib-2.0/schemas"
 
 	insinto "${gschema_dir}"
-	newins "${FILESDIR}"/ubuntu-${PN}-questing.gsettings-override \
+	newins "${FILESDIR}"/ubuntu-${PN}.gsettings-override \
 		"${gschema}"
 
 	insinto /usr/share/${PN}

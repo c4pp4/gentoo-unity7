@@ -2,7 +2,7 @@
 
 [org.gnome.desktop.background:Unity]
 show-desktop-icons = false
-picture-uri = 'file:///usr/share/backgrounds/osselo-Ask_a_friend.jpg'
+picture-uri = 'file:///usr/share/backgrounds/ubuntu-unity/ubuntu-unity-default.png'
 
 # cannot provide per-desktop overrides for localised key #
 [org.nemo.desktop]

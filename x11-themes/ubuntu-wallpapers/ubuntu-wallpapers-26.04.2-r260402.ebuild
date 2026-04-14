@@ -46,11 +46,13 @@ src_unpack() {
 src_install() {
 	pushd "${S}"/usr/share >/dev/null || die
 		insinto /usr/share
-		doins -r backgrounds
-
-		insinto /usr/share
-		doins -r gnome-background-properties
+		doins -r backgrounds gnome-background-properties
 
 		dodoc doc/"${PN}"/copyright
 	popd >/dev/null || die
+
+	# Fix resolute contest xml path #
+	sed -i \
+		-e "s:backgrounds/resolute.xml:backgrounds/contest/resolute.xml:" \
+		"${ED}"/usr/share/gnome-background-properties/resolute-wallpapers.xml || die
 }

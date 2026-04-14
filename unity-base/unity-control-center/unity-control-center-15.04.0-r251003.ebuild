@@ -110,7 +110,7 @@ PATCHES=(
 	"${FILESDIR}"/02-optional-bt-colord-kerberos-wacom.patch
 	"${FILESDIR}"/revert-searching-the-dash-legal-notice.patch
 	"${FILESDIR}"/03-ibus_init.patch
-	"${FILESDIR}"/fix-sharing-panel-translation.patch
+	"${FILESDIR}"/sharing-fix_translation.patch
 )
 
 src_prepare() {

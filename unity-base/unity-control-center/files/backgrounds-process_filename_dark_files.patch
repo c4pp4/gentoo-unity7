@@ -1,0 +1,112 @@
+From 0f6d5277ac7e3aa141282cecb6383f122c964bde Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Tue, 14 Apr 2026 10:46:41 +0200
+Subject: [PATCH 1/1] Backgrounds: process 'filename-dark' files
+
+Signed-off-by: c4pp4
+---
+ panels/appearance/cc-appearance-xml.c | 64 +++++++++++++++++++++++++++
+ 1 file changed, 64 insertions(+)
+
+diff --git a/panels/appearance/cc-appearance-xml.c b/panels/appearance/cc-appearance-xml.c
+index fcc7f80..c32484e 100644
+--- a/panels/appearance/cc-appearance-xml.c
++++ b/panels/appearance/cc-appearance-xml.c
+@@ -177,6 +177,7 @@ cc_appearance_xml_load_xml_internal (CcAppearanceXml *xml,
+       CcAppearanceItem * item;
+       CcAppearanceItemFlags flags;
+       char *uri, *cname, *id;
++      char *dark_bg_uri = NULL;
+ 
+       flags = 0;
+       cname = NULL;
+@@ -210,6 +211,17 @@ cc_appearance_xml_load_xml_internal (CcAppearanceXml *xml,
+ 	  } else {
+ 	    break;
+ 	  }
++	} else if (!strcmp ((gchar *)wpa->name, "filename-dark")) {
++	  if (wpa->last && wpa->last->content) {
++	    gchar *content = g_strstrip ((gchar *)wpa->last->content);
++	    if (strcmp (content, NONE) != 0) {
++	      GFile *file = g_file_new_for_commandline_arg (content);
++	      dark_bg_uri = g_file_get_uri (file);
++	      g_object_unref (file);
++	    }
++	  } else {
++	    break;
++	  }
+ 	} else if (!strcmp ((gchar *)wpa->name, "name")) {
+ 	  if (wpa->last != NULL && wpa->last->content != NULL) {
+ 	    char *name;
+@@ -287,9 +299,23 @@ cc_appearance_xml_load_xml_internal (CcAppearanceXml *xml,
+             file = g_file_new_for_uri (uri);
+ 	    if (g_file_query_exists (file, NULL) == FALSE)
+ 	      {
++		g_object_unref (file);
+ 	        g_object_unref (item);
++		g_free (dark_bg_uri);
+ 	        continue;
+ 	      }
++	    g_object_unref (file);
++	  }
++      
++	if (dark_bg_uri != NULL)
++	  {
++	    file = g_file_new_for_uri (dark_bg_uri);
++	    if (g_file_query_exists (file, NULL) == FALSE)
++	      {
++		g_free (dark_bg_uri);
++		dark_bg_uri = NULL;
++	      }
++	    g_object_unref (file);
+ 	  }
+       }
+ 
+@@ -314,6 +340,44 @@ cc_appearance_xml_load_xml_internal (CcAppearanceXml *xml,
+       else
+         g_signal_emit (G_OBJECT (xml), signals[ADDED], 0, item);
+       retval = TRUE;
++
++      if (dark_bg_uri) {
++	CcAppearanceItem *dark_item;
++	char *dark_name;
++	char *dark_id;
++	GDesktopBackgroundStyle placement;
++
++	dark_item = cc_appearance_item_new (NULL);
++	dark_name = g_strdup_printf ("%s Dark", cname ? cname : "");
++	g_object_get (G_OBJECT (item), "placement", &placement, NULL);
++
++	g_object_set (dark_item,
++		      "name", dark_name,
++		      "uri", dark_bg_uri,
++		      "placement", placement,
++		      "source-xml", filename,
++		      "is-deleted", cc_appearance_xml_get_bool (list, "deleted"),
++		      "flags", flags,
++		      NULL);
++
++	uri = g_filename_to_uri (filename, NULL, NULL);
++	dark_id = g_strdup_printf ("%s#%s", uri, dark_name);
++	g_free (uri);
++
++	if (g_hash_table_lookup (xml->priv->wp_hash, dark_id) == NULL) {
++	  g_hash_table_insert (xml->priv->wp_hash, dark_id, dark_item);
++	  if (in_thread)
++	    emit_added_in_idle (xml, g_object_ref (dark_item));
++	  else
++	    g_signal_emit (G_OBJECT (xml), signals[ADDED], 0, dark_item);
++	} else {
++	  g_free (dark_id);
++	  g_object_unref (dark_item);
++	}
++
++	g_free (dark_name);
++	g_free (dark_bg_uri);
++      }
+     }
+   }
+   xmlFreeDoc (wplist);
+-- 
+2.52.0
+
