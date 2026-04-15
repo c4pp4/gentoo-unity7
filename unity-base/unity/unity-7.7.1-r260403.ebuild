@@ -20,7 +20,7 @@ SRC_URI="${UURL}-${UREV}.tar.xz"
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="bfb2013 bfb2023 classic-dash classic-panel debug doc gles2 +hud pch systray +uwidgets"
+IUSE="bfb2013 bfb2023 classic-dash classic-panel debug doc gles2 +gtk4-shadow +hud pch systray +uwidgets"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="test"
 
@@ -155,6 +155,11 @@ src_prepare() {
 	else
 		# Transparent panel fixes #
 		eapply "${FILESDIR}"/transparent-panel-fixes.patch
+	fi
+
+	if use gtk4-shadow; then
+		# Draw shadow around GTK4/libadwaita app window
+		eapply "${FILESDIR}"/draw-gtk4-shadow.patch
 	fi
 
 	# Preprocessor fixes #

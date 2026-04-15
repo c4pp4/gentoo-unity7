@@ -11,6 +11,8 @@
 			with bottom scope bar</flag>
 		<flag name="classic-panel">Classic non-transparent
 			panel with shadow</flag>
+		<flag name="gtk4-shadow">Draw shadow around
+			GTK4/libadwaita app window</flag>
 		<flag name="gles2">Use OpenGL ES 2.0</flag>
 		<flag name="hud">Enable the backend for Unity's HUD</flag>
 		<flag name="pch">Build using pre-compiled headers
