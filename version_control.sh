@@ -1,7 +1,7 @@
 #!/bin/bash
 
-stable="questing"
-dev="resolute"
+stable="resolute"
+dev=""
 repos=(
 	main
 	universe
@@ -21,14 +21,11 @@ remove=(
 	unity-indicators/unity-indicators-meta
 	unity-lens/unity-lens-meta
 	unity-lens/unity-scope-extras
-	x11-misc/gtk3-nocsd
 	x11-plugins/mailnag-messagingmenu-plugin
-	x11-themes/adwaita-icon-theme
 )
 
 ## Temporarily accept keywords from testing branch.
 akwords=(
-	app-backup/deja-dup
 	mail-client/thunderbird:0/esr
 	mail-client/thunderbird:0/stable
 	www-client/firefox:esr

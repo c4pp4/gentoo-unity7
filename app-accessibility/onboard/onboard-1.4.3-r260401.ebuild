@@ -18,7 +18,7 @@ SRC_URI="${UURL}.orig.tar.xz ${UURL}-${UREV}.debian.tar.xz"
 
 LICENSE="CC-BY-4.0 GPL-3+ BSD"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="+accessibility debug gnome-shell wayland"
 RESTRICT="test"
 

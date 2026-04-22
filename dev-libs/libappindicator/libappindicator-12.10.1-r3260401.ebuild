@@ -15,7 +15,7 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 
 LICENSE="LGPL-2.1 LGPL-3"
 SLOT="3"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="test"
 RESTRICT="!test? ( test )"
 

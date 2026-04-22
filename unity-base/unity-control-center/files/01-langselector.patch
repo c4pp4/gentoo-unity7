@@ -1,6 +1,6 @@
-From 843b06d8894aa09127d33579be89f9c5b45eea5c Mon Sep 17 00:00:00 2001
+From 558df1cece1ea9794b68ea8c7746424f374644ca Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Wed, 24 Apr 2024 22:29:33 +0200
+Date: Tue, 21 Apr 2026 02:50:34 +0200
 Subject: [PATCH 1/1] Integrate 'Language Support' panel
 
 Allow set up Language and Formats for Unity and Login Screen (it's
@@ -16,38 +16,38 @@ Signed-off-by: c4pp4
  configure.ac                                  |   7 +
  panels/Makefile.am                            |   1 +
  panels/common/Makefile.am                     |   2 +
- panels/common/cc-common-language.c            | 626 +++---------
- panels/common/cc-common-language.h            |   5 +-
- panels/common/cc-language-chooser.c           | 606 +++++++-----
+ panels/common/cc-common-language.c            | 633 +++---------
+ panels/common/cc-common-language.h            |   8 -
+ panels/common/cc-language-chooser.c           | 610 ++++++-----
  panels/common/cc-language-chooser.h           |  10 +-
- panels/common/cc-util.c                       | 108 +++
+ panels/common/cc-util.c                       | 114 +++
  panels/common/cc-util.h                       |  28 +
- panels/common/language-chooser.ui             | 144 ++-
+ panels/common/language-chooser.ui             | 144 +--
  panels/keyboard/keyboard-general.c            |   3 +-
  panels/langselector/Makefile.am               |  48 +
- panels/langselector/cc-format-chooser.c       | 585 ++++++++++++
+ panels/langselector/cc-format-chooser.c       | 589 +++++++++++
  panels/langselector/cc-format-chooser.h       |  36 +
- panels/langselector/cc-langselector-panel.c   | 892 ++++++++++++++++++
- panels/langselector/cc-langselector-panel.h   |  71 ++
+ panels/langselector/cc-langselector-panel.c   | 947 ++++++++++++++++++
+ panels/langselector/cc-langselector-panel.h   |  73 ++
  panels/langselector/format-chooser.ui         | 339 +++++++
  panels/langselector/langselector-module.c     |  41 +
- panels/langselector/langselector.ui           | 221 +++++
+ panels/langselector/langselector.ui           | 221 ++++
  .../unity-langselector-panel.desktop.in.in    |  11 +
  panels/region/Makefile.am                     |   3 -
  panels/region/cc-region-panel.c               |   3 -
- panels/region/gnome-region-panel-formats.c    | 214 -----
+ panels/region/gnome-region-panel-formats.c    | 214 ----
  panels/region/gnome-region-panel-formats.h    |  31 -
- panels/region/gnome-region-panel-input.c      |  38 +-
- panels/region/gnome-region-panel-lang.c       | 151 +--
+ panels/region/gnome-region-panel-input.c      |  40 +-
+ panels/region/gnome-region-panel-lang.c       | 159 +--
  panels/region/gnome-region-panel-lang.h       |  32 -
- panels/region/gnome-region-panel-system.c     | 105 ---
+ panels/region/gnome-region-panel-system.c     | 105 --
  panels/region/gnome-region-panel-system.h     |  34 -
  panels/region/unity-region-panel-fcitx.ui     |  23 +-
  panels/region/unity-region-panel-ibus.ui      |  23 +-
  .../data/user-accounts-dialog.ui              |  15 +-
- panels/user-accounts/um-user-panel.c          | 123 ++-
+ panels/user-accounts/um-user-panel.c          | 164 +--
  po/POTFILES.in                                |   6 +-
- 34 files changed, 3120 insertions(+), 1465 deletions(-)
+ 34 files changed, 3238 insertions(+), 1479 deletions(-)
  create mode 100644 panels/common/cc-util.c
  create mode 100644 panels/common/cc-util.h
  create mode 100644 panels/langselector/Makefile.am
@@ -114,7 +114,7 @@ index eeeac06..a68d999 100644
  	cc-common-language.h		\
  	cc-language-chooser.c		\
 diff --git a/panels/common/cc-common-language.c b/panels/common/cc-common-language.c
-index 885afe1..a55df19 100644
+index 885afe1..4d83df7 100644
 --- a/panels/common/cc-common-language.c
 +++ b/panels/common/cc-common-language.c
 @@ -30,9 +30,10 @@
@@ -130,7 +130,16 @@ index 885afe1..a55df19 100644
  
  static gint
  cc_common_language_sort_languages (GtkTreeModel *model,
-@@ -90,6 +91,80 @@ cc_common_language_sort_languages (GtkTreeModel *model,
+@@ -80,7 +81,7 @@ cc_common_language_sort_languages (GtkTreeModel *model,
+         else if (!cb)
+                 result = -1;
+         else
+-                result = strcmp (la, lb);
++                result = g_strcmp0 (la, lb);
+ 
+         g_free (ca);
+         g_free (cb);
+@@ -90,6 +91,81 @@ cc_common_language_sort_languages (GtkTreeModel *model,
          return result;
  }
  
@@ -195,15 +204,16 @@ index 885afe1..a55df19 100644
 +
 +        gtk_tree_view_set_model (GTK_TREE_VIEW (treeview), GTK_TREE_MODEL (store));
 +
++	if (initial != NULL) {
++		/* Add languages from the initial hashtable */
++		g_hash_table_foreach (initial, (GHFunc) languages_foreach_cb, store);
 +
-+        /* Add languages from the initial hashtable */
-+        g_hash_table_foreach (initial, (GHFunc) languages_foreach_cb, store);
-+
-+        /* Mark the need for a separator if we had any languages added */
-+        if (initial != NULL &&
-+            g_hash_table_size (initial) > 0) {
-+		g_object_set_data (G_OBJECT (store), "needs-separator", GINT_TO_POINTER (TRUE));
++		/* Mark the need for a separator if we had any languages added */
++		if (g_hash_table_size (initial) > 0)
++			g_object_set_data (G_OBJECT (store), "needs-separator", GINT_TO_POINTER (TRUE));
 +	}
++
++	g_object_unref (store);
 +}
 +
 +static char *get_lang_for_user_object_path (const char *path);
@@ -211,16 +221,17 @@ index 885afe1..a55df19 100644
  static gboolean
  iter_for_language (GtkTreeModel *model,
                     const gchar  *lang,
-@@ -100,7 +175,7 @@ iter_for_language (GtkTreeModel *model,
+@@ -100,7 +176,8 @@ iter_for_language (GtkTreeModel *model,
          char *name;
          char *language;
  
 -        gtk_tree_model_get_iter_first (model, iter);
-+        g_assert (gtk_tree_model_get_iter_first (model, iter));
++	if (!gtk_tree_model_get_iter_first (model, iter))
++		return FALSE;
          do {
                  gtk_tree_model_get (model, iter, LOCALE_COL, &l, -1);
                  if (g_strcmp0 (l, lang) == 0) {
-@@ -110,13 +185,13 @@ iter_for_language (GtkTreeModel *model,
+@@ -110,13 +187,13 @@ iter_for_language (GtkTreeModel *model,
                  g_free (l);
          } while (gtk_tree_model_iter_next (model, iter));
  
@@ -237,7 +248,7 @@ index 885afe1..a55df19 100644
                  }
  
                  gtk_list_store_insert_with_values (GTK_LIST_STORE (model),
-@@ -141,14 +216,6 @@ cc_common_language_get_iter_for_language (GtkTreeModel *model,
+@@ -141,14 +218,6 @@ cc_common_language_get_iter_for_language (GtkTreeModel *model,
    return iter_for_language (model, lang, iter, FALSE);
  }
  
@@ -252,7 +263,7 @@ index 885afe1..a55df19 100644
  gboolean
  cc_common_language_has_font (const gchar *locale)
  {
-@@ -164,7 +231,7 @@ cc_common_language_has_font (const gchar *locale)
+@@ -164,7 +233,7 @@ cc_common_language_has_font (const gchar *locale)
          object_set = NULL;
          font_set = NULL;
  
@@ -261,7 +272,7 @@ index 885afe1..a55df19 100644
                  return FALSE;
  
          charset = FcLangGetCharSet ((FcChar8 *) language_code);
-@@ -207,501 +274,114 @@ cc_common_language_has_font (const gchar *locale)
+@@ -207,501 +276,115 @@ cc_common_language_has_font (const gchar *locale)
          return is_displayable;
  }
  
@@ -381,6 +392,7 @@ index 885afe1..a55df19 100644
 +        g_free (path);
 +        if (language != NULL && *language != '\0')
 +                return language;
++        g_free (language);
 +
          locale = (const gchar *) setlocale (LC_MESSAGES, NULL);
          if (locale)
@@ -394,9 +406,7 @@ index 885afe1..a55df19 100644
  
 -gchar *
 -cc_common_language_get_property (const gchar *prop_name)
-+static char *
-+get_lang_for_user_object_path (const char *path)
- {
+-{
 -	GDBusConnection  *bus;
 -	gchar            *user_path;
 -	GError           *error = NULL;
@@ -410,11 +420,7 @@ index 885afe1..a55df19 100644
 -		g_warning ("Invalid argument: '%s'", prop_name);
 -		return ret;
 -	}
-+	GError *error = NULL;
-+	GDBusProxy *user;
-+	GVariant *props;
-+	char *lang;
- 
+-
 -	bus = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, NULL);
 -	user_path = g_strdup_printf ("/org/freedesktop/Accounts/User%i", getuid ());
 -
@@ -431,18 +437,7 @@ index 885afe1..a55df19 100644
 -	                                          &error);
 -	if (!properties) {
 -		g_warning ("Error calling GetAll() when retrieving properties for %s: %s", user_path, error->message);
-+	user = g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
-+					      G_DBUS_PROXY_FLAGS_NONE,
-+					      NULL,
-+					      "org.freedesktop.Accounts",
-+					      path,
-+					      "org.freedesktop.Accounts.User",
-+					      NULL,
-+					      &error);
-+	if (user == NULL) {
-+		g_warning ("Failed to get proxy for user '%s': %s",
-+			   path, error->message);
- 		g_error_free (error);
+-		g_error_free (error);
 -                /* g_hash_table_lookup() is not NULL-safe, so don't return NULL */
 -                if (g_strcmp0 (prop_name, "Language") == 0)
 -                        ret = g_strdup ("en");
@@ -506,7 +501,9 @@ index 885afe1..a55df19 100644
 -void
 -cc_common_language_setup_list (GtkWidget    *treeview,
 -			       GHashTable   *initial)
--{
++static char *
++get_lang_for_user_object_path (const char *path)
+ {
 -	GtkCellRenderer *cell;
 -	GtkTreeViewColumn *column;
 -	GtkListStore *store;
@@ -533,11 +530,27 @@ index 885afe1..a55df19 100644
 -
 -        /* Add languages from the initial hashtable */
 -        g_hash_table_foreach (initial, (GHFunc) languages_foreach_cb, store);
--
++	GError *error = NULL;
++	GDBusProxy *user;
++	GVariant *props;
++	char *lang;
+ 
 -        /* Mark the need for a separator if we had any languages added */
 -        if (initial != NULL &&
 -            g_hash_table_size (initial) > 0) {
 -		g_object_set_data (G_OBJECT (store), "needs-separator", GINT_TO_POINTER (TRUE));
++	user = g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
++					      G_DBUS_PROXY_FLAGS_NONE,
++					      NULL,
++					      "org.freedesktop.Accounts",
++					      path,
++					      "org.freedesktop.Accounts.User",
++					      NULL,
++					      &error);
++	if (user == NULL) {
++		g_warning ("Failed to get proxy for user '%s': %s",
++			   path, error ? error->message : "unknown error");
++		g_clear_error (&error);
 +		return NULL;
  	}
 -}
@@ -835,33 +848,33 @@ index 885afe1..a55df19 100644
          return ht;
  }
 diff --git a/panels/common/cc-common-language.h b/panels/common/cc-common-language.h
-index 9894988..ff82cd4 100644
+index 9894988..7a3f554 100644
 --- a/panels/common/cc-common-language.h
 +++ b/panels/common/cc-common-language.h
-@@ -37,17 +37,14 @@ enum {
+@@ -37,18 +37,10 @@ enum {
  gboolean cc_common_language_get_iter_for_language   (GtkTreeModel     *model,
  						     const gchar      *lang,
  						     GtkTreeIter      *iter);
 -gboolean cc_common_language_get_iter_for_region     (GtkTreeModel     *model,
 -						     const gchar      *lang,
 -						     GtkTreeIter      *iter);
- guint    cc_common_language_add_available_languages (GtkListStore     *store,
-                                                      gboolean          regions,
-                                                      GHashTable       *user_langs);
+-guint    cc_common_language_add_available_languages (GtkListStore     *store,
+-                                                     gboolean          regions,
+-                                                     GHashTable       *user_langs);
  gboolean cc_common_language_has_font                (const gchar  *locale);
  gchar   *cc_common_language_get_current_language    (void);
 -gchar   *cc_common_language_get_property            (const gchar  *prop_name);
  
  GHashTable *cc_common_language_get_initial_languages   (void);
-+GHashTable *cc_common_language_get_user_languages      (void);
- GHashTable *cc_common_language_get_initial_regions     (const gchar *lang);
+-GHashTable *cc_common_language_get_initial_regions     (const gchar *lang);
  
  void     cc_common_language_setup_list              (GtkWidget    *treeview,
+ 						     GHashTable   *initial);
 diff --git a/panels/common/cc-language-chooser.c b/panels/common/cc-language-chooser.c
-index 502dc59..f62fcc6 100644
+index 502dc59..360d744 100644
 --- a/panels/common/cc-language-chooser.c
 +++ b/panels/common/cc-language-chooser.c
-@@ -19,326 +19,464 @@
+@@ -19,326 +19,468 @@
   * Written by: Matthias Clasen <mclasen@redhat.com>
   */
  
@@ -1044,14 +1057,13 @@ index 502dc59..f62fcc6 100644
 -        GHashTable *user_langs;
 -        const char *display;
 +        GtkWidget *widget;
- 
--        gtk_list_store_clear (store);
++
 +        widget = padded_label_new (_("No languages found"), TRUE);
 +        gtk_widget_set_sensitive (widget, FALSE);
 +        return widget;
 +}
  
--	user_langs = cc_common_language_get_initial_languages ();
+-        gtk_list_store_clear (store);
 +static void
 +add_languages (GtkDialog   *chooser,
 +               gchar      **locale_ids,
@@ -1059,37 +1071,39 @@ index 502dc59..f62fcc6 100644
 +{
 +        CcLanguageChooserPrivate *priv = GET_PRIVATE (chooser);
  
--	/* Add the current language first */
--	name = cc_common_language_get_property ("Language");
--	display = g_hash_table_lookup (user_langs, name);
+-	user_langs = cc_common_language_get_initial_languages ();
 +        while (*locale_ids) {
 +                gchar *locale_id;
 +                gboolean is_initial;
 +                GtkWidget *widget;
  
+-	/* Add the current language first */
+-	name = cc_common_language_get_property ("Language");
+-	display = g_hash_table_lookup (user_langs, name);
++                locale_id = *locale_ids;
++                locale_ids ++;
+ 
 -        gtk_list_store_append (store, &iter);
 -        gtk_list_store_set (store, &iter, LOCALE_COL, name, DISPLAY_LOCALE_COL, display, -1);
 -        g_hash_table_remove (user_langs, name);
 -        g_free (name);
-+                locale_id = *locale_ids;
-+                locale_ids ++;
- 
--        /* The rest of the languages */
--	g_hash_table_foreach (user_langs, (GHFunc) languages_foreach_cb, store);
 +                if (!cc_common_language_has_font (locale_id))
 +                        continue;
  
--	/* And now the "Other..." selection */
--//        gtk_list_store_append (store, &iter);
--//        gtk_list_store_set (store, &iter, LOCALE_COL, NULL, DISPLAY_LOCALE_COL, _("Other..."), -1);
-+                is_initial = (g_hash_table_lookup (initial, locale_id) != NULL);
+-        /* The rest of the languages */
+-	g_hash_table_foreach (user_langs, (GHFunc) languages_foreach_cb, store);
++                is_initial = initial != NULL &&
++                        g_hash_table_lookup (initial, locale_id) != NULL;
 +                widget = language_widget_new (locale_id, priv->language, !is_initial);
 +                gtk_container_add (GTK_CONTAINER (priv->language_list), widget);
 +        }
  
--        g_hash_table_destroy (user_langs);
+-	/* And now the "Other..." selection */
+-//        gtk_list_store_append (store, &iter);
+-//        gtk_list_store_set (store, &iter, LOCALE_COL, NULL, DISPLAY_LOCALE_COL, _("Other..."), -1);
 +        gtk_container_add (GTK_CONTAINER (priv->language_list), GTK_WIDGET (priv->more_item));
-+
+ 
+-        g_hash_table_destroy (user_langs);
 +        gtk_widget_show_all (priv->language_list);
  }
  
@@ -1118,6 +1132,9 @@ index 502dc59..f62fcc6 100644
  {
 -  guint async_id = GPOINTER_TO_UINT (data);
 +        gchar **w;
++
++        if (str == NULL)
++                return FALSE;
 +
 +        for (w = words; *w; ++w)
 +                if (!strstr (str, *w))
@@ -1587,10 +1604,10 @@ index da557dc..ea630bf 100644
  
 diff --git a/panels/common/cc-util.c b/panels/common/cc-util.c
 new file mode 100644
-index 0000000..1c9cd0c
+index 0000000..82c361c
 --- /dev/null
 +++ b/panels/common/cc-util.c
-@@ -0,0 +1,108 @@
+@@ -0,0 +1,114 @@
 +/*
 + * Copyright (c) 2012 Giovanni Campagna <scampa.giovanni@gmail.com>
 + *
@@ -1646,8 +1663,14 @@ index 0000000..1c9cd0c
 +    return NULL;
 +
 +  normalized = g_utf8_normalize (str, -1, G_NORMALIZE_NFKD);
++  if (normalized == NULL)
++    return NULL;
++
 +  tmp = g_utf8_casefold (normalized, -1);
 +  g_free (normalized);
++
++  if (tmp == NULL)
++    return NULL;
 +
 +  ilen = strlen (tmp);
 +
@@ -1924,7 +1947,7 @@ index 43920be..2d5e45f 100644
        g_error_free (error);
 diff --git a/panels/langselector/Makefile.am b/panels/langselector/Makefile.am
 new file mode 100644
-index 0000000..68a750c
+index 0000000..526a0bc
 --- /dev/null
 +++ b/panels/langselector/Makefile.am
 @@ -0,0 +1,48 @@
@@ -1978,10 +2001,10 @@ index 0000000..68a750c
 +-include $(top_srcdir)/git.mk
 diff --git a/panels/langselector/cc-format-chooser.c b/panels/langselector/cc-format-chooser.c
 new file mode 100644
-index 0000000..1d590b1
+index 0000000..4b5aeaa
 --- /dev/null
 +++ b/panels/langselector/cc-format-chooser.c
-@@ -0,0 +1,585 @@
+@@ -0,0 +1,589 @@
 +/*
 + * Copyright (C) 2013 Red Hat, Inc.
 + *
@@ -2067,6 +2090,7 @@ index 0000000..1d590b1
 +        display_date (priv->date, dt, "%x");
 +        display_date (priv->time, dt, "%X");
 +        display_date (priv->date_time, dt, "%c");
++        g_date_time_unref (dt);
 +
 +        setlocale (LC_TIME, locale);
 +        g_free (locale);
@@ -2162,8 +2186,8 @@ index 0000000..1d590b1
 +}
 +
 +static gint
-+sort_regions (gconstpointer a,
-+              gconstpointer b,
++sort_regions (GtkListBoxRow *a,
++              GtkListBoxRow *b,
 +              gpointer      data)
 +{
 +        const gchar *la;
@@ -2324,6 +2348,9 @@ index 0000000..1d590b1
 +           const gchar  *str)
 +{
 +        gchar **w;
++
++        if (str == NULL)
++                return FALSE;
 +
 +        for (w = words; *w; ++w)
 +                if (!strstr (str, *w))
@@ -2497,8 +2524,8 @@ index 0000000..1d590b1
 +        builder = gtk_builder_new ();
 +        if (gtk_builder_add_from_file (builder, UIDIR "/format-chooser.ui", &error) == 0) {
 +                g_object_unref (builder);
-+                g_warning ("failed to load format chooser: %s", error->message);
-+                g_error_free (error);
++                g_warning ("failed to load format chooser: %s", error ? error->message : "unknown error");
++                g_clear_error (&error);
 +                return NULL;
 +        }
 +
@@ -2611,10 +2638,10 @@ index 0000000..6b49c01
 +#endif /* __CC_FORMAT_CHOOSER_H__ */
 diff --git a/panels/langselector/cc-langselector-panel.c b/panels/langselector/cc-langselector-panel.c
 new file mode 100644
-index 0000000..67e6f10
+index 0000000..62a0d21
 --- /dev/null
 +++ b/panels/langselector/cc-langselector-panel.c
-@@ -0,0 +1,892 @@
+@@ -0,0 +1,947 @@
 +/*
 + * Copyright (C) 2010 Intel, Inc
 + *
@@ -2704,13 +2731,15 @@ index 0000000..67e6f10
 +};
 +
 +static void
-+cc_langselector_panel_finalize (GObject *object)
++cc_langselector_panel_dispose (GObject *object)
 +{
-+	CcLangselectorPanel *self = CC_LANGSELECTOR_PANEL (object);
-+	CcLangselectorPanelPrivate *priv = self->priv;
++        CcLangselectorPanel *self = CC_LANGSELECTOR_PANEL (object);
++        CcLangselectorPanelPrivate *priv = self->priv;
 +
-+        g_cancellable_cancel (priv->cancellable);
-+        g_clear_object (&priv->cancellable);
++        if (priv->cancellable) {
++                g_cancellable_cancel (priv->cancellable);
++                g_clear_object (&priv->cancellable);
++        }
 +
 +        if (priv->user_manager) {
 +                g_signal_handlers_disconnect_by_data (priv->user_manager, self);
@@ -2722,11 +2751,29 @@ index 0000000..67e6f10
 +                priv->user = NULL;
 +        }
 +
-+        g_clear_object (&priv->permission);
-+        g_clear_object (&priv->localed);
++        if (priv->localed) {
++                g_signal_handlers_disconnect_by_data (priv->localed, self);
++                g_clear_object (&priv->localed);
++        }
++
++        if (priv->locale_settings) {
++                g_signal_handlers_disconnect_by_data (priv->locale_settings, self);
++                g_clear_object (&priv->locale_settings);
++        }
++
 +        g_clear_object (&priv->session);
++        g_clear_object (&priv->permission);
 +        g_clear_object (&priv->builder);
-+        g_clear_object (&priv->locale_settings);
++
++        G_OBJECT_CLASS (cc_langselector_panel_parent_class)->dispose (object);
++}
++
++static void
++cc_langselector_panel_finalize (GObject *object)
++{
++	CcLangselectorPanel *self = CC_LANGSELECTOR_PANEL (object);
++	CcLangselectorPanelPrivate *priv = self->priv;
++
 +        g_free (priv->language);
 +        g_free (priv->region);
 +        g_free (priv->system_language);
@@ -2765,6 +2812,7 @@ index 0000000..67e6f10
 +	panel_class->get_help_uri = cc_langselector_panel_get_help_uri;
 +
 +        object_class->constructed = cc_langselector_panel_constructed;
++        object_class->dispose = cc_langselector_panel_dispose;
 +	object_class->finalize = cc_langselector_panel_finalize;
 +}
 +
@@ -2774,6 +2822,9 @@ index 0000000..67e6f10
 +        CcLangselectorPanelPrivate *priv = self->priv;
 +
 +        gtk_revealer_set_reveal_child (GTK_REVEALER (self->priv->notification), FALSE);
++
++        if (priv->session == NULL)
++                return;
 +
 +        g_dbus_proxy_call (priv->session,
 +                           "Logout",
@@ -2834,7 +2885,7 @@ index 0000000..67e6f10
 +        retval = g_dbus_proxy_call_finish (G_DBUS_PROXY (source), res, &error);
 +        if (!retval) {
 +                if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
-+                        g_warning ("Failed to get locale: %s\n", error->message);
++                        g_warning ("Failed to get locale: %s\n", error ? error->message : "unknown error");
 +                goto out;
 +        }
 +
@@ -2854,8 +2905,10 @@ index 0000000..67e6f10
 +                                 NULL))
 +                goto out;
 +
-+        if (g_str_equal (current_lang_code, target_lang_code) == FALSE ||
-+            g_str_equal (current_country_code, target_country_code) == FALSE)
++        if (current_lang_code && target_lang_code &&
++            current_country_code && target_country_code &&
++            (g_str_equal (current_lang_code, target_lang_code) == FALSE ||
++             g_str_equal (current_country_code, target_country_code) == FALSE))
 +                show_restart_notification (self,
 +                                           mnd->category == LC_MESSAGES ? mnd->target_locale : NULL);
 +out:
@@ -2866,6 +2919,7 @@ index 0000000..67e6f10
 +        g_clear_pointer (&retval, g_variant_unref);
 +        g_clear_error (&error);
 +        g_free (mnd->target_locale);
++        g_object_unref (mnd->self);
 +        g_free (mnd);
 +}
 +
@@ -2878,9 +2932,16 @@ index 0000000..67e6f10
 +        MaybeNotifyData *mnd;
 +
 +        mnd = g_new0 (MaybeNotifyData, 1);
-+        mnd->self = self;
++        mnd->self = g_object_ref (self);
 +        mnd->category = category;
 +        mnd->target_locale = g_strdup (target_locale);
++
++        if (priv->session == NULL) {
++                g_object_unref (mnd->self);
++                g_free (mnd->target_locale);
++                g_free (mnd);
++                return;
++        }
 +
 +        g_dbus_proxy_call (priv->session,
 +                           "GetLocale",
@@ -2936,7 +2997,8 @@ index 0000000..67e6f10
 +
 +        if (response_id == GTK_RESPONSE_OK) {
 +                language = cc_language_chooser_get_language (GTK_WIDGET (chooser));
-+                update_language (self, language);
++                if (language)
++                        update_language (self, language);
 +        }
 +
 +        gtk_widget_destroy (GTK_WIDGET (chooser));
@@ -3008,6 +3070,8 @@ index 0000000..67e6f10
 +
 +        toplevel = gtk_widget_get_toplevel (GTK_WIDGET (self));
 +        chooser = cc_language_chooser_new (toplevel);
++        if (chooser == NULL)
++                return;
 +        cc_language_chooser_set_language (chooser, get_effective_language (self));
 +        g_signal_connect (chooser, "response",
 +                          G_CALLBACK (language_response), self);
@@ -3042,16 +3106,13 @@ index 0000000..67e6f10
 +
 +        toplevel = gtk_widget_get_toplevel (GTK_WIDGET (self));
 +        chooser = cc_format_chooser_new (toplevel);
++        if (chooser == NULL)
++                return;
 +        cc_format_chooser_set_region (chooser, get_effective_region (self));
 +        g_signal_connect (chooser, "response",
 +                          G_CALLBACK (format_response), self);
 +        gtk_window_present (GTK_WINDOW (chooser));
 +}
-+
-+static void show_input_chooser (CcLangselectorPanel *self);
-+static void remove_selected_input (CcLangselectorPanel *self);
-+static void move_selected_input (CcLangselectorPanel *self,
-+                                 SystemOp       op);
 +
 +static void
 +permission_acquired (GObject      *source,
@@ -3068,6 +3129,7 @@ index 0000000..67e6f10
 +                if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
 +                        g_warning ("Failed to acquire permission: %s\n", error->message);
 +                g_error_free (error);
++                g_object_unref (self);
 +                return;
 +        }
 +
@@ -3084,6 +3146,8 @@ index 0000000..67e6f10
 +                        break;
 +                }
 +        }
++
++        g_object_unref (self);
 +}
 +
 +static void
@@ -3098,9 +3162,9 @@ index 0000000..67e6f10
 +                } else if (g_permission_get_can_acquire (priv->permission)) {
 +                        priv->op = CHOOSE_LANGUAGE;
 +                        g_permission_acquire_async (priv->permission,
-+                                                    NULL,
++                                                    priv->cancellable,
 +                                                    permission_acquired,
-+                                                    self);
++                                                    g_object_ref (self));
 +                }
 +        } else if (row == priv->formats_row) {
 +                if (!priv->login || g_permission_get_allowed (priv->permission)) {
@@ -3108,9 +3172,9 @@ index 0000000..67e6f10
 +                } else if (g_permission_get_can_acquire (priv->permission)) {
 +                        priv->op = CHOOSE_REGION;
 +                        g_permission_acquire_async (priv->permission,
-+                                                    NULL,
++                                                    priv->cancellable,
 +                                                    permission_acquired,
-+                                                    self);
++                                                    g_object_ref (self));
 +                }
 +        }
 +}
@@ -3127,6 +3191,8 @@ index 0000000..67e6f10
 +
 +        if (!name)
 +                name = gnome_get_country_from_locale (DEFAULT_LOCALE, DEFAULT_LOCALE);
++        if (!name)
++                name = g_strdup ("—");
 +
 +        gtk_label_set_label (GTK_LABEL (priv->formats_label), name);
 +        g_free (name);
@@ -3154,6 +3220,8 @@ index 0000000..67e6f10
 +
 +        if (!name)
 +                name = gnome_get_language_from_locale (DEFAULT_LOCALE, DEFAULT_LOCALE);
++        if (!name)
++                name = g_strdup ("—");
 +
 +        gtk_label_set_label (GTK_LABEL (priv->language_label), name);
 +        g_free (name);
@@ -3185,16 +3253,6 @@ index 0000000..67e6f10
 +	CcLangselectorPanelPrivate *priv = self->priv;
 +        GtkWidget *widget;
 +
-+        priv->user = act_user_manager_get_user_by_id (priv->user_manager, getuid ());
-+        g_signal_connect_swapped (priv->user, "notify::language",
-+                                  G_CALLBACK (update_language_from_user), self);
-+        g_signal_connect_swapped (priv->user, "notify::is-loaded",
-+                                  G_CALLBACK (update_language_from_user), self);
-+
-+        priv->locale_settings = g_settings_new (GNOME_SYSTEM_LOCALE_DIR);
-+        g_signal_connect_swapped (priv->locale_settings, "changed::" KEY_REGION,
-+                                  G_CALLBACK (update_region_from_setting), self);
-+
 +        priv->language_section = WID ("language_section");
 +        priv->language_row = GTK_LIST_BOX_ROW (WID ("language_row"));
 +        priv->language_label = WID ("language_label");
@@ -3209,6 +3267,18 @@ index 0000000..67e6f10
 +                                      NULL, NULL);
 +        g_signal_connect_swapped (widget, "row-activated",
 +                                  G_CALLBACK (activate_language_row), self);
++
++        priv->user = act_user_manager_get_user_by_id (priv->user_manager, getuid ());
++        if (priv->user == NULL)
++                return;
++        g_signal_connect_swapped (priv->user, "notify::language",
++                                  G_CALLBACK (update_language_from_user), self);
++        g_signal_connect_swapped (priv->user, "notify::is-loaded",
++                                  G_CALLBACK (update_language_from_user), self);
++
++        priv->locale_settings = g_settings_new (GNOME_SYSTEM_LOCALE_DIR);
++        g_signal_connect_swapped (priv->locale_settings, "changed::" KEY_REGION,
++                                  G_CALLBACK (update_region_from_setting), self);
 +
 +        update_language_from_user (self);
 +        update_region_from_setting (self);
@@ -3228,18 +3298,18 @@ index 0000000..67e6f10
 +                const gchar **strv;
 +                gsize len;
 +                gint i;
-+                const gchar *lang, *messages, *time;
++                const gchar *lang, *messages, *lc_time;
 +
 +                strv = g_variant_get_strv (v, &len);
 +
-+                lang = messages = time = NULL;
++                lang = messages = lc_time = NULL;
 +                for (i = 0; strv[i]; i++) {
 +                        if (g_str_has_prefix (strv[i], "LANG=")) {
 +                                lang = strv[i] + strlen ("LANG=");
 +                        } else if (g_str_has_prefix (strv[i], "LC_MESSAGES=")) {
 +                                messages = strv[i] + strlen ("LC_MESSAGES=");
 +                        } else if (g_str_has_prefix (strv[i], "LC_TIME=")) {
-+                                time = strv[i] + strlen ("LC_TIME=");
++                                lc_time = strv[i] + strlen ("LC_TIME=");
 +                        }
 +                }
 +                if (!lang) {
@@ -3251,9 +3321,9 @@ index 0000000..67e6f10
 +                g_free (priv->system_language);
 +                priv->system_language = g_strdup (messages);
 +                g_free (priv->system_region);
-+                priv->system_region = g_strdup (time);
++                priv->system_region = g_strdup (lc_time);
++                g_free ((gpointer) strv);
 +                g_variant_unref (v);
-+                g_free (strv);
 +
 +                update_language_label (self);
 +        }
@@ -3265,6 +3335,9 @@ index 0000000..67e6f10
 +	CcLangselectorPanelPrivate *priv = self->priv;
 +        GVariantBuilder *b;
 +        gchar *s;
++
++        if (priv->system_language == NULL)
++                return;
 +
 +        b = g_variant_builder_new (G_VARIANT_TYPE ("as"));
 +        s = g_strconcat ("LANG=", priv->system_language, NULL);
@@ -3311,8 +3384,9 @@ index 0000000..67e6f10
 +
 +        if (!proxy) {
 +                if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
-+                        g_warning ("Failed to contact localed: %s\n", error->message);
-+                g_error_free (error);
++                        g_warning ("Failed to contact localed: %s\n", error ? error->message : "unknown error");
++                g_clear_error (&error);
++                g_object_unref (self);
 +                return;
 +        }
 +
@@ -3324,6 +3398,8 @@ index 0000000..67e6f10
 +        g_signal_connect (priv->localed, "g-properties-changed",
 +                          G_CALLBACK (on_localed_properties_changed), self);
 +        on_localed_properties_changed (priv->localed, NULL, NULL, self);
++
++        g_object_unref (self);
 +}
 +
 +static void
@@ -3374,12 +3450,19 @@ index 0000000..67e6f10
 +        priv->permission = polkit_permission_new_sync ("org.freedesktop.locale1.set-locale", NULL, NULL, &error);
 +        if (priv->permission == NULL) {
 +                g_warning ("Could not get 'org.freedesktop.locale1.set-locale' permission: %s",
-+                           error->message);
-+                g_error_free (error);
++                           error ? error->message : "unknown error");
++                g_clear_error (&error);
 +                return;
 +        }
 +
-+        bus = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, NULL);
++        bus = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, &error);
++        if (bus == NULL) {
++                g_warning ("Failed to connect to system bus: %s",
++                           error ? error->message : "unknown error");
++                g_clear_error (&error);
++                g_clear_object (&priv->permission);
++                return;
++        }
 +        g_dbus_proxy_new (bus,
 +                          G_DBUS_PROXY_FLAGS_GET_INVALIDATED_PROPERTIES,
 +                          NULL,
@@ -3388,7 +3471,7 @@ index 0000000..67e6f10
 +                          "org.freedesktop.locale1",
 +                          priv->cancellable,
 +                          (GAsyncReadyCallback) localed_proxy_ready,
-+                          self);
++                          g_object_ref (self));
 +        g_object_unref (bus);
 +
 +        priv->login_label = WID ("login-label");
@@ -3422,27 +3505,28 @@ index 0000000..67e6f10
 +
 +        if (!proxy) {
 +                if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
-+                        g_warning ("Failed to contact gnome-session: %s\n", error->message);
-+                g_error_free (error);
++                        g_warning ("Failed to contact gnome-session: %s\n", error ? error->message : "unknown error");
++                g_clear_error (&error);
++                g_object_unref (self);
 +                return;
 +        }
 +
 +        self->priv->session = proxy;
++        g_object_unref (self);
 +}
 +
 +static gboolean
 +layout_link_clicked (GtkLinkButton       *button,
 +                     CcLangselectorPanel *self)
 +{
-+        CcLangselectorPanelPrivate *priv = self->priv;
 +        CcShell *shell;
 +        GError *error = NULL;
 +
 +        shell = cc_panel_get_shell (self);
 +        if (!cc_shell_set_active_panel_from_id (shell, "region", NULL, &error))
 +        {
-+                g_warning ("Failed to activate Region panel: %s", error->message);
-+                g_error_free (error);
++                g_warning ("Failed to activate Region panel: %s", error ? error->message : "unknown error");
++                g_clear_error (&error);
 +        }
 +        return TRUE;
 +}
@@ -3458,12 +3542,10 @@ index 0000000..67e6f10
 +
 +	priv->builder = gtk_builder_new ();
 +
-+	gtk_builder_add_from_file (priv->builder,
-+                                       UIDIR "/langselector.ui",
-+                                       &error);
-+	if (error != NULL) {
++        if (gtk_builder_add_from_file (priv->builder, UIDIR "/langselector.ui", &error) == 0) {
 +		g_warning ("Error loading UI file: %s", error->message);
 +		g_error_free (error);
++                g_clear_object (&priv->builder);
 +		return;
 +	}
 +
@@ -3479,7 +3561,7 @@ index 0000000..67e6f10
 +                                  "org.gnome.SessionManager",
 +                                  priv->cancellable,
 +                                  session_proxy_ready,
-+                                  self);
++                                  g_object_ref (self));
 +
 +        priv->notification = GTK_WIDGET (gtk_builder_get_object (priv->builder, "notification"));
 +
@@ -3509,7 +3591,7 @@ index 0000000..67e6f10
 +}
 diff --git a/panels/langselector/cc-langselector-panel.h b/panels/langselector/cc-langselector-panel.h
 new file mode 100644
-index 0000000..139f470
+index 0000000..c7a9e7d
 --- /dev/null
 +++ b/panels/langselector/cc-langselector-panel.h
 @@ -0,0 +1,73 @@
@@ -4528,10 +4610,10 @@ index 6ba1176..0000000
 -
 -#endif
 diff --git a/panels/region/gnome-region-panel-input.c b/panels/region/gnome-region-panel-input.c
-index ef2e6ba..4547167 100644
+index 5e552ed..345b5e0 100644
 --- a/panels/region/gnome-region-panel-input.c
 +++ b/panels/region/gnome-region-panel-input.c
-@@ -79,6 +79,9 @@
+@@ -80,6 +80,9 @@
  #define LEGACY_IBUS_SETUP_DIR "/usr/lib/ibus"
  #define LEGACY_IBUS_SETUP_FMT "ibus-setup-%s"
  
@@ -4541,7 +4623,7 @@ index ef2e6ba..4547167 100644
  enum {
    NAME_COLUMN,
    TYPE_COLUMN,
-@@ -1404,22 +1407,37 @@ show_selected_settings (GtkButton *button, gpointer data)
+@@ -1405,22 +1408,37 @@ show_selected_settings (GtkButton *button, gpointer data)
    g_free (legacy_setup);
  }
  
@@ -4564,8 +4646,9 @@ index ef2e6ba..4547167 100644
 +  if (!cc_shell_set_active_panel_from_id (shell, panel, NULL, &error))
      {
 -      g_warning ("Failed to activate Keyboard panel: %s", error->message);
-+      g_warning ("Failed to activate '%s' panel: %s", panel, error->message);
-       g_error_free (error);
+-      g_error_free (error);
++      g_warning ("Failed to activate '%s' panel: %s", panel, error ? error->message : "unknown error");
++      g_clear_error (&error);
      }
 +}
 +
@@ -4586,7 +4669,7 @@ index ef2e6ba..4547167 100644
  
    return TRUE;
  }
-@@ -1874,8 +1892,10 @@ setup_input_tabs (GtkBuilder    *builder_,
+@@ -1875,8 +1893,10 @@ setup_input_tabs (GtkBuilder    *builder_,
                      G_CALLBACK (show_selected_layout), builder);
    g_signal_connect (WID("input_source_settings"), "clicked",
                      G_CALLBACK (show_selected_settings), builder);
@@ -4600,10 +4683,10 @@ index ef2e6ba..4547167 100644
                      "changed::" KEY_INPUT_SOURCES,
                      G_CALLBACK (input_sources_changed),
 diff --git a/panels/region/gnome-region-panel-lang.c b/panels/region/gnome-region-panel-lang.c
-index a944eca..c74fae3 100644
+index a944eca..6f45420 100644
 --- a/panels/region/gnome-region-panel-lang.c
 +++ b/panels/region/gnome-region-panel-lang.c
-@@ -26,104 +26,12 @@
+@@ -26,110 +26,16 @@
  #include <string.h>
  #include <glib/gi18n.h>
  
@@ -4614,8 +4697,8 @@ index a944eca..c74fae3 100644
  #include "cc-language-chooser.h"
  #include "gdm-languages.h"
  
- static GDBusProxy *proxy = NULL;
- 
+-static GDBusProxy *proxy = NULL;
+-
 -static void
 -selection_changed (GtkTreeSelection *selection,
 -                   GtkBuilder       *builder)
@@ -4708,16 +4791,34 @@ index a944eca..c74fae3 100644
  static void
  language_response (GtkDialog *dialog,
                     gint       response_id,
-@@ -167,7 +75,7 @@ add_language (GtkWidget *button, GtkWidget *treeview)
+                    GtkWidget *treeview)
+ {
+-        gchar *lang;
++	const gchar *lang;
+ 	GtkTreeModel *model;
+ 	GtkTreeSelection *selection;
+ 	GtkTreeIter iter;
+@@ -154,8 +60,6 @@ language_response (GtkDialog *dialog,
+         }
+ 
+ 	gtk_widget_grab_focus (treeview);
+-
+-        g_free (lang);
+ }
+ 
+ static void
+@@ -167,7 +71,9 @@ add_language (GtkWidget *button, GtkWidget *treeview)
  	toplevel = gtk_widget_get_toplevel (button);
  	chooser = g_object_get_data (G_OBJECT (button), "chooser");
  	if (chooser == NULL) {
 -		chooser = cc_language_chooser_new (toplevel, FALSE);
 +		chooser = cc_language_chooser_new (toplevel);
++		if (chooser == NULL)
++			return;
  
         		g_signal_connect (chooser, "response",
                  	          G_CALLBACK (language_response), treeview);
-@@ -184,60 +92,3 @@ add_language (GtkWidget *button, GtkWidget *treeview)
+@@ -184,60 +90,3 @@ add_language (GtkWidget *button, GtkWidget *treeview)
          gdk_window_set_cursor (gtk_widget_get_window (toplevel), NULL);
          gtk_window_present (GTK_WINDOW (chooser));
  }
@@ -5101,7 +5202,7 @@ index 7873126..850e976 100644
                            <packing>
                              <property name="left_attach">1</property>
 diff --git a/panels/user-accounts/um-user-panel.c b/panels/user-accounts/um-user-panel.c
-index cda837b..238110a 100644
+index cda837b..35360ad 100644
 --- a/panels/user-accounts/um-user-panel.c
 +++ b/panels/user-accounts/um-user-panel.c
 @@ -34,6 +34,9 @@
@@ -5114,7 +5215,65 @@ index cda837b..238110a 100644
  #include "shell/cc-editable-entry.h"
  
  #include "um-editable-button.h"
-@@ -656,7 +659,7 @@ show_user (ActUser *user, CcUserPanelPrivate *d)
+@@ -241,7 +244,7 @@ user_removed (ActUserManager *um, ActUser *user, CcUserPanelPrivate *d)
+         GtkListStore *store;
+         GtkTreeIter iter, next;
+         ActUser *u;
+-        gint key;
++        gint key = 0;
+ 
+         g_debug ("user removed: %s\n", act_user_get_user_name (user));
+         tv = (GtkTreeView *)get_widget (d, "list-treeview");
+@@ -295,7 +298,8 @@ user_changed (ActUserManager *um, ActUser *user, CcUserPanelPrivate *d)
+         model = gtk_tree_view_get_model (tv);
+         selection = gtk_tree_view_get_selection (tv);
+ 
+-        gtk_tree_model_get_iter_first (model, &iter);
++        if (!gtk_tree_model_get_iter_first (model, &iter))
++                return;
+         do {
+                 gtk_tree_model_get (model, &iter, USER_COL, &current, -1);
+                 if (current == user) {
+@@ -360,7 +364,10 @@ select_created_user (GObject *object,
+         selection = gtk_tree_view_get_selection (tv);
+         user_uid = act_user_get_uid (user);
+ 
+-        gtk_tree_model_get_iter_first (model, &iter);
++        if (!gtk_tree_model_get_iter_first (model, &iter)) {
++                g_object_unref (user);
++                return;
++        }
+         do {
+                 gtk_tree_model_get (model, &iter, USER_COL, &current, -1);
+                 if (current) {
+@@ -437,6 +444,8 @@ delete_user_response (GtkWidget         *dialog,
+         }
+ 
+         user = get_selected_user (d);
++        if (user == NULL)
++                return;
+ 
+         /* remove autologin */
+         if (act_user_get_automatic_login (user)) {
+@@ -581,6 +590,8 @@ autologin_changed (GObject            *object,
+ 
+         active = gtk_switch_get_active (GTK_SWITCH (object));
+         user = get_selected_user (d);
++        if (user == NULL)
++                return;
+ 
+         if (active != act_user_get_automatic_login (user)) {
+                 act_user_set_automatic_login (user, active);
+@@ -591,7 +602,7 @@ autologin_changed (GObject            *object,
+                         for (l = list; l != NULL; l = l->next) {
+                                 ActUser *u = l->data;
+                                 if (act_user_get_uid (u) != act_user_get_uid (user)) {
+-                                        act_user_set_automatic_login (user, FALSE);
++                                        act_user_set_automatic_login (u, FALSE);
+                                 }
+                         }
+                         g_slist_free (list);
+@@ -656,7 +667,7 @@ show_user (ActUser *user, CcUserPanelPrivate *d)
          GtkWidget *label2;
          GtkWidget *label3;
          GdkPixbuf *pixbuf;
@@ -5123,7 +5282,7 @@ index cda837b..238110a 100644
          GtkWidget *widget;
          GtkTreeModel *model;
          GtkTreeIter iter;
-@@ -690,16 +693,24 @@ show_user (ActUser *user, CcUserPanelPrivate *d)
+@@ -690,16 +701,24 @@ show_user (ActUser *user, CcUserPanelPrivate *d)
          g_signal_handlers_unblock_by_func (widget, autologin_changed, d);
          gtk_widget_set_sensitive (widget, get_autologin_possible (user));
  
@@ -5136,17 +5295,17 @@ index cda837b..238110a 100644
          lang = g_strdup (act_user_get_language (user));
 -        if (!lang)
 +        if ((!lang || *lang == '\0') && act_user_get_uid (user) == getuid ()) {
++                g_free (lang);
                  lang = cc_common_language_get_current_language ();
 -        if (cc_common_language_get_iter_for_language (model, lang, &iter))
 -          um_editable_combo_set_active_iter (UM_EDITABLE_COMBO (widget), &iter);
-+                act_user_set_language (user, lang);
 +        }
 +
 +        if (lang && *lang != '\0') {
 +                name = gnome_get_language_from_locale (lang, NULL);
-+        } else {
-+                name = g_strdup ("—");
 +        }
++        if (!name)
++                name = g_strdup ("—");
 +
 +        gtk_label_set_label (GTK_LABEL (label), name);
          g_free (lang);
@@ -5154,7 +5313,25 @@ index cda837b..238110a 100644
  
          /* Fingerprint: show when self, possible, and local account */
          widget = get_widget (d, "account-fingerprint-notebook");
-@@ -816,81 +827,62 @@ language_response (GtkDialog         *dialog,
+@@ -779,6 +798,8 @@ change_name_done (GtkWidget          *entry,
+         ActUser *user;
+ 
+         user = get_selected_user (d);
++        if (user == NULL)
++                return;
+ 
+         text = cc_editable_entry_get_text (CC_EDITABLE_ENTRY (entry));
+         if (g_strcmp0 (text, act_user_get_real_name (user)) != 0 &&
+@@ -799,6 +820,8 @@ account_type_changed (UmEditableCombo    *combo,
+         gint account_type;
+ 
+         user = get_selected_user (d);
++        if (user == NULL)
++                return;
+ 
+         model = um_editable_combo_get_model (combo);
+         um_editable_combo_get_active_iter (combo, &iter);
+@@ -816,80 +839,76 @@ language_response (GtkDialog         *dialog,
                     gint               response_id,
                     CcUserPanelPrivate *d)
  {
@@ -5173,6 +5350,10 @@ index cda837b..238110a 100644
 +        }
  
          user = get_selected_user (d);
++        if (user == NULL) {
++                gtk_widget_hide (GTK_WIDGET (dialog));
++                return;
++        }
 +        account_language = act_user_get_language (user);
  
 -        combo = get_widget (d, "account-language-combo");
@@ -5186,24 +5367,26 @@ index cda837b..238110a 100644
 -        if (response_id == GTK_RESPONSE_OK) {
 -                lang = cc_language_chooser_get_language (GTK_WIDGET (dialog));
 -                act_user_set_language (user, lang);
-+                button = get_widget (d, "account-language-button-label");
-+                name = gnome_get_language_from_locale (lang, NULL);
-+                gtk_label_set_label (GTK_LABEL (button), name);
-+                g_free (name);
-         }
+-        }
 -        else {
 -                lang = g_strdup (act_user_get_language (user));
 -                if (!lang)
 -                        lang = cc_common_language_get_current_language ();
--        }
++                button = get_widget (d, "account-language-button-label");
++                name = gnome_get_language_from_locale (lang, NULL);
++                if (!name)
++                        name = g_strdup ("—");
++                gtk_label_set_label (GTK_LABEL (button), name);
++                g_free (name);
+         }
 -        cc_common_language_get_iter_for_language (model, lang, &iter);
 -        um_editable_combo_set_active_iter (UM_EDITABLE_COMBO (combo), &iter);
 -        g_free (lang);
  
          gtk_widget_hide (GTK_WIDGET (dialog));
 -        gtk_widget_set_sensitive (combo, TRUE);
--
--        g_object_unref (user);
+ 
+         g_object_unref (user);
  }
  
  static void
@@ -5233,6 +5416,8 @@ index cda837b..238110a 100644
 -                g_free (lang);
 -                goto out;
 -        }
++        if (user == NULL)
++                return;
 +        current_language = act_user_get_language (user);
  
          if (d->language_chooser) {
@@ -5244,13 +5429,17 @@ index cda837b..238110a 100644
          }
 +        else {
 +                d->language_chooser = cc_language_chooser_new (gtk_widget_get_toplevel (d->main_box));
- 
--        d->language_chooser = cc_language_chooser_new (gtk_widget_get_toplevel (d->main_box), FALSE);
++                if (d->language_chooser == NULL) {
++                        g_object_unref (user);
++                        return;
++                }
 +                g_signal_connect (d->language_chooser, "response",
 +                                  G_CALLBACK (language_response), d);
 +                g_signal_connect (d->language_chooser, "delete-event",
 +                                  G_CALLBACK (gtk_widget_hide_on_delete), NULL);
  
+-        d->language_chooser = cc_language_chooser_new (gtk_widget_get_toplevel (d->main_box), FALSE);
+-
 -        g_signal_connect (d->language_chooser, "response",
 -                          G_CALLBACK (language_response), d);
 -        g_signal_connect (d->language_chooser, "delete-event",
@@ -5263,13 +5452,45 @@ index cda837b..238110a 100644
 +                cc_language_chooser_set_language (d->language_chooser, current_language);
          gtk_window_present (GTK_WINDOW (d->language_chooser));
 -        gtk_widget_set_sensitive (GTK_WIDGET (combo), FALSE);
--
+ 
 -out:
--        g_object_unref (user);
+         g_object_unref (user);
  }
  
- static void
-@@ -1167,8 +1159,8 @@ on_permission_changed (GPermission *permission,
+@@ -899,6 +918,8 @@ change_password (GtkButton *button, CcUserPanelPrivate *d)
+         ActUser *user;
+ 
+         user = get_selected_user (d);
++        if (user == NULL)
++                return;
+ 
+         um_password_dialog_set_user (d->password_dialog, user);
+         um_password_dialog_show (d->password_dialog,
+@@ -914,8 +935,13 @@ change_fingerprint (GtkButton *button, CcUserPanelPrivate *d)
+         ActUser *user;
+ 
+         user = get_selected_user (d);
++        if (user == NULL)
++                return;
+ 
+-        g_assert (g_strcmp0 (g_get_user_name (), act_user_get_user_name (user)) == 0);
++        if (g_strcmp0 (g_get_user_name (), act_user_get_user_name (user)) != 0) {
++                g_object_unref (user);
++                return;
++        }
+ 
+         label = get_widget (d, "account-fingerprint-value-label");
+         label2 = get_widget (d, "account-fingerprint-button-label");
+@@ -930,6 +956,8 @@ show_history (GtkButton *button, CcUserPanelPrivate *d)
+         ActUser *user;
+ 
+         user = get_selected_user (d);
++        if (user == NULL)
++                return;
+ 
+         um_history_dialog_set_user (d->history_dialog, user);
+         um_history_dialog_show (d->history_dialog, GTK_WINDOW (gtk_widget_get_toplevel (d->main_box)));
+@@ -1167,8 +1195,8 @@ on_permission_changed (GPermission *permission,
                  gtk_widget_show (get_widget (d, "user-icon-button"));
                  gtk_widget_hide (get_widget (d, "user-icon-nonbutton"));
  
@@ -5280,7 +5501,7 @@ index cda837b..238110a 100644
  
                  um_editable_button_set_editable (UM_EDITABLE_BUTTON (get_widget (d, "account-password-button")), TRUE);
                  remove_unlock_tooltip (get_widget (d, "account-password-button"));
-@@ -1179,8 +1171,8 @@ on_permission_changed (GPermission *permission,
+@@ -1179,8 +1207,8 @@ on_permission_changed (GPermission *permission,
                  gtk_widget_hide (get_widget (d, "user-icon-button"));
                  gtk_widget_show (get_widget (d, "user-icon-nonbutton"));
  
@@ -5291,7 +5512,7 @@ index cda837b..238110a 100644
  
                  um_editable_button_set_editable (UM_EDITABLE_BUTTON (get_widget (d, "account-password-button")), FALSE);
                  add_unlock_tooltip (get_widget (d, "account-password-button"));
-@@ -1381,8 +1373,9 @@ setup_main_window (CcUserPanelPrivate *d)
+@@ -1381,8 +1409,9 @@ setup_main_window (CcUserPanelPrivate *d)
          button = get_widget (d, "account-password-button");
          g_signal_connect (button, "start-editing", G_CALLBACK (change_password), d);
  
@@ -5303,6 +5524,14 @@ index cda837b..238110a 100644
  
          button = get_widget (d, "autologin-switch");
          g_signal_connect (button, "notify::active", G_CALLBACK (autologin_changed), d);
+@@ -1522,6 +1551,7 @@ cc_user_panel_dispose (GObject *object)
+                 gtk_tree_iter_free (priv->other_iter);
+                 priv->other_iter = NULL;
+         }
++        g_clear_object (&priv->indicator_session_schema);
+         G_OBJECT_CLASS (cc_user_panel_parent_class)->dispose (object);
+ }
+ 
 diff --git a/po/POTFILES.in b/po/POTFILES.in
 index 80b302b..d271728 100644
 --- a/po/POTFILES.in
@@ -5318,5 +5547,5 @@ index 80b302b..d271728 100644
 +[type: gettext/glade]panels/langselector/langselector.ui
 +panels/langselector/unity-langselector-panel.desktop.in.in
 -- 
-2.43.2
+2.53.0
 

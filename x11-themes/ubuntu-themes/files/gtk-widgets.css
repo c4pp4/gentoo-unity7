@@ -1,18 +1,3 @@
-
-/* selected progress bar border (transmission) */
-window.background box.vertical > scrolledwindow > treeview.view:focus .progressbar:selected:not(:backdrop) {
- border-color: @selected_fg_color;
-}
-
-/* headerbar horizontal radio buttons (deja-dup) */
-viewswitcher button > stack > box.wide {
- padding: 8px 12px;
-}
-
-headerbar button.horizontal.radio {
- padding: 0;
-}
-
 /* fullscreen toolbar background (eog) */
 overlay > revealer > box > toolbar {
  background-color: @bg_color;

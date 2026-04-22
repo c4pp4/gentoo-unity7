@@ -5,6 +5,7 @@ picture-uri = 'file:///usr/share/backgrounds/warty-final-ubuntu.png'
 
 [org.gnome.desktop.interface:Unity]
 gtk-theme = 'Ambiance'
+color-scheme = 'prefer-light'
 icon-theme = 'ubuntu-mono-dark'
 cursor-theme = 'DMZ-White'
 

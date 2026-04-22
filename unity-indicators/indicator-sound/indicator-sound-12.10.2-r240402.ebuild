@@ -53,6 +53,9 @@ src_unpack() {
 }
 
 src_prepare() {
+	# Fix build with CMake 4 #
+	sed -i "/cmake_minimum_required/{s/2\.8\.9/3.10/}" CMakeLists.txt || die
+
 	# Fix gcc 14 build #
 	sed -i \
 		-e '/#include <libnotify\/notify.h>/a #include <libintl.h>\n#include <glib-unix.h>' \

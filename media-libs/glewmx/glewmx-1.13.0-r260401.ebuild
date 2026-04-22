@@ -14,7 +14,7 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
 
 LICENSE="BSD MIT"
 SLOT="0/$(usub)"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="doc static-libs"
 RESTRICT="test"
 

@@ -16,13 +16,14 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.43.2:2
 	>=dev-libs/libdbusmenu-0.5.90:=[gtk3]
 	>=dev-libs/libindicator-0.4.90:3
 	>=net-print/cups-1.6.0[dbus]
+	net-print/cups-meta
 	>=x11-libs/gtk+-3.0.0:3
 "
 RDEPEND="${COMMON_DEPEND}

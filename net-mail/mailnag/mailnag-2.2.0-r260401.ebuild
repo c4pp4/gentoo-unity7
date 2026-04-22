@@ -17,7 +17,7 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
 
 LICENSE="CC0-1.0 GPL-2+ PSF-2"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="+messagingmenu"
 RESTRICT="test"
 

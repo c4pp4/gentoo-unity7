@@ -8,6 +8,7 @@ ehooks() {
 	local -a \
 		f_remove=() \
 		files=(
+			05-reset-dirs-sample.conf
 			09-autohint-if-no-hinting.conf
 			10-autohint.conf
 			10-hinting-full.conf
@@ -21,7 +22,13 @@ ehooks() {
 			10-unhinted.conf
 			11-lcdfilter-legacy.conf
 			11-lcdfilter-light.conf
+			11-lcdfilter-none.conf
 			25-unhint-nonlatin.conf
+			35-lang-normalize.conf
+			48-guessfamily.conf
+			65-khmer.conf
+			70-no-bitmaps-and-emoji.conf
+			70-no-bitmaps.conf
 			70-yes-bitmaps.conf
 		)
 

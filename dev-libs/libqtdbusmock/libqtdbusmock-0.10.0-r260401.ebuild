@@ -16,7 +16,7 @@ SRC_URI="${UURL}.orig.tar.bz2
 
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="coverage qt5 qt6 test"
 REQUIRED_USE="
 	${PYTHON_REQUIRED_USE}

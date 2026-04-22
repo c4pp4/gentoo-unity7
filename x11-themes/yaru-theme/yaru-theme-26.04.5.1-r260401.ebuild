@@ -14,7 +14,7 @@ SRC_URI="${UURL}.tar.xz"
 
 LICENSE="CC-BY-SA-4.0 GPL-2 GPL-3 GPL-3+ LGPL-2.1 LGPL-2.1+ LGPL-3 MIT"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="cinnamon gnome-shell gtk mate +unity xfwm"
 RESTRICT="binchecks strip test"
 
@@ -34,11 +34,7 @@ BDEPEND="
 
 S="${WORKDIR}/${P}${UVER}"
 
-PATCHES=(
-	"${FILESDIR}"/Adjust-window-shadow-and-bottom-corners.patch
-	"${FILESDIR}"/Create-Ambiance-GTK4-theme.patch
-	"${FILESDIR}"/Remove-light-edges-in-menu-corners.patch
-)
+PATCHES=( "${FILESDIR}"/Remove-light-edges-in-menu-corners.patch )
 
 src_prepare() {
 	if use unity; then
@@ -65,14 +61,6 @@ src_prepare() {
 	fi
 
 	ubuntu-versionator_src_prepare
-
-	## Orange close button for Ambiance ##
-	mkdir -p gtk/src/unity-ambiance/gtk-4.0 || die
-	cp -r gtk/src/default/gtk-4.0 gtk/src/unity-ambiance || die
-	cat "${FILESDIR}"/_palette.scss >> \
-		gtk/src/unity-ambiance/gtk-4.0/_palette.scss || die
-	cat "${FILESDIR}"/_tweaks.scss >> \
-		gtk/src/unity-ambiance/gtk-4.0/_tweaks.scss || die
 }
 
 src_configure() {
@@ -95,4 +83,12 @@ src_configure() {
 		$(meson_use xfwm xfwm4 )
 	)
 	meson_src_configure
+}
+
+src_install() {
+	meson_src_install
+
+	## Add drop-down menu icon as "go-down-symbolic" ##
+	insinto /usr/share/icons
+	doins -r "${FILESDIR}"/drop-down-icon/*
 }

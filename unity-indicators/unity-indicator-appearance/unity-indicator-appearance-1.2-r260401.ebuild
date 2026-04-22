@@ -15,7 +15,7 @@ SRC_URI="${UURL}.tar.xz"
 
 LICENSE="GPL-2+"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="binchecks strip test"
 

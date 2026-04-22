@@ -13,7 +13,7 @@ HOMEPAGE="https://github.com/xapp-project/gnome-online-accounts-gtk"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 RESTRICT="test"
 
 COMMON_DEPEND="

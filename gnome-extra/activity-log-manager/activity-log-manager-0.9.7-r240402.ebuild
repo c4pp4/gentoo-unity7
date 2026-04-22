@@ -16,7 +16,7 @@ SRC_URI="${UURL}.orig.tar.xz
 
 LICENSE="LGPL-2"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 RESTRICT="test"
 
 COMMON_DEPEND="

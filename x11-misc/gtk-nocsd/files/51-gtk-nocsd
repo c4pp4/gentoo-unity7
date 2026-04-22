@@ -1,0 +1,5 @@
+# This file is sourced by Xsession(5), not executed.
+
+if [ "$DESKTOP_SESSION" != "gnome" ]; then
+     export LD_PRELOAD="/usr/lib64/libgtk-nocsd.so.0${LD_PRELOAD:+:$LD_PRELOAD}"
+fi

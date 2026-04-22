@@ -15,7 +15,7 @@ SRC_URI="${UURL}.orig.tar.bz2
 
 LICENSE="LGPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="coverage doc test"
 REQUIRED_USE="coverage? ( test )"
 RESTRICT="!test? ( test )"

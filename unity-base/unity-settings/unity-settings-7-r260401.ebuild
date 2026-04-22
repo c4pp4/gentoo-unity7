@@ -14,7 +14,7 @@ SRC_URI=""
 
 LICENSE="GPL-2+"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="+accessibility classic-fonts classic-theme +files +fontconfig lowgfx +music +photos +ubuntu-sounds +video"
 REQUIRED_USE="classic-fonts? ( fontconfig )"
 RESTRICT="binchecks strip test"

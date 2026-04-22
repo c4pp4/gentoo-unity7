@@ -13,7 +13,7 @@ HOMEPAGE="https://wiki.ubuntu.com/Unity"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
@@ -34,6 +34,9 @@ DEPEND="${COMMON_DEPEND}
 S="${S}${UVER}"
 
 src_prepare() {
+	# Fix build with CMake 4 #
+	sed -i "/cmake_minimum_required/{s/2\.8\.6/3.10/}" CMakeLists.txt || die
+
 	# Fix lib #
 	sed -i "s:lib/::" CMakeLists.txt libdee-qt.pc.in || die
 

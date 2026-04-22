@@ -17,7 +17,7 @@ SRC_URI="${UURL}.orig.tar.bz2
 
 LICENSE="GPL-2 LGPL-2.1"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="+datahub doc +downloads-monitor +fts +icu introspection nls sql-debug telepathy test"
 REQUIRED_USE="${PYTHON_REQUIRED_USE} downloads-monitor? ( datahub )"
 RESTRICT="!test? ( test )"

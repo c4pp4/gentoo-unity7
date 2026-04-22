@@ -14,7 +14,7 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="+help"
 RESTRICT="test"
 
@@ -47,6 +47,9 @@ src_unpack() {
 }
 
 src_prepare() {
+	# Fix build with CMake 4 #
+	sed -i "/cmake_minimum_required/{s/2\.8\.9/3.10/}" CMakeLists.txt || die
+
 	if use help || ! has nodoc ${FEATURES}; then
 		sed -i \
 			-e 's:distro_name = g_strdup(value):distro_name = g_strdup(\"Unity\"):g' \

@@ -9,8 +9,5 @@
 			missing keyword (experimental)</flag>
 		<flag name="fontconfig">Optional ehooks: Adjust fonts configuration
 			according to Ubuntu</flag>
-		<flag name="classic-libreoffice">Optional ehooks: Add Ubuntu's Human
-			icon theme for <pkg>app-office/libreoffice</pkg>
-			and make it the default</flag>
 	</use>
 </pkgmetadata>
