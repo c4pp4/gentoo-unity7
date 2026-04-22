@@ -25,7 +25,7 @@ DEPEND="gui-libs/libadwaita"
 
 S="${S}${UVER}"
 
-PATCHES=( "${FILESDIR}"/1fd10d1b03da423f0c7a4231fb82d848d8c52bb8...8cd6db74bc9b20d31e433b2e4a6ec05f9a402832.patch )
+PATCHES=( "${FILESDIR}"/1fd10d1b03da423f0c7a4231fb82d848d8c52bb8...daf0652e6b4c4f0b10ca3e371ad8e0fc47c8b0fd.patch )
 
 src_install() {
 	emake \

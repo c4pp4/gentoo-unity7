@@ -1,0 +1,2982 @@
+From 8ca050b39920f51cdb925329364f934907c17c4e Mon Sep 17 00:00:00 2001
+From: NexusSfan <nexussfan@duck.com>
+Date: Sun, 22 Mar 2026 07:37:45 -0700
+Subject: [PATCH 01/33] Add support for GNU/HURD `PATH_MAX` fix.
+
+---
+ Source/GTK-NoCSD.c | 27 +++++++++++++++++----------
+ 1 file changed, 17 insertions(+), 10 deletions(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index ad7f00b..2027aaa 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -186,18 +186,23 @@ bool GTKNoCSDLibraryInPath(const char *Path) {
+ 	// Go through all files
+ 	while ((Entry = readdir(Directory)) != NULL) {
+ 		// Get full path of file
+-		char FullPath[PATH_MAX];
+-		snprintf(FullPath, sizeof(FullPath), "%s/%s", Path, Entry->d_name);
++		char *FullPath = malloc(strlen(Path) + strlen(Entry->d_name) + 2);
++		if (FullPath == NULL) {
++			return false;
++		}
++		sprintf(FullPath, "%s/%s", Path, Entry->d_name);
+ 
+ 		// Check file info, go to next file on failure
+ 		struct stat Stat;
+ 		if (stat(FullPath, &Stat) == -1) {
++			free(FullPath);
+ 			continue;
+ 		}
+ 
+ 		if (S_ISDIR(Stat.st_mode)) {
+ 			// Recurse into subdirectory
+ 			if (GTKNoCSDLibraryInPath(FullPath)) {
++				free(FullPath);
+ 				return true;
+ 			}
+ 		} else if (S_ISREG(Stat.st_mode)) {
+@@ -206,9 +211,11 @@ bool GTKNoCSDLibraryInPath(const char *Path) {
+ 			if ((strncmp(Entry->d_name, "libgtk-",
+ 				7) == 0 || strncmp(Entry->d_name, "libflutter", 10) == 0) &&
+ 				strstr(Entry->d_name, ".so") != NULL) {
++				free(FullPath);
+ 				return true;
+ 			}
+ 		}
++		free(FullPath);
+ 	}
+ 
+ 	// Close directory
+@@ -1483,9 +1490,10 @@ void GTKNoCSDAddToUndecorated(GtkWindow *Window) {
+ 	}
+ }
+ 
+-void GTKNoCSDHandlerFailExit(void) {
++void GTKNoCSDHandlerFailExit(char *LibraryFullPath) {
+ 	// Simple exit function when crash handler setup failed
+ 
++	free(LibraryFullPath);
+ 	G_GNUC_UNUSED ssize_t Ignore = write(3, "1", 1);
+ 	GTKNoCSDCrashPid = -2;
+ 	_exit(0);
+@@ -1519,11 +1527,9 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 				// If library name was not found, exit
+ 				GTKNoCSDCrashPid = -2;
+ 			} else {
+-				char LibraryFullPath[PATH_MAX];
+-				G_GNUC_UNUSED char *Ignore = realpath(Information.dli_fname,
+-						LibraryFullPath);
++				char *LibraryFullPath = realpath(Information.dli_fname, NULL);
+ 
+-				if (LibraryFullPath[0] ==  '\0') {
++				if (LibraryFullPath == NULL || LibraryFullPath[0] ==  '\0') {
+ 					// If library full path was not found, exit
+ 					GTKNoCSDCrashPid = -2;
+ 				} else {
+@@ -1553,7 +1559,7 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 						// important for scripts, which will have the
+ 						// interpreter as first command instead of the script
+ 						if (NewArguments[2] == NULL) {
+-							GTKNoCSDHandlerFailExit();
++							GTKNoCSDHandlerFailExit(LibraryFullPath);
+ 						}
+ 
+ 						// Try to find which argument starts the arguments given
+@@ -1583,7 +1589,7 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 
+ 						// If not found, exit
+ 						if (StartIndex == GTKNoCSDArgumentNumber + 1) {
+-							GTKNoCSDHandlerFailExit();
++							GTKNoCSDHandlerFailExit(LibraryFullPath);
+ 						}
+ 
+ 						// Copy arguments only from found index of script
+@@ -1598,7 +1604,7 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 						execve(GTKNoCSDLDLinux, NewArguments, environ);
+ 
+ 						// This should not be reached, execve failed
+-						GTKNoCSDHandlerFailExit();
++						GTKNoCSDHandlerFailExit(LibraryFullPath);
+ 					} else {
+ 						// Finalize pipe directions
+ 						close(GTKNoCSDPipeToChild[0]);
+@@ -1613,6 +1619,7 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 							read(GTKNoCSDPipeToParent[0], &Buffer, 1);
+ 					}
+ 				}
++				free(LibraryFullPath);
+ 			}
+ 		}
+ 	}
+
+From af0b815e6fb383e3520ea31a899eb4971f518c4b Mon Sep 17 00:00:00 2001
+From: MorsMortium <morsmortium@disroot.org>
+Date: Sun, 22 Mar 2026 16:52:22 +0100
+Subject: [PATCH 02/33] Fully restart appimages on crash, instead of mounted
+ binary
+
+Fixes certain appimages not restarting in case of a crash
+---
+ Source/GTK-NoCSD.c | 44 +++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 35 insertions(+), 9 deletions(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index 2027aaa..8f3f7cc 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -166,7 +166,7 @@ void GTKNoCSDMain(void) {
+ 	// Restart if needed, leave
+ 	if (Restart) {
+ 		printf("GTK-NoCSD: Crash detected, restarting without library.\n");
+-		execve(GTKNoCSDArguments[2], GTKNoCSDArguments + 2, environ);
++		execve(GTKNoCSDArguments[3], GTKNoCSDArguments + 3, environ);
+ 	}
+ 	_exit(0);
+ }
+@@ -1550,15 +1550,16 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 						dup2(GTKNoCSDPipeToChildEnd[0], TO_CHILD_END_COPY);
+ 
+ 						// Start assembling arguments for starting crash handler
+-						char *NewArguments[GTKNoCSDArgumentNumber + 3];
+-						NewArguments[0] = "--";
+-						NewArguments[1] = LibraryFullPath;
+-						NewArguments[2] = (char *) getauxval(AT_EXECFN);
++						char *NewArguments[GTKNoCSDArgumentNumber + 4];
++						NewArguments[0] = GTKNoCSDLDLinux;
++						NewArguments[1] = "--";
++						NewArguments[2] = LibraryFullPath;
++						NewArguments[3] = (char *) getauxval(AT_EXECFN);
+ 
+ 						// If real executed file is not found, exit. This is
+ 						// important for scripts, which will have the
+ 						// interpreter as first command instead of the script
+-						if (NewArguments[2] == NULL) {
++						if (NewArguments[3] == NULL) {
+ 							GTKNoCSDHandlerFailExit(LibraryFullPath);
+ 						}
+ 
+@@ -1568,14 +1569,14 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 						for (size_t Index = 0; Index < GTKNoCSDArgumentNumber;
+ 							++Index) {
+ 							if (strcmp(GTKNoCSDArguments[Index],
+-								NewArguments[2]) == 0) {
++								NewArguments[3]) == 0) {
+ 								StartIndex = Index + 1;
+ 								break;
+ 							}
+ 						}
+ 						if (StartIndex == GTKNoCSDArgumentNumber + 1) {
+ 							const char *Basename =
+-								basename((char *) NewArguments[2]);
++								basename((char *) NewArguments[3]);
+ 							for (size_t Index = 0;
+ 								Index < GTKNoCSDArgumentNumber;
+ 								++Index) {
+@@ -1593,13 +1594,38 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 						}
+ 
+ 						// Copy arguments only from found index of script
+-						size_t NewArgumentsIndex = 3;
++						size_t NewArgumentsIndex = 4;
+ 						for (size_t Index = StartIndex;
+ 							Index <= GTKNoCSDArgumentNumber; ++Index) {
+ 							NewArguments[NewArgumentsIndex++] =
+ 								GTKNoCSDArguments[Index];
+ 						}
+ 
++						// Appimages should be completely restarted, instead of
++						// just the binary. This is detected and handled here
++						// Check if binary is path and APPIMAGE is set
++						char *AppImage = getenv("APPIMAGE");
++						char *Ending = strrchr(NewArguments[3], '/');
++						if (Ending != NULL && AppImage != NULL) {
++							size_t Length = strlen(NewArguments[3]) -
++								strlen(Ending);
++							char *AppRun = malloc(Length + 7);
++							if (AppRun != NULL) {
++								// If so, copy folder name into variable, add
++								// AppRun, check if file and appimage both exist
++								strncpy(AppRun, NewArguments[3], Length);
++								AppRun[Length] = '\0';
++								strcat(AppRun, "/AppRun");
++								struct stat Stat;
++								if (stat(AppRun, &Stat) == 0 && stat(AppImage,
++									&Stat) == 0) {
++									// If so, replace binary with AppImage
++									NewArguments[3] = AppImage;
++								}
++								free(AppRun);
++							}
++						}
++
+ 						// Start crash handler
+ 						execve(GTKNoCSDLDLinux, NewArguments, environ);
+ 
+
+From 93e73f9364b22d60646d82522ac9dadb7d3c3392 Mon Sep 17 00:00:00 2001
+From: MorsMortium <morsmortium@disroot.org>
+Date: Sun, 22 Mar 2026 18:34:48 +0100
+Subject: [PATCH 03/33] Try to get ld library in 2 separate, Hurd friendly way
+
+---
+ Source/GTK-NoCSD.c | 40 +++++++++++++++++++++++++---------------
+ 1 file changed, 25 insertions(+), 15 deletions(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index 8f3f7cc..ee617ee 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -586,31 +586,34 @@ void *GTKNoCSDGetLibrary(const char *Name, bool Fatal) {
+ 		}																\
+ 
+ int GTKNoCSDNewGTKVersion = -1;
+-char *GTKNoCSDLDLinux = NULL;
++char *GTKNoCSDLD = NULL;
+ 
+-static int GTKNoCSDGetLinkedLibraries(struct dl_phdr_info *Info,
++static int GTKNoCSDGetLinkedLibraries(struct dl_phdr_info *Information,
+ 	G_GNUC_UNUSED size_t Size, G_GNUC_UNUSED void *Data) {
+ 	// Get which libraries are linked with the application and determine GTK
+ 	// version based on that
+ 
+-	if (Info->dlpi_name != NULL) {
++	if (Information->dlpi_name != NULL) {
+ 		if (GTKNoCSDNewGTKVersion == -1) {
+-			if (strstr(Info->dlpi_name, "libgtk-x11-2.0.so.0") != NULL) {
++			if (strstr(Information->dlpi_name, "libgtk-x11-2.0.so.0") != NULL) {
+ 				GTKNoCSDNewGTKVersion = 2;
+-			} else if (strstr(Info->dlpi_name, "libgtk-3.so.0") != NULL) {
++			} else if (strstr(Information->dlpi_name,
++				"libgtk-3.so.0") != NULL) {
+ 				GTKNoCSDNewGTKVersion = 3;
+-			} else if (strstr(Info->dlpi_name, "libgtk-4.so.1") != NULL) {
++			} else if (strstr(Information->dlpi_name,
++				"libgtk-4.so.1") != NULL) {
+ 				GTKNoCSDNewGTKVersion = 4;
+ 			}
+ 		}
+ 
+-		// Used for starting the crash handler. If found and GTK version is
+-		// known, leave
+-		if (strstr(Info->dlpi_name, "ld-linux")) {
+-			GTKNoCSDLDLinux = strdup(Info->dlpi_name);
++		// Used for starting the crash handler. Only these segments are shared
++		// between Hurd and Linux. If found and GTK version is known, leave
++		if (GTKNoCSDLD == NULL && strstr(Information->dlpi_name, "/ld-") != NULL
++			&& strstr(Information->dlpi_name, ".so.") != NULL) {
++			GTKNoCSDLD = strdup(Information->dlpi_name);
+ 		}
+ 
+-		if (GTKNoCSDLDLinux != NULL && GTKNoCSDNewGTKVersion != -1) {
++		if (GTKNoCSDLD != NULL && GTKNoCSDNewGTKVersion != -1) {
+ 			return 1;
+ 		}
+ 	}
+@@ -649,9 +652,16 @@ void GTKNoCSDGetReferences(bool GetTypes) {
+ 		}
+ 	}
+ 
++	// Get crash handler if needed
++	Dl_info Information;
++	if (GTKNoCSDLD == NULL && dladdr((void *) (uintptr_t) &_r_debug,
++		&Information)) {
++		GTKNoCSDLD = strdup(Information.dli_fname);
++	}
++
+ 	// If gtk_check_version is missing, check linked libraries, plus get crash
+ 	// handler starter
+-	if (GTKNoCSDLDLinux == NULL || GTKNoCSDNewGTKVersion == -1) {
++	if (GTKNoCSDLD == NULL || GTKNoCSDNewGTKVersion == -1) {
+ 		dl_iterate_phdr(GTKNoCSDGetLinkedLibraries, NULL);
+ 	}
+ 
+@@ -1517,7 +1527,7 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 		sigaction(SIGILL,  &Action, &GTKNoCSDILLAction);
+ 		sigaction(SIGBUS,  &Action, &GTKNoCSDBUSAction);
+ 
+-		if (GTKNoCSDLDLinux == NULL) {
++		if (GTKNoCSDLD == NULL) {
+ 			// If Crash handler starter was not found, exit
+ 			GTKNoCSDCrashPid = -2;
+ 		} else {
+@@ -1551,7 +1561,7 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 
+ 						// Start assembling arguments for starting crash handler
+ 						char *NewArguments[GTKNoCSDArgumentNumber + 4];
+-						NewArguments[0] = GTKNoCSDLDLinux;
++						NewArguments[0] = GTKNoCSDLD;
+ 						NewArguments[1] = "--";
+ 						NewArguments[2] = LibraryFullPath;
+ 						NewArguments[3] = (char *) getauxval(AT_EXECFN);
+@@ -1627,7 +1637,7 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 						}
+ 
+ 						// Start crash handler
+-						execve(GTKNoCSDLDLinux, NewArguments, environ);
++						execve(GTKNoCSDLD, NewArguments, environ);
+ 
+ 						// This should not be reached, execve failed
+ 						GTKNoCSDHandlerFailExit(LibraryFullPath);
+
+From 8586031530f774e826cc05fc54873120951fe7f0 Mon Sep 17 00:00:00 2001
+From: MorsMortium <morsmortium@disroot.org>
+Date: Mon, 23 Mar 2026 00:04:43 +0100
+Subject: [PATCH 04/33] Do not use sys/auxv.h
+
+Simpler, GNU Hurd compatible
+---
+ Source/GTK-NoCSD.c | 51 +++++++++++-----------------------------------
+ 1 file changed, 12 insertions(+), 39 deletions(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index ee617ee..a91053e 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -19,7 +19,6 @@
+ #include <libadwaita-1/adwaita.h>
+ #include <link.h>
+ #include <fcntl.h>
+-#include <sys/auxv.h>
+ #include <sys/stat.h>
+ 
+ // List of arguments and number of them is saved for GTK applications, in case
+@@ -1527,8 +1526,8 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 		sigaction(SIGILL,  &Action, &GTKNoCSDILLAction);
+ 		sigaction(SIGBUS,  &Action, &GTKNoCSDBUSAction);
+ 
+-		if (GTKNoCSDLD == NULL) {
+-			// If Crash handler starter was not found, exit
++		if (GTKNoCSDLD == NULL || GTKNoCSDArguments == NULL) {
++			// If Crash handler starter or arguments were not found, exit
+ 			GTKNoCSDCrashPid = -2;
+ 		} else {
+ 			Dl_info Information;
+@@ -1564,7 +1563,13 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 						NewArguments[0] = GTKNoCSDLD;
+ 						NewArguments[1] = "--";
+ 						NewArguments[2] = LibraryFullPath;
+-						NewArguments[3] = (char *) getauxval(AT_EXECFN);
++
++						// Try to fetch full path, if not found use as is
++						NewArguments[3] =
++							g_find_program_in_path(GTKNoCSDArguments[0]);
++						if (NewArguments[3] == NULL) {
++							NewArguments[3] = GTKNoCSDArguments[0];
++						}
+ 
+ 						// If real executed file is not found, exit. This is
+ 						// important for scripts, which will have the
+@@ -1573,42 +1578,10 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 							GTKNoCSDHandlerFailExit(LibraryFullPath);
+ 						}
+ 
+-						// Try to find which argument starts the arguments given
+-						// to the program
+-						size_t StartIndex = GTKNoCSDArgumentNumber + 1;
+-						for (size_t Index = 0; Index < GTKNoCSDArgumentNumber;
+-							++Index) {
+-							if (strcmp(GTKNoCSDArguments[Index],
+-								NewArguments[3]) == 0) {
+-								StartIndex = Index + 1;
+-								break;
+-							}
+-						}
+-						if (StartIndex == GTKNoCSDArgumentNumber + 1) {
+-							const char *Basename =
+-								basename((char *) NewArguments[3]);
+-							for (size_t Index = 0;
+-								Index < GTKNoCSDArgumentNumber;
+-								++Index) {
+-								if (strcmp(basename(GTKNoCSDArguments[Index]),
+-									Basename) == 0) {
+-									StartIndex = Index + 1;
+-									break;
+-								}
+-							}
+-						}
+-
+-						// If not found, exit
+-						if (StartIndex == GTKNoCSDArgumentNumber + 1) {
+-							GTKNoCSDHandlerFailExit(LibraryFullPath);
+-						}
+-
+-						// Copy arguments only from found index of script
+-						size_t NewArgumentsIndex = 4;
+-						for (size_t Index = StartIndex;
++						// Copy arguments except binary
++						for (size_t Index = 1;
+ 							Index <= GTKNoCSDArgumentNumber; ++Index) {
+-							NewArguments[NewArgumentsIndex++] =
+-								GTKNoCSDArguments[Index];
++							NewArguments[Index + 3] = GTKNoCSDArguments[Index];
+ 						}
+ 
+ 						// Appimages should be completely restarted, instead of
+
+From 7979cfc991f72f8debf074f3a299bc87dd49859e Mon Sep 17 00:00:00 2001
+From: MorsMortium <morsmortium@disroot.org>
+Date: Mon, 23 Mar 2026 00:35:48 +0100
+Subject: [PATCH 05/33] Fix Hurd ld argument shift
+
+---
+ Source/GTK-NoCSD.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index a91053e..9419454 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -165,7 +165,14 @@ void GTKNoCSDMain(void) {
+ 	// Restart if needed, leave
+ 	if (Restart) {
+ 		printf("GTK-NoCSD: Crash detected, restarting without library.\n");
+-		execve(GTKNoCSDArguments[3], GTKNoCSDArguments + 3, environ);
++
++		// For some reason Hurd ld does not include ld library name and --
++		int Shift = 1;
++		if (3 < GTKNoCSDArgumentNumber && strcmp(GTKNoCSDArguments[1],
++			"--") == 0) {
++			Shift = 3;
++		}
++		execve(GTKNoCSDArguments[Shift], GTKNoCSDArguments + Shift, environ);
+ 	}
+ 	_exit(0);
+ }
+
+From f123faa4208ceac3bce5586b55cbaa725d5c9a06 Mon Sep 17 00:00:00 2001
+From: MorsMortium <morsmortium@disroot.org>
+Date: Fri, 27 Mar 2026 01:42:38 +0100
+Subject: [PATCH 06/33] Remove internal headerbars that GTK sets up on unknown
+ preference
+
+Fixes wayland compositors that do not implement the KDE decoration protocol
+---
+ Source/GTK-NoCSD.c | 87 +++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 86 insertions(+), 1 deletion(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index 9419454..9fd31fc 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -489,6 +489,8 @@ GType (*o_g_type_register_static) (GType, const gchar *, const GTypeInfo *,
+ 	GTypeFlags) = NULL;
+ GType (*o_g_type_register_static_simple) (GType, const gchar *, guint,
+ 	GClassInitFunc, guint, GInstanceInitFunc, GTypeFlags) = NULL;
++typedef void (*GtkCallback)(GtkWidget *widget, gpointer data);
++void (*o_gtk_container_forall) (GtkWidget *, GtkCallback, gpointer) = NULL;
+ 
+ // This is needed by an unavoidable GTK macro for type registration
+ GType gtk_widget_get_type(void);
+@@ -711,6 +713,7 @@ void GTKNoCSDGetReferences(bool GetTypes) {
+ 		LOAD_SYMBOL(Library, gtk_box_get_type);
+ 		LOAD_SYMBOL(Library, gtk_widget_get_type);
+ 		LOAD_SYMBOL(Library, gtk_window_set_decorated);
++		LOAD_SYMBOL(Library, gtk_window_get_decorated);
+ 
+ 		if (GTKNoCSDGTKVersion < 4) {
+ 			// In GTK2 and GTK3
+@@ -763,7 +766,6 @@ void GTKNoCSDGetReferences(bool GetTypes) {
+ 			LOAD_SYMBOL(Library, gtk_label_get_label);
+ 			LOAD_SYMBOL(Library, gtk_window_set_title);
+ 			LOAD_SYMBOL(Library, gtk_shortcuts_window_get_type);
+-			LOAD_SYMBOL(Library, gtk_window_get_decorated);
+ 			LOAD_SYMBOL(Library, gtk_grid_new);
+ 			LOAD_SYMBOL(Library, gtk_application_window_get_help_overlay);
+ 			LOAD_SYMBOL(Library, gtk_header_bar_set_decoration_layout);
+@@ -844,6 +846,7 @@ void GTKNoCSDGetReferences(bool GetTypes) {
+ 			LOAD_SYMBOL(Library, gtk_widget_set_halign);
+ 			LOAD_SYMBOL(Library, gtk_toggle_button_get_type);
+ 			LOAD_SYMBOL(Library, gtk_image_get_type);
++			LOAD_SYMBOL(Library, gtk_container_forall);
+ 
+ 			Library = GTKNoCSDGetLibrary("libhandy-1.so.0", false);
+ 			if (Library == NULL) {
+@@ -2632,6 +2635,80 @@ void gtk_show_about_dialog(GtkWindow *Window, const char *FirstProperty, ...) {
+ // True when the first GTK GObject is loaded
+ bool GTKNoCSDGTKGObject = false;
+ 
++GtkWidget *GTKNoCSDHeaderBar = NULL;
++
++void GTKNoCSDGetHeaderBar(GtkWidget *Widget, G_GNUC_UNUSED gpointer Data) {
++	// Check if a widget is a GtkHeaderBar and has the class for the internal
++	// one, set global variable if so
++
++	if (GTKNoCSDGtkHeaderBar(G_OBJECT(Widget))) {
++		GtkStyleContext *Context = o_gtk_widget_get_style_context(Widget);
++		if (o_gtk_style_context_has_class(Context, "default-decoration")) {
++			GTKNoCSDHeaderBar = Widget;
++		}
++	}
++}
++
++gboolean gtk_window_get_decorated(GtkWindow *Window) {
++	// This is reimplemented so LibHandy applications will not have to flicker
++	// like LibAdwaita, when the built in CSD is removed
++
++	GTKNoCSDGetReferences(true);
++
++	// Only in GTK3
++	if (GTKNoCSDGTKVersion == 3) {
++		// Look for internal CSD, report not being decorated if found
++		GTKNoCSDHeaderBar = NULL;
++		o_gtk_container_forall((GtkWidget *) Window, GTKNoCSDGetHeaderBar,
++			NULL);
++		if (GTKNoCSDHeaderBar != NULL) {
++			return false;
++		}
++	}
++
++	return o_gtk_window_get_decorated(Window);
++}
++
++gboolean GTKNoCSDHeaderBarParentFinalize(gpointer Data) {
++	// Finish what GTKNoCSDHeaderBarParent started
++
++	GtkWidget *Parent = o_gtk_widget_get_parent((GtkWidget *) Data);
++	if (GTKNoCSDAdwApplicatonWindow(G_OBJECT(Parent)) ||
++		GTKNoCSDAdwWindow(G_OBJECT(Parent))) {
++		// LibAdwaita applications do something else and they need to be
++		// redisplayed. This might cause a flicker
++		o_gtk_widget_unrealize(Parent);
++		o_gtk_widget_set_visible(Parent, false);
++		o_gtk_widget_set_visible(Parent, true);
++	} else {
++		// Hide the widget
++		o_gtk_widget_set_child_visible((GtkWidget *) Data, false);
++		o_gtk_widget_set_visible((GtkWidget *) Data, false);
++	}
++
++	return FALSE;
++}
++
++void GTKNoCSDHeaderBarParent(GtkWidget *Widget, G_GNUC_UNUSED GParamSpec *Spec,
++	G_GNUC_UNUSED gpointer Data) {
++	// Hide the CSD HeaderBar that GTK sets when the wayland compositor does not
++	// support SSD (or the KDE protocol for it) and the application does not set
++	// a CSD either
++
++	// Only activate on the specific widget we need
++	GtkWidget *Parent = o_gtk_widget_get_parent(Widget);
++	if (Parent != NULL && GTKNoCSDGtkWindow(G_OBJECT(Parent))) {
++		GtkStyleContext *Context = o_gtk_widget_get_style_context(Widget);
++		if (o_gtk_style_context_has_class(Context, "default-decoration")) {
++			// Setting it early helps certain applications look better
++			o_gtk_widget_set_visible(Widget, false);
++
++			// Finish it later
++			g_idle_add(GTKNoCSDHeaderBarParentFinalize, Widget);
++		}
++	}
++}
++
+ gpointer g_object_new(GType Type, const gchar *FirstProperty, ...) {
+ 	// Entry point used by python to create objects.
+ 	// Hook it, reimplement then use our own function
+@@ -2663,6 +2740,13 @@ gpointer g_object_new(GType Type, const gchar *FirstProperty, ...) {
+ 				G_CALLBACK(GTKNoCSDTitleChanged), NULL);
+ 			GTKNoCSDTitleChanged((GtkLabel *) Object, NULL, NULL);
+ 		}
++
++		// This is for compositors that do not support the KDE decoration
++		// protocol, but also do not want CSD
++		if (GTKNoCSDGtkHeaderBar(Object)) {
++			g_signal_connect(Object, "notify::parent",
++				G_CALLBACK(GTKNoCSDHeaderBarParent), NULL);
++		}
+ 	}
+ 
+ 	// This is as early as possible to catch all windows with the hook
+@@ -3003,6 +3087,7 @@ gboolean g_module_symbol(GModule *Module, const gchar *Name, gpointer *Symbol) {
+ 		GET_SYMBOL(adw_window_get_visible_dialog);
+ 		GET_SYMBOL(gtk_about_dialog_new);
+ 		GET_SYMBOL(gtk_show_about_dialog);
++		GET_SYMBOL(gtk_window_get_decorated);
+ 		GET_SYMBOL(g_object_new);
+ 		GET_SYMBOL(g_signal_connect_object);
+ 		GET_SYMBOL(gtk_widget_show_all);
+
+From 66bfa45fc19766fbc5f2fb6f9e8ccaa8a8d1f6fa Mon Sep 17 00:00:00 2001
+From: MorsMortium <morsmortium@disroot.org>
+Date: Fri, 27 Mar 2026 02:21:35 +0100
+Subject: [PATCH 07/33] Display window content again, after present
+
+Fixes Lutris missing part of the window content if started with interactive debugger
+---
+ Source/GTK-NoCSD.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index 9fd31fc..bf21d02 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -2106,6 +2106,17 @@ GtkWidget *GTKNoCSDGTK4Content(GtkWidget *Child) {
+ 	return Child;
+ }
+ 
++gboolean GTKNoCSDRedisplayContent(gpointer Data) {
++	// Display the content of the window again
++	GtkWidget *Child = GTKNoCSDWindowGetChild((GtkWindow *) Data);
++	if (Child != NULL) {
++		o_gtk_widget_set_visible(Child, false);
++		o_gtk_widget_set_visible(Child, true);
++	}
++
++	return FALSE;
++}
++
+ void gtk_window_present(GtkWindow *Window) {
+ 	// Entry point used by certain apps to display the window.
+ 	// Hook it, execute our own function then the original
+@@ -2116,6 +2127,7 @@ void gtk_window_present(GtkWindow *Window) {
+ 	if (2 < GTKNoCSDGTKVersion) {
+ 		if (GTKNoCSDMagic(Window)) {
+ 			o_gtk_window_present(Window);
++			g_idle_add(GTKNoCSDRedisplayContent, Window);
+ 		}
+ 		return;
+ 	}
+
+From b739602467196b475a558513df7fbcbcab780b22 Mon Sep 17 00:00:00 2001
+From: MorsMortium <morsmortium@disroot.org>
+Date: Sat, 28 Mar 2026 11:11:46 +0100
+Subject: [PATCH 08/33] Do not get _r_debug on anything not glibc
+
+---
+ Source/GTK-NoCSD.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index bf21d02..89f2c4d 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -649,7 +649,7 @@ void GTKNoCSDGetReferences(bool GetTypes) {
+ 	}
+ 
+ 	// Get used GTK version
+-	*(void **) (&o_gtk_check_version) = dlsym(RTLD_NEXT, "gtk_check_version");
++	LOAD_SYMBOL(RTLD_NEXT, gtk_check_version);
+ 	if (o_gtk_check_version != NULL) {
+ 		if (o_gtk_check_version(2, 0, 0) == NULL) {
+ 			GTKNoCSDNewGTKVersion = 2;
+@@ -660,12 +660,14 @@ void GTKNoCSDGetReferences(bool GetTypes) {
+ 		}
+ 	}
+ 
+-	// Get crash handler if needed
++	// Get crash handler if needed (musl does not have this symbol available)
++#if defined(__GLIBC__)
+ 	Dl_info Information;
+ 	if (GTKNoCSDLD == NULL && dladdr((void *) (uintptr_t) &_r_debug,
+ 		&Information)) {
+ 		GTKNoCSDLD = strdup(Information.dli_fname);
+ 	}
++#endif
+ 
+ 	// If gtk_check_version is missing, check linked libraries, plus get crash
+ 	// handler starter
+
+From 790b7eed6bf597a8efcf13b2e1f917e1fe4c37ef Mon Sep 17 00:00:00 2001
+From: Fredrik Foss-Indrehus <fredrik@ffoss.net>
+Date: Sat, 28 Mar 2026 20:08:49 +0100
+Subject: [PATCH 09/33] Clarify dynamic linker detection comment, formatting
+
+Signed-off-by: Fredrik Foss-Indrehus <fredrik@ffoss.net>
+---
+ Source/GTK-NoCSD.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index 89f2c4d..ef76f80 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -614,10 +614,10 @@ static int GTKNoCSDGetLinkedLibraries(struct dl_phdr_info *Information,
+ 			}
+ 		}
+ 
+-		// Used for starting the crash handler. Only these segments are shared
+-		// between Hurd and Linux. If found and GTK version is known, leave
+-		if (GTKNoCSDLD == NULL && strstr(Information->dlpi_name, "/ld-") != NULL
+-			&& strstr(Information->dlpi_name, ".so.") != NULL) {
++		// Used for starting the crash handler. Finds the dynamic linker across
++		// glibc, musl, and Hurd. If found and GTK version is known, leave
++		if (GTKNoCSDLD == NULL && strstr(Information->dlpi_name, "/ld-") != NULL &&
++				strstr(Information->dlpi_name, ".so.") != NULL) {
+ 			GTKNoCSDLD = strdup(Information->dlpi_name);
+ 		}
+ 
+
+From e573ed75a159291091aa9b6f820beab333c0949f Mon Sep 17 00:00:00 2001
+From: Fredrik Foss-Indrehus <fredrik@ffoss.net>
+Date: Sat, 28 Mar 2026 20:10:40 +0100
+Subject: [PATCH 10/33] add missing include on alpine, formatting
+
+Signed-off-by: Fredrik Foss-Indrehus <fredrik@ffoss.net>
+---
+ Source/GTK-NoCSD.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index ef76f80..ad31f3a 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -16,9 +16,10 @@
+ \******************************************************************************/
+ 
+ #define _GNU_SOURCE
++#include <dlfcn.h>
++#include <fcntl.h>
+ #include <libadwaita-1/adwaita.h>
+ #include <link.h>
+-#include <fcntl.h>
+ #include <sys/stat.h>
+ 
+ // List of arguments and number of them is saved for GTK applications, in case
+
+From ce5cd6fbc5e66b588bfe3acafbe2947b6d381484 Mon Sep 17 00:00:00 2001
+From: Fredrik Foss-Indrehus <fredrik@ffoss.net>
+Date: Sat, 28 Mar 2026 19:59:53 +0100
+Subject: [PATCH 11/33] Refactor LD_PRELOAD stripping into a helper function
+
+Signed-off-by: Fredrik Foss-Indrehus <fredrik@ffoss.net>
+---
+ Source/GTK-NoCSD.c | 22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index ad31f3a..2aba4e5 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -230,6 +230,19 @@ bool GTKNoCSDLibraryInPath(const char *Path) {
+ 	return false;
+ }
+ 
++void GTKNoCSDUnsetLDPreload(void) {
++	// setenv does not always work before execve in these specific contexts,
++	// so LD_PRELOAD is stripped manually from the environment array.
++	if (environ != NULL) {
++		for (char **Variable = environ; *Variable != NULL; ++Variable) {
++			if (strncmp(*Variable, "LD_PRELOAD=", 11) == 0) {
++				(*Variable)[11] = '\0';
++				break;
++			}
++		}
++	}
++}
++
+ bool GTKNoCSDOnLomiri = false;
+ 
+ __attribute__((constructor))
+@@ -287,14 +300,9 @@ static void GTKNoCSDInit(void) {
+ 				"gnome-session") == NULL;
+ 	}
+ 
+-	// If not needed, unset library, restart. setenv does not always work here
++	// If not needed, unset library, restart
+ 	if (Disable && GTKNoCSDArguments != NULL) {
+-		for (char **Variable = environ; *Variable != NULL; ++Variable) {
+-			if (strncmp(*Variable, "LD_PRELOAD=", 11) == 0) {
+-				(*Variable)[11] = '\0';
+-				break;
+-			}
+-		}
++		GTKNoCSDUnsetLDPreload();
+ 		execve(GTKNoCSDArguments[0], GTKNoCSDArguments, environ);
+ 		_exit(0);
+ 	}
+
+From a851222e62866136e47a7f5b0df6729fdfa9002a Mon Sep 17 00:00:00 2001
+From: Fredrik Foss-Indrehus <fredrik@ffoss.net>
+Date: Sat, 28 Mar 2026 20:11:49 +0100
+Subject: [PATCH 12/33] Remove non-portable _r_debug lookup
+
+The existing dl_iterate_phdr loop already successfully identifies the
+dynamic linker across glibc, musl, and Hurd by matching known
+interpreter patterns, and is POSIX and portable. _r_debug was glibc
+specific.
+
+Signed-off-by: Fredrik Foss-Indrehus <fredrik@ffoss.net>
+---
+ Source/GTK-NoCSD.c | 9 ---------
+ 1 file changed, 9 deletions(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index 2aba4e5..5d2d174 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -669,15 +669,6 @@ void GTKNoCSDGetReferences(bool GetTypes) {
+ 		}
+ 	}
+ 
+-	// Get crash handler if needed (musl does not have this symbol available)
+-#if defined(__GLIBC__)
+-	Dl_info Information;
+-	if (GTKNoCSDLD == NULL && dladdr((void *) (uintptr_t) &_r_debug,
+-		&Information)) {
+-		GTKNoCSDLD = strdup(Information.dli_fname);
+-	}
+-#endif
+-
+ 	// If gtk_check_version is missing, check linked libraries, plus get crash
+ 	// handler starter
+ 	if (GTKNoCSDLD == NULL || GTKNoCSDNewGTKVersion == -1) {
+
+From 664d8c634f524429c00d8991b0f9b1c05d5a4167 Mon Sep 17 00:00:00 2001
+From: Fredrik Foss-Indrehus <fredrik@ffoss.net>
+Date: Sat, 28 Mar 2026 20:21:24 +0100
+Subject: [PATCH 13/33] Fix x86 stack alignment in custom entry point
+
+Add the force_align_arg_pointer attribute to the GTKNoCSDMain entry
+point to automatically realign the stack on x86 architectures.
+
+Because GTKNoCSDMain acts as a custom ELF entry point, the standard C
+runtime startup is bypassed. This leaves the stack pointer unaligned on
+entry, which violates the System V AMD64 ABI 16-byte alignment
+requirement and causes segmentation faults when called C library
+functions execute SIMD instructions.
+
+See:
+https://gitlab.com/x86-psABIs/x86-64-ABI/-/jobs/9388606854/artifacts/raw/x86-64-ABI/abi.pdf#subsection.3.2.2
+https://gcc.gnu.org/onlinedocs/gcc/x86-Attributes.html#index-force_005falign_005farg_005fpointer_002c-x86
+
+Signed-off-by: Fredrik Foss-Indrehus <fredrik@ffoss.net>
+---
+ Source/GTK-NoCSD.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index 5d2d174..b80b2bd 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -138,7 +138,13 @@ void GTKNoCSDExit(void) {
+ 	}
+ }
+ 
++// Requires stack realignment because bypassing the C runtime startup leaves
++// the stack unaligned, violating the System V AMD64 ABI.
++#if defined(__i386__) || defined(__x86_64__)
++__attribute__((visibility("default"), force_align_arg_pointer))
++#else
+ __attribute__((visibility("default")))
++#endif
+ void GTKNoCSDMain(void) {
+ 	// This runs when the library is started as an executable
+ 
+
+From d8516454a589049f6d39ced41ab45249389262b2 Mon Sep 17 00:00:00 2001
+From: Fredrik Foss-Indrehus <fredrik@ffoss.net>
+Date: Sat, 28 Mar 2026 20:28:30 +0100
+Subject: [PATCH 14/33] Fix crash handler execution and restart logic on musl
+
+Strip LD_PRELOAD from the child environment right before executing the
+dynamic linker. Inheriting this variable caused musl to attempt to
+preload the library into itself during the crash handler startup,
+resulting in a crash.
+
+Manually initialize arguments in the custom entry point (GTKNoCSDMain).
+Because jumping straight to a custom entry point bypasses standard C
+runtime initialization, musl skips functions marked with
+__attribute__((constructor)). This left the argument parsing
+uninitialized, which broke the restart mechanism. Basically,
+libc_start_init() in __libc_start_main.c is never called.
+
+Finally, add a check to ensure the application restart sequence aborts
+safely if argument initialization fails, preventing execve from
+receiving a NULL pointer.
+
+Signed-off-by: Fredrik Foss-Indrehus <fredrik@ffoss.net>
+---
+ Source/GTK-NoCSD.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index b80b2bd..a5478dd 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -148,6 +148,11 @@ __attribute__((visibility("default")))
+ void GTKNoCSDMain(void) {
+ 	// This runs when the library is started as an executable
+ 
++	// Musl does not run constructors for custom entry points
++	if (GTKNoCSDArguments == NULL) {
++		GTKNoCSDSaveArguments();
++	}
++
+ 	// Unset library for next start, in case of crash
+ 	setenv("LD_PRELOAD", "", 1);
+ 
+@@ -170,7 +175,7 @@ void GTKNoCSDMain(void) {
+ 	}
+ 
+ 	// Restart if needed, leave
+-	if (Restart) {
++	if (Restart && GTKNoCSDArguments != NULL && GTKNoCSDArgumentNumber > 0) {
+ 		printf("GTK-NoCSD: Crash detected, restarting without library.\n");
+ 
+ 		// For some reason Hurd ld does not include ld library name and --
+@@ -1627,6 +1632,9 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 							}
+ 						}
+ 
++						// Prevent ld-musl from preloading the library into itself
++						GTKNoCSDUnsetLDPreload();
++
+ 						// Start crash handler
+ 						execve(GTKNoCSDLD, NewArguments, environ);
+ 
+
+From 0ce7609bcb6fe453f1521cbc9c5c120716399063 Mon Sep 17 00:00:00 2001
+From: MorsMortium <morsmortium@disroot.org>
+Date: Sat, 28 Mar 2026 21:35:01 +0100
+Subject: [PATCH 15/33] Revert spammy o_gtk_check_version change, formatting
+
+---
+ Source/GTK-NoCSD.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index a5478dd..a53110e 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -636,8 +636,8 @@ static int GTKNoCSDGetLinkedLibraries(struct dl_phdr_info *Information,
+ 
+ 		// Used for starting the crash handler. Finds the dynamic linker across
+ 		// glibc, musl, and Hurd. If found and GTK version is known, leave
+-		if (GTKNoCSDLD == NULL && strstr(Information->dlpi_name, "/ld-") != NULL &&
+-				strstr(Information->dlpi_name, ".so.") != NULL) {
++		if (GTKNoCSDLD == NULL && strstr(Information->dlpi_name, "/ld-") != NULL
++			&& strstr(Information->dlpi_name, ".so.") != NULL) {
+ 			GTKNoCSDLD = strdup(Information->dlpi_name);
+ 		}
+ 
+@@ -669,7 +669,7 @@ void GTKNoCSDGetReferences(bool GetTypes) {
+ 	}
+ 
+ 	// Get used GTK version
+-	LOAD_SYMBOL(RTLD_NEXT, gtk_check_version);
++	*(void **) (&o_gtk_check_version) = dlsym(RTLD_NEXT, "gtk_check_version");
+ 	if (o_gtk_check_version != NULL) {
+ 		if (o_gtk_check_version(2, 0, 0) == NULL) {
+ 			GTKNoCSDNewGTKVersion = 2;
+@@ -1632,7 +1632,7 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 							}
+ 						}
+ 
+-						// Prevent ld-musl from preloading the library into itself
++						// Stop ld-musl from preloading the library into itself
+ 						GTKNoCSDUnsetLDPreload();
+ 
+ 						// Start crash handler
+
+From 8cd6db74bc9b20d31e433b2e4a6ec05f9a402832 Mon Sep 17 00:00:00 2001
+From: MorsMortium <morsmortium@disroot.org>
+Date: Sun, 29 Mar 2026 00:18:08 +0100
+Subject: [PATCH 16/33] Only hide custom title buttons, make vertical into grid
+
+Fixes Dconf Editor crashing on Void Linux
+Fixes Dconf Editor header widget expanding
+---
+ Source/GTK-NoCSD.c | 80 ++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 56 insertions(+), 24 deletions(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index a53110e..7ed9a6f 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -410,7 +410,6 @@ gboolean (*o_gdk_event_get_root_coords) (const GdkEvent *, gdouble *,
+ 	gdouble *) = NULL;
+ gboolean (*o_gtk_builder_add_from_string) (GtkBuilder *, const gchar *, gssize,
+ 	GError **) = NULL;
+-void (*o_gtk_widget_destroy) (GtkWidget *) = NULL;
+ gboolean (*o_g_module_symbol) (GModule *, const gchar *, gpointer *) = NULL;
+ void (*o_hdy_header_bar_set_decoration_layout) (GtkWidget *,
+ 	const gchar *) = NULL;
+@@ -434,6 +433,7 @@ const char *(*o_gtk_check_version) (guint, guint, guint) = NULL;
+ void (*o_gtk_widget_unparent) (GtkWidget *) = NULL;
+ void (*o_gtk_box_append) (GtkBox *, GtkWidget *) = NULL;
+ void (*o_gtk_widget_set_vexpand) (GtkWidget *, gboolean) = NULL;
++void (*o_gtk_widget_set_hexpand) (GtkWidget *, gboolean) = NULL;
+ GtkWidget *(*o_gtk_widget_get_ancestor) (GtkWidget *, GType) = NULL;
+ GtkWidget *(*o_gtk_revealer_new) (void) = NULL;
+ void (*o_gtk_revealer_set_transition_duration) (GtkRevealer *, guint) = NULL;
+@@ -511,6 +511,8 @@ GType (*o_g_type_register_static_simple) (GType, const gchar *, guint,
+ 	GClassInitFunc, guint, GInstanceInitFunc, GTypeFlags) = NULL;
+ typedef void (*GtkCallback)(GtkWidget *widget, gpointer data);
+ void (*o_gtk_container_forall) (GtkWidget *, GtkCallback, gpointer) = NULL;
++void (*o_gtk_widget_set_no_show_all) (GtkWidget *, gboolean) = NULL;
++void (*o_gtk_grid_attach) (GtkGrid *, GtkWidget *, int, int, int, int) = NULL;
+ 
+ // This is needed by an unavoidable GTK macro for type registration
+ GType gtk_widget_get_type(void);
+@@ -748,7 +750,6 @@ void GTKNoCSDGetReferences(bool GetTypes) {
+ 			LOAD_SYMBOL(Library, gtk_event_box_new);
+ 			LOAD_SYMBOL(Library, gtk_window_get_type_hint);
+ 			LOAD_SYMBOL(Library, gdk_event_get_root_coords);
+-			LOAD_SYMBOL(Library, gtk_widget_destroy);
+ 			LOAD_SYMBOL(Library, gtk_widget_reparent);
+ 			LOAD_SYMBOL(Library, gdk_window_get_geometry);
+ 			LOAD_SYMBOL(Library, gdk_window_get_user_data);
+@@ -770,6 +771,7 @@ void GTKNoCSDGetReferences(bool GetTypes) {
+ 			LOAD_SYMBOL(Library, gtk_window_get_application);
+ 			LOAD_SYMBOL(Library, gtk_widget_unparent);
+ 			LOAD_SYMBOL(Library, gtk_widget_set_vexpand);
++			LOAD_SYMBOL(Library, gtk_widget_set_hexpand);
+ 			LOAD_SYMBOL(Library, gtk_widget_get_ancestor);
+ 			LOAD_SYMBOL(Library, gtk_revealer_new);
+ 			LOAD_SYMBOL(Library, gtk_revealer_set_transition_duration);
+@@ -793,6 +795,7 @@ void GTKNoCSDGetReferences(bool GetTypes) {
+ 			LOAD_SYMBOL(Library, gtk_widget_get_mapped);
+ 			LOAD_SYMBOL(Library, gtk_widget_insert_action_group);
+ 			LOAD_SYMBOL(Library, gtk_widget_unrealize);
++			LOAD_SYMBOL(Library, gtk_grid_attach);
+ 		}
+ 
+ 		if (GTKNoCSDGTKVersion == 4) {
+@@ -860,6 +863,7 @@ void GTKNoCSDGetReferences(bool GetTypes) {
+ 			LOAD_SYMBOL(Library, gtk_toggle_button_get_type);
+ 			LOAD_SYMBOL(Library, gtk_image_get_type);
+ 			LOAD_SYMBOL(Library, gtk_container_forall);
++			LOAD_SYMBOL(Library, gtk_widget_set_no_show_all);
+ 
+ 			Library = GTKNoCSDGetLibrary("libhandy-1.so.0", false);
+ 			if (Library == NULL) {
+@@ -1157,6 +1161,26 @@ void GTKNoCSDGtkBoxAdd(GtkWidget *Box, GtkWidget *Widget) {
+ 	}
+ }
+ 
++void GTKNoCSDForceInvisible(GtkWidget *Widget, G_GNUC_UNUSED GParamSpec *Spec,
++	G_GNUC_UNUSED gpointer Data) {
++	// No show all does not always help, if visibility is set manually. It is
++	// forced off here
++
++	o_gtk_widget_set_visible(Widget, false);
++	o_gtk_widget_set_no_show_all(Widget, true);
++}
++
++void GTKNoCSDGTK3SetForceInvisible(GtkWidget *Widget) {
++	// Add function to force off visibility, call it once for initial set up
++
++	if (!g_signal_handler_find(Widget, G_SIGNAL_MATCH_FUNC,
++		0, 0, NULL, G_CALLBACK(GTKNoCSDForceInvisible), NULL)) {
++		g_signal_connect(Widget, "notify::visible",
++			G_CALLBACK(GTKNoCSDForceInvisible), NULL);
++	}
++	GTKNoCSDForceInvisible(Widget, NULL, NULL);
++}
++
+ bool GTKNoCSDGetGTK3Headers(GtkWidget *Container) {
+ 	// Removing extra close buttons added by certain applications
+ 
+@@ -1186,7 +1210,7 @@ bool GTKNoCSDGetGTK3Headers(GtkWidget *Container) {
+ 
+ 	GtkStyleContext *Context = o_gtk_widget_get_style_context(Container);
+ 	if (o_gtk_style_context_has_class(Context, "titlebutton")) {
+-		o_gtk_widget_destroy(Container);
++		GTKNoCSDGTK3SetForceInvisible(Container);
+ 		return true;
+ 	}
+ 
+@@ -1196,21 +1220,21 @@ bool GTKNoCSDGetGTK3Headers(GtkWidget *Container) {
+ 	}
+ 
+ 	// Go through all children, count all and removed number of them
+-	int Amount = 0, Destroyed = 0;
++	int Amount = 0, Hidden = 0;
+ 	GList *Children = o_gtk_container_get_children(Container);
+ 	for (GList *Iter = Children; Iter != NULL; Iter = Iter->next) {
+ 		GtkWidget *Child = (GtkWidget *) Iter->data;
+ 
+ 		// Go through all children of child too
+ 		if (GTKNoCSDGetGTK3Headers(Child)) {
+-			o_gtk_widget_destroy(Child);
+-			++Destroyed;
++			GTKNoCSDGTK3SetForceInvisible(Child);
++			++Hidden;
+ 		} else {
+ 			// If close button, remove
+ 			Context = o_gtk_widget_get_style_context(Child);
+ 			if (o_gtk_style_context_has_class(Context, "titlebutton")) {
+-				o_gtk_widget_destroy(Child);
+-				++Destroyed;
++				GTKNoCSDGTK3SetForceInvisible(Child);
++				++Hidden;
+ 			}
+ 		}
+ 
+@@ -1219,8 +1243,8 @@ bool GTKNoCSDGetGTK3Headers(GtkWidget *Container) {
+ 	g_list_free(Children);
+ 
+ 	// If all widgets got removed, remove the container too (title button)
+-	if (Amount == Destroyed && Amount != 0) {
+-		o_gtk_widget_destroy(Container);
++	if (Amount == Hidden && Amount != 0) {
++		GTKNoCSDGTK3SetForceInvisible(Container);
+ 		return true;
+ 	}
+ 
+@@ -2022,14 +2046,18 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 	}
+ 
+ 	// Create own vertical container
+-	GtkWidget *Vertical = o_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
++	GtkWidget *Vertical = o_gtk_grid_new();
+ 	o_gtk_widget_set_name(Vertical, "GTKNoCSD");
+ 
+ 	// Have 2 boxes at all times to contain the header and the content
+ 	GtkWidget *HeaderBox = o_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+ 	GtkWidget *ContentBox = o_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+-	GTKNoCSDGtkBoxAdd(Vertical, HeaderBox);
+-	GTKNoCSDGtkBoxAdd(Vertical, ContentBox);
++	o_gtk_grid_attach((GtkGrid *) Vertical, HeaderBox, 0, 0, 1, 1);
++	o_gtk_grid_attach((GtkGrid *) Vertical, ContentBox, 0, 1, 1, 10000);
++
++	// Grid has no order guarantee, these GObject properties are used instead
++	g_object_set_data(G_OBJECT(Vertical), "HeaderBox", HeaderBox);
++	g_object_set_data(G_OBJECT(Vertical), "ContentBox", ContentBox);
+ 
+ 	// Name for easy identification when going up widget tree
+ 	o_gtk_widget_set_name(ContentBox, "GTKNoCSDContentBox");
+@@ -2039,6 +2067,7 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 		g_object_ref(WindowChild);
+ 		GTKNoCSDWindowSetChild(Window, NULL);
+ 		o_gtk_widget_set_vexpand(WindowChild, TRUE);
++		o_gtk_widget_set_hexpand(WindowChild, TRUE);
+ 		GTKNoCSDGtkBoxAdd(ContentBox, WindowChild);
+ 		g_object_unref(WindowChild);
+ 	}
+@@ -2116,7 +2145,8 @@ GtkWidget *GTKNoCSDGTK4Content(GtkWidget *Child) {
+ 
+ 	if (GTKNoCSDTest(Child)) {
+ 		// ContentBox, real child
+-		return o_gtk_widget_get_last_child(o_gtk_widget_get_last_child(Child));
++		return o_gtk_widget_get_last_child(g_object_get_data(G_OBJECT(Child),
++				   "ContentBox"));
+ 	}
+ 
+ 	return Child;
+@@ -2183,9 +2213,8 @@ void gtk_container_add(GtkWidget *Container, GtkWidget *Widget) {
+ 		if (Window == Container) {
+ 			GtkWidget *WindowChild = GTKNoCSDFirstChild(Window);
+ 			if (GTKNoCSDTest(WindowChild)) {
+-				GList *Children = o_gtk_container_get_children(WindowChild);
+-				GtkWidget *ContentBox = g_list_nth_data(Children, 1);
+-				g_list_free(Children);
++				GtkWidget *ContentBox = g_object_get_data(G_OBJECT(WindowChild),
++						"ContentBox");
+ 
+ 				// Remove existing child if present
+ 				GtkWidget *OldContent = GTKNoCSDFirstChild(ContentBox);
+@@ -2195,6 +2224,7 @@ void gtk_container_add(GtkWidget *Container, GtkWidget *Widget) {
+ 
+ 				o_gtk_container_add(ContentBox, Widget);
+ 				o_gtk_widget_set_vexpand(Widget, TRUE);
++				o_gtk_widget_set_hexpand(Widget, TRUE);
+ 			} else {
+ 				o_gtk_container_add(Container, Widget);
+ 				GTKNoCSDMagic((GtkWindow *) Window);
+@@ -2221,17 +2251,17 @@ void gtk_window_set_child(GtkWindow *Window, GtkWidget *Child) {
+ 
+ 	GtkWidget *WindowChild = o_gtk_window_get_child(Window);
+ 	if (GTKNoCSDTest(WindowChild)) {
+-		// ContentBox
+-		GtkWidget *Box = o_gtk_widget_get_last_child(WindowChild);
+-
+ 		// Remove existing child if present
+-		GtkWidget *OldContent = o_gtk_widget_get_last_child(Box);
++		GtkWidget *ContentBox = g_object_get_data(G_OBJECT(WindowChild),
++				"ContentBox");
++		GtkWidget *OldContent = o_gtk_widget_get_last_child(ContentBox);
+ 		if (OldContent != NULL) {
+ 			o_gtk_widget_unparent(OldContent);
+ 		}
+ 
+-		o_gtk_box_append((GtkBox *) Box, Child);
++		o_gtk_box_append((GtkBox *) ContentBox, Child);
+ 		o_gtk_widget_set_vexpand(Child, TRUE);
++		o_gtk_widget_set_hexpand(Child, TRUE);
+ 		return;
+ 	}
+ 
+@@ -2282,7 +2312,8 @@ GtkWidget *gtk_window_get_titlebar(GtkWindow *Window) {
+ 
+ 	GtkWidget *WindowChild = GTKNoCSDWindowGetChild(Window);
+ 	if (GTKNoCSDTest(WindowChild)) {
+-		GtkWidget *Box = GTKNoCSDFirstChild(GTKNoCSDFirstChild(WindowChild));
++		GtkWidget *Box = GTKNoCSDFirstChild(
++			g_object_get_data(G_OBJECT(WindowChild), "HeaderBox"));
+ 
+ 		// GTK3 has an extra GtkEventBox for drag/right click
+ 		if (GTKNoCSDGTKVersion == 3) {
+@@ -2312,7 +2343,8 @@ void gtk_window_set_titlebar(GtkWindow *Window, GtkWidget *Header) {
+ 	GTKNoCSDMagic(Window);
+ 	GtkWidget *WindowChild = GTKNoCSDWindowGetChild(Window);
+ 	if (GTKNoCSDTest(WindowChild)) {
+-		GtkWidget *Box = GTKNoCSDFirstChild(GTKNoCSDFirstChild(WindowChild));
++		GtkWidget *Box = GTKNoCSDFirstChild(
++			g_object_get_data(G_OBJECT(WindowChild), "HeaderBox"));
+ 
+ 		// GTK3 has an extra GtkEventBox for drag/right click
+ 		if (GTKNoCSDGTKVersion == 3) {
+
+From 0dadd0786d793433c94f84f1e699027196c65ff1 Mon Sep 17 00:00:00 2001
+From: MorsMortium <morsmortium@disroot.org>
+Date: Sun, 29 Mar 2026 01:54:20 +0100
+Subject: [PATCH 17/33] Package links
+
+---
+ README.md | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/README.md b/README.md
+index 73946b8..2427d84 100644
+--- a/README.md
++++ b/README.md
+@@ -61,7 +61,8 @@ gcc -fPIC -shared ./Source/GTK-NoCSD.c -o libgtk-nocsd.so.0 \
+ 
+ ## Packaging
+ 
+-You are free to package it yourself or ask distribution packagers to do it.
++You are free to package it yourself or ask distribution packagers to do it.  
++Warning: Debian and distributions based on it do not have the /opt link, for flatpak you have to copy it or make a hard link to it.  
+ 
+ ### AUR
+ 
+@@ -83,6 +84,18 @@ sudo dnf upgrade
+ sudo dnf install gtk-nocsd
+ ```
+ 
++### Debian
++
++https://packages.debian.org/search?keywords=libgtk-nocsd0  
++
++### Ubuntu
++
++https://packages.ubuntu.com/search?keywords=libgtk-nocsd0  
++
++### Kali Linux
++
++https://pkg.kali.org/pkg/gtk-nocsd  
++
+ ## Usage
+ 
+ Here the naming was written for a file named libgtk-nocsd.so, available in the packages.  
+
+From 8f445c5bad5a423815b2af8b34025506bc28769d Mon Sep 17 00:00:00 2001
+From: MorsMortium <morsmortium@disroot.org>
+Date: Sun, 29 Mar 2026 19:22:27 +0200
+Subject: [PATCH 18/33] Also enforce LibHandy color scheme
+
+---
+ Source/GTK-NoCSD.c | 20 +++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index 7ed9a6f..f210e4b 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -513,6 +513,9 @@ typedef void (*GtkCallback)(GtkWidget *widget, gpointer data);
+ void (*o_gtk_container_forall) (GtkWidget *, GtkCallback, gpointer) = NULL;
+ void (*o_gtk_widget_set_no_show_all) (GtkWidget *, gboolean) = NULL;
+ void (*o_gtk_grid_attach) (GtkGrid *, GtkWidget *, int, int, int, int) = NULL;
++void (*o_hdy_style_manager_set_color_scheme) (AdwStyleManager *,
++	AdwColorScheme) = NULL;
++AdwStyleManager * (*o_hdy_style_manager_get_default) (void) = NULL;
+ 
+ // This is needed by an unavoidable GTK macro for type registration
+ GType gtk_widget_get_type(void);
+@@ -877,6 +880,8 @@ void GTKNoCSDGetReferences(bool GetTypes) {
+ 				LOAD_SYMBOL(Library, hdy_header_bar_set_decoration_layout);
+ 				LOAD_SYMBOL(Library, hdy_header_bar_get_custom_title);
+ 				LOAD_SYMBOL(Library, hdy_header_bar_set_custom_title);
++				LOAD_SYMBOL(Library, hdy_style_manager_get_default);
++				LOAD_SYMBOL(Library, hdy_style_manager_set_color_scheme);
+ 			}
+ 		}
+ 	}
+@@ -1714,17 +1719,26 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 
+ 					// Get dark preference
+ 					bool Dark = strcmp(Colon + 1, "dark") == 0;
++					AdwColorScheme Scheme = ADW_COLOR_SCHEME_FORCE_LIGHT;
++					Scheme = Dark ? ADW_COLOR_SCHEME_FORCE_DARK : Scheme;
+ 
+-					// Enforce LibAdwaita color scheme as well
++					// Enforce LibAdwaita color scheme
+ 					if (o_adw_style_manager_get_default != NULL &&
+ 						o_adw_style_manager_set_color_scheme != NULL) {
+ 						AdwStyleManager *Manager =
+ 							o_adw_style_manager_get_default();
+-						AdwColorScheme Scheme = ADW_COLOR_SCHEME_FORCE_LIGHT;
+-						Scheme = Dark ? ADW_COLOR_SCHEME_FORCE_DARK : Scheme;
+ 						o_adw_style_manager_set_color_scheme(Manager, Scheme);
+ 					}
+ 
++					// Enforce LibHandy color scheme
++					// LibAdwaita types for simplicity
++					if (o_hdy_style_manager_get_default != NULL &&
++						o_hdy_style_manager_set_color_scheme != NULL) {
++						AdwStyleManager *Manager =
++							o_hdy_style_manager_get_default();
++						o_hdy_style_manager_set_color_scheme(Manager, Scheme);
++					}
++
+ 					// Set dark preference
+ 					g_object_set(Settings, "gtk-application-prefer-dark-theme",
+ 						Dark, NULL);
+
+From 832de70eb0c8fd14e01e29a2c8fa2892aaae2998 Mon Sep 17 00:00:00 2001
+From: MorsMortium <morsmortium@disroot.org>
+Date: Tue, 31 Mar 2026 05:54:08 +0200
+Subject: [PATCH 19/33] Only redisplay contents of not yet mapped windows
+
+Fixes ROXTerm losing focus
+---
+ Source/GTK-NoCSD.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index f210e4b..3eedd17 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -2168,6 +2168,7 @@ GtkWidget *GTKNoCSDGTK4Content(GtkWidget *Child) {
+ 
+ gboolean GTKNoCSDRedisplayContent(gpointer Data) {
+ 	// Display the content of the window again
++
+ 	GtkWidget *Child = GTKNoCSDWindowGetChild((GtkWindow *) Data);
+ 	if (Child != NULL) {
+ 		o_gtk_widget_set_visible(Child, false);
+@@ -2186,8 +2187,10 @@ void gtk_window_present(GtkWindow *Window) {
+ 	// Only present window on successful run, unless in GTK2
+ 	if (2 < GTKNoCSDGTKVersion) {
+ 		if (GTKNoCSDMagic(Window)) {
++			if (!o_gtk_widget_get_mapped((GtkWidget *) Window)) {
++				g_idle_add(GTKNoCSDRedisplayContent, Window);
++			}
+ 			o_gtk_window_present(Window);
+-			g_idle_add(GTKNoCSDRedisplayContent, Window);
+ 		}
+ 		return;
+ 	}
+
+From 8bfd853bdaac4f9c4286962eb7b688f3ac224369 Mon Sep 17 00:00:00 2001
+From: Helmut Grohne <helmut@subdivi.de>
+Date: Fri, 27 Mar 2026 17:28:26 +0100
+Subject: [PATCH 20/33] Fix cross building in Debian
+
+https://bugs.debian.org/1132430
+---
+ Makefile | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 84a3729..1f47d4a 100644
+--- a/Makefile
++++ b/Makefile
+@@ -29,10 +29,11 @@ DOCDIR ?= $(PREFIX)/share/doc/gtk-nocsd
+ 
+ # Compilation
+ CC ?= cc
+-CFLAGS += `pkg-config --cflags libadwaita-1 gobject-2.0 gio-2.0` -Wall -Wextra \
++PKG_CONFIG ?= pkg-config
++CFLAGS += `$(PKG_CONFIG) --cflags libadwaita-1 gobject-2.0 gio-2.0` -Wall -Wextra \
+ 	-Wconversion -Wstrict-prototypes
+ ifndef NOLDFLAGS
+-	LDFLAGS += `pkg-config --libs gobject-2.0 gio-2.0`
++	LDFLAGS += `$(PKG_CONFIG) --libs gobject-2.0 gio-2.0`
+ else
+ 	LDFLAGS =
+ endif
+
+From 2642031cb2da85273c4f9c5a105cec777e4bd73b Mon Sep 17 00:00:00 2001
+From: MorsMortium <morsmortium@disroot.org>
+Date: Thu, 2 Apr 2026 15:44:09 +0200
+Subject: [PATCH 21/33] Multiple changes
+
+Transfer LibAdwaita windows as regular GTK3/4 windows.
+This comes with multiple advantages:
+- Less code
+- Fixes wayland wms that do not support KDE decoration protocol (even less code)
+- Fortifies unsetting the CSD as the size_allocate checks succeed now
+
+Fix GTK3 about dialogs forever existing in the background if closed with the in app close button.
+---
+ Source/GTK-NoCSD.c | 60 +++++++++++++++-------------------------------
+ 1 file changed, 19 insertions(+), 41 deletions(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index 3eedd17..148cf1e 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -484,7 +484,6 @@ void (*o_adw_dialog_set_content_height) (AdwDialog *, int) = NULL;
+ void (*o_adw_dialog_set_content_width) (AdwDialog *, int) = NULL;
+ gulong (*o_g_signal_connect_object) (gpointer, const gchar *, GCallback,
+ 	gpointer, GConnectFlags) = NULL;
+-GtkLayoutManager * (*o_gtk_bin_layout_new) (void) = NULL;
+ AdwDialog * (*o_adw_application_window_get_visible_dialog) (
+ 	AdwApplicationWindow *) = NULL;
+ AdwDialog * (*o_adw_window_get_visible_dialog) (AdwWindow *) = NULL;
+@@ -516,6 +515,7 @@ void (*o_gtk_grid_attach) (GtkGrid *, GtkWidget *, int, int, int, int) = NULL;
+ void (*o_hdy_style_manager_set_color_scheme) (AdwStyleManager *,
+ 	AdwColorScheme) = NULL;
+ AdwStyleManager * (*o_hdy_style_manager_get_default) (void) = NULL;
++void (*o_gtk_widget_destroy) (GtkWidget *) = NULL;
+ 
+ // This is needed by an unavoidable GTK macro for type registration
+ GType gtk_widget_get_type(void);
+@@ -819,7 +819,6 @@ void GTKNoCSDGetReferences(bool GetTypes) {
+ 			LOAD_SYMBOL(Library, gtk_widget_allocate);
+ 			LOAD_SYMBOL(Library, gtk_box_remove);
+ 			LOAD_SYMBOL(Library, gtk_window_set_hide_on_close);
+-			LOAD_SYMBOL(Library, gtk_bin_layout_new);
+ 			LOAD_SYMBOL(Library, gtk_widget_get_width);
+ 			LOAD_SYMBOL(Library, gtk_widget_get_height);
+ 			LOAD_SYMBOL(Library, gtk_window_set_resizable);
+@@ -867,6 +866,7 @@ void GTKNoCSDGetReferences(bool GetTypes) {
+ 			LOAD_SYMBOL(Library, gtk_image_get_type);
+ 			LOAD_SYMBOL(Library, gtk_container_forall);
+ 			LOAD_SYMBOL(Library, gtk_widget_set_no_show_all);
++			LOAD_SYMBOL(Library, gtk_widget_destroy);
+ 
+ 			Library = GTKNoCSDGetLibrary("libhandy-1.so.0", false);
+ 			if (Library == NULL) {
+@@ -1920,6 +1920,8 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 			G_CALLBACK(GTKNoCSDApplicationChanged), NULL);
+ 	}
+ 
++	GtkWidget *Header = o_gtk_window_get_titlebar(Window);
++
+ 	// LibAdwaita and LibHandy windows need special treatment
+ 	if (GTKNoCSDAdwApplicatonWindow(G_OBJECT(Window)) ||
+ 		GTKNoCSDAdwWindow(G_OBJECT(Window)) ||
+@@ -1927,9 +1929,8 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 		GTKNoCSDHdyWindow(G_OBJECT(Window))) {
+ 		// If LibAdwaita or LibHandy window
+ 
+-		// Get titlebar, if not found, come back later
+-		GtkWidget *TitleBar = o_gtk_window_get_titlebar(Window);
+-		if (TitleBar == NULL) {
++		// If header not found, come back later
++		if (Header == NULL) {
+ 			// Remove window from list of windows done
+ 			int Index = 0;
+ 			while (GTKNoCSDWindowList[Index] != NULL) {
+@@ -1944,31 +1945,25 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 
+ 		// Hide the title widget, if it is not a special control. It might be
+ 		// added later so we check then
+-		if (GTKNoCSDGTKVersion == 4) {
+-			// Adding this layout manager prevents GTK from calling
+-			// size_allocate virtual function
+-			GtkLayoutManager *Layout = o_gtk_bin_layout_new();
+-			o_gtk_widget_set_layout_manager((GtkWidget *) Window, Layout);
+-			g_timeout_add(1, GTKNoCSDSetGTK4Headers, Window);
+-		} else {
++		g_timeout_add(1, GTKNoCSDGTKVersion == 4 ?
++			GTKNoCSDSetGTK4Headers : GTKNoCSDSetGTK3Headers, Window);
++
++		if (GTKNoCSDGTKVersion == 3) {
+ 			// Disable LibHandy errors about drawing not existing headerbar
+ 			g_log_set_handler("Gtk", G_LOG_LEVEL_CRITICAL,
+ 				GTKNoCSDIgnoreHDYError, NULL);
+-			g_timeout_add(1, GTKNoCSDSetGTK3Headers, Window);
+-		}
+ 
+-		// Unset titlebar
+-		o_gtk_window_set_titlebar(Window, NULL);
+-		return true;
++			// Unset titlebar
++			o_gtk_window_set_titlebar(Window, NULL);
++			return true;
++		}
+ 	}
+ 
+-	// Regular GTK3/GTK4 also needs to rearrange widgets
++	// GTK3/GTK4 and LibAdwaita also need to rearrange widgets
+ 
+ 	// Get top child of window
+ 	GtkWidget *WindowChild = GTKNoCSDWindowGetChild(Window);
+ 
+-	GtkWidget *Header = o_gtk_window_get_titlebar(Window);
+-
+ 	if (GTKNoCSDGtkShortcutsWindow(G_OBJECT(Window))) {
+ 		// This window was already dealt with
+ 		if (strcmp(o_gtk_widget_get_name((GtkWidget *) Window),
+@@ -2151,7 +2146,7 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 
+ void GTKNoCSDAboutClose(GtkWidget *Dialog) {
+ 	// Close About window when close button is clicked in GTK3
+-	o_gtk_widget_set_visible(Dialog, false);
++	o_gtk_widget_destroy(Dialog);
+ }
+ 
+ GtkWidget *GTKNoCSDGTK4Content(GtkWidget *Child) {
+@@ -2747,22 +2742,8 @@ gboolean gtk_window_get_decorated(GtkWindow *Window) {
+ }
+ 
+ gboolean GTKNoCSDHeaderBarParentFinalize(gpointer Data) {
+-	// Finish what GTKNoCSDHeaderBarParent started
+-
+-	GtkWidget *Parent = o_gtk_widget_get_parent((GtkWidget *) Data);
+-	if (GTKNoCSDAdwApplicatonWindow(G_OBJECT(Parent)) ||
+-		GTKNoCSDAdwWindow(G_OBJECT(Parent))) {
+-		// LibAdwaita applications do something else and they need to be
+-		// redisplayed. This might cause a flicker
+-		o_gtk_widget_unrealize(Parent);
+-		o_gtk_widget_set_visible(Parent, false);
+-		o_gtk_widget_set_visible(Parent, true);
+-	} else {
+-		// Hide the widget
+-		o_gtk_widget_set_child_visible((GtkWidget *) Data, false);
+-		o_gtk_widget_set_visible((GtkWidget *) Data, false);
+-	}
+-
++	// Finish what GTKNoCSDHeaderBarParent started, hide the widget
++	o_gtk_widget_set_visible((GtkWidget *) Data, false);
+ 	return FALSE;
+ }
+ 
+@@ -2777,10 +2758,7 @@ void GTKNoCSDHeaderBarParent(GtkWidget *Widget, G_GNUC_UNUSED GParamSpec *Spec,
+ 	if (Parent != NULL && GTKNoCSDGtkWindow(G_OBJECT(Parent))) {
+ 		GtkStyleContext *Context = o_gtk_widget_get_style_context(Widget);
+ 		if (o_gtk_style_context_has_class(Context, "default-decoration")) {
+-			// Setting it early helps certain applications look better
+-			o_gtk_widget_set_visible(Widget, false);
+-
+-			// Finish it later
++			// Hide it later
+ 			g_idle_add(GTKNoCSDHeaderBarParentFinalize, Widget);
+ 		}
+ 	}
+
+From 1174507fcd7a0f767431dad9a6d774b5b56d88e4 Mon Sep 17 00:00:00 2001
+From: MorsMortium <morsmortium@disroot.org>
+Date: Fri, 3 Apr 2026 12:48:54 +0200
+Subject: [PATCH 22/33] Only set LibAdwaita or LibHandy scheme according to GTK
+ version
+
+---
+ Source/GTK-NoCSD.c | 24 +++++++++++-------------
+ 1 file changed, 11 insertions(+), 13 deletions(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index 148cf1e..a384cfd 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -1722,21 +1722,19 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 					AdwColorScheme Scheme = ADW_COLOR_SCHEME_FORCE_LIGHT;
+ 					Scheme = Dark ? ADW_COLOR_SCHEME_FORCE_DARK : Scheme;
+ 
+-					// Enforce LibAdwaita color scheme
+-					if (o_adw_style_manager_get_default != NULL &&
+-						o_adw_style_manager_set_color_scheme != NULL) {
+-						AdwStyleManager *Manager =
+-							o_adw_style_manager_get_default();
+-						o_adw_style_manager_set_color_scheme(Manager, Scheme);
++					// Get functions for the GTK version
++					AdwStyleManager * (*GetDefault) (void) =
++						o_adw_style_manager_get_default;
++					void (*SetScheme) (AdwStyleManager *, AdwColorScheme) =
++						o_adw_style_manager_set_color_scheme;
++					if (GTKNoCSDGTKVersion == 3) {
++						GetDefault = o_hdy_style_manager_get_default;
++						SetScheme = o_hdy_style_manager_set_color_scheme;
+ 					}
+ 
+-					// Enforce LibHandy color scheme
+-					// LibAdwaita types for simplicity
+-					if (o_hdy_style_manager_get_default != NULL &&
+-						o_hdy_style_manager_set_color_scheme != NULL) {
+-						AdwStyleManager *Manager =
+-							o_hdy_style_manager_get_default();
+-						o_hdy_style_manager_set_color_scheme(Manager, Scheme);
++					// Enforce LibAdwaita or LibHandy color scheme
++					if (GetDefault != NULL && SetScheme != NULL) {
++						SetScheme(GetDefault(), Scheme);
+ 					}
+ 
+ 					// Set dark preference
+
+From 18b4d5de799214956b4801f8948f34c8b547cc94 Mon Sep 17 00:00:00 2001
+From: MorsMortium <morsmortium@disroot.org>
+Date: Fri, 3 Apr 2026 23:34:34 +0200
+Subject: [PATCH 23/33] Try to get used platform functions from GModule
+
+Fixes script language programs not built against platform libraries on sandboxed systems.
+Particularly Foliate on NixOS
+---
+ Source/GTK-NoCSD.c | 104 +++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 90 insertions(+), 14 deletions(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index a384cfd..754a0ef 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -654,8 +654,26 @@ static int GTKNoCSDGetLinkedLibraries(struct dl_phdr_info *Information,
+ 	return 0;
+ }
+ 
+-// Whether GTypes have been fetched already
+-bool GTKNoCSDGotTypes = false;
++// Whether GTypes have been fetched already, whether platform library was found
++bool GTKNoCSDGotTypes = false, GTKNoCSDGotPlatform = true;
++
++void GTKNoCSDGetAdwTypes() {
++	// Get all used LibAdwaita types
++
++	GET_TYPE(GTKNoCSDADWWindow, adw_window_get_type);
++	GET_TYPE(GTKNoCSDADWApplicationWindow, adw_application_window_get_type);
++	GET_TYPE(GTKNoCSDADWHeaderBar, adw_header_bar_get_type);
++	GET_TYPE(GTKNoCSDADWDialog, adw_dialog_get_type);
++	GET_TYPE(GTKNoCSDADWWindowTitle, adw_window_title_get_type);
++}
++
++void GTKNoCSDGetHdyTypes() {
++	// Get all used LibHandy types
++
++	GET_TYPE(GTKNoCSDHDYWindow, hdy_window_get_type);
++	GET_TYPE(GTKNoCSDHDYApplicationWindow, hdy_application_window_get_type);
++	GET_TYPE(GTKNoCSDHDYHeaderBar, hdy_header_bar_get_type);
++}
+ 
+ void GTKNoCSDGetReferences(bool GetTypes) {
+ 	// Fetch each needed function
+@@ -825,7 +843,8 @@ void GTKNoCSDGetReferences(bool GetTypes) {
+ 
+ 			Library = GTKNoCSDGetLibrary("libadwaita-1.so.0", false);
+ 			if (Library == NULL) {
+-				printf("GTK-NoCSD: LibAdwaita not found.\n");
++				GTKNoCSDGotPlatform = false;
++				printf("GTK-NoCSD: LibAdwaita not found, will try GModule.\n");
+ 			} else {
+ 				// Only in LibAdwaita
+ 
+@@ -870,7 +889,8 @@ void GTKNoCSDGetReferences(bool GetTypes) {
+ 
+ 			Library = GTKNoCSDGetLibrary("libhandy-1.so.0", false);
+ 			if (Library == NULL) {
+-				printf("GTK-NoCSD: LibHandy not found.\n");
++				GTKNoCSDGotPlatform = false;
++				printf("GTK-NoCSD: LibHandy not found, will try GModule.\n");
+ 			} else {
+ 				// Only in LibHandy
+ 
+@@ -892,27 +912,19 @@ void GTKNoCSDGetReferences(bool GetTypes) {
+ 		GetTypes) {
+ 		// Better to get these once and then reuse
+ 		GET_TYPE(GTKNoCSDGTKWindow, gtk_window_get_type);
+-		GET_TYPE(GTKNoCSDADWWindow, adw_window_get_type);
+-		GET_TYPE(GTKNoCSDHDYWindow, hdy_window_get_type);
+ 		GET_TYPE(GTKNoCSDGTKApplicationWindow,
+ 			gtk_application_window_get_type);
+-		GET_TYPE(GTKNoCSDADWApplicationWindow,
+-			adw_application_window_get_type);
+-		GET_TYPE(GTKNoCSDHDYApplicationWindow,
+-			hdy_application_window_get_type);
+ 		GET_TYPE(GTKNoCSDGTKHeaderBar, gtk_header_bar_get_type);
+-		GET_TYPE(GTKNoCSDADWHeaderBar, adw_header_bar_get_type);
+-		GET_TYPE(GTKNoCSDHDYHeaderBar, hdy_header_bar_get_type);
+ 		GET_TYPE(GTKNoCSDContainer, gtk_container_get_type);
+ 		GET_TYPE(GTKNoCSDGTKShortcutsWindow, gtk_shortcuts_window_get_type);
+ 		GET_TYPE(GTKNoCSDGTKBuilder, gtk_builder_get_type);
+ 		GET_TYPE(GTKNoCSDGTKLabel, gtk_label_get_type);
+ 		GET_TYPE(GTKNoCSDGTKBox, gtk_box_get_type);
+ 		GET_TYPE(GTKNoCSDGTKSearchBar, gtk_search_bar_get_type);
+-		GET_TYPE(GTKNoCSDADWDialog, adw_dialog_get_type);
+ 		GET_TYPE(GTKNoCSDGTKToggleButton, gtk_toggle_button_get_type);
+ 		GET_TYPE(GTKNoCSDGTKImage, gtk_image_get_type);
+-		GET_TYPE(GTKNoCSDADWWindowTitle, adw_window_title_get_type);
++		GTKNoCSDGetAdwTypes();
++		GTKNoCSDGetHdyTypes();
+ 		GTKNoCSDGotTypes = true;
+ 	}
+ }
+@@ -3118,6 +3130,70 @@ gboolean g_module_symbol(GModule *Module, const gchar *Name, gpointer *Symbol) {
+ 
+ 	GTKNoCSDGetReferences(true);
+ 
++	// If platform library was not found but symbols are requested from them,
++	// there is a chance of getting what is used by the library. After this also
++	// get the used types. Used by script languages on sandboxed systems (Nix)
++	if (!GTKNoCSDGotPlatform) {
++		if (GTKNoCSDGTKVersion == 4 && strstr(Name, "adw_") == Name) {
++			o_g_module_symbol(Module, "adw_window_get_type",
++				(gpointer *) &o_adw_window_get_type);
++			o_g_module_symbol(Module, "adw_application_window_get_type",
++				(gpointer *) &o_adw_application_window_get_type);
++			o_g_module_symbol(Module, "adw_header_bar_get_type",
++				(gpointer *) &o_adw_header_bar_get_type);
++			o_g_module_symbol(Module, "adw_header_bar_get_title_widget",
++				(gpointer *) &o_adw_header_bar_get_title_widget);
++			o_g_module_symbol(Module, "adw_dialog_get_type",
++				(gpointer *) &o_adw_dialog_get_type);
++			o_g_module_symbol(Module, "adw_header_bar_set_decoration_layout",
++				(gpointer *) &o_adw_header_bar_set_decoration_layout);
++			o_g_module_symbol(Module, "adw_dialog_present",
++				(gpointer *) &o_adw_dialog_present);
++			o_g_module_symbol(Module, "adw_dialog_set_content_height",
++				(gpointer *) &o_adw_dialog_set_content_height);
++			o_g_module_symbol(Module, "adw_dialog_set_content_width",
++				(gpointer *) &o_adw_dialog_set_content_width);
++			o_g_module_symbol(Module, "adw_window_title_get_type",
++				(gpointer *) &o_adw_window_title_get_type);
++			o_g_module_symbol(Module,
++				"adw_application_window_get_visible_dialog",
++				(gpointer *) &o_adw_application_window_get_visible_dialog);
++			o_g_module_symbol(Module, "adw_window_get_visible_dialog",
++				(gpointer *) &o_adw_window_get_visible_dialog);
++			o_g_module_symbol(Module, "adw_dialog_get_content_width",
++				(gpointer *) &o_adw_dialog_get_content_width);
++			o_g_module_symbol(Module, "adw_dialog_get_content_height",
++				(gpointer *) &o_adw_dialog_get_content_height);
++			o_g_module_symbol(Module, "adw_header_bar_set_title_widget",
++				(gpointer *) &o_adw_header_bar_set_title_widget);
++			o_g_module_symbol(Module, "adw_style_manager_get_default",
++				(gpointer *) &o_adw_style_manager_get_default);
++			o_g_module_symbol(Module, "adw_style_manager_set_color_scheme",
++				(gpointer *) &o_adw_style_manager_set_color_scheme);
++			GTKNoCSDGetAdwTypes();
++			GTKNoCSDGotPlatform = true;
++		} else if (GTKNoCSDGTKVersion == 3 && strstr(Name, "hdy_") == Name) {
++			o_g_module_symbol(Module, "hdy_window_get_type",
++				(gpointer *) &o_hdy_window_get_type);
++			o_g_module_symbol(Module, "hdy_application_window_get_type",
++				(gpointer *) &o_hdy_application_window_get_type);
++			o_g_module_symbol(Module, "hdy_header_bar_get_type",
++				(gpointer *) &o_hdy_header_bar_get_type);
++			o_g_module_symbol(Module, "hdy_header_bar_set_decoration_layout",
++				(gpointer *) &o_hdy_header_bar_set_decoration_layout);
++			o_g_module_symbol(Module, "hdy_header_bar_get_custom_title",
++				(gpointer *) &o_hdy_header_bar_get_custom_title);
++			o_g_module_symbol(Module, "hdy_header_bar_set_custom_title",
++				(gpointer *) &o_hdy_header_bar_set_custom_title);
++			o_g_module_symbol(Module, "hdy_style_manager_get_default",
++				(gpointer *) &o_hdy_style_manager_get_default);
++			o_g_module_symbol(Module, "hdy_style_manager_set_color_scheme",
++				(gpointer *) &o_hdy_style_manager_set_color_scheme);
++			GTKNoCSDGetHdyTypes();
++			GTKNoCSDGotPlatform = true;
++		}
++	}
++
+ 	if (2 < GTKNoCSDGTKVersion) {
+ 		GET_SYMBOL(gtk_window_present);
+ 		GET_SYMBOL(gtk_widget_set_visible);
+
+From 5a15fd29d2d7c18561887a970a2e7e2c698aaf40 Mon Sep 17 00:00:00 2001
+From: MorsMortium <morsmortium@disroot.org>
+Date: Sun, 5 Apr 2026 02:14:54 +0200
+Subject: [PATCH 24/33] Multiple changes
+
+Overwrite dlsym. Adds support to Gir.Core applications
+Do not check not needed widgets in GTK4 headerbar
+---
+ Source/GTK-NoCSD.c | 243 +++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 188 insertions(+), 55 deletions(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index 754a0ef..c05471d 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -189,8 +189,6 @@ void GTKNoCSDMain(void) {
+ 	_exit(0);
+ }
+ 
+-const char *GTKNoCSDTheme = NULL;
+-
+ bool GTKNoCSDLibraryInPath(const char *Path) {
+ 	// Check if path contains GTK or Flutter library, recursively, for AppImage
+ 	struct dirent *Entry;
+@@ -255,6 +253,89 @@ void GTKNoCSDUnsetLDPreload(void) {
+ }
+ 
+ bool GTKNoCSDOnLomiri = false;
++void *(*o_dlsym)(void *, const char *) = NULL;
++char *GTKNoCSDLD = NULL, *GTKNoCSDLibC = NULL, *GTKNoCSDTheme = NULL;
++
++void *GTKNoCSDResolvePointer(ElfW(Addr) Base, ElfW(Addr) Pointer) {
++	// Musl pointers are offsets from base, so they are added to it
++	// GLibC pointers are actual pointers so they are returned as given
++	return Pointer >= Base ? (void *) Pointer : (void *) (Base + Pointer);
++}
++
++int GTKNoCSDGetDLSym(struct dl_phdr_info *Information,
++	G_GNUC_UNUSED size_t Size, G_GNUC_UNUSED void *Data) {
++	// Get dlsym for being able to overwrite it for certain language bindings
++
++	// LibC or LD in case of Musl
++	if (!Information->dlpi_name || strstr(
++			Information->dlpi_name, GTKNoCSDLibC) != Information->dlpi_name) {
++		return 0;
++	}
++
++	// Shorthand
++	ElfW(Addr) Base = Information->dlpi_addr;
++
++	// Get dynamic entries. These contain all library information
++	ElfW(Dyn) * Dynamics = NULL;
++	for (int Index = 0; Index < Information->dlpi_phnum; ++Index) {
++		if (Information->dlpi_phdr[Index].p_type == PT_DYNAMIC) {
++			Dynamics = (ElfW(Dyn) *)(Base +
++					Information->dlpi_phdr[Index].p_vaddr);
++			break;
++		}
++	}
++
++	// SymTab contains symbols, StrTab contains symbol names. Fetch both
++	ElfW(Sym) * SymTab = NULL;
++	const char *StrTab = NULL;
++	for (ElfW(Dyn) * Dynamic = Dynamics; Dynamic->d_tag != DT_NULL; Dynamic++) {
++		if (Dynamic->d_tag == DT_SYMTAB) {
++			SymTab = (ElfW(Sym) *)GTKNoCSDResolvePointer(Base,
++					Dynamic->d_un.d_ptr);
++		} else if (Dynamic->d_tag == DT_STRTAB) {
++			StrTab = (const char *) GTKNoCSDResolvePointer(Base,
++					Dynamic->d_un.d_ptr);
++		}
++	}
++
++	// Getting the actual length does not seem to work. This assumes that it
++	// will be present. If not, either here or somewhere else will be a crash
++	for (size_t Index = 0; Index < 50000; Index++) {
++		if (strcmp(StrTab + SymTab[Index].st_name, "dlsym") == 0) {
++			o_dlsym = (void *) (Base + SymTab[Index].st_value);
++			return 1;
++		}
++	}
++
++	return 0;
++}
++
++int GTKNoCSDGetLDAndLibC(struct dl_phdr_info *Information,
++	G_GNUC_UNUSED size_t Size, G_GNUC_UNUSED void *Data) {
++	// Get LD and LibC libraries for crash handler and getting dlsym
++
++	if (Information->dlpi_name != NULL) {
++		// Used for starting the crash handler. Finds the dynamic linker across
++		// GlibC, musl, and Hurd.
++		if (GTKNoCSDLD == NULL && strstr(Information->dlpi_name, "/ld-") != NULL
++			&& strstr(Information->dlpi_name, ".so.") != NULL) {
++			GTKNoCSDLD = strdup(Information->dlpi_name);
++		}
++
++		// LibC contains dlsym on GlibC
++		if (GTKNoCSDLibC == NULL && strstr(Information->dlpi_name, "/libc.")
++			!= NULL && strstr(Information->dlpi_name, ".so.") != NULL) {
++			GTKNoCSDLibC = strdup(Information->dlpi_name);
++		}
++
++		// If both are found, leave
++		if (GTKNoCSDLD != NULL && GTKNoCSDLibC != NULL) {
++			return 1;
++		}
++	}
++
++	return 0;
++}
+ 
+ __attribute__((constructor))
+ static void GTKNoCSDInit(void) {
+@@ -318,6 +399,10 @@ static void GTKNoCSDInit(void) {
+ 		_exit(0);
+ 	}
+ 
++	dl_iterate_phdr(GTKNoCSDGetLDAndLibC, NULL);
++	GTKNoCSDLibC = GTKNoCSDLibC == NULL ? GTKNoCSDLD : GTKNoCSDLibC;
++	dl_iterate_phdr(GTKNoCSDGetDLSym, NULL);
++
+ 	// In Lomiri transient-for changes have to be delayed
+ 	GTKNoCSDOnLomiri = Desktop != NULL && strstr(Desktop, "Lomiri") != NULL;
+ 
+@@ -613,15 +698,14 @@ void *GTKNoCSDGetLibrary(const char *Name, bool Fatal) {
+ 
+ // Macro for simplifying function getting
+ #define LOAD_SYMBOL(LIBRARY, NAME)										\
+-		*(void **) (&o_ ## NAME) = dlsym(LIBRARY, #NAME);				\
++		*(void **) (&o_ ## NAME) = o_dlsym(LIBRARY, #NAME);				\
+ 		if (o_ ## NAME == NULL) {										\
+ 			fprintf(stderr, "GTK-NoCSD: dlsym failed for %s\n", #NAME);	\
+ 		}																\
+ 
+ int GTKNoCSDNewGTKVersion = -1;
+-char *GTKNoCSDLD = NULL;
+ 
+-static int GTKNoCSDGetLinkedLibraries(struct dl_phdr_info *Information,
++int GTKNoCSDGetLinkedLibraries(struct dl_phdr_info *Information,
+ 	G_GNUC_UNUSED size_t Size, G_GNUC_UNUSED void *Data) {
+ 	// Get which libraries are linked with the application and determine GTK
+ 	// version based on that
+@@ -639,14 +723,7 @@ static int GTKNoCSDGetLinkedLibraries(struct dl_phdr_info *Information,
+ 			}
+ 		}
+ 
+-		// Used for starting the crash handler. Finds the dynamic linker across
+-		// glibc, musl, and Hurd. If found and GTK version is known, leave
+-		if (GTKNoCSDLD == NULL && strstr(Information->dlpi_name, "/ld-") != NULL
+-			&& strstr(Information->dlpi_name, ".so.") != NULL) {
+-			GTKNoCSDLD = strdup(Information->dlpi_name);
+-		}
+-
+-		if (GTKNoCSDLD != NULL && GTKNoCSDNewGTKVersion != -1) {
++		if (GTKNoCSDNewGTKVersion != -1) {
+ 			return 1;
+ 		}
+ 	}
+@@ -692,7 +769,7 @@ void GTKNoCSDGetReferences(bool GetTypes) {
+ 	}
+ 
+ 	// Get used GTK version
+-	*(void **) (&o_gtk_check_version) = dlsym(RTLD_NEXT, "gtk_check_version");
++	*(void **) (&o_gtk_check_version) = o_dlsym(RTLD_NEXT, "gtk_check_version");
+ 	if (o_gtk_check_version != NULL) {
+ 		if (o_gtk_check_version(2, 0, 0) == NULL) {
+ 			GTKNoCSDNewGTKVersion = 2;
+@@ -703,9 +780,8 @@ void GTKNoCSDGetReferences(bool GetTypes) {
+ 		}
+ 	}
+ 
+-	// If gtk_check_version is missing, check linked libraries, plus get crash
+-	// handler starter
+-	if (GTKNoCSDLD == NULL || GTKNoCSDNewGTKVersion == -1) {
++	// If gtk_check_version is missing, check linked libraries
++	if (GTKNoCSDNewGTKVersion == -1) {
+ 		dl_iterate_phdr(GTKNoCSDGetLinkedLibraries, NULL);
+ 	}
+ 
+@@ -2109,7 +2185,15 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 		o_gtk_widget_set_layout_manager(Revealer, NULL);
+ 		o_gtk_box_append((GtkBox *) HeaderBox, Revealer);
+ 		o_gtk_box_append((GtkBox *) Revealer, Header);
+-		g_timeout_add(1, GTKNoCSDSetGTK4Headers, Header);
++
++		// LibAdwaita windows were already checked, AdwGizmo is a placeholder
++		if (!GTKNoCSDAdwApplicatonWindow(G_OBJECT(Window)) &&
++			!GTKNoCSDAdwWindow(G_OBJECT(Window))) {
++			const char *TypeName = g_type_name(G_OBJECT_TYPE(Header));
++			if (strstr(TypeName, "AdwGizmo") != TypeName) {
++				g_timeout_add(1, GTKNoCSDSetGTK4Headers, Header);
++			}
++		}
+ 	} else {
+ 		// GTK3 rearranging
+ 
+@@ -3116,14 +3200,19 @@ GType g_type_register_static_simple(GType Parent, const gchar *Name,
+ 			   InstanceSize, InstanceInit, Flags);
+ }
+ 
+-// Macro for simplifying getting the correct function
+-#define GET_SYMBOL(Function)						  \
++// Macros for simplifying getting the correct function
++#define GET_SYMBOL1(Function)						  \
+ 		if (strcmp(Name, #Function) == 0) {			  \
+ 			typeof(Function) * Pointer = &Function;	  \
+ 			memcpy(Symbol, &Pointer, sizeof Pointer); \
+ 			return true;							  \
+ 		}											  \
+ 
++#define GET_SYMBOL2(Function)				\
++		if (strcmp(Name, #Function) == 0) {	\
++			return Function;				\
++		}									\
++
+ gboolean g_module_symbol(GModule *Module, const gchar *Name, gpointer *Symbol) {
+ 	// Python and other dynamic loading languages use this to load functions.
+ 	// Hook it and overwrite requested functions with ours.
+@@ -3195,46 +3284,90 @@ gboolean g_module_symbol(GModule *Module, const gchar *Name, gpointer *Symbol) {
+ 	}
+ 
+ 	if (2 < GTKNoCSDGTKVersion) {
+-		GET_SYMBOL(gtk_window_present);
+-		GET_SYMBOL(gtk_widget_set_visible);
+-		GET_SYMBOL(gtk_container_add);
+-		GET_SYMBOL(gtk_window_get_child);
+-		GET_SYMBOL(gtk_window_set_child);
+-		GET_SYMBOL(gtk_widget_get_parent);
+-		GET_SYMBOL(gtk_widget_get_first_child);
+-		GET_SYMBOL(gtk_widget_get_last_child);
+-		GET_SYMBOL(gtk_window_get_titlebar);
+-		GET_SYMBOL(gtk_window_set_titlebar);
+-		GET_SYMBOL(gtk_header_bar_set_custom_title);
+-		GET_SYMBOL(hdy_header_bar_set_custom_title);
+-		GET_SYMBOL(gtk_header_bar_set_title_widget);
+-		GET_SYMBOL(adw_header_bar_set_title_widget);
+-		GET_SYMBOL(gtk_window_set_decorated);
+-		GET_SYMBOL(gtk_widget_reparent);
+-		GET_SYMBOL(adw_dialog_present);
+-		GET_SYMBOL(adw_application_window_get_visible_dialog);
+-		GET_SYMBOL(adw_window_get_visible_dialog);
+-		GET_SYMBOL(gtk_about_dialog_new);
+-		GET_SYMBOL(gtk_show_about_dialog);
+-		GET_SYMBOL(gtk_window_get_decorated);
+-		GET_SYMBOL(g_object_new);
+-		GET_SYMBOL(g_signal_connect_object);
+-		GET_SYMBOL(gtk_widget_show_all);
+-		GET_SYMBOL(gtk_builder_add_from_string);
+-		GET_SYMBOL(gtk_builder_new_from_string);
+-		GET_SYMBOL(gtk_builder_add_from_resource);
+-		GET_SYMBOL(gtk_builder_new_from_resource);
+-		GET_SYMBOL(gtk_builder_add_from_file);
+-		GET_SYMBOL(gtk_builder_new_from_file);
+-		GET_SYMBOL(gdk_window_get_frame_extents);
+-		GET_SYMBOL(g_module_symbol);
+-		GET_SYMBOL(g_type_register_static);
+-		GET_SYMBOL(g_type_register_static_simple);
++		GET_SYMBOL1(gtk_window_present);
++		GET_SYMBOL1(gtk_widget_set_visible);
++		GET_SYMBOL1(gtk_container_add);
++		GET_SYMBOL1(gtk_window_get_child);
++		GET_SYMBOL1(gtk_window_set_child);
++		GET_SYMBOL1(gtk_widget_get_parent);
++		GET_SYMBOL1(gtk_widget_get_first_child);
++		GET_SYMBOL1(gtk_widget_get_last_child);
++		GET_SYMBOL1(gtk_window_get_titlebar);
++		GET_SYMBOL1(gtk_window_set_titlebar);
++		GET_SYMBOL1(gtk_header_bar_set_custom_title);
++		GET_SYMBOL1(hdy_header_bar_set_custom_title);
++		GET_SYMBOL1(gtk_header_bar_set_title_widget);
++		GET_SYMBOL1(adw_header_bar_set_title_widget);
++		GET_SYMBOL1(gtk_window_set_decorated);
++		GET_SYMBOL1(gtk_widget_reparent);
++		GET_SYMBOL1(adw_dialog_present);
++		GET_SYMBOL1(adw_application_window_get_visible_dialog);
++		GET_SYMBOL1(adw_window_get_visible_dialog);
++		GET_SYMBOL1(gtk_about_dialog_new);
++		GET_SYMBOL1(gtk_show_about_dialog);
++		GET_SYMBOL1(gtk_window_get_decorated);
++		GET_SYMBOL1(g_object_new);
++		GET_SYMBOL1(g_signal_connect_object);
++		GET_SYMBOL1(gtk_widget_show_all);
++		GET_SYMBOL1(gtk_builder_add_from_string);
++		GET_SYMBOL1(gtk_builder_new_from_string);
++		GET_SYMBOL1(gtk_builder_add_from_resource);
++		GET_SYMBOL1(gtk_builder_new_from_resource);
++		GET_SYMBOL1(gtk_builder_add_from_file);
++		GET_SYMBOL1(gtk_builder_new_from_file);
++		GET_SYMBOL1(gdk_window_get_frame_extents);
++		GET_SYMBOL1(g_module_symbol);
++		GET_SYMBOL1(g_type_register_static);
++		GET_SYMBOL1(g_type_register_static_simple);
+ 	}
+ 
+ 	return o_g_module_symbol(Module, Name, Symbol);
+ }
+ 
++void *dlsym(void *Handle, const char *Name) {
++	// Dlsym is used by Gir.Core to get functions. They are also overwritten
++
++	if (2 < GTKNoCSDGTKVersion) {
++		GET_SYMBOL2(gtk_window_present);
++		GET_SYMBOL2(gtk_widget_set_visible);
++		GET_SYMBOL2(gtk_container_add);
++		GET_SYMBOL2(gtk_window_get_child);
++		GET_SYMBOL2(gtk_window_set_child);
++		GET_SYMBOL2(gtk_widget_get_parent);
++		GET_SYMBOL2(gtk_widget_get_first_child);
++		GET_SYMBOL2(gtk_widget_get_last_child);
++		GET_SYMBOL2(gtk_window_get_titlebar);
++		GET_SYMBOL2(gtk_window_set_titlebar);
++		GET_SYMBOL2(gtk_header_bar_set_custom_title);
++		GET_SYMBOL2(hdy_header_bar_set_custom_title);
++		GET_SYMBOL2(gtk_header_bar_set_title_widget);
++		GET_SYMBOL2(adw_header_bar_set_title_widget);
++		GET_SYMBOL2(gtk_window_set_decorated);
++		GET_SYMBOL2(gtk_widget_reparent);
++		GET_SYMBOL2(adw_dialog_present);
++		GET_SYMBOL2(adw_application_window_get_visible_dialog);
++		GET_SYMBOL2(adw_window_get_visible_dialog);
++		GET_SYMBOL2(gtk_about_dialog_new);
++		GET_SYMBOL2(gtk_show_about_dialog);
++		GET_SYMBOL2(gtk_window_get_decorated);
++		GET_SYMBOL2(g_object_new);
++		GET_SYMBOL2(g_signal_connect_object);
++		GET_SYMBOL2(gtk_widget_show_all);
++		GET_SYMBOL2(gtk_builder_add_from_string);
++		GET_SYMBOL2(gtk_builder_new_from_string);
++		GET_SYMBOL2(gtk_builder_add_from_resource);
++		GET_SYMBOL2(gtk_builder_new_from_resource);
++		GET_SYMBOL2(gtk_builder_add_from_file);
++		GET_SYMBOL2(gtk_builder_new_from_file);
++		GET_SYMBOL2(gdk_window_get_frame_extents);
++		GET_SYMBOL2(g_module_symbol);
++		GET_SYMBOL2(g_type_register_static);
++		GET_SYMBOL2(g_type_register_static_simple);
++	}
++
++	return o_dlsym(Handle, Name);
++}
++
+ GType gtk_widget_get_type(void) {
+ 	// Redefining for type registration macro
+ 
+
+From 07a28dd6e4f44fd51d2c4da1442a614ffdbf8957 Mon Sep 17 00:00:00 2001
+From: MorsMortium <morsmortium@disroot.org>
+Date: Sun, 5 Apr 2026 03:07:57 +0200
+Subject: [PATCH 25/33] Dlsym not fetched fix
+
+---
+ Source/GTK-NoCSD.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index c05471d..9f22cfc 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -399,9 +399,11 @@ static void GTKNoCSDInit(void) {
+ 		_exit(0);
+ 	}
+ 
+-	dl_iterate_phdr(GTKNoCSDGetLDAndLibC, NULL);
+-	GTKNoCSDLibC = GTKNoCSDLibC == NULL ? GTKNoCSDLD : GTKNoCSDLibC;
+-	dl_iterate_phdr(GTKNoCSDGetDLSym, NULL);
++	if (o_dlsym == NULL) {
++		dl_iterate_phdr(GTKNoCSDGetLDAndLibC, NULL);
++		GTKNoCSDLibC = GTKNoCSDLibC == NULL ? GTKNoCSDLD : GTKNoCSDLibC;
++		dl_iterate_phdr(GTKNoCSDGetDLSym, NULL);
++	}
+ 
+ 	// In Lomiri transient-for changes have to be delayed
+ 	GTKNoCSDOnLomiri = Desktop != NULL && strstr(Desktop, "Lomiri") != NULL;
+@@ -3327,6 +3329,13 @@ gboolean g_module_symbol(GModule *Module, const gchar *Name, gpointer *Symbol) {
+ void *dlsym(void *Handle, const char *Name) {
+ 	// Dlsym is used by Gir.Core to get functions. They are also overwritten
+ 
++	// Dlsym might be called before GTKNoCSDInit
++	if (o_dlsym == NULL) {
++		dl_iterate_phdr(GTKNoCSDGetLDAndLibC, NULL);
++		GTKNoCSDLibC = GTKNoCSDLibC == NULL ? GTKNoCSDLD : GTKNoCSDLibC;
++		dl_iterate_phdr(GTKNoCSDGetDLSym, NULL);
++	}
++
+ 	if (2 < GTKNoCSDGTKVersion) {
+ 		GET_SYMBOL2(gtk_window_present);
+ 		GET_SYMBOL2(gtk_widget_set_visible);
+
+From fad54cedea4a83c0118cee709506aa54fa882e35 Mon Sep 17 00:00:00 2001
+From: MorsMortium <morsmortium@disroot.org>
+Date: Sun, 5 Apr 2026 03:14:42 +0200
+Subject: [PATCH 26/33] Safeguard against crashing without dlsym
+
+---
+ Source/GTK-NoCSD.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index 9f22cfc..89385d8 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -3336,6 +3336,18 @@ void *dlsym(void *Handle, const char *Name) {
+ 		dl_iterate_phdr(GTKNoCSDGetDLSym, NULL);
+ 	}
+ 
++	// If still not found, unload instead of crash
++	if (o_dlsym == NULL) {
++		if (GTKNoCSDArguments == NULL) {
++			GTKNoCSDSaveArguments();
++		}
++		if (GTKNoCSDArguments != NULL) {
++			GTKNoCSDUnsetLDPreload();
++			execve(GTKNoCSDArguments[0], GTKNoCSDArguments, environ);
++			_exit(0);
++		}
++	}
++
+ 	if (2 < GTKNoCSDGTKVersion) {
+ 		GET_SYMBOL2(gtk_window_present);
+ 		GET_SYMBOL2(gtk_widget_set_visible);
+
+From 3edebb8083e4c55030a1264c3980d90db57533db Mon Sep 17 00:00:00 2001
+From: MorsMortium <morsmortium@disroot.org>
+Date: Sun, 5 Apr 2026 03:21:15 +0200
+Subject: [PATCH 27/33] Unload on start without dlsym
+
+---
+ Source/GTK-NoCSD.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index 89385d8..eeff198 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -345,7 +345,13 @@ static void GTKNoCSDInit(void) {
+ 	// sent into the library as executable, where it is saved again, for restart
+ 	GTKNoCSDSaveArguments();
+ 
+-	bool Disable = false;
++	if (o_dlsym == NULL) {
++		dl_iterate_phdr(GTKNoCSDGetLDAndLibC, NULL);
++		GTKNoCSDLibC = GTKNoCSDLibC == NULL ? GTKNoCSDLD : GTKNoCSDLibC;
++		dl_iterate_phdr(GTKNoCSDGetDLSym, NULL);
++	}
++
++	bool Disable = o_dlsym == NULL;
+ 
+ 	// AppImages might use GLib functions while not being GTK applications and
+ 	// not supplying the needed functions. They are dealt with here
+@@ -399,12 +405,6 @@ static void GTKNoCSDInit(void) {
+ 		_exit(0);
+ 	}
+ 
+-	if (o_dlsym == NULL) {
+-		dl_iterate_phdr(GTKNoCSDGetLDAndLibC, NULL);
+-		GTKNoCSDLibC = GTKNoCSDLibC == NULL ? GTKNoCSDLD : GTKNoCSDLibC;
+-		dl_iterate_phdr(GTKNoCSDGetDLSym, NULL);
+-	}
+-
+ 	// In Lomiri transient-for changes have to be delayed
+ 	GTKNoCSDOnLomiri = Desktop != NULL && strstr(Desktop, "Lomiri") != NULL;
+ 
+
+From 17edf16754854ff476cf59da5bd918106be79f43 Mon Sep 17 00:00:00 2001
+From: MorsMortium <morsmortium@disroot.org>
+Date: Sun, 5 Apr 2026 05:33:02 +0200
+Subject: [PATCH 28/33] AppImage related fixes
+
+GTKNoCSDLibraryInPath is no longer recursive (fixes Too many open files)
+Better AppImage detection, where AppRun never appears
+Never check an AppImage more than once, for faster startup
+---
+ Source/GTK-NoCSD.c | 139 +++++++++++++++++++++++++++++++--------------
+ 1 file changed, 97 insertions(+), 42 deletions(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index eeff198..24e3511 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -190,52 +190,91 @@ void GTKNoCSDMain(void) {
+ }
+ 
+ bool GTKNoCSDLibraryInPath(const char *Path) {
+-	// Check if path contains GTK or Flutter library, recursively, for AppImage
+-	struct dirent *Entry;
++	// Check if path contains GTK or Flutter library, for AppImage
+ 
+-	// Open directory
+-	DIR *Directory = opendir(Path);
+-	if (Directory == NULL) {
++	// Dynamic list of paths to visit, initial capacity for less reallocs
++	size_t Capacity = 16;
++	char **Paths = malloc(Capacity * sizeof(char *));
++	if (Paths == NULL) {
++		return false;
++	}
++
++	// Set initial path
++	size_t Count = 0;
++	Paths[Count++] = strdup(Path);
++	if (Paths[0] == NULL) {
++		free(Paths);
+ 		return false;
+ 	}
+ 
+ 	// Go through all files
+-	while ((Entry = readdir(Directory)) != NULL) {
+-		// Get full path of file
+-		char *FullPath = malloc(strlen(Path) + strlen(Entry->d_name) + 2);
+-		if (FullPath == NULL) {
+-			return false;
+-		}
+-		sprintf(FullPath, "%s/%s", Path, Entry->d_name);
++	while (Count > 0) {
++		char *CurrentPath = Paths[--Count];
+ 
+-		// Check file info, go to next file on failure
+-		struct stat Stat;
+-		if (stat(FullPath, &Stat) == -1) {
+-			free(FullPath);
++		// Open directory
++		DIR *Directory = opendir(CurrentPath);
++		if (Directory == NULL) {
++			free(CurrentPath);
+ 			continue;
+ 		}
+ 
+-		if (S_ISDIR(Stat.st_mode)) {
+-			// Recurse into subdirectory
+-			if (GTKNoCSDLibraryInPath(FullPath)) {
+-				free(FullPath);
+-				return true;
++		struct dirent *Entry;
++		while ((Entry = readdir(Directory)) != NULL) {
++			// Get full path of file, go to next file on failure
++			char *FullPath = malloc(
++				strlen(CurrentPath) + strlen(Entry->d_name) + 2);
++			if (FullPath == NULL) {
++				continue;
+ 			}
+-		} else if (S_ISREG(Stat.st_mode)) {
+-			// Check if the filename is GTK or Flutter library. Flutter uses
+-			// GTK for windowing while might not have it in the directory
+-			if ((strncmp(Entry->d_name, "libgtk-",
+-				7) == 0 || strncmp(Entry->d_name, "libflutter", 10) == 0) &&
+-				strstr(Entry->d_name, ".so") != NULL) {
++			sprintf(FullPath, "%s/%s", CurrentPath, Entry->d_name);
++
++			// Check file info, go to next file on failure
++			struct stat Stat;
++			if (stat(FullPath, &Stat) == -1) {
++				free(FullPath);
++				continue;
++			}
++
++			if (S_ISDIR(Stat.st_mode)) {
++				// Add subdirectory to list
++				if (Count == Capacity) {
++					Capacity *= 2;
++					char **Temporary = realloc(Paths,
++							Capacity * sizeof(char *));
++					if (Temporary == NULL) {
++						free(FullPath);
++						continue;
++					}
++					Paths = Temporary;
++				}
++				Paths[Count++] = FullPath;
++			} else if (S_ISREG(Stat.st_mode)) {
++				// Check if the filename is GTK or Flutter library. Flutter uses
++				// GTK for windowing while might not have it in the directory
++				if ((strncmp(Entry->d_name, "libgtk-", 7) == 0 ||
++					strncmp(Entry->d_name, "libflutter", 10) == 0) &&
++					strstr(Entry->d_name, ".so") != NULL) {
++					// If found, clean up everything and return success
++					free(FullPath);
++					closedir(Directory);
++					free(CurrentPath);
++					for (size_t Index = 0; Index < Count; ++Index) {
++						free(Paths[Index]);
++					}
++					free(Paths);
++					return true;
++				}
++				free(FullPath);
++			} else {
+ 				free(FullPath);
+-				return true;
+ 			}
+ 		}
+-		free(FullPath);
++
++		closedir(Directory);
++		free(CurrentPath);
+ 	}
+ 
+-	// Close directory
+-	closedir(Directory);
++	free(Paths);
+ 	return false;
+ }
+ 
+@@ -351,30 +390,46 @@ static void GTKNoCSDInit(void) {
+ 		dl_iterate_phdr(GTKNoCSDGetDLSym, NULL);
+ 	}
+ 
+-	bool Disable = o_dlsym == NULL;
++	// If already checked appimage, then no longer check it and unload if needed
++	char *AppImage = getenv("GTK-NoCSDAppImage");
++	bool Disable = o_dlsym == NULL, AppImageCheck = AppImage == NULL;
++	Disable = Disable || (!AppImageCheck && AppImage[0] == '0');
+ 
+ 	// AppImages might use GLib functions while not being GTK applications and
+ 	// not supplying the needed functions. They are dealt with here
+-	for (size_t Index = 0; Index < GTKNoCSDArgumentNumber; ++Index) {
++	for (size_t Index = 0; AppImageCheck && Index < GTKNoCSDArgumentNumber;
++		++Index) {
+ 		// Go through all arguments
+ 
+ 		const char *AppRun = strstr(GTKNoCSDArguments[Index], "AppRun");
++		const char *Tmp = strstr(GTKNoCSDArguments[Index], "/tmp/.mount_");
++		char *Path = NULL, *Last = NULL;
++
++		// If argument ends with AppRun or starts with /tmp/.mount_, it most
++		// likely is an AppImage
++		char *(*Find)(const char *, int) = NULL;
+ 		if (AppRun != NULL && strlen(AppRun) == 6) {
+-			// If argument ends with AppRun, it most likely is an AppImage
+-			// Duplicate argument, find last slash, cut off everything after
+-			char *Path = strdup(GTKNoCSDArguments[Index]);
++			Find = strrchr;
++		} else if (Tmp == GTKNoCSDArguments[Index]) {
++			Find = strchr;
++		}
++
++		// Duplicate argument, find last or next slash
++		if (Find != NULL) {
++			Path = strdup(GTKNoCSDArguments[Index]);
+ 			if (Path != NULL) {
+-				char *Last = strrchr(Path, '/');
++				Last = Find(Path + (Find == strchr ? 12 : 0), '/');
++
++				// Cut off everything after slash, check if directory has GTK
+ 				if (Last != NULL) {
+ 					*Last = '\0';
+-
+-					// Check if AppImage directory contains GTK libraries
+ 					Disable = !GTKNoCSDLibraryInPath(Path);
+ 				}
++
++				// Only check it once, for speedup, clean up and exit early
++				setenv("GTK-NoCSDAppImage", Disable ? "0" : "1", 1);
+ 				free(Path);
+-				if (Disable) {
+-					break;
+-				}
++				break;
+ 			}
+ 		}
+ 	}
+
+From 8c00c95ec0c2a62e623988b751ae1b9b1c5acc85 Mon Sep 17 00:00:00 2001
+From: MorsMortium <morsmortium@disroot.org>
+Date: Sun, 5 Apr 2026 18:33:16 +0200
+Subject: [PATCH 29/33] Simplify appimage logic
+
+---
+ Source/GTK-NoCSD.c | 21 +++++++++------------
+ 1 file changed, 9 insertions(+), 12 deletions(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index 24e3511..0be7363 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -392,33 +392,30 @@ static void GTKNoCSDInit(void) {
+ 
+ 	// If already checked appimage, then no longer check it and unload if needed
+ 	char *AppImage = getenv("GTK-NoCSDAppImage");
+-	bool Disable = o_dlsym == NULL, AppImageCheck = AppImage == NULL;
+-	Disable = Disable || (!AppImageCheck && AppImage[0] == '0');
++	bool Disable = o_dlsym == NULL;
+ 
+ 	// AppImages might use GLib functions while not being GTK applications and
+ 	// not supplying the needed functions. They are dealt with here
+-	for (size_t Index = 0; AppImageCheck && Index < GTKNoCSDArgumentNumber;
+-		++Index) {
++	for (size_t Index = 0; !Disable && AppImage == NULL && Index <
++		GTKNoCSDArgumentNumber; ++Index) {
+ 		// Go through all arguments
+ 
+-		const char *AppRun = strstr(GTKNoCSDArguments[Index], "AppRun");
+-		const char *Tmp = strstr(GTKNoCSDArguments[Index], "/tmp/.mount_");
+-		char *Path = NULL, *Last = NULL;
+-
+ 		// If argument ends with AppRun or starts with /tmp/.mount_, it most
+ 		// likely is an AppImage
++		char *Argument = GTKNoCSDArguments[Index];
++		const char *AppRun = strstr(Argument, "AppRun");
+ 		char *(*Find)(const char *, int) = NULL;
+ 		if (AppRun != NULL && strlen(AppRun) == 6) {
+ 			Find = strrchr;
+-		} else if (Tmp == GTKNoCSDArguments[Index]) {
++		} else if (strstr(Argument, "/tmp/.mount_") == Argument) {
+ 			Find = strchr;
+ 		}
+ 
+ 		// Duplicate argument, find last or next slash
+ 		if (Find != NULL) {
+-			Path = strdup(GTKNoCSDArguments[Index]);
++			char *Path = strdup(Argument);
+ 			if (Path != NULL) {
+-				Last = Find(Path + (Find == strchr ? 12 : 0), '/');
++				char *Last = Find(Path + (Find == strchr ? 12 : 0), '/');
+ 
+ 				// Cut off everything after slash, check if directory has GTK
+ 				if (Last != NULL) {
+@@ -427,7 +424,7 @@ static void GTKNoCSDInit(void) {
+ 				}
+ 
+ 				// Only check it once, for speedup, clean up and exit early
+-				setenv("GTK-NoCSDAppImage", Disable ? "0" : "1", 1);
++				setenv("GTK-NoCSDAppImage", "1", 1);
+ 				free(Path);
+ 				break;
+ 			}
+
+From c69caf67eca8050cd6576c621fffb6bb01256a95 Mon Sep 17 00:00:00 2001
+From: MorsMortium <morsmortium@disroot.org>
+Date: Sun, 12 Apr 2026 13:24:48 +0200
+Subject: [PATCH 30/33] Do not destroy LibHandy header
+
+This is like the previous LibAdwaita change
+Advantages:
+- Less code
+- Less error prone and resource intensive since higher level GTK function is overwritten instead of GLib
+- Fortifies unsetting the CSD as the size_allocate checks succeed now
+---
+ Source/GTK-NoCSD.c | 61 +++++++++++++++++-----------------------------
+ 1 file changed, 22 insertions(+), 39 deletions(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index 0be7363..0270289 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -621,8 +621,6 @@ void (*o_adw_header_bar_set_decoration_layout) (AdwHeaderBar *,
+ void (*o_adw_dialog_present) (AdwDialog *, GtkWidget *) = NULL;
+ void (*o_adw_dialog_set_content_height) (AdwDialog *, int) = NULL;
+ void (*o_adw_dialog_set_content_width) (AdwDialog *, int) = NULL;
+-gulong (*o_g_signal_connect_object) (gpointer, const gchar *, GCallback,
+-	gpointer, GConnectFlags) = NULL;
+ AdwDialog * (*o_adw_application_window_get_visible_dialog) (
+ 	AdwApplicationWindow *) = NULL;
+ AdwDialog * (*o_adw_window_get_visible_dialog) (AdwWindow *) = NULL;
+@@ -655,6 +653,8 @@ void (*o_hdy_style_manager_set_color_scheme) (AdwStyleManager *,
+ 	AdwColorScheme) = NULL;
+ AdwStyleManager * (*o_hdy_style_manager_get_default) (void) = NULL;
+ void (*o_gtk_widget_destroy) (GtkWidget *) = NULL;
++void (*o_gtk_container_propagate_draw) (GtkWidget *, GtkWidget *,
++	cairo_t *) = NULL;
+ 
+ // This is needed by an unavoidable GTK macro for type registration
+ GType gtk_widget_get_type(void);
+@@ -811,9 +811,8 @@ void GTKNoCSDGetReferences(bool GetTypes) {
+ 
+ 	// These functions are always needed
+ 	void *Library = NULL;
+-	if (o_g_signal_connect_object == NULL) {
++	if (o_g_type_register_static == NULL) {
+ 		Library = GTKNoCSDGetLibrary("libgobject-2.0.so.0", true);
+-		LOAD_SYMBOL(Library, g_signal_connect_object);
+ 		LOAD_SYMBOL(Library, g_type_register_static);
+ 		LOAD_SYMBOL(Library, g_type_register_static_simple);
+ 	}
+@@ -905,6 +904,7 @@ void GTKNoCSDGetReferences(bool GetTypes) {
+ 			LOAD_SYMBOL(Library, gdk_window_get_geometry);
+ 			LOAD_SYMBOL(Library, gdk_window_get_user_data);
+ 			LOAD_SYMBOL(Library, gdk_window_get_frame_extents);
++			LOAD_SYMBOL(Library, gtk_container_propagate_draw);
+ 		}
+ 
+ 		if (GTKNoCSDGTKVersion == 3 || GTKNoCSDGTKVersion == 4) {
+@@ -1648,19 +1648,6 @@ GtkWidget *GTKNoCSDGTK3ShortcutsWindowSearchBar(void *container) {
+ 	return NULL;
+ }
+ 
+-void GTKNoCSDIgnoreHDYError(const gchar *Domain, GLogLevelFlags Level,
+-	const gchar *Message, gpointer Data) {
+-	// LibHandy always tries to draw the empty headerbar. This function removes
+-	// only that error
+-	if (g_str_has_prefix(Message, "gtk_container_propagate_draw: assertion "
+-		"'GTK_IS_WIDGET (child)' failed")) {
+-		return;
+-	}
+-
+-	// All other logging is kept
+-	g_log_default_handler(Domain, Level, Message, Data);
+-}
+-
+ void GTKNoCSDAddToUndecorated(GtkWindow *Window) {
+ 	// Add a window to the list of windows which got the CSD removed and were
+ 	// also set to be undecorated
+@@ -2089,12 +2076,11 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 			GTKNoCSDSetGTK4Headers : GTKNoCSDSetGTK3Headers, Window);
+ 
+ 		if (GTKNoCSDGTKVersion == 3) {
+-			// Disable LibHandy errors about drawing not existing headerbar
+-			g_log_set_handler("Gtk", G_LOG_LEVEL_CRITICAL,
+-				GTKNoCSDIgnoreHDYError, NULL);
+-
+-			// Unset titlebar
++			// Unset the header for the window, but save it for returning it in
++			// gtk_window_get_titlebar
++			g_object_ref(Header);
+ 			o_gtk_window_set_titlebar(Window, NULL);
++			g_object_set_data(G_OBJECT(Window), "GTKNoCSDTitleBar", Header);
+ 			return true;
+ 		}
+ 	}
+@@ -2470,6 +2456,12 @@ GtkWidget *gtk_window_get_titlebar(GtkWindow *Window) {
+ 
+ 	GTKNoCSDGetReferences(true);
+ 
++	// This is only used in LibHandy
++	GtkWidget *Header = g_object_get_data(G_OBJECT(Window), "GTKNoCSDTitleBar");
++	if (Header != NULL) {
++		return Header;
++	}
++
+ 	GtkWidget *WindowChild = GTKNoCSDWindowGetChild(Window);
+ 	if (GTKNoCSDTest(WindowChild)) {
+ 		GtkWidget *Box = GTKNoCSDFirstChild(
+@@ -2968,26 +2960,17 @@ gpointer g_object_new(GType Type, const gchar *FirstProperty, ...) {
+ 	return Object;
+ }
+ 
+-gulong g_signal_connect_object(gpointer Instance, const gchar *Signal,
+-	GCallback Handler, gpointer GObject, GConnectFlags Flags) {
+-	// This function is used to connect all kinds of signal
+-	// LibHandy uses it to connect the function that errors out on settings the
+-	// titlebar. In that single case the signal will not be connected
++void gtk_container_propagate_draw(GtkWidget *Container, GtkWidget *Child,
++	cairo_t *Cairo) {
++	// For LibHandy propagating to the fake header is disallowed
+ 
+ 	GTKNoCSDGetReferences(true);
+ 
+-	// Do everything to only exclude the correct call, checking is in order of
+-	// expense
+-	if (Flags == G_CONNECT_SWAPPED && (GTKNoCSDHdyApplicatonWindow(Instance) ||
+-		GTKNoCSDHdyWindow(Instance)) && strcmp(Signal, "size-allocate") == 0) {
+-		// This is a private type, it cannot be directly compared
+-		if (strcmp(G_OBJECT_TYPE_NAME(GObject), "HdyWindowMixin") == 0) {
+-			return 0;
+-		}
++	if (Child == g_object_get_data(G_OBJECT(Container), "GTKNoCSDTitleBar")) {
++		return;
+ 	}
+ 
+-	// Do the regular connection for all other signals
+-	return o_g_signal_connect_object(Instance, Signal, Handler, GObject, Flags);
++	o_gtk_container_propagate_draw(Container, Child, Cairo);
+ }
+ 
+ void gtk_widget_show_all(GtkWidget *Widget) {
+@@ -3361,7 +3344,7 @@ gboolean g_module_symbol(GModule *Module, const gchar *Name, gpointer *Symbol) {
+ 		GET_SYMBOL1(gtk_show_about_dialog);
+ 		GET_SYMBOL1(gtk_window_get_decorated);
+ 		GET_SYMBOL1(g_object_new);
+-		GET_SYMBOL1(g_signal_connect_object);
++		GET_SYMBOL1(gtk_container_propagate_draw);
+ 		GET_SYMBOL1(gtk_widget_show_all);
+ 		GET_SYMBOL1(gtk_builder_add_from_string);
+ 		GET_SYMBOL1(gtk_builder_new_from_string);
+@@ -3424,7 +3407,7 @@ void *dlsym(void *Handle, const char *Name) {
+ 		GET_SYMBOL2(gtk_show_about_dialog);
+ 		GET_SYMBOL2(gtk_window_get_decorated);
+ 		GET_SYMBOL2(g_object_new);
+-		GET_SYMBOL2(g_signal_connect_object);
++		GET_SYMBOL2(gtk_container_propagate_draw);
+ 		GET_SYMBOL2(gtk_widget_show_all);
+ 		GET_SYMBOL2(gtk_builder_add_from_string);
+ 		GET_SYMBOL2(gtk_builder_new_from_string);
+
+From 32245567b9acbd4435cba171d606a52529c58886 Mon Sep 17 00:00:00 2001
+From: MorsMortium <morsmortium@disroot.org>
+Date: Mon, 13 Apr 2026 01:57:06 +0200
+Subject: [PATCH 31/33] Always fetch dlsym before usage
+
+Fixes Inkscape crashing
+---
+ Source/GTK-NoCSD.c | 66 ++++++++++++++++++++++++----------------------
+ 1 file changed, 34 insertions(+), 32 deletions(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index 0270289..663d4e4 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -376,28 +376,47 @@ int GTKNoCSDGetLDAndLibC(struct dl_phdr_info *Information,
+ 	return 0;
+ }
+ 
+-__attribute__((constructor))
+-static void GTKNoCSDInit(void) {
+-	// This runs both when preloaded and when started as executable
++void GTKNoCSDInitDLSym(bool Unload) {
++	// Fully get dlsym, exit on failure or force unload
+ 
+-	// Save arguments. When preloaded, this is the started programs arguments,
+-	// sent into the library as executable, where it is saved again, for restart
+-	GTKNoCSDSaveArguments();
+-
+-	if (o_dlsym == NULL) {
++	// Get dlsym
++	if (o_dlsym == NULL && !Unload) {
+ 		dl_iterate_phdr(GTKNoCSDGetLDAndLibC, NULL);
+ 		GTKNoCSDLibC = GTKNoCSDLibC == NULL ? GTKNoCSDLD : GTKNoCSDLibC;
+ 		dl_iterate_phdr(GTKNoCSDGetDLSym, NULL);
+ 	}
+ 
++	// If still not found, unload instead of crash
++	if (o_dlsym == NULL || Unload) {
++		if (GTKNoCSDArguments == NULL) {
++			GTKNoCSDSaveArguments();
++		}
++		if (GTKNoCSDArguments != NULL) {
++			GTKNoCSDUnsetLDPreload();
++			execve(GTKNoCSDArguments[0], GTKNoCSDArguments, environ);
++			_exit(0);
++		}
++	}
++}
++
++__attribute__((constructor))
++static void GTKNoCSDInit(void) {
++	// This runs both when preloaded and when started as executable
++
++	GTKNoCSDInitDLSym(false);
++
++	// Save arguments. When preloaded, this is the started programs arguments,
++	// sent into the library as executable, where it is saved again, for restart
++	GTKNoCSDSaveArguments();
++
+ 	// If already checked appimage, then no longer check it and unload if needed
+ 	char *AppImage = getenv("GTK-NoCSDAppImage");
+-	bool Disable = o_dlsym == NULL;
++	bool Disable = false;
+ 
+ 	// AppImages might use GLib functions while not being GTK applications and
+ 	// not supplying the needed functions. They are dealt with here
+-	for (size_t Index = 0; !Disable && AppImage == NULL && Index <
+-		GTKNoCSDArgumentNumber; ++Index) {
++	for (size_t Index = 0; AppImage == NULL && Index < GTKNoCSDArgumentNumber;
++		++Index) {
+ 		// Go through all arguments
+ 
+ 		// If argument ends with AppRun or starts with /tmp/.mount_, it most
+@@ -452,9 +471,7 @@ static void GTKNoCSDInit(void) {
+ 
+ 	// If not needed, unset library, restart
+ 	if (Disable && GTKNoCSDArguments != NULL) {
+-		GTKNoCSDUnsetLDPreload();
+-		execve(GTKNoCSDArguments[0], GTKNoCSDArguments, environ);
+-		_exit(0);
++		GTKNoCSDInitDLSym(true);
+ 	}
+ 
+ 	// In Lomiri transient-for changes have to be delayed
+@@ -809,6 +826,8 @@ void GTKNoCSDGetHdyTypes() {
+ void GTKNoCSDGetReferences(bool GetTypes) {
+ 	// Fetch each needed function
+ 
++	GTKNoCSDInitDLSym(false);
++
+ 	// These functions are always needed
+ 	void *Library = NULL;
+ 	if (o_g_type_register_static == NULL) {
+@@ -3364,24 +3383,7 @@ gboolean g_module_symbol(GModule *Module, const gchar *Name, gpointer *Symbol) {
+ void *dlsym(void *Handle, const char *Name) {
+ 	// Dlsym is used by Gir.Core to get functions. They are also overwritten
+ 
+-	// Dlsym might be called before GTKNoCSDInit
+-	if (o_dlsym == NULL) {
+-		dl_iterate_phdr(GTKNoCSDGetLDAndLibC, NULL);
+-		GTKNoCSDLibC = GTKNoCSDLibC == NULL ? GTKNoCSDLD : GTKNoCSDLibC;
+-		dl_iterate_phdr(GTKNoCSDGetDLSym, NULL);
+-	}
+-
+-	// If still not found, unload instead of crash
+-	if (o_dlsym == NULL) {
+-		if (GTKNoCSDArguments == NULL) {
+-			GTKNoCSDSaveArguments();
+-		}
+-		if (GTKNoCSDArguments != NULL) {
+-			GTKNoCSDUnsetLDPreload();
+-			execve(GTKNoCSDArguments[0], GTKNoCSDArguments, environ);
+-			_exit(0);
+-		}
+-	}
++	GTKNoCSDInitDLSym(false);
+ 
+ 	if (2 < GTKNoCSDGTKVersion) {
+ 		GET_SYMBOL2(gtk_window_present);
+
+From 47aff2ba9f68e4f9ff6209aef88b5abff8b18c79 Mon Sep 17 00:00:00 2001
+From: MorsMortium <morsmortium@disroot.org>
+Date: Fri, 17 Apr 2026 07:01:00 +0200
+Subject: [PATCH 32/33] LibAdwaita dialog fixes
+
+Prevent closing main window while dialog exists (more inline with default behavior, fixes crash in these cases)
+Fix get_visible_dialog APIs (broke on starting to convert LibAdwaita as regular GTK4 windows, fixes Epiphany crash on opening keyboard shortcuts)
+---
+ Source/GTK-NoCSD.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index 663d4e4..d0fce56 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -2727,12 +2727,13 @@ void adw_dialog_present(AdwDialog *Dialog, GtkWidget *Parent) {
+ 		}
+ 	}
+ 
+-	// Center new window on parent
++	// Center new window on parent, prevent closing parent while child exists
+ 	GtkWindow *ParentWindow = (GtkWindow *) o_gtk_widget_get_ancestor(
+ 		Parent, GTKNoCSDGTKWindow);
+ 	GtkWindow *ChildWindow = (GtkWindow *) o_gtk_widget_get_ancestor(
+ 		(GtkWidget *) Dialog, GTKNoCSDGTKWindow);
+ 	o_gtk_window_set_transient_for(ChildWindow, ParentWindow);
++	o_gtk_window_set_modal(ChildWindow, true);
+ 
+ 	// Add application actions if supposed to have an application
+ 	GtkApplication *Application = o_gtk_window_get_application(ParentWindow);
+@@ -2772,10 +2773,10 @@ AdwDialog *GTKNoCSDAdwDialogForWindow(GtkWindow *Window) {
+ 			o_gtk_window_get_transient_for(CheckedWindow) == Window) {
+ 			// Check if window contains dialog and set it if so
+ 			// No break so the last created window is returned
+-			GtkWidget *WindowChild = GTKNoCSDWindowGetChild(CheckedWindow);
+-			if (WindowChild != NULL &&
+-				GTKNoCSDAdwDialog(G_OBJECT(WindowChild))) {
+-				Dialog = (AdwDialog *) WindowChild;
++			GtkWidget *Content =
++				GTKNoCSDGTK4Content(GTKNoCSDWindowGetChild(CheckedWindow));
++			if (Content != NULL && GTKNoCSDAdwDialog(G_OBJECT(Content))) {
++				Dialog = (AdwDialog *) Content;
+ 			}
+ 		}
+ 		++Index;
+
+From daf0652e6b4c4f0b10ca3e371ad8e0fc47c8b0fd Mon Sep 17 00:00:00 2001
+From: MorsMortium <morsmortium@disroot.org>
+Date: Wed, 22 Apr 2026 19:20:08 +0200
+Subject: [PATCH 33/33] Report status from GTKNoCSDMagic, use it to filter
+ Lutris window
+
+The render issue only happens with Lutris but the fix breaks input focus in other apps (MATE Terminal)
+This further filters it so the fix only applies where needed
+---
+ Source/GTK-NoCSD.c | 41 +++++++++++++++++++++++------------------
+ 1 file changed, 23 insertions(+), 18 deletions(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index d0fce56..f0b134e 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -1078,7 +1078,7 @@ void GTKNoCSDGetReferences(bool GetTypes) {
+ 	}
+ }
+ 
+-bool GTKNoCSDMagic(GtkWindow *Window);
++int GTKNoCSDMagic(GtkWindow *Window);
+ gboolean GTKNoCSDRecall(gpointer Data) {
+ 	// Presents the window at a later time
+ 
+@@ -1708,7 +1708,7 @@ void GTKNoCSDHandlerFailExit(char *LibraryFullPath) {
+ 	_exit(0);
+ }
+ 
+-bool GTKNoCSDMagic(GtkWindow *Window) {
++int GTKNoCSDMagic(GtkWindow *Window) {
+ 	// Do all needed changes to disable CSD
+ 
+ 	// Set up crash handler
+@@ -1926,23 +1926,23 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 
+ 	// GTK3 windows can be embedded into some other widgets
+ 	if (o_gtk_widget_get_parent((GtkWidget *) Window) != NULL) {
+-		return true;
++		return 1;
+ 	}
+ 
+ 	// Never touch inspector windows
+ 	const char *WindowName = o_gtk_widget_get_name((GtkWidget *) Window);
+ 	if (strstr(WindowName, "GtkInspectorWindow") == WindowName) {
+-		return true;
++		return 2;
+ 	}
+ 
+ 	// Popup windows in GTK3 are not needed
+ 	if (GTKNoCSDGTKVersion == 3) {
+ 		if (o_gtk_window_get_window_type(Window) == 1) {
+-			return true;
++			return 3;
+ 		}
+ 		int Hint = o_gtk_window_get_type_hint(Window);
+ 		if (2 < Hint && Hint != 5) {
+-			return true;
++			return 4;
+ 		}
+ 	}
+ 
+@@ -1992,7 +1992,7 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 						// WARNING: Own call
+ 						gtk_window_set_titlebar(Window, PossiblyHeader);
+ 						g_object_unref(PossiblyHeader);
+-						return true;
++						return 5;
+ 					}
+ 				}
+ 
+@@ -2005,7 +2005,7 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 					Add = false;
+ 					break;
+ 				}
+-				return true;
++				return 6;
+ 			}
+ 			++Index;
+ 		}
+@@ -2086,7 +2086,7 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 
+ 			// Call removal later
+ 			g_timeout_add(1, GTKNoCSDRecall, Window);
+-			return false;
++			return 0;
+ 		}
+ 
+ 		// Hide the title widget, if it is not a special control. It might be
+@@ -2100,7 +2100,7 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 			g_object_ref(Header);
+ 			o_gtk_window_set_titlebar(Window, NULL);
+ 			g_object_set_data(G_OBJECT(Window), "GTKNoCSDTitleBar", Header);
+-			return true;
++			return 7;
+ 		}
+ 	}
+ 
+@@ -2113,7 +2113,7 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 		// This window was already dealt with
+ 		if (strcmp(o_gtk_widget_get_name((GtkWidget *) Window),
+ 			"GTKNoCSDHelp") == 0) {
+-			return true;
++			return 8;
+ 		}
+ 		o_gtk_widget_set_name((GtkWidget *) Window, "GTKNoCSDHelp");
+ 
+@@ -2158,19 +2158,19 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 			o_gtk_box_reorder_child((GtkBox *) (WindowChild), SearchButton, 0);
+ 			o_gtk_widget_set_halign(SearchButton, GTK_ALIGN_START);
+ 
+-			return true;
++			return 9;
+ 		}
+ 	}
+ 
+ 	// Do not touch windows that have no header bar
+ 	if (Header == NULL) {
+-		return true;
++		return 10;
+ 	}
+ 
+ 	// Glade is for designing graphical user interfaces, like Cambalache
+ 	// The library is not needed to run there
+ 	if (strcmp("GladePlaceholder", G_OBJECT_TYPE_NAME(Header)) == 0) {
+-		return true;
++		return 11;
+ 	}
+ 
+ 	// Certain applications turn off decorations while having CSD, it is turned
+@@ -2189,7 +2189,7 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 		(GTKNoCSDAdwDialog(G_OBJECT(WindowChild)) ||
+ 		GTKNoCSDGetGTK4Headers(WindowChild, true) != NULL)) {
+ 		o_gtk_window_set_titlebar(Window, NULL);
+-		return true;
++		return 12;
+ 	}
+ 
+ 	// Unset the application menu on GTK3 for applications that have CSD
+@@ -2294,7 +2294,7 @@ bool GTKNoCSDMagic(GtkWindow *Window) {
+ 	}
+ 	g_object_unref(Header);
+ 
+-	return true;
++	return 13;
+ }
+ 
+ void GTKNoCSDAboutClose(GtkWidget *Dialog) {
+@@ -2334,10 +2334,15 @@ void gtk_window_present(GtkWindow *Window) {
+ 
+ 	// Only present window on successful run, unless in GTK2
+ 	if (2 < GTKNoCSDGTKVersion) {
+-		if (GTKNoCSDMagic(Window)) {
+-			if (!o_gtk_widget_get_mapped((GtkWidget *) Window)) {
++		int MagicStatus = GTKNoCSDMagic(Window);
++		if (MagicStatus) {
++			// This status is what Lutris produces and which is the only window
++			// needing this fix
++			if (MagicStatus == 6 &&
++				!o_gtk_widget_get_mapped((GtkWidget *) Window)) {
+ 				g_idle_add(GTKNoCSDRedisplayContent, Window);
+ 			}
++
+ 			o_gtk_window_present(Window);
+ 		}
+ 		return;
