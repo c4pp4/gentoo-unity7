@@ -22,7 +22,7 @@ index 8d0a3f5..d0a9650 100644
 -    text = g_strdup_printf (_("Personal File Sharing allows you to share your Public folder with others on your current network using: <a href=\"dav://%s\">dav://%s</a>"), hostname, hostname);
 +    {
 +      link = g_strdup_printf ("<a href=\"dav://%s\">dav://%s</a>", hostname, hostname);
-+      text = g_strdup_printf (_("Personal File Sharing allows you to share your Public folder with others on your current network using: %s"), link);
++      text = g_strdup_printf (_("File Sharing allows you to share your Public folder with others on your current network using: %s"), link);
 +    }
    else if (label == WID ("remote-login-label"))
 -    text = g_strdup_printf (_("When remote login is enabled, remote users can connect using the Secure Shell command:\n<a href=\"ssh %s\">ssh %s</a>"), hostname, hostname);

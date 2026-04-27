@@ -109,8 +109,6 @@ RDEPEND="
 		gnome-base/dconf-editor
 		media-gfx/simple-scan
 		media-video/cheese
-		net-misc/remmina
-		net-misc/vino
 		net-p2p/transmission[appindicator]
 		sys-apps/gnome-disk-utility
 		unity-base/unity-control-center[gnome-online-accounts]

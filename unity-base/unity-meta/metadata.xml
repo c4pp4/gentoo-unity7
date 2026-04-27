@@ -22,8 +22,5 @@
 		<flag name="games">Install games</flag>
 		<flag name="gnome">Install Gnome extra applications depending on
 			<pkg>gui-libs/libadwaita</pkg></flag>
-		<flag name="xdm">Use a display manager, defaults to
-			<pkg>x11-misc/lightdm</pkg> and
-			<pkg>unity-extra/unity-greeter</pkg></flag>
 	</use>
 </pkgmetadata>

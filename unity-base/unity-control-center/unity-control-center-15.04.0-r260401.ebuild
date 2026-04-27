@@ -16,7 +16,7 @@ SRC_URI="${UURL}-${UREV}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="+accessibility +bluetooth +colord +cups +gnome-online-accounts +input_devices_wacom +kerberos +networkmanager +v4l wayland"
+IUSE="+accessibility +bluetooth +colord +cups +gnome-online-accounts +input_devices_wacom +kerberos +networkmanager +sharing +v4l wayland"
 RESTRICT="test"
 
 COMMON_DEPEND="
@@ -78,6 +78,14 @@ RDEPEND="${COMMON_DEPEND}
 	cups? (
 		app-admin/system-config-printer
 		net-print/cups-pk-helper
+	)
+	sharing? (
+		gnome-extra/gnome-user-share
+		net-dns/avahi[dbus]
+		net-misc/openssh
+		net-misc/remmina
+		net-misc/rygel
+		net-misc/vino
 	)
 "
 DEPEND="${COMMON_DEPEND}
