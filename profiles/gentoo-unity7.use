@@ -4,6 +4,7 @@ app-accessibility/brltty                python                                  
 app-accessibility/onboard                                       -gnome-shell    # Don't install gnome-base/gnome-shell extension
 app-dicts/myspell-en                    l10n_en-US                              # REQUIRED_USE flag
 app-i18n/ibus                           appindicator gtk2 vala                  # Required by unity-indicators/indicator-keyboard
+app-misc/tinysparql                     vala                                    # Required by unity-base/unity-control-center (net-misc/rygel)
 app-office/libreoffice                  gtk3                    -gtk4           # Prefer gtk3
 dev-libs/boost                          python                                  # Required by dev-libs/libcolumbus
 dev-libs/libdbusmenu                    gtk3                                    # Required by dev-libs/libappindicator:3, dev-libs/libindicate, unity-indicators/indicator-appmenu
@@ -14,9 +15,13 @@ dev-qt/qtgui:5                          ibus                                    
 gnome-base/gvfs                         fuse                                    # Required by app-backup/deja-dup
 gnome-extra/nm-applet                   appindicator                            # Required by unity-base/unity-meta, unity-extra/unity-greeter
 media-libs/freetype                     harfbuzz                                # Required by x11-libs/pango
+media-libs/libmediaart                  vala                                    # Required by unity-base/unity-control-center (net-misc/rygel)
 media-libs/libvpx                       postproc                                # Required by mail-client/thunderbird, www-client/firefox
 media-video/ffmpeg                      opus                                    # Required by net-im/telegram-desktop
 net-libs/gnome-online-accounts          vala                    -gnome          # Don't install gnome-base/gnome-control-center
+net-libs/gssdp                          vala                                    # Required by unity-base/unity-control-center (net-misc/rygel)
+net-libs/gupnp                          vala                                    # Required by unity-base/unity-control-center (net-misc/rygel)
+net-libs/gupnp-av                       vala                                    # Required by unity-base/unity-control-center (net-misc/rygel)
 net-libs/libnma                         vala                                    # Required by unity-base/unity-control-center
 net-misc/modemmanager                   vala                                    # Required by unity-base/unity-control-center
 net-misc/networkmanager                 vala                                    # Required by unity-base/unity-control-center
