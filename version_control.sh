@@ -1,7 +1,7 @@
 #!/bin/bash
 
 stable="resolute"
-dev=""
+dev="stonking"
 repos=(
 	main
 	universe

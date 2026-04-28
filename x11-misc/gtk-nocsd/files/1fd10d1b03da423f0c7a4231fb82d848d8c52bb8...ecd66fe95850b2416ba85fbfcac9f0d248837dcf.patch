@@ -1,7 +1,7 @@
 From 8ca050b39920f51cdb925329364f934907c17c4e Mon Sep 17 00:00:00 2001
 From: NexusSfan <nexussfan@duck.com>
 Date: Sun, 22 Mar 2026 07:37:45 -0700
-Subject: [PATCH 01/33] Add support for GNU/HURD `PATH_MAX` fix.
+Subject: [PATCH 01/35] Add support for GNU/HURD `PATH_MAX` fix.
 
 ---
  Source/GTK-NoCSD.c | 27 +++++++++++++++++----------
@@ -114,7 +114,7 @@ index ad7f00b..2027aaa 100644
 From af0b815e6fb383e3520ea31a899eb4971f518c4b Mon Sep 17 00:00:00 2001
 From: MorsMortium <morsmortium@disroot.org>
 Date: Sun, 22 Mar 2026 16:52:22 +0100
-Subject: [PATCH 02/33] Fully restart appimages on crash, instead of mounted
+Subject: [PATCH 02/35] Fully restart appimages on crash, instead of mounted
  binary
 
 Fixes certain appimages not restarting in case of a crash
@@ -218,7 +218,7 @@ index 2027aaa..8f3f7cc 100644
 From 93e73f9364b22d60646d82522ac9dadb7d3c3392 Mon Sep 17 00:00:00 2001
 From: MorsMortium <morsmortium@disroot.org>
 Date: Sun, 22 Mar 2026 18:34:48 +0100
-Subject: [PATCH 03/33] Try to get ld library in 2 separate, Hurd friendly way
+Subject: [PATCH 03/35] Try to get ld library in 2 separate, Hurd friendly way
 
 ---
  Source/GTK-NoCSD.c | 40 +++++++++++++++++++++++++---------------
@@ -323,7 +323,7 @@ index 8f3f7cc..ee617ee 100644
 From 8586031530f774e826cc05fc54873120951fe7f0 Mon Sep 17 00:00:00 2001
 From: MorsMortium <morsmortium@disroot.org>
 Date: Mon, 23 Mar 2026 00:04:43 +0100
-Subject: [PATCH 04/33] Do not use sys/auxv.h
+Subject: [PATCH 04/35] Do not use sys/auxv.h
 
 Simpler, GNU Hurd compatible
 ---
@@ -418,7 +418,7 @@ index ee617ee..a91053e 100644
 From 7979cfc991f72f8debf074f3a299bc87dd49859e Mon Sep 17 00:00:00 2001
 From: MorsMortium <morsmortium@disroot.org>
 Date: Mon, 23 Mar 2026 00:35:48 +0100
-Subject: [PATCH 05/33] Fix Hurd ld argument shift
+Subject: [PATCH 05/35] Fix Hurd ld argument shift
 
 ---
  Source/GTK-NoCSD.c | 9 ++++++++-
@@ -448,7 +448,7 @@ index a91053e..9419454 100644
 From f123faa4208ceac3bce5586b55cbaa725d5c9a06 Mon Sep 17 00:00:00 2001
 From: MorsMortium <morsmortium@disroot.org>
 Date: Fri, 27 Mar 2026 01:42:38 +0100
-Subject: [PATCH 06/33] Remove internal headerbars that GTK sets up on unknown
+Subject: [PATCH 06/35] Remove internal headerbars that GTK sets up on unknown
  preference
 
 Fixes wayland compositors that do not implement the KDE decoration protocol
@@ -600,7 +600,7 @@ index 9419454..9fd31fc 100644
 From 66bfa45fc19766fbc5f2fb6f9e8ccaa8a8d1f6fa Mon Sep 17 00:00:00 2001
 From: MorsMortium <morsmortium@disroot.org>
 Date: Fri, 27 Mar 2026 02:21:35 +0100
-Subject: [PATCH 07/33] Display window content again, after present
+Subject: [PATCH 07/35] Display window content again, after present
 
 Fixes Lutris missing part of the window content if started with interactive debugger
 ---
@@ -641,7 +641,7 @@ index 9fd31fc..bf21d02 100644
 From b739602467196b475a558513df7fbcbcab780b22 Mon Sep 17 00:00:00 2001
 From: MorsMortium <morsmortium@disroot.org>
 Date: Sat, 28 Mar 2026 11:11:46 +0100
-Subject: [PATCH 08/33] Do not get _r_debug on anything not glibc
+Subject: [PATCH 08/35] Do not get _r_debug on anything not glibc
 
 ---
  Source/GTK-NoCSD.c | 6 ++++--
@@ -680,7 +680,7 @@ index bf21d02..89f2c4d 100644
 From 790b7eed6bf597a8efcf13b2e1f917e1fe4c37ef Mon Sep 17 00:00:00 2001
 From: Fredrik Foss-Indrehus <fredrik@ffoss.net>
 Date: Sat, 28 Mar 2026 20:08:49 +0100
-Subject: [PATCH 09/33] Clarify dynamic linker detection comment, formatting
+Subject: [PATCH 09/35] Clarify dynamic linker detection comment, formatting
 
 Signed-off-by: Fredrik Foss-Indrehus <fredrik@ffoss.net>
 ---
@@ -710,7 +710,7 @@ index 89f2c4d..ef76f80 100644
 From e573ed75a159291091aa9b6f820beab333c0949f Mon Sep 17 00:00:00 2001
 From: Fredrik Foss-Indrehus <fredrik@ffoss.net>
 Date: Sat, 28 Mar 2026 20:10:40 +0100
-Subject: [PATCH 10/33] add missing include on alpine, formatting
+Subject: [PATCH 10/35] add missing include on alpine, formatting
 
 Signed-off-by: Fredrik Foss-Indrehus <fredrik@ffoss.net>
 ---
@@ -737,7 +737,7 @@ index ef76f80..ad31f3a 100644
 From ce5cd6fbc5e66b588bfe3acafbe2947b6d381484 Mon Sep 17 00:00:00 2001
 From: Fredrik Foss-Indrehus <fredrik@ffoss.net>
 Date: Sat, 28 Mar 2026 19:59:53 +0100
-Subject: [PATCH 11/33] Refactor LD_PRELOAD stripping into a helper function
+Subject: [PATCH 11/35] Refactor LD_PRELOAD stripping into a helper function
 
 Signed-off-by: Fredrik Foss-Indrehus <fredrik@ffoss.net>
 ---
@@ -789,7 +789,7 @@ index ad31f3a..2aba4e5 100644
 From a851222e62866136e47a7f5b0df6729fdfa9002a Mon Sep 17 00:00:00 2001
 From: Fredrik Foss-Indrehus <fredrik@ffoss.net>
 Date: Sat, 28 Mar 2026 20:11:49 +0100
-Subject: [PATCH 12/33] Remove non-portable _r_debug lookup
+Subject: [PATCH 12/35] Remove non-portable _r_debug lookup
 
 The existing dl_iterate_phdr loop already successfully identifies the
 dynamic linker across glibc, musl, and Hurd by matching known
@@ -825,7 +825,7 @@ index 2aba4e5..5d2d174 100644
 From 664d8c634f524429c00d8991b0f9b1c05d5a4167 Mon Sep 17 00:00:00 2001
 From: Fredrik Foss-Indrehus <fredrik@ffoss.net>
 Date: Sat, 28 Mar 2026 20:21:24 +0100
-Subject: [PATCH 13/33] Fix x86 stack alignment in custom entry point
+Subject: [PATCH 13/35] Fix x86 stack alignment in custom entry point
 
 Add the force_align_arg_pointer attribute to the GTKNoCSDMain entry
 point to automatically realign the stack on x86 architectures.
@@ -867,7 +867,7 @@ index 5d2d174..b80b2bd 100644
 From d8516454a589049f6d39ced41ab45249389262b2 Mon Sep 17 00:00:00 2001
 From: Fredrik Foss-Indrehus <fredrik@ffoss.net>
 Date: Sat, 28 Mar 2026 20:28:30 +0100
-Subject: [PATCH 14/33] Fix crash handler execution and restart logic on musl
+Subject: [PATCH 14/35] Fix crash handler execution and restart logic on musl
 
 Strip LD_PRELOAD from the child environment right before executing the
 dynamic linker. Inheriting this variable caused musl to attempt to
@@ -929,7 +929,7 @@ index b80b2bd..a5478dd 100644
 From 0ce7609bcb6fe453f1521cbc9c5c120716399063 Mon Sep 17 00:00:00 2001
 From: MorsMortium <morsmortium@disroot.org>
 Date: Sat, 28 Mar 2026 21:35:01 +0100
-Subject: [PATCH 15/33] Revert spammy o_gtk_check_version change, formatting
+Subject: [PATCH 15/35] Revert spammy o_gtk_check_version change, formatting
 
 ---
  Source/GTK-NoCSD.c | 8 ++++----
@@ -972,7 +972,7 @@ index a5478dd..a53110e 100644
 From 8cd6db74bc9b20d31e433b2e4a6ec05f9a402832 Mon Sep 17 00:00:00 2001
 From: MorsMortium <morsmortium@disroot.org>
 Date: Sun, 29 Mar 2026 00:18:08 +0100
-Subject: [PATCH 16/33] Only hide custom title buttons, make vertical into grid
+Subject: [PATCH 16/35] Only hide custom title buttons, make vertical into grid
 
 Fixes Dconf Editor crashing on Void Linux
 Fixes Dconf Editor header widget expanding
@@ -1222,7 +1222,7 @@ index a53110e..7ed9a6f 100644
 From 0dadd0786d793433c94f84f1e699027196c65ff1 Mon Sep 17 00:00:00 2001
 From: MorsMortium <morsmortium@disroot.org>
 Date: Sun, 29 Mar 2026 01:54:20 +0100
-Subject: [PATCH 17/33] Package links
+Subject: [PATCH 17/35] Package links
 
 ---
  README.md | 15 ++++++++++++++-
@@ -1265,7 +1265,7 @@ index 73946b8..2427d84 100644
 From 8f445c5bad5a423815b2af8b34025506bc28769d Mon Sep 17 00:00:00 2001
 From: MorsMortium <morsmortium@disroot.org>
 Date: Sun, 29 Mar 2026 19:22:27 +0200
-Subject: [PATCH 18/33] Also enforce LibHandy color scheme
+Subject: [PATCH 18/35] Also enforce LibHandy color scheme
 
 ---
  Source/GTK-NoCSD.c | 20 +++++++++++++++++---
@@ -1328,7 +1328,7 @@ index 7ed9a6f..f210e4b 100644
 From 832de70eb0c8fd14e01e29a2c8fa2892aaae2998 Mon Sep 17 00:00:00 2001
 From: MorsMortium <morsmortium@disroot.org>
 Date: Tue, 31 Mar 2026 05:54:08 +0200
-Subject: [PATCH 19/33] Only redisplay contents of not yet mapped windows
+Subject: [PATCH 19/35] Only redisplay contents of not yet mapped windows
 
 Fixes ROXTerm losing focus
 ---
@@ -1363,7 +1363,7 @@ index f210e4b..3eedd17 100644
 From 8bfd853bdaac4f9c4286962eb7b688f3ac224369 Mon Sep 17 00:00:00 2001
 From: Helmut Grohne <helmut@subdivi.de>
 Date: Fri, 27 Mar 2026 17:28:26 +0100
-Subject: [PATCH 20/33] Fix cross building in Debian
+Subject: [PATCH 20/35] Fix cross building in Debian
 
 https://bugs.debian.org/1132430
 ---
@@ -1392,7 +1392,7 @@ index 84a3729..1f47d4a 100644
 From 2642031cb2da85273c4f9c5a105cec777e4bd73b Mon Sep 17 00:00:00 2001
 From: MorsMortium <morsmortium@disroot.org>
 Date: Thu, 2 Apr 2026 15:44:09 +0200
-Subject: [PATCH 21/33] Multiple changes
+Subject: [PATCH 21/35] Multiple changes
 
 Transfer LibAdwaita windows as regular GTK3/4 windows.
 This comes with multiple advantages:
@@ -1553,7 +1553,7 @@ index 3eedd17..148cf1e 100644
 From 1174507fcd7a0f767431dad9a6d774b5b56d88e4 Mon Sep 17 00:00:00 2001
 From: MorsMortium <morsmortium@disroot.org>
 Date: Fri, 3 Apr 2026 12:48:54 +0200
-Subject: [PATCH 22/33] Only set LibAdwaita or LibHandy scheme according to GTK
+Subject: [PATCH 22/35] Only set LibAdwaita or LibHandy scheme according to GTK
  version
 
 ---
@@ -1601,7 +1601,7 @@ index 148cf1e..a384cfd 100644
 From 18b4d5de799214956b4801f8948f34c8b547cc94 Mon Sep 17 00:00:00 2001
 From: MorsMortium <morsmortium@disroot.org>
 Date: Fri, 3 Apr 2026 23:34:34 +0200
-Subject: [PATCH 23/33] Try to get used platform functions from GModule
+Subject: [PATCH 23/35] Try to get used platform functions from GModule
 
 Fixes script language programs not built against platform libraries on sandboxed systems.
 Particularly Foliate on NixOS
@@ -1767,7 +1767,7 @@ index a384cfd..754a0ef 100644
 From 5a15fd29d2d7c18561887a970a2e7e2c698aaf40 Mon Sep 17 00:00:00 2001
 From: MorsMortium <morsmortium@disroot.org>
 Date: Sun, 5 Apr 2026 02:14:54 +0200
-Subject: [PATCH 24/33] Multiple changes
+Subject: [PATCH 24/35] Multiple changes
 
 Overwrite dlsym. Adds support to Gir.Core applications
 Do not check not needed widgets in GTK4 headerbar
@@ -2113,7 +2113,7 @@ index 754a0ef..c05471d 100644
 From 07a28dd6e4f44fd51d2c4da1442a614ffdbf8957 Mon Sep 17 00:00:00 2001
 From: MorsMortium <morsmortium@disroot.org>
 Date: Sun, 5 Apr 2026 03:07:57 +0200
-Subject: [PATCH 25/33] Dlsym not fetched fix
+Subject: [PATCH 25/35] Dlsym not fetched fix
 
 ---
  Source/GTK-NoCSD.c | 15 ++++++++++++---
@@ -2156,7 +2156,7 @@ index c05471d..9f22cfc 100644
 From fad54cedea4a83c0118cee709506aa54fa882e35 Mon Sep 17 00:00:00 2001
 From: MorsMortium <morsmortium@disroot.org>
 Date: Sun, 5 Apr 2026 03:14:42 +0200
-Subject: [PATCH 26/33] Safeguard against crashing without dlsym
+Subject: [PATCH 26/35] Safeguard against crashing without dlsym
 
 ---
  Source/GTK-NoCSD.c | 12 ++++++++++++
@@ -2189,7 +2189,7 @@ index 9f22cfc..89385d8 100644
 From 3edebb8083e4c55030a1264c3980d90db57533db Mon Sep 17 00:00:00 2001
 From: MorsMortium <morsmortium@disroot.org>
 Date: Sun, 5 Apr 2026 03:21:15 +0200
-Subject: [PATCH 27/33] Unload on start without dlsym
+Subject: [PATCH 27/35] Unload on start without dlsym
 
 ---
  Source/GTK-NoCSD.c | 14 +++++++-------
@@ -2231,7 +2231,7 @@ index 89385d8..eeff198 100644
 From 17edf16754854ff476cf59da5bd918106be79f43 Mon Sep 17 00:00:00 2001
 From: MorsMortium <morsmortium@disroot.org>
 Date: Sun, 5 Apr 2026 05:33:02 +0200
-Subject: [PATCH 28/33] AppImage related fixes
+Subject: [PATCH 28/35] AppImage related fixes
 
 GTKNoCSDLibraryInPath is no longer recursive (fixes Too many open files)
 Better AppImage detection, where AppRun never appears
@@ -2429,7 +2429,7 @@ index eeff198..24e3511 100644
 From 8c00c95ec0c2a62e623988b751ae1b9b1c5acc85 Mon Sep 17 00:00:00 2001
 From: MorsMortium <morsmortium@disroot.org>
 Date: Sun, 5 Apr 2026 18:33:16 +0200
-Subject: [PATCH 29/33] Simplify appimage logic
+Subject: [PATCH 29/35] Simplify appimage logic
 
 ---
  Source/GTK-NoCSD.c | 21 +++++++++------------
@@ -2494,7 +2494,7 @@ index 24e3511..0be7363 100644
 From c69caf67eca8050cd6576c621fffb6bb01256a95 Mon Sep 17 00:00:00 2001
 From: MorsMortium <morsmortium@disroot.org>
 Date: Sun, 12 Apr 2026 13:24:48 +0200
-Subject: [PATCH 30/33] Do not destroy LibHandy header
+Subject: [PATCH 30/35] Do not destroy LibHandy header
 
 This is like the previous LibAdwaita change
 Advantages:
@@ -2651,7 +2651,7 @@ index 0be7363..0270289 100644
 From 32245567b9acbd4435cba171d606a52529c58886 Mon Sep 17 00:00:00 2001
 From: MorsMortium <morsmortium@disroot.org>
 Date: Mon, 13 Apr 2026 01:57:06 +0200
-Subject: [PATCH 31/33] Always fetch dlsym before usage
+Subject: [PATCH 31/35] Always fetch dlsym before usage
 
 Fixes Inkscape crashing
 ---
@@ -2771,7 +2771,7 @@ index 0270289..663d4e4 100644
 From 47aff2ba9f68e4f9ff6209aef88b5abff8b18c79 Mon Sep 17 00:00:00 2001
 From: MorsMortium <morsmortium@disroot.org>
 Date: Fri, 17 Apr 2026 07:01:00 +0200
-Subject: [PATCH 32/33] LibAdwaita dialog fixes
+Subject: [PATCH 32/35] LibAdwaita dialog fixes
 
 Prevent closing main window while dialog exists (more inline with default behavior, fixes crash in these cases)
 Fix get_visible_dialog APIs (broke on starting to convert LibAdwaita as regular GTK4 windows, fixes Epiphany crash on opening keyboard shortcuts)
@@ -2817,7 +2817,7 @@ index 663d4e4..d0fce56 100644
 From daf0652e6b4c4f0b10ca3e371ad8e0fc47c8b0fd Mon Sep 17 00:00:00 2001
 From: MorsMortium <morsmortium@disroot.org>
 Date: Wed, 22 Apr 2026 19:20:08 +0200
-Subject: [PATCH 33/33] Report status from GTKNoCSDMagic, use it to filter
+Subject: [PATCH 33/35] Report status from GTKNoCSDMagic, use it to filter
  Lutris window
 
 The render issue only happens with Lutris but the fix breaks input focus in other apps (MATE Terminal)
@@ -2980,3 +2980,269 @@ index d0fce56..f0b134e 100644
  			o_gtk_window_present(Window);
  		}
  		return;
+
+From 86b320d4bd66b42e0b4b1d52871d27396020abac Mon Sep 17 00:00:00 2001
+From: MorsMortium <morsmortium@disroot.org>
+Date: Tue, 28 Apr 2026 21:08:15 +0200
+Subject: [PATCH 34/35] Handle LibAdwaita dialog presented without parent and
+ parent not having a window
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Fixes Touché crashing
+---
+ Source/GTK-NoCSD.c | 61 ++++++++++++++++++++++++++++------------------
+ 1 file changed, 37 insertions(+), 24 deletions(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index f0b134e..d5d2014 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -2709,17 +2709,17 @@ GtkWidget *GTKNoCSDFindWindowTitle(GtkWidget *Widget) {
+ 	return NULL;
+ }
+ 
+-void adw_dialog_present(AdwDialog *Dialog, GtkWidget *Parent) {
++void adw_dialog_present(AdwDialog *Child, GtkWidget *Parent) {
+ 	// LibAdwaita uses embedded dialogs which break most themes. This pops them
+ 	// out into their own window
+ 
+ 	GTKNoCSDGetReferences(true);
+ 
+ 	// Display dialog in own window
+-	o_adw_dialog_present(Dialog, NULL);
++	o_adw_dialog_present(Child, NULL);
+ 
+ 	// Hide title widget of dialog, if it only displays window title
+-	GtkWidget *HeaderBar = GTKNoCSDGetGTK4Headers((GtkWidget *) Dialog, true);
++	GtkWidget *HeaderBar = GTKNoCSDGetGTK4Headers((GtkWidget *) Child, true);
+ 	if (HeaderBar != NULL) {
+ 		GtkWidget *Title =
+ 			o_adw_header_bar_get_title_widget((AdwHeaderBar *) HeaderBar);
+@@ -2732,34 +2732,47 @@ void adw_dialog_present(AdwDialog *Dialog, GtkWidget *Parent) {
+ 		}
+ 	}
+ 
+-	// Center new window on parent, prevent closing parent while child exists
+-	GtkWindow *ParentWindow = (GtkWindow *) o_gtk_widget_get_ancestor(
+-		Parent, GTKNoCSDGTKWindow);
++	// Get window window of dialog, empty window of parent
+ 	GtkWindow *ChildWindow = (GtkWindow *) o_gtk_widget_get_ancestor(
+-		(GtkWidget *) Dialog, GTKNoCSDGTKWindow);
+-	o_gtk_window_set_transient_for(ChildWindow, ParentWindow);
+-	o_gtk_window_set_modal(ChildWindow, true);
++		(GtkWidget *) Child, GTKNoCSDGTKWindow), *ParentWindow = NULL;
+ 
+-	// Add application actions if supposed to have an application
+-	GtkApplication *Application = o_gtk_window_get_application(ParentWindow);
+-	if (Application != NULL) {
+-		o_gtk_widget_insert_action_group((GtkWidget *) Dialog, "app",
+-			(GActionGroup *) Application);
++	// Get window of parent
++	if (Parent != NULL) {
++		ParentWindow = (GtkWindow *) o_gtk_widget_get_ancestor(Parent,
++				GTKNoCSDGTKWindow);
+ 	}
+ 
+-	// Add window actions if supposed to be in an application window
+-	if (GTKNoCSDGtkApplicatonWindow(G_OBJECT(ParentWindow))) {
+-		o_gtk_widget_insert_action_group((GtkWidget *) Dialog, "win",
+-			(GActionGroup *) ParentWindow);
++	// Get original dialog size
++	int Width = o_adw_dialog_get_content_width(Child), ParentWidth = Width;
++	int Height = o_adw_dialog_get_content_height(Child), ParentHeight = Height;
++
++	if (ParentWindow != NULL) {
++		// Center dialog on parent, prevent closing parent while child exists
++		o_gtk_window_set_transient_for(ChildWindow, ParentWindow);
++		o_gtk_window_set_modal(ChildWindow, true);
++
++		// Add application actions if supposed to have an application
++		GtkApplication *Application =
++			o_gtk_window_get_application(ParentWindow);
++		if (Application != NULL) {
++			o_gtk_widget_insert_action_group((GtkWidget *) Child, "app",
++				(GActionGroup *) Application);
++		}
++
++		// Add window actions if supposed to be in an application window
++		if (GTKNoCSDGtkApplicatonWindow(G_OBJECT(ParentWindow))) {
++			o_gtk_widget_insert_action_group((GtkWidget *) Child, "win",
++				(GActionGroup *) ParentWindow);
++		}
++
++		// Get size of parent window
++		ParentWidth = o_gtk_widget_get_width((GtkWidget *) ParentWindow);
++		ParentHeight = o_gtk_widget_get_height((GtkWidget *) ParentWindow);
+ 	}
+ 
+ 	// Make windows at most as large as the parent, but resizeable
+-	int ParentWidth = o_gtk_widget_get_width(Parent);
+-	int Width = o_adw_dialog_get_content_width(Dialog);
+-	int ParentHeight = o_gtk_widget_get_height(Parent);
+-	int Height = o_adw_dialog_get_content_height(Dialog);
+-	o_adw_dialog_set_content_width(Dialog, MIN(ParentWidth, Width));
+-	o_adw_dialog_set_content_height(Dialog, MIN(ParentHeight, Height));
++	o_adw_dialog_set_content_width(Child, MIN(ParentWidth, Width));
++	o_adw_dialog_set_content_height(Child, MIN(ParentHeight, Height));
+ 	o_gtk_window_set_resizable(ChildWindow, true);
+ }
+ 
+
+From ecd66fe95850b2416ba85fbfcac9f0d248837dcf Mon Sep 17 00:00:00 2001
+From: MorsMortium <morsmortium@disroot.org>
+Date: Tue, 28 Apr 2026 23:49:42 +0200
+Subject: [PATCH 35/35] Do not set settings/theme from g_object_new
+
+There are many other APIs where windows will be caught and these will be applied.
+This API is used by Microsoft Edge to create a not used window to apply GTK settings to it's own window.
+Unsetting decoration layout unsets the Edge window control buttons.
+---
+ Source/GTK-NoCSD.c | 32 ++++++++++++++++----------------
+ 1 file changed, 16 insertions(+), 16 deletions(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index d5d2014..f309d5d 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -1078,11 +1078,11 @@ void GTKNoCSDGetReferences(bool GetTypes) {
+ 	}
+ }
+ 
+-int GTKNoCSDMagic(GtkWindow *Window);
++int GTKNoCSDMagic(GtkWindow *Window, bool DoSettings);
+ gboolean GTKNoCSDRecall(gpointer Data) {
+ 	// Presents the window at a later time
+ 
+-	GTKNoCSDMagic((GtkWindow *) Data);
++	GTKNoCSDMagic((GtkWindow *) Data, true);
+ 
+ 	return FALSE;
+ }
+@@ -1247,7 +1247,7 @@ gboolean GTKNoCSDHandleShortcutsWindow(gpointer Data) {
+ 		(GtkApplicationWindow *) Window[0]);
+ 
+ 	if (Overlay != NULL) {
+-		GTKNoCSDMagic((GtkWindow *) Overlay);
++		GTKNoCSDMagic((GtkWindow *) Overlay, true);
+ 	}
+ 
+ 	return FALSE;
+@@ -1257,7 +1257,7 @@ static void GTKNoCSDWindowAdded(G_GNUC_UNUSED GtkApplication *Application,
+ 	GtkWindow *Window) {
+ 	// Add SSD to all added windows
+ 
+-	GTKNoCSDMagic(Window);
++	GTKNoCSDMagic(Window, true);
+ }
+ 
+ static void GTKNoCSDApplicationChanged(GObject *Window,
+@@ -1284,7 +1284,7 @@ static gboolean GTKNoCSDWindowMap(G_GNUC_UNUSED GSignalInvocationHint *Hint,
+ 	// Only if the value is a window (might be redundant)
+ 	GObject *Window = g_value_get_object(&Values[0]);
+ 	if (GTKNoCSDGtkWindow(Window)) {
+-		GTKNoCSDMagic((GtkWindow *) Window);
++		GTKNoCSDMagic((GtkWindow *) Window, true);
+ 	}
+ 
+ 	return TRUE;
+@@ -1708,7 +1708,7 @@ void GTKNoCSDHandlerFailExit(char *LibraryFullPath) {
+ 	_exit(0);
+ }
+ 
+-int GTKNoCSDMagic(GtkWindow *Window) {
++int GTKNoCSDMagic(GtkWindow *Window, bool DoSettings) {
+ 	// Do all needed changes to disable CSD
+ 
+ 	// Set up crash handler
+@@ -1840,7 +1840,7 @@ int GTKNoCSDMagic(GtkWindow *Window) {
+ 	GTKNoCSDHooker();
+ 
+ 	bool SetCSS = false;
+-	if (!GTKNoCSDSettings) {
++	if (!GTKNoCSDSettings && DoSettings) {
+ 		GtkSettings *Settings = o_gtk_settings_get_default();
+ 		if (Settings != NULL) {
+ 			// Disable .ui dialog headers, remove titlebar buttons
+@@ -2334,7 +2334,7 @@ void gtk_window_present(GtkWindow *Window) {
+ 
+ 	// Only present window on successful run, unless in GTK2
+ 	if (2 < GTKNoCSDGTKVersion) {
+-		int MagicStatus = GTKNoCSDMagic(Window);
++		int MagicStatus = GTKNoCSDMagic(Window, true);
+ 		if (MagicStatus) {
+ 			// This status is what Lutris produces and which is the only window
+ 			// needing this fix
+@@ -2364,7 +2364,7 @@ void gtk_widget_set_visible(GtkWidget *Widget, gboolean Visible) {
+ 		// This function might not get called with the window
+ 		GtkWidget *Window = GTKNoCSDGetWindow(Widget);
+ 		if (Window != NULL && Visible) {
+-			GTKNoCSDMagic((GtkWindow *) Window);
++			GTKNoCSDMagic((GtkWindow *) Window, true);
+ 		}
+ 	}
+ }
+@@ -2397,7 +2397,7 @@ void gtk_container_add(GtkWidget *Container, GtkWidget *Widget) {
+ 				o_gtk_widget_set_hexpand(Widget, TRUE);
+ 			} else {
+ 				o_gtk_container_add(Container, Widget);
+-				GTKNoCSDMagic((GtkWindow *) Window);
++				GTKNoCSDMagic((GtkWindow *) Window, true);
+ 			}
+ 			return;
+ 		}
+@@ -2436,7 +2436,7 @@ void gtk_window_set_child(GtkWindow *Window, GtkWidget *Child) {
+ 	}
+ 
+ 	o_gtk_window_set_child(Window, Child);
+-	GTKNoCSDMagic(Window);
++	GTKNoCSDMagic(Window, true);
+ }
+ 
+ GtkWidget *gtk_widget_get_parent(GtkWidget *Widget) {
+@@ -2516,7 +2516,7 @@ void gtk_window_set_titlebar(GtkWindow *Window, GtkWidget *Header) {
+ 		return;
+ 	}
+ 
+-	GTKNoCSDMagic(Window);
++	GTKNoCSDMagic(Window, true);
+ 	GtkWidget *WindowChild = GTKNoCSDWindowGetChild(Window);
+ 	if (GTKNoCSDTest(WindowChild)) {
+ 		GtkWidget *Box = GTKNoCSDFirstChild(
+@@ -2554,7 +2554,7 @@ void gtk_window_set_titlebar(GtkWindow *Window, GtkWidget *Header) {
+ 		}
+ 	} else {
+ 		o_gtk_window_set_titlebar(Window, Header);
+-		GTKNoCSDMagic(Window);
++		GTKNoCSDMagic(Window, true);
+ 	}
+ }
+ 
+@@ -2844,7 +2844,7 @@ GtkWidget *gtk_about_dialog_new(void) {
+ 	}
+ 
+ 	GtkWidget *Window = o_gtk_about_dialog_new();
+-	GTKNoCSDMagic((GtkWindow *) Window);
++	GTKNoCSDMagic((GtkWindow *) Window, true);
+ 	return Window;
+ }
+ 
+@@ -2962,7 +2962,7 @@ gpointer g_object_new(GType Type, const gchar *FirstProperty, ...) {
+ 	if (Type != 0 && GTKNoCSDGTKGObject) {
+ 		// Call our function when the object is a window
+ 		if (GTKNoCSDGtkWindow(Object)) {
+-			GTKNoCSDMagic((GtkWindow *) Object);
++			GTKNoCSDMagic((GtkWindow *) Object, false);
+ 		}
+ 
+ 		// If widget is label, set up monitor for the content
+@@ -3024,7 +3024,7 @@ void gtk_widget_show_all(GtkWidget *Widget) {
+ 			GtkWidget *WindowChild =
+ 				GTKNoCSDWindowGetChild((GtkWindow *) Window);
+ 			if (!GTKNoCSDTest(WindowChild)) {
+-				GTKNoCSDMagic((GtkWindow *) Window);
++				GTKNoCSDMagic((GtkWindow *) Window, true);
+ 			}
+ 		}
+ 	}
