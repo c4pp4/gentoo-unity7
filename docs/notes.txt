@@ -19,6 +19,7 @@ app-i18n/ibus                           # Patched for indicator-keyboard support
 app-text/evince                         # Add traditional menu bar (https://bugzilla.gnome.org/show_bug.cgi?id=736419), add menu translations
 dev-cpp/gtest                           # Install /usr/src/{gmock,gtest}/* source files lacking from main tree ebuild
 dev-libs/glib:2                         # Patched to call gettext if .desktop file does not have inline translations, don't try DBusActivatable when in Unity user interface and fallback on Exec=
+dev-qt/qtbase:6                         # Defer QGnomePortalInterface DBus init until event dispatcher exists (fix Krita global menu).
 gnome-base/gnome-desktop:3              # Adjust background color detection for Unity (04_compute_average_color.patch, tweak_color_computation.patch)
 gnome-base/gnome-menus:3                # Needed for some menu patches
                                         #  Ubuntu patchset:
@@ -75,7 +76,7 @@ media-video/totem                       # Add traditional menubar (https://bugzi
 net-im/pidgin                           # Add chat section into messaging menu (Available, Away, Busy, Invisible, Offline)
 net-im/telegram-desktop                 # Add ubuntu-mono-dark and Yaru-dark tray icons
 net-im/telegram-desktop-bin             # Add ubuntu-mono-dark and Yaru-dark tray icons
-net-p2p/transmission                    # Disable global menu, use GTK3 and libappindicator (global menu bug: https://github.com/transmission/transmission/issues/5332)
+net-p2p/transmission                    # Use GTK3 and libappindicator, export "win" actions for Unity global menu (https://github.com/transmission/transmission/issues/5332)
 sys-apps/accountsservice                # Requires patching for SetInputSources as needed by unity-indicators/indicator-keyboard and u-c-c text entry settings
                                         #  Ubuntu patchset:
                                         #  0001-formats-locale-property.patch

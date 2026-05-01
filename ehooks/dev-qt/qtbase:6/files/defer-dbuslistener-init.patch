@@ -1,0 +1,95 @@
+From b08e8ba2e62d4f5cdf69ac207320d49141c096ed Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Fri, 1 May 2026 11:48:59 +0200
+Subject: [PATCH 1/1] Fix Krita global menu
+
+Defer QGnomePortalInterface DBus init until event dispatcher exists.
+
+Signed-off-by: c4pp4
+---
+ .../platform/unix/qgnomeportalinterface.cpp   | 33 ++++++++++++++++++-
+ .../platform/unix/qgnomeportalinterface_p.h   |  2 ++
+ 2 files changed, 34 insertions(+), 1 deletion(-)
+
+diff --git a/src/gui/platform/unix/qgnomeportalinterface.cpp b/src/gui/platform/unix/qgnomeportalinterface.cpp
+index 8c089388..f42063ca 100644
+--- a/src/gui/platform/unix/qgnomeportalinterface.cpp
++++ b/src/gui/platform/unix/qgnomeportalinterface.cpp
+@@ -5,6 +5,8 @@
+ #include "qgnomeportalinterface_p.h"
+ #include "qdbussettings_p.h"
+ #include <private/qdbusplatformmenu_p.h>
++#include <QtCore/QCoreApplication>
++#include <QtCore/QMetaObject>
+ #include <QtDBus/QDBusMessage>
+ #include <QtDBus/QDBusPendingCall>
+ #include <QtDBus/QDBusReply>
+@@ -19,8 +21,33 @@ Q_STATIC_LOGGING_CATEGORY(lcQpaThemeGnome, "qt.qpa.theme.gnome")
+ using namespace Qt::StringLiterals;
+ 
+ QGnomePortalInterface::QGnomePortalInterface(QObject *parent)
+-    : QObject(parent), m_dbus{ new QDBusListener }
++    : QObject(parent)
+ {
++    ensureDbusInitialized();
++}
++
++void QGnomePortalInterface::ensureDbusInitialized()
++{
++    if (m_dbus)
++        return;
++
++    // Do not touch session bus before the event dispatcher exists.
++    // On some setups (e.g. gtk3 platform theme), doing so can create a DBus
++    // connection that never processes incoming messages, breaking DBusMenu.
++    if (!QCoreApplication::eventDispatcher()) {
++        if (!m_dbusInitScheduled) {
++            m_dbusInitScheduled = true;
++            QMetaObject::invokeMethod(this,
++                                      [this] {
++                                          m_dbusInitScheduled = false;
++                                          ensureDbusInitialized();
++                                      },
++                                      Qt::QueuedConnection);
++        }
++        return;
++    }
++
++    m_dbus.reset(new QDBusListener);
+     QObject::connect(m_dbus.get(), &QDBusListener::settingChanged, this,
+                      &QGnomePortalInterface::dbusSettingChanged);
+ 
+@@ -60,6 +87,10 @@ QGnomePortalInterface::contrastPreference(Qt::ContrastPreference fallback) const
+ 
+ void QGnomePortalInterface::querySettings()
+ {
++    // Safety net: if called too early for any reason, just bail out.
++    if (!QCoreApplication::eventDispatcher())
++        return;
++
+     QDBusConnection dbus = QDBusConnection::sessionBus();
+     if (!dbus.isConnected()) {
+         qCWarning(lcQpaThemeGnome) << "dbus connection failed. Last error: " << dbus.lastError();
+diff --git a/src/gui/platform/unix/qgnomeportalinterface_p.h b/src/gui/platform/unix/qgnomeportalinterface_p.h
+index a1ff267f..b92e3feb 100644
+--- a/src/gui/platform/unix/qgnomeportalinterface_p.h
++++ b/src/gui/platform/unix/qgnomeportalinterface_p.h
+@@ -37,6 +37,7 @@ public:
+             Qt::ContrastPreference fallback = Qt::ContrastPreference::NoPreference) const;
+ 
+ private:
++    void ensureDbusInitialized();
+     void querySettings();
+     void updateColorScheme(Qt::ColorScheme colorScheme);
+     void updateContrast(Qt::ContrastPreference contrast);
+@@ -54,6 +55,7 @@ private:
+     std::optional<Qt::ColorScheme> m_colorScheme;
+     std::optional<Qt::ContrastPreference> m_contrast;
+     std::unique_ptr<QDBusListener> m_dbus;
++    bool m_dbusInitScheduled = false;
+     static constexpr QLatin1StringView s_service{ "org.freedesktop.portal.Desktop" };
+     static constexpr QLatin1StringView s_path{ "/org/freedesktop/portal/desktop" };
+     static constexpr QLatin1StringView s_interface{ "org.freedesktop.portal.Settings" };
+-- 
+2.53.0
+

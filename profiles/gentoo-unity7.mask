@@ -3,6 +3,7 @@
 >app-text/evince-48.1
 >dev-cpp/gtest-1.17.0
 >dev-libs/glib-2.84.4-r5:2
+>dev-qt/qtbase-6.10.3:6
 >gnome-base/gnome-desktop-44.4-r300:3
 >gnome-base/gnome-menus-3.36.0-r1:3
 >gnome-base/gnome-session-48.0-r2
