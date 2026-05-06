@@ -22,6 +22,15 @@ RESTRICT="binchecks strip test"
 S="${WORKDIR}"
 
 pkg_setup() {
+	bad_layout() {
+		die "Your system uses a single-file ${EROOT}/etc/portage/$1. Please switch to the directory layout and re-emerge this package."
+	}
+
+	local x
+	for x in {package.{accept_keywords,env,mask,unmask,use},env,repos.conf}; do
+		[[ -f ${EROOT}/etc/portage/${x} ]] && bad_layout "${x}"
+	done
+
 	ubuntu-versionator_pkg_setup
 
 	## Backup timestamps file before a new one is generated.
@@ -113,6 +122,10 @@ src_install() {
 	dodir "/etc/portage/env"
 	dosym -r "${REPO_ROOT}/profiles/${n}.conf.env" \
 		"/etc/portage/env/${n}.conf" || die
+
+	dodir "/etc/portage/repos.conf"
+	dosym -r "${REPO_ROOT}/profiles/${n}.repos" \
+		"/etc/portage/repos.conf/zzzz_${n}.conf" || die
 
 	use dev && dosym -r "${REPO_ROOT}/profiles/${n}-dev.accept_keywords" \
 		"/etc/portage/package.accept_keywords/0001_${n}-dev.accept_keywords"

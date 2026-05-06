@@ -2,8 +2,6 @@
 
 1. **Use** the [stage3-amd64-systemd⬀][s3] tarball for a new installation, or **switch to** the [systemd⬀][sysd] init system on an existing installation.
 
-   WARNING: If you are using [Gentoo binhost⬀][gbph], add the EMERGE_DEFAULT_OPTS portage variable with the `--usepkg-exclude` option into the `/etc/portage/make.conf` configuration file, use [our setting][edo], see more in the [wiki guide⬀][pkge].
-
 2. **Add the overlay** using the [eselect-repository⬀][erepo] module and synchronize it:
 
    `eselect repository enable gentoo-unity7`
@@ -65,19 +63,15 @@ NOTES:
 [//]: # (LINKS)
 [bt]: https://wiki.gentoo.org/wiki/Bluetooth#systemd
 [cups]: https://wiki.gentoo.org/wiki/Printing#systemd
-[edo]: make.conf
 [ehooks]: ehooks.md
 [ep]: https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Base#Choosing_the_right_profile
 [erepo]: https://wiki.gentoo.org/wiki/Eselect/Repository
-[gbph]: https://wiki.gentoo.org/wiki/Gentoo_Binary_Host_Quickstart
 [git]: https://wiki.gentoo.org/wiki/Git
 [ldm]: https://wiki.gentoo.org/wiki/LightDM#systemd
-[mu]: https://wiki.gentoo.org/wiki/Merge-usr
 [nm]: https://wiki.gentoo.org/wiki/NetworkManager#systemd
 [pw]: https://wiki.gentoo.org/wiki/PipeWire#systemd
-[pkge]: https://wiki.gentoo.org/wiki/Binary_package_guide#Additional_client_settings
 [s3]: https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Stage#Downloading_the_stage_file
 [sysd]: https://wiki.gentoo.org/wiki/Systemd
-[tg]: https://t.me/gentoo_unity7
+[tg]: https://t.me/gentoo_unity7_lomiri
 [wp]: https://wiki.gentoo.org/wiki/WirePlumber#systemd
 [xirc]: /unity-base/unity/files/xinitrc

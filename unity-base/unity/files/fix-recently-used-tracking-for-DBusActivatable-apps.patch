@@ -1,0 +1,61 @@
+From 12155e2caa5e5d05a616265692e61e4882e84b2b Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Tue, 5 May 2026 09:00:25 +0200
+Subject: [PATCH 1/1] Fix recently-used tracking for DBusActivatable apps
+
+For DBusActivatable apps GLib uses D-Bus activation internally and
+never calls notify_desktop_launch(), so zeitgeist-datahub does not
+receive the org.gtk.gio.DesktopAppInfo.Launched signal and the app
+does not appear in recently-used. Send the signal manually.
+
+Signed-off-by: c4pp4
+---
+ dash/ApplicationStarterImp.cpp | 31 +++++++++++++++++++++++++++++++
+ 1 file changed, 31 insertions(+)
+
+diff --git a/dash/ApplicationStarterImp.cpp b/dash/ApplicationStarterImp.cpp
+index 0216491..cb50929 100644
+--- a/dash/ApplicationStarterImp.cpp
++++ b/dash/ApplicationStarterImp.cpp
+@@ -53,7 +53,38 @@ bool ApplicationStarterImp::Launch(std::string const& application_name, Time tim
+       if (error)
+         LOG_WARNING(logger) << "Unable to launch " << id << ":" << error;
+       else
++      {
++        if (g_desktop_app_info_get_boolean(info, "DBusActivatable"))
++        {
++          glib::Object<GDBusConnection> session_bus(
++            g_bus_get_sync(G_BUS_TYPE_SESSION, nullptr, nullptr));
++          if (session_bus)
++          {
++            const char* desktop_file = g_desktop_app_info_get_filename(info);
++            GVariantBuilder uri_builder, extras_builder;
++            g_variant_builder_init(&uri_builder, G_VARIANT_TYPE("as"));
++            g_variant_builder_init(&extras_builder, G_VARIANT_TYPE("a{sv}"));
++            g_variant_builder_add(&extras_builder, "{sv}", "origin-prgname",
++                                  g_variant_new_bytestring(g_get_prgname() ? g_get_prgname() : "unity"));
++            glib::Error emit_error;
++            g_dbus_connection_emit_signal(
++              session_bus, nullptr,
++              "/org/gtk/gio/DesktopAppInfo",
++              "org.gtk.gio.DesktopAppInfo",
++              "Launched",
++              g_variant_new("(@aysxasa{sv})",
++                            g_variant_new_bytestring(desktop_file ? desktop_file : ""),
++                            "",
++                            (gint64) timestamp,
++                            &uri_builder,
++                            &extras_builder),
++              &emit_error);
++            if (emit_error)
++              LOG_WARNING(logger) << "Failed to emit Launched signal: " << emit_error;
++          }
++        }
+         return true;
++      }
+ 
+       break;
+     }
+-- 
+2.53.0
+

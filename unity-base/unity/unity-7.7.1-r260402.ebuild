@@ -123,6 +123,7 @@ S="${WORKDIR}/${PN}"
 PATCHES=(
 	"${FILESDIR}"/add-nemo-support.patch
 	"${FILESDIR}"/add-unity-version-xml.patch
+	"${FILESDIR}"/fix-recently-used-tracking-for-DBusActivatable-apps.patch
 	"${FILESDIR}"/prevent-compiz-segfault-by-guarding-pthread_join.patch
 	"${FILESDIR}"/remove-all-code-related-to-online-search.patch
 	"${FILESDIR}"/revert-unwanted-ubuntu-unity-changes.patch

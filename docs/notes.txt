@@ -54,7 +54,6 @@ gnome-extra/polkit-gnome                # Patched to have polkit-gnome-authentic
                                         #  04-autorestart.patch
                                         #  06-authentication-failure-string.patch
 gnome-extra/yelp                        # Only show desktop launcher in Gnome as we have own launcher
-gui-libs/gtk:4                          # Disable global menu via UBUNTU_MENUPROXY
 gui-libs/libadwaita:1                   # Support Yaru accent colors
 mate-extra/mate-utils                   # mate-screenshot: add quicklist options and use ubuntu help when in Unity
 mail-client/thunderbird                 # Latest version, add Unity menubar, desktop launcher with quicklist and translations and disable titlebar in system-wide preferences
@@ -88,7 +87,7 @@ www-client/firefox:rapid                # Latest version, add Unity menubar and 
 www-client/firefox:esr                  # ESR version, add Unity menubar and desktop launcher with quicklist and translations
 www-client/firefox-bin                  # Add desktop launcher with quicklist and translations
 x11-libs/gtk+:2                         # Support for dynamically loading overlay scrollbars, have the local menubars hidding under unity in favor of the unity ones
-x11-libs/gtk+:3                         # Needed for global appmenu, fix firefox/thunderbird global submenus to be initially populated, disable global menu via UBUNTU_MENUPROXY
+x11-libs/gtk+:3                         # Needed for global appmenu, fix firefox/thunderbird global submenus to be initially populated
                                         #  Ubuntu patchset:
                                         #  bzg_gtkcellrenderer_grabbing_modifier.patch
                                         #  ubuntu_gtk_custom_menu_items.patch

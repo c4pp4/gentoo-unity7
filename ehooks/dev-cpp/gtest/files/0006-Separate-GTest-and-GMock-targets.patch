@@ -1,0 +1,86 @@
+From: =?utf-8?q?Timo_R=C3=B6hling?= <roehling@debian.org>
+Date: Fri, 17 Sep 2021 08:55:38 +0200
+Subject: Separate GTest and GMock targets
+
+---
+ googlemock/CMakeLists.txt             | 9 ++++++++-
+ googletest/CMakeLists.txt             | 4 ++--
+ googletest/cmake/Config.cmake.in      | 3 ++-
+ googletest/cmake/internal_utils.cmake | 4 ++--
+ 4 files changed, 14 insertions(+), 6 deletions(-)
+
+diff --git a/googlemock/CMakeLists.txt b/googlemock/CMakeLists.txt
+index e16974d..9a1ceb4 100644
+--- a/googlemock/CMakeLists.txt
++++ b/googlemock/CMakeLists.txt
+@@ -115,7 +115,14 @@ target_include_directories(gmock_main SYSTEM INTERFACE
+ ########################################################################
+ #
+ # Install rules.
+-install_project(gmock gmock_main)
++install_project(GMockTargets gmock gmock_main)
++
++if(INSTALL_GTEST)
++  set(cmake_files_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${cmake_package_name}")
++  install(EXPORT GMockTargets
++    NAMESPACE ${cmake_package_name}::
++    DESTINATION ${cmake_files_install_dir})
++endif()
+ 
+ ########################################################################
+ #
+diff --git a/googletest/CMakeLists.txt b/googletest/CMakeLists.txt
+index 567d2c5..fdbce4c 100644
+--- a/googletest/CMakeLists.txt
++++ b/googletest/CMakeLists.txt
+@@ -96,7 +96,7 @@ if (INSTALL_GTEST)
+   set(cmake_files_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${cmake_package_name}")
+   set(version_file "${generated_dir}/${cmake_package_name}ConfigVersion.cmake")
+   write_basic_package_version_file(${version_file} VERSION ${GOOGLETEST_VERSION} COMPATIBILITY AnyNewerVersion)
+-  install(EXPORT ${targets_export_name}
++  install(EXPORT GTestTargets
+     COMPONENT "${PROJECT_NAME}"
+     NAMESPACE ${cmake_package_name}::
+     DESTINATION ${cmake_files_install_dir})
+@@ -158,7 +158,7 @@ target_link_libraries(gtest_main PUBLIC gtest)
+ ########################################################################
+ #
+ # Install rules.
+-install_project(gtest gtest_main)
++install_project(GTestTargets gtest gtest_main)
+ 
+ ########################################################################
+ #
+diff --git a/googletest/cmake/Config.cmake.in b/googletest/cmake/Config.cmake.in
+index 3f70661..c343aa5 100644
+--- a/googletest/cmake/Config.cmake.in
++++ b/googletest/cmake/Config.cmake.in
+@@ -9,5 +9,6 @@ if (@GTEST_HAS_ABSL@)
+   find_dependency(re2)
+ endif()
+ 
+-include("${CMAKE_CURRENT_LIST_DIR}/@targets_export_name@.cmake")
++include("${CMAKE_CURRENT_LIST_DIR}/GTestTargets.cmake")
++include("${CMAKE_CURRENT_LIST_DIR}/GMockTargets.cmake" OPTIONAL)
+ check_required_components("@project_name@")
+diff --git a/googletest/cmake/internal_utils.cmake b/googletest/cmake/internal_utils.cmake
+index 83c8ee3..c33d6c6 100644
+--- a/googletest/cmake/internal_utils.cmake
++++ b/googletest/cmake/internal_utils.cmake
+@@ -302,14 +302,14 @@ endfunction()
+ # install_project(targets...)
+ #
+ # Installs the specified targets and configures the associated pkgconfig files.
+-function(install_project)
++function(install_project ExportName)
+   if(INSTALL_GTEST)
+     install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
+       COMPONENT "${PROJECT_NAME}"
+       DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+     # Install the project targets.
+     install(TARGETS ${ARGN}
+-      EXPORT ${targets_export_name}
++      EXPORT ${ExportName}
+       COMPONENT "${PROJECT_NAME}"
+       RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+       ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
