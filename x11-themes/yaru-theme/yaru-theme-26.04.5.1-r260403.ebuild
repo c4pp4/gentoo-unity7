@@ -88,9 +88,9 @@ src_configure() {
 src_install() {
 	meson_src_install
 
-	## Add drop-down menu icon as "go-down-symbolic" ##
+	## Add Yaru-dark drop-down menu icon as "go-down-symbolic" ##
 	insinto /usr/share/icons
-	doins -r "${FILESDIR}"/go-down-icon/*
+	doins -r "${FILESDIR}"/go-down-icon/Yaru-dark
 	local accent
 	for accent in ${ED}/usr/share/icons/Yaru-*-dark; do
 		dosym -r /usr/share/icons/Yaru-dark/scalable/actions/go-down-symbolic.svg \
