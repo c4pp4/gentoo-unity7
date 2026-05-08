@@ -207,14 +207,6 @@ src_prepare() {
 		-e '/killall -9 unity-panel-service/,+1 d' \
 		UnityCore/DBusIndicators.cpp || die
 
-	# New stable dev-libs/boost-1.71 compatibility changes #
-	sed -i \
-		-e 's:boost/utility.hpp:boost/next_prior.hpp:g' \
-		launcher/FavoriteStorePrivate.cpp || die
-
-	# Boost.Math requires C++14 #
-	sed -i "s/c++11/c++14/" CMakeLists.txt
-
 	# unity-base/unity-gtk-module is replaced by x11-misc/appmenu-gtk-module #
 	sed -i \
 		-e 's:unity-gtk-module.service ::' \
