@@ -90,5 +90,10 @@ src_install() {
 
 	## Add drop-down menu icon as "go-down-symbolic" ##
 	insinto /usr/share/icons
-	doins -r "${FILESDIR}"/drop-down-icon/*
+	doins -r "${FILESDIR}"/go-down-icon/*
+	local accent
+	for accent in ${ED}/usr/share/icons/Yaru-*-dark; do
+		dosym -r /usr/share/icons/Yaru-dark/scalable/actions/go-down-symbolic.svg \
+			"${accent/${ED}}"/scalable/actions/go-down-symbolic.svg
+	done
 }

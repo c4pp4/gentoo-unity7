@@ -212,11 +212,6 @@ src_prepare() {
 		-e 's:unity-gtk-module.service ::' \
 		data/unity7.service.in || die
 
-	# Don't use drop-down menu icon from Adwaita theme as it's too dark since v3.30 #
-	sed -i \
-		-e "s/go-down-symbolic/drop-down-symbolic/" \
-		decorations/DecorationsMenuDropdown.cpp || die
-
 	# Fix build.ninja: lexing error #
 	sed -i \
 		-e '/echo "/{s/"/\\"/g}' \

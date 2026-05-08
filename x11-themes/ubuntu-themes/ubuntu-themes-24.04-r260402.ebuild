@@ -57,7 +57,7 @@ src_install() {
 
 	## Add customized drop-down menu icon as "go-down-symbolic", ##
 	##   the one from Adwaita theme is too dark since v3.30 ##
-	doins -r "${FILESDIR}"/drop-down-icon/*
+	doins -r "${FILESDIR}"/go-down-icon/*
 
 	## Add Ambiance indicator-notifications icons ##
 	doins -r "${FILESDIR}"/indicator-notifications/*
