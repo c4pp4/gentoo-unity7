@@ -18,7 +18,7 @@ app-backup/deja-dup                     # Make Deja Dup appear in unity-control-
 app-i18n/ibus                           # Patched for indicator-keyboard support
 app-text/evince                         # Add traditional menu bar (https://bugzilla.gnome.org/show_bug.cgi?id=736419), add menu translations
 dev-cpp/gtest                           # Install /usr/src/{gmock,gtest}/* source files lacking from main tree ebuild
-dev-libs/glib:2                         # Patched to call gettext if .desktop file does not have inline translations, don't try DBusActivatable when in Unity user interface and fallback on Exec=
+dev-libs/glib:2                         # Patched to call gettext if .desktop file does not have inline translations
 dev-qt/qtbase:6                         # Defer QGnomePortalInterface DBus init until event dispatcher exists (fix Krita global menu).
 gnome-base/gnome-desktop:3              # Adjust background color detection for Unity (04_compute_average_color.patch, tweak_color_computation.patch)
 gnome-base/gnome-menus:3                # Needed for some menu patches

@@ -2,17 +2,29 @@ fetch_debian() {
 	local \
 		archive=$2.debian.tar.xz \
 		blake=$1 \
-		wlog="${T}/wget.log"
+		wlog="${T}/wget.log" \
+		ret=1
 
 	pushd "${S}" >/dev/null || die
-		ebegin "Downloading ${color_bold}${archive}${color_norm}"
-			wget "https://launchpad.net/ubuntu/+archive/primary/+files/${archive}" -O "${archive}" -o ${wlog}
-		eend $?
-		grep -iqs "failed\|error" ${wlog} && cat ${wlog} >> ${log}
-		[[ -s ${archive} ]] || die "ehooks: archive not fetched"
-		ebegin "Checking BLAKE2 checksum"
-			b2sum --status -c <(echo "${blake} ${archive}") || die "ehooks: archive checksum did not match"
-		eend $?
+		if [[ -s ${EROOT}/tmp/${archive} ]]; then
+			einfo "Found ${color_bold}${archive}${color_norm}"
+			ebegin "Checking BLAKE2 checksum"
+				b2sum --status -c <(echo "${blake}  ${EROOT}/tmp/${archive}")
+				ret=$?
+			eend ${ret}
+		fi
+		if [[ ${ret} -ne 0 ]]; then
+			ebegin "Downloading ${color_bold}${archive}${color_norm}"
+				wget "https://launchpad.net/ubuntu/+archive/primary/+files/${archive}" -O "${archive}" -o ${wlog}
+			eend $?
+			grep -iqs "failed\|error" ${wlog} && cat ${wlog} >> ${log}
+			[[ -s ${archive} ]] || die "ehooks: archive not fetched"
+			ebegin "Checking BLAKE2 checksum"
+				b2sum --status -c <(echo "${blake}  ${archive}") || die "ehooks: archive checksum did not match"
+			eend $?
+		else
+			cp ${EROOT}/tmp/${archive} ${S} || die
+		fi
 		unpack "${S}/${archive}"
 	popd >/dev/null || die
 }

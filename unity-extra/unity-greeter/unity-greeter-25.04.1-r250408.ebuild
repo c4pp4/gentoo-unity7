@@ -81,11 +81,6 @@ src_prepare() {
 		-e "/hbox.pack_start (entry.image/{s/0/3/}" \
 		"${S}"/src/menubar.vala || die
 
-	# Patch 'at-spi-bus-launcher' path #
-	sed -i \
-		-e "s:/usr/lib/at-spi2-core/at-spi-bus-launcher:/usr/libexec/at-spi-bus-launcher:" \
-		"${S}"/src/unity-greeter.vala || die
-
 	# Disable all language files as they can be incomplete #
 	#  due to being provided by Ubuntu's language-pack packages #
 	> po/LINGUAS
