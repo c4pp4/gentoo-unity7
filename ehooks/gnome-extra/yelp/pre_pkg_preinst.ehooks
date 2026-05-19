@@ -1,9 +1,5 @@
 ehooks() {
-	local launcher="${ED}"/usr/share/applications/"${PN}".desktop
-	[[ -e ${ED}/usr/share/applications/org.gnome.Yelp.desktop ]] \
-		&& launcher=${launcher/"${PN}"/org.gnome.Yelp}
-
 	sed -i \
 		-e "s/Unity;//" \
-		"${launcher}" || die
+		"${ED}"/usr/share/applications/org.gnome.Yelp.desktop || die
 }
