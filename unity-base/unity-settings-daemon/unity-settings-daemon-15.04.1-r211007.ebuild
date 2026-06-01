@@ -86,11 +86,12 @@ BDEPEND=" >=dev-util/intltool-0.37.1"
 S="${WORKDIR}"
 
 PATCHES=(
-	"${FILESDIR}"/optional-colord-and-wacom.patch
-	"${FILESDIR}"/remove-nautilus-support.patch
-	"${FILESDIR}"/shortcut-alt-app.patch
 	"${FILESDIR}"/add-gerror.patch
 	"${FILESDIR}"/fix-gcc-14-build.patch
+	"${FILESDIR}"/optional-colord-and-wacom.patch
+	"${FILESDIR}"/remove-nautilus-support.patch
+	"${FILESDIR}"/rename-mutter-dbus-interface-to-muffin.patch
+	"${FILESDIR}"/shortcut-alt-app.patch
 )
 
 src_prepare() {

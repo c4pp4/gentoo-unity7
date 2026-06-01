@@ -71,6 +71,8 @@ S="${WORKDIR}/${PN}-24.10.1"
 
 PATCHES=(
 	"${FILESDIR}"/environment-variables.patch # Import DISPLAY and XDG_SESSION_CLASS1, set XDG_CURRENT_DESKTOP
+	"${FILESDIR}"/quit-unity-greeter-immediately-on-active-session-login.patch
+	"${FILESDIR}"/rename-ubuntu-session-to-unity.diff
 	"${FILESDIR}"/start-notify-osd.patch
 )
 

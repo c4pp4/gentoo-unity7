@@ -1,0 +1,39 @@
+From e8f558eeedb2896b95d0ffad88d8297e1607b36c Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sun, 24 May 2026 14:17:41 +0200
+Subject: [PATCH 1/1] Prevent duplicate reboot/shutdown confirmation dialogs
+
+This prevents cinnamon-session from showing an additional confirmation
+dialog after the Unity dialog is already displayed, ensuring that only
+a single reboot/shutdown confirmation prompt is shown to the user.
+
+Signed-off-by: c4pp4
+---
+ UnityCore/GnomeSessionManager.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/UnityCore/GnomeSessionManager.cpp b/UnityCore/GnomeSessionManager.cpp
+index 13a650b..5cfee2d 100644
+--- a/UnityCore/GnomeSessionManager.cpp
++++ b/UnityCore/GnomeSessionManager.cpp
+@@ -735,7 +735,7 @@ void GnomeManager::Reboot()
+ {
+   impl_->EnsureCancelPendingAction();
+   impl_->pending_action_ = shell::Action::REBOOT;
+-  impl_->CallGnomeSessionMethod("Reboot", nullptr,
++  impl_->CallGnomeSessionMethod("RequestReboot", nullptr,
+     [this] (GVariant*, glib::Error const& err) {
+       if (err)
+       {
+@@ -757,7 +757,7 @@ void GnomeManager::Shutdown()
+ {
+   impl_->EnsureCancelPendingAction();
+   impl_->pending_action_ = shell::Action::SHUTDOWN;
+-  impl_->CallGnomeSessionMethod("Shutdown", nullptr,
++  impl_->CallGnomeSessionMethod("RequestShutdown", nullptr,
+     [this] (GVariant*, glib::Error const& err) {
+       if (err)
+       {
+-- 
+2.53.0
+

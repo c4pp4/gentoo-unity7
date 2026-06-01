@@ -56,7 +56,6 @@ COMMON_DEPEND="
 "
 RDEPEND="${COMMON_DEPEND}
 	gnome-base/dconf
-	gnome-base/gnome-session[systemd]
 	gnome-extra/nemo
 	media-libs/libglvnd
 	sys-auth/polkit-pkla-compat
@@ -125,6 +124,7 @@ PATCHES=(
 	"${FILESDIR}"/add-unity-version-xml.patch
 	"${FILESDIR}"/fix-recently-used-tracking-for-DBusActivatable-apps.patch
 	"${FILESDIR}"/prevent-compiz-segfault-by-guarding-pthread_join.patch
+	"${FILESDIR}"/prevent-duplicate-reboot-shutdown-dialog.patch
 	"${FILESDIR}"/remove-all-code-related-to-online-search.patch
 	"${FILESDIR}"/revert-unwanted-ubuntu-unity-changes.patch
 	"${FILESDIR}"/set-desktop-name.patch
@@ -199,6 +199,7 @@ src_prepare() {
 
 	sed -i \
 		-e 's:ubuntu.session:unity.session:g' \
+		-e 's:gnome-session:cinnamon-session:g' \
 		tools/{systemd,upstart}-prestart-check || die
 
 	# Don't kill -9 unity-panel-service when launched using PANEL_USE_LOCAL_SERVICE env variable #

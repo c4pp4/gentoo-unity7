@@ -1,5 +1,8 @@
 ## Unity specific session ##
 
+[org.cinnamon.SessionManager]
+logout-prompt = false
+
 [org.gnome.desktop.background:Unity]
 show-desktop-icons = false
 picture-uri = 'file:///usr/share/backgrounds/osselo-Ask_a_friend.jpg'

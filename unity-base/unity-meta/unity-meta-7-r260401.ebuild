@@ -23,7 +23,7 @@ RDEPEND="
 	gnome-extra/nm-applet[appindicator]
 	media-fonts/dejavu
 	unity-base/overlay-scrollbar
-	unity-base/unity
+	unity-base/unity-session
 	unity-extra/unity-greeter
 	x11-misc/gtk-nocsd
 

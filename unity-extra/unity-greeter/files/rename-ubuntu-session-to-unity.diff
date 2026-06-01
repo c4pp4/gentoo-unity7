@@ -1,0 +1,35 @@
+diff '--color=auto' -Nur a/src/greeter-list.vala b/src/greeter-list.vala
+--- a/src/greeter-list.vala	2024-09-09 12:39:30.000000000 +0200
++++ b/src/greeter-list.vala	2026-06-01 23:14:51.414512118 +0200
+@@ -940,7 +940,7 @@
+ 
+     protected virtual string get_lightdm_session ()
+     {
+-        return "ubuntu";
++        return "unity";
+     }
+ 
+     /* Testing code below this */
+diff '--color=auto' -Nur a/src/settings-daemon.vala b/src/settings-daemon.vala
+--- a/src/settings-daemon.vala	2024-09-09 12:39:30.000000000 +0200
++++ b/src/settings-daemon.vala	2026-06-01 23:14:51.414732720 +0200
+@@ -229,6 +229,6 @@
+ public class SessionManagerInterface : Object
+ {
+     public bool session_is_active { get { return true; } }
+-    public string session_name { get { return "ubuntu"; } }
++    public string session_name { get { return "unity"; } }
+     public uint32 inhibited_actions { get { return 0; } }
+ }
+diff '--color=auto' -Nur a/src/user-list.vala b/src/user-list.vala
+--- a/src/user-list.vala	2024-09-09 12:39:30.000000000 +0200
++++ b/src/user-list.vala	2026-06-01 23:14:51.414962105 +0200
+@@ -108,7 +108,7 @@
+         }
+     }
+ 
+-    private string _default_session = "ubuntu";
++    private string _default_session = "unity";
+     public string default_session
+     {
+         get

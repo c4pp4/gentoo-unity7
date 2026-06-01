@@ -75,7 +75,7 @@
 
    - it's possible to use more files in one phase
 
-     see [gnome-base/gnome-session][gnome-session]:
+     see [net-p2p/transmission][transmission]:
 
      ```
      02-pre_src_prepare.ehooks
@@ -179,7 +179,7 @@
 [ehooks]: ../ehooks
 [env]: ../profiles/gentoo-unity7.env
 [fconf]: ../ehooks/media-libs/fontconfig:1.0/01-pre_pkg_preinst.ehooks
-[gnome-session]: ../ehooks/gnome-base/gnome-session
+[transmission]: ../ehooks/net-p2p/transmission
 [libreoffice]: ../ehooks/app-office/libreoffice/01-pre_pkg_preinst.ehooks
 [templates]: ../ehooks/templates
 [uflags]: ../unity-base/gentoo-unity-env/metadata.xml

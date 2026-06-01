@@ -387,32 +387,6 @@ src_install() {
 		"invalid wpa-psk: cannot interpret key with 64 bytes as hex"
 	)
 
-	# gnome-session-properties msgids
-	local -a gs_msgids=(
-		"Select Command"
-		"Add Startup Program"
-		"Edit Startup Program"
-		"The startup command cannot be empty"
-		"The startup command is not valid"
-		"Enabled"
-		"Icon"
-		"Program"
-		"Startup Applications Preferences"
-		"No name"
-		"No description"
-		"Version of this application"
-		"Could not display help document"
-		"Startup Applications"
-		"Choose what applications to start when you log in"
-		"Additional startup _programs:"
-		"_Automatically remember running applications when logging out"
-		"_Remember Currently Running Applications"
-		"Browse…"
-		"Comm_ent:"
-		"Co_mmand:"
-		"_Name:"
-	)
-
 	# langselector panel msgids
 	local -a ls1_msgids=(
 		"Login _Screen"
@@ -454,8 +428,6 @@ src_install() {
 		ucc_po="unity-control-center.po" \
 		uccl_po="unity-control-center.legacy" \
 		gccl_po="gnome-control-center-2.0.legacy" \
-		gs_po="gnome-session.po" \
-		gsl_po="gnome-session.legacy" \
 		ls_po="language-selector.po" \
 		is_po="indicator-session.po" \
 		ylp_po="yelp.po" \
@@ -522,8 +494,7 @@ src_install() {
 	prepare_translations "unity-translations-kinetic" "${ul_po}"
 	prepare_translations "unity-control-center-translations-kinetic" "${uccl_po}"
 	prepare_translations "gnome-control-center-2.0-translations-jammy" "${gccl_po}"
-	prepare_translations "gnome-session-translations-questing" "${gs_po}"
-	prepare_translations "gnome-session-translations-xenial" "${gsl_po}"
+	prepare_translations "cinnamon-session-translations-151017" "unity-session-properties.po"
 
 	_progress_counter=0
 	_progress_indicator() {
@@ -559,21 +530,6 @@ src_install() {
 			x=${pofile/${ucc_po}/${ls_po}}
 			x=${x/gnome-}
 			process_msgids "${x}" "${pofile}" "${ls2_msgids[@]}"
-		fi
-
-		# Add translations for gnome-session-properties
-		if [[ ${pofile##*/} == ${gs_po} ]]; then
-			process_msgids "${pofile/${gs_po}/${gsl_po}}" "${pofile}" "${gs_msgids[@]}"
-			[[ -e ${pofile} ]] || continue
-		fi
-		if [[ ${pofile##*/} == ${gsl_po} ]]; then
-			process_msgids "${pofile}" "${pofile/${gsl_po}/${gs_po}}" "${gs_msgids[@]}"
-			if [[ -e ${pofile} ]]; then
-				mv "${pofile}" "${pofile/${gsl_po}/${gs_po}}"
-				pofile="${pofile/${gsl_po}/${gs_po}}"
-			else
-				continue
-			fi
 		fi
 
 		# Add translations for Unity help desktop launcher

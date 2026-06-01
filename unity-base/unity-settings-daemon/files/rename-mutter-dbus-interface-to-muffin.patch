@@ -1,0 +1,122 @@
+From 94e017f7a9ff0ede9f574fb9d4e37cff0513d47f Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Thu, 21 May 2026 16:07:12 +0200
+Subject: [PATCH 1/1] Rename Mutter D-Bus interface to Muffin
+
+Update the idle monitor D-Bus namespace from
+org.gnome.Mutter.IdleMonitor to org.cinnamon.Muffin.IdleMonitor
+as part of the transition from gnome-session to cinnamon-session
+in the Unity session.
+
+This updates the D-Bus interface name, object paths, owned bus name
+and gdbus-codegen interface prefix to use the Muffin namespace
+expected by cinnamon-session-based components.
+
+Signed-off-by: c4pp4
+---
+ gnome-settings-daemon/Makefile.am        |  2 +-
+ gnome-settings-daemon/gsd-idle-monitor.c | 14 +++++++-------
+ gnome-settings-daemon/idle-monitor.xml   |  4 ++--
+ 3 files changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/gnome-settings-daemon/Makefile.am b/gnome-settings-daemon/Makefile.am
+index 9111e34..2a4d4b0 100644
+--- a/gnome-settings-daemon/Makefile.am
++++ b/gnome-settings-daemon/Makefile.am
+@@ -76,7 +76,7 @@ dbus_idle_built_sources = meta-dbus-idle-monitor.c meta-dbus-idle-monitor.h
+ 
+ $(dbus_idle_built_sources) : Makefile.am idle-monitor.xml
+ 	$(AM_V_GEN)gdbus-codegen                                                        \
+-		--interface-prefix org.gnome.Mutter                                     \
++		--interface-prefix org.cinnamon.Muffin                                  \
+ 		--c-namespace MetaDBus                                                  \
+ 		--generate-c-code meta-dbus-idle-monitor                                \
+ 		--c-generate-object-manager                                             \
+diff --git a/gnome-settings-daemon/gsd-idle-monitor.c b/gnome-settings-daemon/gsd-idle-monitor.c
+index fc7aaf7..c9a33d1 100644
+--- a/gnome-settings-daemon/gsd-idle-monitor.c
++++ b/gnome-settings-daemon/gsd-idle-monitor.c
+@@ -25,7 +25,7 @@
+ /**
+  * SECTION:idle-monitor
+  * @title: GsdIdleMonitor
+- * @short_description: Mutter idle counter (similar to X's IDLETIME)
++ * @short_description: Muffin idle counter (similar to X's IDLETIME)
+  */
+ 
+ #include "config.h"
+@@ -712,7 +712,7 @@ dbus_idle_callback (GsdIdleMonitor *monitor,
+   g_dbus_connection_emit_signal (g_dbus_interface_skeleton_get_connection (skeleton),
+                                  watch->dbus_name,
+                                  g_dbus_interface_skeleton_get_object_path (skeleton),
+-                                 "org.gnome.Mutter.IdleMonitor",
++                                 "org.cinnamon.Muffin.IdleMonitor",
+                                  "WatchFired",
+                                  g_variant_new ("(u)", watch_id),
+                                  NULL);
+@@ -838,7 +838,7 @@ on_device_added (GdkDeviceManager         *device_manager,
+   device_id = gdk_x11_device_get_id (device);
+   monitor = gsd_idle_monitor_get_for_device (device_id);
+   g_object_ref(monitor);
+-  path = g_strdup_printf ("/org/gnome/Mutter/IdleMonitor/Device%d", device_id);
++  path = g_strdup_printf ("/org/cinnamon/Muffin/IdleMonitor/Device%d", device_id);
+ 
+   create_monitor_skeleton (manager, monitor, path);
+   g_free (path);
+@@ -853,7 +853,7 @@ on_device_removed (GdkDeviceManager         *device_manager,
+   char *path;
+ 
+   device_id = gdk_x11_device_get_id (device);
+-  path = g_strdup_printf ("/org/gnome/Mutter/IdleMonitor/Device%d", device_id);
++  path = g_strdup_printf ("/org/cinnamon/Muffin/IdleMonitor/Device%d", device_id);
+   g_dbus_object_manager_server_unexport (manager, path);
+   g_free (path);
+ 
+@@ -873,12 +873,12 @@ on_bus_acquired (GDBusConnection *connection,
+   GList *devices, *iter;
+   char *path;
+ 
+-  manager = g_dbus_object_manager_server_new ("/org/gnome/Mutter/IdleMonitor");
++  manager = g_dbus_object_manager_server_new ("/org/cinnamon/Muffin/IdleMonitor");
+ 
+   /* We never clear the core monitor, as that's supposed to cumulate idle times from
+      all devices */
+   monitor = gsd_idle_monitor_get_core ();
+-  path = g_strdup ("/org/gnome/Mutter/IdleMonitor/Core");
++  path = g_strdup ("/org/cinnamon/Muffin/IdleMonitor/Core");
+   create_monitor_skeleton (manager, monitor, path);
+   g_free (path);
+ 
+@@ -964,7 +964,7 @@ gsd_idle_monitor_init_dbus (gboolean replace)
+   init_xsync_global();
+ 
+   dbus_name_id = g_bus_own_name (G_BUS_TYPE_SESSION,
+-                                 "org.gnome.Mutter.IdleMonitor",
++                                 "org.cinnamon.Muffin.IdleMonitor",
+                                  G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT |
+                                  (replace ?
+                                   G_BUS_NAME_OWNER_FLAGS_REPLACE : 0),
+diff --git a/gnome-settings-daemon/idle-monitor.xml b/gnome-settings-daemon/idle-monitor.xml
+index 34a26dd..5203883 100644
+--- a/gnome-settings-daemon/idle-monitor.xml
++++ b/gnome-settings-daemon/idle-monitor.xml
+@@ -3,14 +3,14 @@
+ 'http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd'>
+ <node>
+   <!--
+-      org.gnome.Mutter.IdleMonitor:
++      org.cinnamon.Muffin.IdleMonitor:
+       @short_description: idle monitor interface
+ 
+       This interface is used by gnome-desktop to implement
+       user activity monitoring.
+   -->
+ 
+-  <interface name="org.gnome.Mutter.IdleMonitor">
++  <interface name="org.cinnamon.Muffin.IdleMonitor">
+     <method name="GetIdletime">
+       <arg name="idletime" direction="out" type="t"/>
+     </method>
+-- 
+2.53.0
+

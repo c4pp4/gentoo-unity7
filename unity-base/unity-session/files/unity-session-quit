@@ -1,0 +1,25 @@
+#!/bin/sh
+
+BUS="org.gnome.SessionManager"
+OBJ="/org/gnome/SessionManager"
+IFACE="org.gnome.SessionManager"
+
+ACTION="${1:---logout}"
+
+case "$ACTION" in
+  --logout)
+    METHOD="Logout u 0"
+    ;;
+  --reboot)
+    METHOD="RequestReboot"
+    ;;
+  --power-off)
+    METHOD="RequestShutdown"
+    ;;
+  *)
+    echo "Options: $0 {--logout|--reboot|--power-off}" >&2
+    exit 1
+    ;;
+esac
+
+busctl --user call $BUS $OBJ $IFACE $METHOD

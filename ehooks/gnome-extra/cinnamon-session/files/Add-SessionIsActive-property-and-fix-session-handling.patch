@@ -1,0 +1,686 @@
+From 1fd33c46464f8a7be27c9356e6e5f10bf071f6fd Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Mon, 25 May 2026 00:12:18 +0200
+Subject: [PATCH 1/1] Add SessionIsActive property and fix session handling
+
+systemd: add SessionIsActive property and improve session tracking
+
+Expose current session foreground state through a new SessionIsActive
+D-Bus property backed by systemd-logind session notifications.
+
+The systemd backend now tracks session active state using
+sd_session_is_active() and updates via sd-login monitor events.
+
+This also refactors session_id handling to use a single source of truth
+and improves fallback behavior when logind is unavailable.
+
+Signed-off-by: c4pp4
+---
+ cinnamon-session/csm-manager.c                |  32 ++-
+ cinnamon-session/csm-system.c                 |  26 ++
+ cinnamon-session/csm-system.h                 |   2 +
+ cinnamon-session/csm-systemd.c                | 267 +++++++++++++++---
+ cinnamon-session/org.gnome.SessionManager.xml |   9 +
+ 5 files changed, 297 insertions(+), 39 deletions(-)
+
+diff --git a/cinnamon-session/csm-manager.c b/cinnamon-session/csm-manager.c
+index 4a525b7..5073d73 100644
+--- a/cinnamon-session/csm-manager.c
++++ b/cinnamon-session/csm-manager.c
+@@ -206,6 +206,10 @@ static void     request_hibernate (CsmManager *manager);
+ static void     maybe_save_session   (CsmManager *manager);
+ static void     maybe_play_logout_sound (CsmManager *manager);
+ 
++static void     on_csm_system_active_changed (CsmSystem  *system,
++                                              GParamSpec *pspec G_GNUC_UNUSED,
++                                              CsmManager *self);
++
+ static gboolean _log_out_is_locked_down     (CsmManager *manager);
+ static gboolean _switch_user_is_locked_down (CsmManager *manager);
+ 
+@@ -2924,6 +2928,12 @@ register_manager (CsmManager *manager)
+                                   manager);
+         }
+ 
++        g_signal_connect (manager->priv->system, "notify::active",
++                          G_CALLBACK (on_csm_system_active_changed), manager);
++
++        /* cold-plug SessionIsActive */
++        on_csm_system_active_changed (manager->priv->system, NULL, manager);
++
+         return TRUE;
+ }
+ 
+@@ -3678,6 +3688,20 @@ on_presence_status_changed (CsmPresence  *presence,
+         g_object_unref (system);
+ }
+ 
++static void
++on_csm_system_active_changed (CsmSystem  *system,
++                              GParamSpec *pspec G_GNUC_UNUSED,
++                              CsmManager *self)
++{
++        gboolean is_active;
++
++        is_active = csm_system_is_active (system);
++
++        g_debug ("emitting SessionIsActive");
++
++        csm_exported_manager_set_session_is_active (self->priv->skeleton, is_active);
++}
++
+ static gboolean
+ idle_timeout_get_mapping (GValue *value,
+                           GVariant *variant,
+@@ -3958,12 +3982,14 @@ close_end_session_dialog (CsmManager *manager)
+                                   &error);
+     g_debug ("ret is: %p", ret);
+ 
+-    g_variant_unref (ret);
+-
+     if (error != NULL) {
+-        g_critical ("Unable to close Cinnamon's end session dialog: %s", error->message);
++        if (!g_error_matches (error, G_DBUS_ERROR, G_DBUS_ERROR_SERVICE_UNKNOWN))
++            g_warning ("Unable to close Cinnamon's end session dialog: %s", error->message);
++
+         g_error_free (error);
+     }
++
++    g_clear_pointer (&ret, g_variant_unref);
+ }
+ 
+ static void
+diff --git a/cinnamon-session/csm-system.c b/cinnamon-session/csm-system.c
+index c6be7b5..20755f7 100644
+--- a/cinnamon-session/csm-system.c
++++ b/cinnamon-session/csm-system.c
+@@ -33,6 +33,11 @@ enum {
+         LAST_SIGNAL
+ };
+ 
++enum {
++        PROP_0,
++        PROP_ACTIVE
++};
++
+ static guint signals[LAST_SIGNAL] = { 0 };
+ 
+ G_DEFINE_INTERFACE (CsmSystem, csm_system, G_TYPE_OBJECT)
+@@ -40,6 +45,7 @@ G_DEFINE_INTERFACE (CsmSystem, csm_system, G_TYPE_OBJECT)
+ static void
+ csm_system_default_init (CsmSystemInterface *iface)
+ {
++        GParamSpec *pspec;
+         signals [REQUEST_FAILED] =
+                 g_signal_new ("request-failed",
+                               CSM_TYPE_SYSTEM,
+@@ -50,6 +56,12 @@ csm_system_default_init (CsmSystemInterface *iface)
+                               g_cclosure_marshal_VOID__POINTER,
+                               G_TYPE_NONE,
+                               1, G_TYPE_POINTER);
++        pspec = g_param_spec_boolean ("active",
++                                      "Active",
++                                      "Whether or not session is active",
++                                      TRUE,
++                                      G_PARAM_READABLE);
++        g_object_interface_install_property (iface, pspec);
+ }
+ 
+ GQuark
+@@ -170,6 +182,20 @@ csm_system_get_login_session_id (CsmSystem    *system)
+         return CSM_SYSTEM_GET_IFACE (system)->get_login_session_id (system);
+ }
+ 
++/**
++ * csm_system_is_active:
++ *
++ * Returns: %TRUE if the current session is in the foreground
++ * Since: 3.8
++ */
++gboolean
++csm_system_is_active (CsmSystem *system)
++{
++        gboolean is_active;
++        g_object_get ((GObject*)system, "active", &is_active, NULL);
++        return is_active;
++}
++
+ CsmSystem *
+ csm_get_system (void)
+ {
+diff --git a/cinnamon-session/csm-system.h b/cinnamon-session/csm-system.h
+index 7252124..273cd09 100644
+--- a/cinnamon-session/csm-system.h
++++ b/cinnamon-session/csm-system.h
+@@ -114,6 +114,8 @@ gboolean   csm_system_is_login_session (CsmSystem *system);
+ 
+ gboolean   csm_system_is_last_session_for_user (CsmSystem *system);
+ 
++gboolean   csm_system_is_active        (CsmSystem *system);
++
+ void       csm_system_add_inhibitor    (CsmSystem        *system,
+                                         const gchar      *id,
+                                         CsmInhibitorFlag  flags);
+diff --git a/cinnamon-session/csm-systemd.c b/cinnamon-session/csm-systemd.c
+index db3fe84..bba570a 100644
+--- a/cinnamon-session/csm-systemd.c
++++ b/cinnamon-session/csm-systemd.c
+@@ -55,12 +55,20 @@
+ 
+ struct _CsmSystemdPrivate
+ {
++        GSource         *sd_source;
+         GDBusProxy      *sd_proxy;
+         char            *session_id;
+         gchar           *session_path;
+ 
+         GSList          *inhibitors;
+         gint             inhibit_fd;
++
++        gboolean         is_active;
++};
++
++enum {
++        PROP_0,
++        PROP_ACTIVE
+ };
+ 
+ static void csm_systemd_system_init (CsmSystemInterface *iface);
+@@ -88,6 +96,11 @@ csm_systemd_finalize (GObject *object)
+         free (systemd->priv->session_id);
+         g_free (systemd->priv->session_path);
+ 
++        if (systemd->priv->sd_source) {
++                g_source_destroy (systemd->priv->sd_source);
++                g_source_unref (systemd->priv->sd_source);
++        }
++
+         if (systemd->priv->inhibitors != NULL) {
+                 g_slist_free_full (systemd->priv->inhibitors, g_free);
+         }
+@@ -96,6 +109,24 @@ csm_systemd_finalize (GObject *object)
+         G_OBJECT_CLASS (csm_systemd_parent_class)->finalize (object);
+ }
+ 
++static void
++csm_systemd_get_property (GObject    *object,
++                          guint       prop_id,
++                          GValue     *value,
++                          GParamSpec *pspec)
++{
++        CsmSystemd *self = CSM_SYSTEMD (object);
++
++        switch (prop_id) {
++        case PROP_ACTIVE:
++                g_value_set_boolean (value, self->priv->is_active);
++                break;
++        default:
++                G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
++                break;
++        }
++}
++
+ static void
+ csm_systemd_class_init (CsmSystemdClass *manager_class)
+ {
+@@ -103,17 +134,124 @@ csm_systemd_class_init (CsmSystemdClass *manager_class)
+ 
+         object_class = G_OBJECT_CLASS (manager_class);
+ 
++        object_class->get_property = csm_systemd_get_property;
+         object_class->finalize = csm_systemd_finalize;
+ 
++        g_object_class_override_property (object_class, PROP_ACTIVE, "active");
++
+         g_type_class_add_private (manager_class, sizeof (CsmSystemdPrivate));
+ }
+ 
++typedef struct
++{
++        GSource source;
++        GPollFD pollfd;
++        sd_login_monitor *monitor;
++} SdSource;
++
++static gboolean
++sd_source_prepare (GSource *source,
++                   gint    *timeout)
++{
++        *timeout = -1;
++        return FALSE;
++}
++
++static gboolean
++sd_source_check (GSource *source)
++{
++        SdSource *sd_source = (SdSource *)source;
++
++        return (sd_source->pollfd.revents &
++                (G_IO_IN | G_IO_ERR | G_IO_HUP | G_IO_NVAL)) != 0;
++}
++
++static gboolean
++sd_source_dispatch (GSource     *source,
++                    GSourceFunc  callback,
++                    gpointer     user_data)
++
++{
++        SdSource *sd_source = (SdSource *)source;
++        gboolean ret;
++
++        g_warn_if_fail (callback != NULL);
++
++        sd_login_monitor_flush (sd_source->monitor);
++
++        ret = (*callback) (user_data);
++
++        return ret;
++}
++
++static void
++sd_source_finalize (GSource *source)
++{
++        SdSource *sd_source = (SdSource*)source;
++
++        sd_login_monitor_unref (sd_source->monitor);
++}
++
++static GSourceFuncs sd_source_funcs = {
++        sd_source_prepare,
++        sd_source_check,
++        sd_source_dispatch,
++        sd_source_finalize
++};
++
++static GSource *
++sd_source_new (void)
++{
++        GSource *source;
++        SdSource *sd_source;
++        int ret;
++
++        source = g_source_new (&sd_source_funcs, sizeof (SdSource));
++        sd_source = (SdSource *)source;
++
++        if ((ret = sd_login_monitor_new (NULL, &sd_source->monitor)) < 0) {
++                g_warning ("Error getting login monitor: %d", ret);
++                g_source_unref (source);
++                return NULL;
++        } else {
++                sd_source->pollfd.fd = sd_login_monitor_get_fd (sd_source->monitor);
++                sd_source->pollfd.events = G_IO_IN;
++                g_source_add_poll (source, &sd_source->pollfd);
++        }
++
++        return source;
++}
++
++static gboolean
++on_sd_source_changed (gpointer user_data)
++{
++        CsmSystemd *self = user_data;
++        int active_r;
++        gboolean active;
++
++        if (self->priv->session_id == NULL)
++                return G_SOURCE_CONTINUE;
++
++        active_r = sd_session_is_active (self->priv->session_id);
++        if (active_r < 0)
++                active = FALSE;
++        else
++                active = active_r;
++        if (active != self->priv->is_active) {
++                self->priv->is_active = active;
++                g_object_notify (G_OBJECT (self), "active");
++        }
++        
++        return G_SOURCE_CONTINUE;
++}
++
+ static void
+ csm_systemd_init (CsmSystemd *manager)
+ {
+         GError *error;
+         GDBusConnection *bus;
+         GVariant *res;
++        int ret;
+ 
+         manager->priv = G_TYPE_INSTANCE_GET_PRIVATE (manager,
+                                                      CSM_TYPE_SYSTEMD,
+@@ -148,13 +286,22 @@ csm_systemd_init (CsmSystemd *manager)
+                 g_object_unref (bus);
+         }
+ 
+-        sd_pid_get_session (getpid (), &manager->priv->session_id);
++        ret = sd_pid_get_session (getpid (), &manager->priv->session_id);
++
++        if (ret < 0 || manager->priv->session_id == NULL) {
++                const gchar *env_session = g_getenv ("XDG_SESSION_ID");
++                if (env_session && *env_session) {
++                        manager->priv->session_id = strdup (env_session);
++                        g_warning ("Falling back to XDG_SESSION_ID");
++                } else {
++                        g_warning ("Could not get session id for session. Check that logind is "
++                                   "properly installed and pam_systemd is getting used at login.");
++                        return;
++                }
++        }
+ 
+-        if (manager->priv->session_id == NULL) {
+-                g_warning ("Could not get session id for session. Check that logind is "
+-                           "properly installed and pam_systemd is getting used at login.");
++        if (manager->priv->sd_proxy == NULL)
+                 return;
+-        }
+ 
+         res = g_dbus_proxy_call_sync (manager->priv->sd_proxy,
+                                       "GetSession",
+@@ -166,11 +313,24 @@ csm_systemd_init (CsmSystemd *manager)
+         if (res == NULL) {
+                 g_warning ("Could not get session id for session. Check that logind is "
+                            "properly installed and pam_systemd is getting used at login.");
++                g_clear_object (&manager->priv->sd_proxy);
+                 return;
+         }
+ 
+         g_variant_get (res, "(o)", &manager->priv->session_path);
+         g_variant_unref (res);
++
++        manager->priv->sd_source = sd_source_new ();
++        if (manager->priv->sd_source != NULL) {
++                g_source_set_callback (manager->priv->sd_source,
++                                       on_sd_source_changed,
++                                       g_object_ref (manager),
++                                       g_object_unref);
++                g_source_attach (manager->priv->sd_source, NULL);
++        }
++
++        if (manager->priv->sd_source != NULL)
++                on_sd_source_changed (manager);
+ }
+ 
+ static void
+@@ -201,6 +361,9 @@ csm_systemd_attempt_restart (CsmSystem *system)
+ 
+         CsmSystemd *manager = CSM_SYSTEMD (system);
+ 
++        if (manager->priv->sd_proxy == NULL)
++                return;
++
+         g_dbus_proxy_call (manager->priv->sd_proxy,
+                            "Reboot",
+                            g_variant_new ("(b)", TRUE),
+@@ -239,6 +402,9 @@ csm_systemd_attempt_stop (CsmSystem *system)
+ 
+         CsmSystemd *manager = CSM_SYSTEMD (system);
+ 
++        if (manager->priv->sd_proxy == NULL)
++                return;
++
+         g_dbus_proxy_call (manager->priv->sd_proxy,
+                            "PowerOff",
+                            g_variant_new ("(b)", TRUE),
+@@ -257,6 +423,10 @@ csm_systemd_set_session_idle (CsmSystem *system,
+         GDBusConnection *bus;
+ 
+         g_debug ("Updating systemd idle status: %d", is_idle);
++
++        if (manager->priv->sd_proxy == NULL)
++                return;
++
+         bus = g_dbus_proxy_get_connection (manager->priv->sd_proxy);
+         g_dbus_connection_call (bus,
+                                 SD_NAME,
+@@ -264,7 +434,7 @@ csm_systemd_set_session_idle (CsmSystem *system,
+                                 SD_SESSION_INTERFACE,
+                                 "SetIdleHint",
+                                 g_variant_new ("(b)", is_idle),
+-                                G_VARIANT_TYPE_BOOLEAN,
++                                G_VARIANT_TYPE_UNIT,
+                                 0,
+                                 G_MAXINT,
+                                 NULL, NULL, NULL);
+@@ -277,7 +447,10 @@ csm_systemd_can_switch_user (CsmSystem *system)
+         gchar *seat;
+         gint ret;
+ 
+-        sd_session_get_seat (manager->priv->session_id, &seat);
++        ret = sd_session_get_seat (manager->priv->session_id, &seat);
++        if (ret < 0 || seat == NULL)
++                return FALSE;
++
+         ret = sd_seat_can_multi_session (seat);
+         free (seat);
+ 
+@@ -292,6 +465,9 @@ csm_systemd_can_restart (CsmSystem *system)
+         GVariant *res;
+         gboolean can_restart;
+ 
++        if (manager->priv->sd_proxy == NULL)
++                return FALSE;
++
+         res = g_dbus_proxy_call_sync (manager->priv->sd_proxy,
+                                       "CanReboot",
+                                       NULL,
+@@ -324,6 +500,9 @@ csm_systemd_can_stop (CsmSystem *system)
+         GVariant *res;
+         gboolean can_stop;
+ 
++        if (manager->priv->sd_proxy == NULL)
++                return FALSE;
++
+         res = g_dbus_proxy_call_sync (manager->priv->sd_proxy,
+                                       "CanPowerOff",
+                                       NULL,
+@@ -381,6 +560,9 @@ csm_systemd_can_hybrid_sleep (CsmSystem *system)
+         GVariant *res;
+         gboolean can_hybrid_sleep;
+ 
++        if (manager->priv->sd_proxy == NULL)
++                return FALSE;
++
+         res = g_dbus_proxy_call_sync (manager->priv->sd_proxy,
+                                       "CanHybridSleep",
+                                       NULL,
+@@ -413,6 +595,9 @@ csm_systemd_can_suspend (CsmSystem *system)
+         GVariant *res;
+         gboolean can_suspend;
+ 
++        if (manager->priv->sd_proxy == NULL)
++                return FALSE;
++
+         res = g_dbus_proxy_call_sync (manager->priv->sd_proxy,
+                                       "CanSuspend",
+                                       NULL,
+@@ -445,6 +630,9 @@ csm_systemd_can_hibernate (CsmSystem *system)
+         GVariant *res;
+         gboolean can_hibernate;
+ 
++        if (manager->priv->sd_proxy == NULL)
++                return FALSE;
++
+         res = g_dbus_proxy_call_sync (manager->priv->sd_proxy,
+                                       "CanHibernate",
+                                       NULL,
+@@ -531,6 +719,9 @@ csm_systemd_hybrid_sleep (CsmSystem *system)
+ {
+         CsmSystemd *manager = CSM_SYSTEMD (system);
+ 
++        if (manager->priv->sd_proxy == NULL)
++                return;
++
+         g_dbus_proxy_call (manager->priv->sd_proxy,
+                            "HybridSleep",
+                            g_variant_new ("(b)", TRUE),
+@@ -544,7 +735,7 @@ csm_systemd_hybrid_sleep (CsmSystem *system)
+ static void
+ csm_systemd_suspend (CsmSystem *system, gboolean suspend_then_hibernate)
+ {
+-	gchar *method = "Suspend";
++	const gchar *method = "Suspend";
+ 	if (suspend_then_hibernate && csm_systemd_can_suspend (system) && csm_systemd_can_hibernate (system)) {
+ 		method = "SuspendThenHibernate";
+ 	}
+@@ -552,13 +743,16 @@ csm_systemd_suspend (CsmSystem *system, gboolean suspend_then_hibernate)
+ 
+         CsmSystemd *manager = CSM_SYSTEMD (system);
+ 
++        if (manager->priv->sd_proxy == NULL)
++                return;
++
+         g_dbus_proxy_call (manager->priv->sd_proxy,
+                            method,
+                            g_variant_new ("(b)", TRUE),
+                            0,
+                            G_MAXINT,
+                            NULL,
+-                           hibernate_done,
++                           suspend_done,
+                            manager);
+ }
+ 
+@@ -567,13 +761,16 @@ csm_systemd_hibernate (CsmSystem *system)
+ {
+         CsmSystemd *manager = CSM_SYSTEMD (system);
+ 
++        if (manager->priv->sd_proxy == NULL)
++                return;
++
+         g_dbus_proxy_call (manager->priv->sd_proxy,
+                            "Hibernate",
+                            g_variant_new ("(b)", TRUE),
+                            0,
+                            G_MAXINT,
+                            NULL,
+-                           suspend_done,
++                           hibernate_done,
+                            manager);
+ }
+ 
+@@ -621,6 +818,9 @@ csm_systemd_add_inhibitor (CsmSystem        *system,
+         if ((flag & CSM_INHIBITOR_FLAG_SUSPEND) == 0)
+                 return;
+ 
++        if (manager->priv->sd_proxy == NULL)
++                return;
++
+         if (manager->priv->inhibitors == NULL) {
+                 g_debug ("Adding system inhibitor");
+                 g_dbus_proxy_call_with_unix_fd_list (manager->priv->sd_proxy,
+@@ -661,34 +861,34 @@ csm_systemd_remove_inhibitor (CsmSystem   *system,
+ static gboolean
+ csm_systemd_is_last_session_for_user (CsmSystem *system)
+ {
+-        char **sessions = NULL;
+-        char *session = NULL;
++        CsmSystemd *manager = CSM_SYSTEMD (system);
++
++        gchar **sessions = NULL;
++        const gchar *session = NULL;
+         gboolean is_last_session;
+         int ret, i;
+ 
+-        ret = sd_pid_get_session (getpid (), &session);
+-
+-        if (ret != 0) {
++        session = manager->priv->session_id;
++        if (session == NULL || *session == '\0')
+                 return FALSE;
+-        }
+ 
+         ret = sd_uid_get_sessions (getuid (), FALSE, &sessions);
+ 
+-        if (ret <= 0) {
++        if (ret < 0 || sessions == NULL) {
+                 return FALSE;
+         }
+ 
+         is_last_session = TRUE;
+         for (i = 0; sessions[i]; i++) {
+-                char *state = NULL;
+-                char *type = NULL;
++                gchar *state = NULL;
++                gchar *type = NULL;
+ 
+                 if (g_strcmp0 (sessions[i], session) == 0)
+                         continue;
+ 
+                 ret = sd_session_get_state (sessions[i], &state);
+ 
+-                if (ret != 0)
++                if (ret < 0 || state == NULL)
+                         continue;
+ 
+                 if (g_strcmp0 (state, "closing") == 0) {
+@@ -699,16 +899,17 @@ csm_systemd_is_last_session_for_user (CsmSystem *system)
+ 
+                 ret = sd_session_get_type (sessions[i], &type);
+ 
+-                if (ret != 0)
++                if (ret < 0 || type == NULL)
+                         continue;
+ 
+-                if (g_strcmp0 (type, "x11") != 0 &&
+-                    g_strcmp0 (type, "wayland") != 0) {
++                if (g_strcmp0 (type, "x11") == 0 ||
++                    g_strcmp0 (type, "wayland") == 0) {
++                        is_last_session = FALSE;
+                         free (type);
+-                        continue;
++                        break;
+                 }
+ 
+-                is_last_session = FALSE;
++                free (type);
+         }
+ 
+         for (i = 0; sessions[i]; i++)
+@@ -723,19 +924,13 @@ csm_systemd_get_login_session_id (CsmSystem *system)
+ {
+         CsmSystemd *manager = CSM_SYSTEMD (system);
+ 
+-        gchar *pid_session;
+-        gint ret;
+-
+-        ret = sd_pid_get_session (getpid (), &pid_session);
+-
+-        if (ret < 0) {
+-            g_printerr ("can't get login session id for cinnamon-session. errno: %d\n", -ret);
+-            return NULL;
+-        }
++        if (manager->priv->session_id == NULL ||
++            *manager->priv->session_id == '\0')
++                return NULL;
+ 
+-        g_debug ("Login session ID is: %s\n", pid_session);
++        g_debug ("Login session ID is: %s\n", manager->priv->session_id);
+ 
+-        return pid_session;
++        return g_strdup (manager->priv->session_id);
+ }
+ 
+ static void
+diff --git a/cinnamon-session/org.gnome.SessionManager.xml b/cinnamon-session/org.gnome.SessionManager.xml
+index 70ab848..de87642 100644
+--- a/cinnamon-session/org.gnome.SessionManager.xml
++++ b/cinnamon-session/org.gnome.SessionManager.xml
+@@ -439,6 +439,15 @@
+       </doc:doc>
+     </property>
+ 
++    <property name="SessionIsActive" type="b" access="read">
++      <doc:doc>
++        <doc:description>
++          <doc:para>If true, the session is currently in the
++          foreground and available for user input.</doc:para>
++        </doc:description>
++      </doc:doc>
++    </property>
++
+     <method name="RestartCinnamonLauncher">
+       <doc:doc>
+         <doc:description>
+-- 
+2.53.0
+

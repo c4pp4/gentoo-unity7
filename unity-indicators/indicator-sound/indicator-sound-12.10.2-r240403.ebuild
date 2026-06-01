@@ -69,6 +69,11 @@ src_prepare() {
 		-e "/add_definitions(/a -DVALA_EXTERN=extern" \
 		src/CMakeLists.txt || die
 
+	# Speed up the termination of service #
+	sed -i \
+		-e "/PartOf/{s/$/ unity-session.service/}" \
+		data/indicator-sound.service.in || die
+
 	# Disable all language files as they can be incomplete #
 	#  due to being provided by Ubuntu's language-pack packages #
 	cmake_comment_add_subdirectory po

@@ -30,16 +30,8 @@ gnome-base/gnome-menus:3                # Needed for some menu patches
                                         #  translate-Debian-directories.patch
                                         #  80_file_monitor_delayed.patch
                                         #  ubuntu_gcc_translations.patch
-gnome-base/gnome-session                # Installs session files for launching Unity7 user interface
-                                        #  Ubuntu patchset:
-                                        #  debian/Revert-main-Remove-GNOME_DESKTOP_SESSION_ID-envvar.patch
-                                        #  ubuntu/support_autostart_delay.patch
-                                        #  ubuntu/ubuntu-sessions.patch
-                                        #  ubuntu/remove_session_saving_from_gui.patch
-                                        #  ubuntu/add_sessionmigration.patch
-                                        #  ubuntu/dbus_request_shutdown.patch
-                                        #  revert_remove_gnome_session_properties.patch
 gnome-base/gsettings-desktop-schemas    # Add a new preference to lock the screen when the system suspends
+gnome-extra/cinnamon-session            # Add SessionIsActive property and fix session handling, enable-nm-applet-autostart, add unity-session-properties application, use the default mechanism to check XDG_CURRENT_DESKTOP
 gnome-extra/evolution-data-server       # Use libnotify when available (evolution-alarm-notify)
 gnome-extra/gnome-calendar              # Use unity-control-center as the fallback
 gnome-extra/gnome-contacts              # Use unity-control-center as the fallback

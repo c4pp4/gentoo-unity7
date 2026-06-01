@@ -1,0 +1,4586 @@
+From f7600e738f81f11e4818433a498173b96e550274 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sun, 24 May 2026 15:50:30 +0200
+Subject: [PATCH 1/1] unity-session-properties application
+
+The unity-session-properties application enables the users to configure
+what applications should be started on login, in addition to the default
+startup applications configured on the system.
+
+Signed-off-by: c4pp4
+---
+ capplet/csm-app-dialog.c                 |  602 ++++++++++++
+ capplet/csm-app-dialog.h                 |   71 ++
+ capplet/csm-properties-dialog.c          |  794 +++++++++++++++
+ capplet/csm-properties-dialog.h          |   57 ++
+ capplet/csp-app-manager.c                |  593 +++++++++++
+ capplet/csp-app-manager.h                |   81 ++
+ capplet/csp-app.c                        | 1145 ++++++++++++++++++++++
+ capplet/csp-app.h                        |  111 +++
+ capplet/csp-keyfile.c                    |  170 ++++
+ capplet/csp-keyfile.h                    |   66 ++
+ capplet/main.c                           |  122 +++
+ capplet/meson.build                      |   44 +
+ cinnamon-session/csm-quit-compat.c       |    6 +
+ cinnamon-session/meson.build             |   12 +-
+ data/meson.build                         |    9 +-
+ data/session-properties.ui               |  405 ++++++++
+ data/unity-session-properties.desktop.in |   12 +
+ doc/man/cinnamon-session.1               |    4 +-
+ doc/man/meson.build                      |    1 +
+ doc/man/unity-session-properties.1       |   24 +
+ meson.build                              |   13 +-
+ 21 files changed, 4337 insertions(+), 5 deletions(-)
+ create mode 100644 capplet/csm-app-dialog.c
+ create mode 100644 capplet/csm-app-dialog.h
+ create mode 100644 capplet/csm-properties-dialog.c
+ create mode 100644 capplet/csm-properties-dialog.h
+ create mode 100644 capplet/csp-app-manager.c
+ create mode 100644 capplet/csp-app-manager.h
+ create mode 100644 capplet/csp-app.c
+ create mode 100644 capplet/csp-app.h
+ create mode 100644 capplet/csp-keyfile.c
+ create mode 100644 capplet/csp-keyfile.h
+ create mode 100644 capplet/main.c
+ create mode 100644 capplet/meson.build
+ create mode 100644 cinnamon-session/csm-quit-compat.c
+ create mode 100644 data/session-properties.ui
+ create mode 100644 data/unity-session-properties.desktop.in
+ create mode 100644 doc/man/unity-session-properties.1
+
+diff --git a/capplet/csm-app-dialog.c b/capplet/csm-app-dialog.c
+new file mode 100644
+index 0000000..8635f6b
+--- /dev/null
++++ b/capplet/csm-app-dialog.c
+@@ -0,0 +1,602 @@
++/* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 8 -*-
++ *
++ * Copyright (C) 2008 William Jon McCann <jmccann@redhat.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street - Suite 500, Boston, MA 02110-1335, USA.
++ *
++ */
++
++#include "config.h"
++
++#include <glib.h>
++#include <glib/gi18n.h>
++#include <gtk/gtk.h>
++
++#include "csm-util.h"
++
++#include "csm-app-dialog.h"
++
++#define GTKBUILDER_FILE "session-properties.ui"
++
++#define CAPPLET_NAME_ENTRY_WIDGET_NAME    "session_properties_name_entry"
++#define CAPPLET_COMMAND_ENTRY_WIDGET_NAME "session_properties_command_entry"
++#define CAPPLET_COMMENT_ENTRY_WIDGET_NAME "session_properties_comment_entry"
++#define CAPPLET_BROWSE_WIDGET_NAME        "session_properties_browse_button"
++#define CAPPLET_DELAY_SPINNER_WIDGET_NAME "session_properties_spinner"
++
++#define CSM_APP_DIALOG_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), CSM_TYPE_APP_DIALOG, CsmAppDialogPrivate))
++
++struct CsmAppDialogPrivate
++{
++        GtkWidget *name_entry;
++        GtkWidget *command_entry;
++        GtkWidget *comment_entry;
++        GtkWidget *delay_spinner;
++        GtkWidget *browse_button;
++        char      *name;
++        char      *command;
++        char      *comment;
++        char      *delay;
++};
++
++static void     csm_app_dialog_class_init  (CsmAppDialogClass *klass);
++static void     csm_app_dialog_init        (CsmAppDialog      *app_dialog);
++static void     csm_app_dialog_finalize    (GObject           *object);
++
++enum {
++        PROP_0,
++        PROP_NAME,
++        PROP_COMMAND,
++        PROP_COMMENT,
++        PROP_DELAY
++};
++
++G_DEFINE_TYPE (CsmAppDialog, csm_app_dialog, GTK_TYPE_DIALOG)
++
++gint
++char_to_int (const char *in)
++{
++    gint64 ret = 0;
++
++    if (in == NULL)
++        return (gint) ret;
++
++    ret = g_ascii_strtoll (in, NULL, 10);
++    if (ret > G_MAXINT || ret < G_MININT)
++        ret = 0;
++    return (gint) ret;
++}
++
++static char *
++make_exec_uri (const char *exec)
++{
++        GString    *str;
++        const char *c;
++
++        if (exec == NULL) {
++                return g_strdup ("");
++        }
++
++        if (strchr (exec, ' ') == NULL) {
++                return g_strdup (exec);
++        }
++
++        str = g_string_new_len (NULL, strlen (exec));
++
++        str = g_string_append_c (str, '"');
++        for (c = exec; *c != '\0'; c++) {
++                /* FIXME: GKeyFile will add an additional backslach so we'll
++                 * end up with toto\\" instead of toto\"
++                 * We could use g_key_file_set_value(), but then we don't
++                 * benefit from the other escaping that glib is doing...
++                 */
++                if (*c == '"') {
++                        str = g_string_append (str, "\\\"");
++                } else {
++                        str = g_string_append_c (str, *c);
++                }
++        }
++        str = g_string_append_c (str, '"');
++
++        return g_string_free (str, FALSE);
++}
++
++static void
++on_browse_button_clicked (GtkWidget    *widget,
++                          CsmAppDialog *dialog)
++{
++        GtkWidget *chooser;
++        int        response;
++
++        chooser = gtk_file_chooser_dialog_new ("",
++                                               GTK_WINDOW (dialog),
++                                               GTK_FILE_CHOOSER_ACTION_OPEN,
++                                               GTK_STOCK_CANCEL,
++                                               GTK_RESPONSE_CANCEL,
++                                               GTK_STOCK_OPEN,
++                                               GTK_RESPONSE_ACCEPT,
++                                               NULL);
++
++        gtk_window_set_transient_for (GTK_WINDOW (chooser),
++                                      GTK_WINDOW (dialog));
++
++        gtk_window_set_destroy_with_parent (GTK_WINDOW (chooser), TRUE);
++
++        gtk_window_set_title (GTK_WINDOW (chooser), _("Select Command"));
++
++        gtk_widget_show (chooser);
++
++        response = gtk_dialog_run (GTK_DIALOG (chooser));
++
++        if (response == GTK_RESPONSE_ACCEPT) {
++                char *text;
++                char *uri;
++
++                text = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (chooser));
++
++                uri = make_exec_uri (text);
++
++                g_free (text);
++
++                gtk_entry_set_text (GTK_ENTRY (dialog->priv->command_entry), uri);
++
++                g_free (uri);
++        }
++
++        gtk_widget_destroy (chooser);
++}
++
++static void
++on_entry_activate (GtkEntry     *entry,
++                   CsmAppDialog *dialog)
++{
++        gtk_dialog_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
++}
++
++static void
++setup_dialog (CsmAppDialog *dialog)
++{
++        GtkWidget  *content_area;
++        GtkWidget  *widget;
++        GtkBuilder *xml;
++        GError     *error;
++
++        xml = gtk_builder_new ();
++        gtk_builder_set_translation_domain (xml, GETTEXT_PACKAGE);
++
++        error = NULL;
++        if (!gtk_builder_add_from_file (xml,
++                                        GTKBUILDER_DIR "/" GTKBUILDER_FILE,
++                                        &error)) {
++                if (error) {
++                        g_warning ("Could not load capplet UI file: %s",
++                                   error->message);
++                        g_error_free (error);
++                } else {
++                        g_warning ("Could not load capplet UI file.");
++                }
++        }
++
++        content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
++        widget = GTK_WIDGET (gtk_builder_get_object (xml, "main-table"));
++        gtk_container_add (GTK_CONTAINER (content_area), widget);
++
++        gtk_container_set_border_width (GTK_CONTAINER (dialog), 6);
++        gtk_window_set_icon_name (GTK_WINDOW (dialog), "session-properties");
++
++        gtk_dialog_add_button (GTK_DIALOG (dialog),
++                               GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
++
++        if (dialog->priv->name == NULL
++            && dialog->priv->command == NULL
++            && dialog->priv->comment == NULL) {
++                gtk_window_set_title (GTK_WINDOW (dialog), _("Add Startup Program"));
++                gtk_dialog_add_button (GTK_DIALOG (dialog),
++                                       GTK_STOCK_ADD, GTK_RESPONSE_OK);
++        } else {
++                gtk_window_set_title (GTK_WINDOW (dialog), _("Edit Startup Program"));
++                gtk_dialog_add_button (GTK_DIALOG (dialog),
++                                       GTK_STOCK_SAVE, GTK_RESPONSE_OK);
++        }
++
++        dialog->priv->name_entry = GTK_WIDGET (gtk_builder_get_object (xml, CAPPLET_NAME_ENTRY_WIDGET_NAME));
++        g_signal_connect (dialog->priv->name_entry,
++                          "activate",
++                          G_CALLBACK (on_entry_activate),
++                          dialog);
++        if (dialog->priv->name != NULL) {
++                gtk_entry_set_text (GTK_ENTRY (dialog->priv->name_entry), dialog->priv->name);
++        }
++
++        dialog->priv->browse_button = GTK_WIDGET (gtk_builder_get_object (xml, CAPPLET_BROWSE_WIDGET_NAME));
++        g_signal_connect (dialog->priv->browse_button,
++                          "clicked",
++                          G_CALLBACK (on_browse_button_clicked),
++                          dialog);
++
++        dialog->priv->command_entry = GTK_WIDGET (gtk_builder_get_object (xml, CAPPLET_COMMAND_ENTRY_WIDGET_NAME));
++        g_signal_connect (dialog->priv->command_entry,
++                          "activate",
++                          G_CALLBACK (on_entry_activate),
++                          dialog);
++        if (dialog->priv->command != NULL) {
++                gtk_entry_set_text (GTK_ENTRY (dialog->priv->command_entry), dialog->priv->command);
++        }
++
++        dialog->priv->comment_entry = GTK_WIDGET (gtk_builder_get_object (xml, CAPPLET_COMMENT_ENTRY_WIDGET_NAME));
++        g_signal_connect (dialog->priv->comment_entry,
++                          "activate",
++                          G_CALLBACK (on_entry_activate),
++                          dialog);
++        if (dialog->priv->comment != NULL) {
++                gtk_entry_set_text (GTK_ENTRY (dialog->priv->comment_entry), dialog->priv->comment);
++        }
++
++        dialog->priv->delay_spinner = GTK_WIDGET (gtk_builder_get_object (xml, CAPPLET_DELAY_SPINNER_WIDGET_NAME));
++        g_signal_connect (dialog->priv->delay_spinner,
++                          "activate",
++                          G_CALLBACK (on_entry_activate),
++                          dialog);
++
++        gtk_spin_button_set_value (GTK_SPIN_BUTTON (dialog->priv->delay_spinner), char_to_int (dialog->priv->delay));
++
++        if (xml != NULL) {
++                g_object_unref (xml);
++        }
++}
++
++static GObject *
++csm_app_dialog_constructor (GType                  type,
++                            guint                  n_construct_app,
++                            GObjectConstructParam *construct_app)
++{
++        CsmAppDialog *dialog;
++
++        dialog = CSM_APP_DIALOG (G_OBJECT_CLASS (csm_app_dialog_parent_class)->constructor (type,
++                                                                                                                  n_construct_app,
++                                                                                                                  construct_app));
++
++        setup_dialog (dialog);
++
++        return G_OBJECT (dialog);
++}
++
++static void
++csm_app_dialog_dispose (GObject *object)
++{
++        CsmAppDialog *dialog;
++
++        g_return_if_fail (object != NULL);
++        g_return_if_fail (CSM_IS_APP_DIALOG (object));
++
++        dialog = CSM_APP_DIALOG (object);
++
++        g_free (dialog->priv->name);
++        dialog->priv->name = NULL;
++        g_free (dialog->priv->command);
++        dialog->priv->command = NULL;
++        g_free (dialog->priv->comment);
++        dialog->priv->comment = NULL;
++        g_free (dialog->priv->delay);
++        dialog->priv->delay = NULL;
++
++        G_OBJECT_CLASS (csm_app_dialog_parent_class)->dispose (object);
++}
++
++static void
++csm_app_dialog_set_name (CsmAppDialog *dialog,
++                         const char   *name)
++{
++        g_return_if_fail (CSM_IS_APP_DIALOG (dialog));
++
++        g_free (dialog->priv->name);
++
++        dialog->priv->name = g_strdup (name);
++        g_object_notify (G_OBJECT (dialog), "name");
++}
++
++static void
++csm_app_dialog_set_command (CsmAppDialog *dialog,
++                            const char   *name)
++{
++        g_return_if_fail (CSM_IS_APP_DIALOG (dialog));
++
++        g_free (dialog->priv->command);
++
++        dialog->priv->command = g_strdup (name);
++        g_object_notify (G_OBJECT (dialog), "command");
++}
++
++static void
++csm_app_dialog_set_comment (CsmAppDialog *dialog,
++                            const char   *name)
++{
++        g_return_if_fail (CSM_IS_APP_DIALOG (dialog));
++
++        g_free (dialog->priv->comment);
++
++        dialog->priv->comment = g_strdup (name);
++        g_object_notify (G_OBJECT (dialog), "comment");
++}
++
++static void
++csm_app_dialog_set_delay (CsmAppDialog *dialog,
++                          const char   *delay)
++{
++    g_return_if_fail (CSM_IS_APP_DIALOG (dialog));
++
++    g_free (dialog->priv->delay);
++
++    dialog->priv->delay = g_strdup (delay);
++    g_object_notify (G_OBJECT (dialog), "delay");
++}
++
++const char *
++csm_app_dialog_get_name (CsmAppDialog *dialog)
++{
++        g_return_val_if_fail (CSM_IS_APP_DIALOG (dialog), NULL);
++        return gtk_entry_get_text (GTK_ENTRY (dialog->priv->name_entry));
++}
++
++const char *
++csm_app_dialog_get_command (CsmAppDialog *dialog)
++{
++        g_return_val_if_fail (CSM_IS_APP_DIALOG (dialog), NULL);
++        return gtk_entry_get_text (GTK_ENTRY (dialog->priv->command_entry));
++}
++
++const char *
++csm_app_dialog_get_comment (CsmAppDialog *dialog)
++{
++        g_return_val_if_fail (CSM_IS_APP_DIALOG (dialog), NULL);
++        return gtk_entry_get_text (GTK_ENTRY (dialog->priv->comment_entry));
++}
++
++char *
++csm_app_dialog_get_delay (CsmAppDialog *dialog)
++{
++        g_return_val_if_fail (CSM_IS_APP_DIALOG (dialog), NULL);
++        gint val = gtk_spin_button_get_value (GTK_SPIN_BUTTON (dialog->priv->delay_spinner));
++        gchar *ret = g_strdup_printf ("%d", val);
++        return ret;
++}
++
++static void
++csm_app_dialog_set_property (GObject        *object,
++                             guint           prop_id,
++                             const GValue   *value,
++                             GParamSpec     *pspec)
++{
++        CsmAppDialog *dialog = CSM_APP_DIALOG (object);
++
++        switch (prop_id) {
++        case PROP_NAME:
++                csm_app_dialog_set_name (dialog, g_value_get_string (value));
++                break;
++        case PROP_COMMAND:
++                csm_app_dialog_set_command (dialog, g_value_get_string (value));
++                break;
++        case PROP_COMMENT:
++                csm_app_dialog_set_comment (dialog, g_value_get_string (value));
++                break;
++        case PROP_DELAY:
++                csm_app_dialog_set_delay (dialog, g_value_get_string (value));
++                break;
++        default:
++                G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
++                break;
++        }
++}
++
++static void
++csm_app_dialog_get_property (GObject        *object,
++                             guint           prop_id,
++                             GValue         *value,
++                             GParamSpec     *pspec)
++{
++        CsmAppDialog *dialog = CSM_APP_DIALOG (object);
++
++        switch (prop_id) {
++        case PROP_NAME:
++                g_value_set_string (value, dialog->priv->name);
++                break;
++        case PROP_COMMAND:
++                g_value_set_string (value, dialog->priv->command);
++                break;
++        case PROP_COMMENT:
++                g_value_set_string (value, dialog->priv->comment);
++                break;
++        case PROP_DELAY:
++                g_value_set_string (value, dialog->priv->delay);
++                break;
++        default:
++                G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
++                break;
++        }
++}
++
++static void
++csm_app_dialog_class_init (CsmAppDialogClass *klass)
++{
++        GObjectClass   *object_class = G_OBJECT_CLASS (klass);
++
++        object_class->get_property = csm_app_dialog_get_property;
++        object_class->set_property = csm_app_dialog_set_property;
++        object_class->constructor = csm_app_dialog_constructor;
++        object_class->dispose = csm_app_dialog_dispose;
++        object_class->finalize = csm_app_dialog_finalize;
++
++        g_object_class_install_property (object_class,
++                                         PROP_NAME,
++                                         g_param_spec_string ("name",
++                                                              "name",
++                                                              "name",
++                                                              NULL,
++                                                              G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
++        g_object_class_install_property (object_class,
++                                         PROP_COMMAND,
++                                         g_param_spec_string ("command",
++                                                              "command",
++                                                              "command",
++                                                              NULL,
++                                                              G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
++        g_object_class_install_property (object_class,
++                                         PROP_COMMENT,
++                                         g_param_spec_string ("comment",
++                                                              "comment",
++                                                              "comment",
++                                                              NULL,
++                                                              G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
++
++        g_object_class_install_property (object_class,
++                                         PROP_DELAY,
++                                         g_param_spec_string ("delay",
++                                                              "delay",
++                                                              "delay",
++                                                              NULL,
++                                                              G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
++
++        g_type_class_add_private (klass, sizeof (CsmAppDialogPrivate));
++}
++
++static void
++csm_app_dialog_init (CsmAppDialog *dialog)
++{
++
++        dialog->priv = CSM_APP_DIALOG_GET_PRIVATE (dialog);
++}
++
++static void
++csm_app_dialog_finalize (GObject *object)
++{
++        CsmAppDialog *dialog;
++
++        g_return_if_fail (object != NULL);
++        g_return_if_fail (CSM_IS_APP_DIALOG (object));
++
++        dialog = CSM_APP_DIALOG (object);
++
++        g_return_if_fail (dialog->priv != NULL);
++
++        G_OBJECT_CLASS (csm_app_dialog_parent_class)->finalize (object);
++}
++
++GtkWidget *
++csm_app_dialog_new (const char *name,
++                    const char *command,
++                    const char *comment,
++                    const char *delay)
++{
++        GObject *object;
++
++        object = g_object_new (CSM_TYPE_APP_DIALOG,
++                               "name", name,
++                               "command", command,
++                               "comment", comment,
++                               "delay", delay,
++                               NULL);
++
++        return GTK_WIDGET (object);
++}
++
++gboolean
++csm_app_dialog_run (CsmAppDialog  *dialog,
++                    char         **name_p,
++                    char         **command_p,
++                    char         **comment_p,
++                    char         **delay_p)
++{
++        gboolean retval;
++
++        retval = FALSE;
++
++        while (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
++                const char *name;
++                const char *exec;
++                const char *comment;
++                const char *error_msg;
++                GError     *error;
++                char      **argv;
++                int         argc;
++
++                name = csm_app_dialog_get_name (CSM_APP_DIALOG (dialog));
++                exec = csm_app_dialog_get_command (CSM_APP_DIALOG (dialog));
++                comment = csm_app_dialog_get_comment (CSM_APP_DIALOG (dialog));
++
++                error = NULL;
++                error_msg = NULL;
++
++                if (csm_util_text_is_blank (exec)) {
++                        error_msg = _("The startup command cannot be empty");
++                } else {
++                        if (!g_shell_parse_argv (exec, &argc, &argv, &error)) {
++                                if (error != NULL) {
++                                        error_msg = error->message;
++                                } else {
++                                        error_msg = _("The startup command is not valid");
++                                }
++                        }
++                }
++
++                if (error_msg != NULL) {
++                        GtkWidget *msgbox;
++
++                        msgbox = gtk_message_dialog_new (GTK_WINDOW (dialog),
++                                                         GTK_DIALOG_MODAL,
++                                                         GTK_MESSAGE_ERROR,
++                                                         GTK_BUTTONS_CLOSE,
++                                                         "%s", error_msg);
++
++                        if (error != NULL) {
++                                g_error_free (error);
++                        }
++
++                        gtk_dialog_run (GTK_DIALOG (msgbox));
++
++                        gtk_widget_destroy (msgbox);
++
++                        continue;
++                }
++
++                if (csm_util_text_is_blank (name)) {
++                        name = argv[0];
++                }
++
++                if (name_p) {
++                        *name_p = g_strdup (name);
++                }
++
++                g_strfreev (argv);
++
++                if (command_p) {
++                        *command_p = g_strdup (exec);
++                }
++
++                if (comment_p) {
++                        *comment_p = g_strdup (comment);
++                }
++
++                if (delay_p) {
++                        *delay_p = csm_app_dialog_get_delay (CSM_APP_DIALOG (dialog));
++                }
++
++                retval = TRUE;
++                break;
++        }
++
++        gtk_widget_destroy (GTK_WIDGET (dialog));
++
++        return retval;
++}
+diff --git a/capplet/csm-app-dialog.h b/capplet/csm-app-dialog.h
+new file mode 100644
+index 0000000..e06d2c9
+--- /dev/null
++++ b/capplet/csm-app-dialog.h
+@@ -0,0 +1,71 @@
++/* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 8 -*-
++ *
++ * Copyright (C) 2008 William Jon McCann <jmccann@redhat.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street - Suite 500, Boston, MA 02110-1335, USA.
++ *
++ */
++
++#ifndef __CSM_APP_DIALOG_H
++#define __CSM_APP_DIALOG_H
++
++#include <glib-object.h>
++#include <gtk/gtk.h>
++
++G_BEGIN_DECLS
++
++#define CSM_TYPE_APP_DIALOG         (csm_app_dialog_get_type ())
++#define CSM_APP_DIALOG(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), CSM_TYPE_APP_DIALOG, CsmAppDialog))
++#define CSM_APP_DIALOG_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST((k), CSM_TYPE_APP_DIALOG, CsmAppDialogClass))
++#define CSM_IS_APP_DIALOG(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), CSM_TYPE_APP_DIALOG))
++#define CSM_IS_APP_DIALOG_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), CSM_TYPE_APP_DIALOG))
++#define CSM_APP_DIALOG_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), CSM_TYPE_APP_DIALOG, CsmAppDialogClass))
++
++typedef struct CsmAppDialogPrivate CsmAppDialogPrivate;
++
++typedef struct
++{
++        GtkDialog            parent;
++        CsmAppDialogPrivate *priv;
++} CsmAppDialog;
++
++typedef struct
++{
++        GtkDialogClass   parent_class;
++} CsmAppDialogClass;
++
++GType                  csm_app_dialog_get_type           (void);
++
++GtkWidget            * csm_app_dialog_new                (const char   *name,
++                                                          const char   *command,
++                                                          const char   *comment,
++                                                          const char   *delay);
++
++gboolean               csm_app_dialog_run               (CsmAppDialog  *dialog,
++                                                         char         **name_p,
++                                                         char         **command_p,
++                                                         char         **comment_p,
++                                                         char         **delay);
++
++const char *           csm_app_dialog_get_name           (CsmAppDialog *dialog);
++const char *           csm_app_dialog_get_command        (CsmAppDialog *dialog);
++const char *           csm_app_dialog_get_comment        (CsmAppDialog *dialog);
++char *           csm_app_dialog_get_delay          (CsmAppDialog *delay);
++
++gint             char_to_int (const char *in);
++
++G_END_DECLS
++
++#endif /* __CSM_APP_DIALOG_H */
+diff --git a/capplet/csm-properties-dialog.c b/capplet/csm-properties-dialog.c
+new file mode 100644
+index 0000000..3a4399b
+--- /dev/null
++++ b/capplet/csm-properties-dialog.c
+@@ -0,0 +1,794 @@
++/* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 8 -*-
++ *
++ * Copyright (C) 1999 Free Software Foundation, Inc.
++ * Copyright (C) 2007 Vincent Untz.
++ * Copyright (C) 2008 Lucas Rocha.
++ * Copyright (C) 2008 William Jon McCann <jmccann@redhat.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street - Suite 500, Boston, MA 02110-1335, USA.
++ *
++ */
++
++#include "config.h"
++
++#include <glib.h>
++#include <glib/gi18n.h>
++#include <gtk/gtk.h>
++
++#include "csm-properties-dialog.h"
++#include "csm-app-dialog.h"
++#include "csm-util.h"
++#include "csp-app.h"
++#include "csp-app-manager.h"
++
++#define CSM_PROPERTIES_DIALOG_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), CSM_TYPE_PROPERTIES_DIALOG, CsmPropertiesDialogPrivate))
++
++#define GTKBUILDER_FILE "session-properties.ui"
++
++#define CAPPLET_TREEVIEW_WIDGET_NAME      "session_properties_treeview"
++#define CAPPLET_ADD_WIDGET_NAME           "session_properties_add_button"
++#define CAPPLET_DELETE_WIDGET_NAME        "session_properties_delete_button"
++#define CAPPLET_EDIT_WIDGET_NAME          "session_properties_edit_button"
++#define CAPPLET_SAVE_WIDGET_NAME          "session_properties_save_button"
++#define CAPPLET_REMEMBER_WIDGET_NAME      "session_properties_remember_toggle"
++
++#define STARTUP_APP_ICON     "system-run"
++
++#define SPC_SETTINGS_SCHEMA          "org.cinnamon.SessionManager"
++#define SPC_SETTINGS_AUTOSAVE_KEY    "auto-save-session"
++
++struct CsmPropertiesDialogPrivate
++{
++        GtkBuilder        *xml;
++        GtkListStore      *list_store;
++        GtkTreeModel      *tree_filter;
++
++        GtkTreeView       *treeview;
++        GtkWidget         *add_button;
++        GtkWidget         *delete_button;
++        GtkWidget         *edit_button;
++
++        GSettings         *settings;
++
++        CspAppManager     *manager;
++};
++
++enum {
++        STORE_COL_VISIBLE = 0,
++        STORE_COL_ENABLED,
++        STORE_COL_GICON,
++        STORE_COL_DESCRIPTION,
++        STORE_COL_APP,
++        STORE_COL_DELAY,
++        STORE_COL_SEARCH,
++        NUMBER_OF_COLUMNS
++};
++
++static void     csm_properties_dialog_class_init  (CsmPropertiesDialogClass *klass);
++static void     csm_properties_dialog_init        (CsmPropertiesDialog      *properties_dialog);
++static void     csm_properties_dialog_finalize    (GObject                  *object);
++
++G_DEFINE_TYPE (CsmPropertiesDialog, csm_properties_dialog, GTK_TYPE_DIALOG)
++
++static gboolean
++find_by_app (GtkTreeModel *model,
++             GtkTreeIter  *iter,
++             CspApp       *app)
++{
++        CspApp *iter_app = NULL;
++
++        if (!gtk_tree_model_get_iter_first (model, iter)) {
++                return FALSE;
++        }
++
++        do {
++                gtk_tree_model_get (model, iter,
++                                    STORE_COL_APP, &iter_app,
++                                    -1);
++
++                if (iter_app == app) {
++                        g_object_unref (iter_app);
++                        return TRUE;
++                }
++        } while (gtk_tree_model_iter_next (model, iter));
++
++        return FALSE;
++}
++
++static void
++_fill_iter_from_app (GtkListStore *list_store,
++                     GtkTreeIter  *iter,
++                     CspApp       *app)
++{
++        gboolean    hidden;
++        gboolean    display;
++        gboolean    enabled;
++        gboolean    shown;
++        GIcon      *icon;
++        const char *description;
++        const char *app_name;
++        const char *delay;
++
++        hidden      = csp_app_get_hidden (app);
++        display     = csp_app_get_display (app);
++        enabled     = csp_app_get_enabled (app);
++        delay       = csp_app_get_delay (app);
++        shown       = csp_app_get_shown (app);
++        icon        = csp_app_get_icon (app);
++        description = csp_app_get_description (app);
++        app_name    = csp_app_get_name (app);
++
++        if (G_IS_THEMED_ICON (icon)) {
++                GtkIconTheme       *theme;
++                const char * const *icon_names;
++
++                theme = gtk_icon_theme_get_default ();
++                icon_names = g_themed_icon_get_names (G_THEMED_ICON (icon));
++                if (icon_names[0] == NULL ||
++                    !gtk_icon_theme_has_icon (theme, icon_names[0])) {
++                        g_object_unref (icon);
++                        icon = NULL;
++                }
++        } else if (G_IS_FILE_ICON (icon)) {
++                GFile *iconfile;
++
++                iconfile = g_file_icon_get_file (G_FILE_ICON (icon));
++                if (!g_file_query_exists (iconfile, NULL)) {
++                        g_object_unref (icon);
++                        icon = NULL;
++                }
++        }
++
++        if (icon == NULL) {
++                icon = g_themed_icon_new (STARTUP_APP_ICON);
++        }
++
++        gtk_list_store_set (list_store, iter,
++                            STORE_COL_VISIBLE, !hidden && display && shown,
++                            STORE_COL_ENABLED, enabled,
++                            STORE_COL_GICON, icon,
++                            STORE_COL_DESCRIPTION, description,
++                            STORE_COL_DELAY, delay ? delay : "0",
++                            STORE_COL_APP, app,
++                            STORE_COL_SEARCH, app_name,
++                            -1);
++        g_object_unref (icon);
++}
++
++static void
++_app_changed (CsmPropertiesDialog *dialog,
++              CspApp              *app)
++{
++        GtkTreeIter iter;
++
++        if (!find_by_app (GTK_TREE_MODEL (dialog->priv->list_store),
++                          &iter, app)) {
++                return;
++        }
++
++        _fill_iter_from_app (dialog->priv->list_store, &iter, app);
++}
++
++static void
++append_app (CsmPropertiesDialog *dialog,
++            CspApp              *app)
++{
++        GtkTreeIter   iter;
++
++        gtk_list_store_append (dialog->priv->list_store, &iter);
++        _fill_iter_from_app (dialog->priv->list_store, &iter, app);
++
++        g_signal_connect_swapped (app, "changed",
++                                  G_CALLBACK (_app_changed), dialog);
++}
++
++static void
++_app_added (CsmPropertiesDialog *dialog,
++            CspApp              *app,
++            CspAppManager       *manager)
++{
++        append_app (dialog, app);
++}
++
++static void
++_app_removed (CsmPropertiesDialog *dialog,
++              CspApp              *app,
++              CspAppManager       *manager)
++{
++        GtkTreeIter iter;
++
++        if (!find_by_app (GTK_TREE_MODEL (dialog->priv->list_store),
++                          &iter, app)) {
++                return;
++        }
++
++        g_signal_handlers_disconnect_by_func (app,
++                                              _app_changed,
++                                              dialog);
++        gtk_list_store_remove (dialog->priv->list_store, &iter);
++}
++
++static void
++populate_model (CsmPropertiesDialog *dialog)
++{
++        GSList *apps;
++        GSList *l;
++
++        apps = csp_app_manager_get_apps (dialog->priv->manager);
++        for (l = apps; l != NULL; l = l->next) {
++                append_app (dialog, CSP_APP (l->data));
++        }
++        g_slist_free (apps);
++}
++
++static void
++on_selection_changed (GtkTreeSelection    *selection,
++                      CsmPropertiesDialog *dialog)
++{
++        gboolean sel;
++
++        sel = gtk_tree_selection_get_selected (selection, NULL, NULL);
++
++        gtk_widget_set_sensitive (dialog->priv->edit_button, sel);
++        gtk_widget_set_sensitive (dialog->priv->delete_button, sel);
++}
++
++static void
++on_startup_enabled_toggled (GtkCellRendererToggle *cell_renderer,
++                            char                  *path,
++                            CsmPropertiesDialog   *dialog)
++{
++        GtkTreeIter iter;
++        CspApp     *app;
++        gboolean    active;
++
++        if (!gtk_tree_model_get_iter_from_string (GTK_TREE_MODEL (dialog->priv->tree_filter),
++                                                  &iter, path)) {
++                return;
++        }
++
++        app = NULL;
++        gtk_tree_model_get (GTK_TREE_MODEL (dialog->priv->tree_filter),
++                            &iter,
++                            STORE_COL_APP, &app,
++                            -1);
++
++        active = gtk_cell_renderer_toggle_get_active (cell_renderer);
++        active = !active;
++
++        if (app) {
++                csp_app_set_enabled (app, active);
++                g_object_unref (app);
++        }
++}
++
++static void
++on_drag_data_received (GtkWidget           *widget,
++                       GdkDragContext      *drag_context,
++                       gint                 x,
++                       gint                 y,
++                       GtkSelectionData    *data,
++                       guint                info,
++                       guint                time,
++                       CsmPropertiesDialog *dialog)
++{
++        gboolean dnd_success;
++
++        dnd_success = FALSE;
++
++        if (data != NULL) {
++                char **filenames;
++                int    i;
++
++                filenames = gtk_selection_data_get_uris (data);
++
++                for (i = 0; filenames[i] && filenames[i][0]; i++) {
++                        /* Return success if at least one file succeeded */
++                        gboolean file_success;
++                        file_success = csp_app_copy_desktop_file (filenames[i]);
++                        dnd_success = dnd_success || file_success;
++                }
++
++                g_strfreev (filenames);
++        }
++
++        gtk_drag_finish (drag_context, dnd_success, FALSE, time);
++        g_signal_stop_emission_by_name (widget, "drag_data_received");
++}
++
++static void
++on_drag_begin (GtkWidget           *widget,
++               GdkDragContext      *context,
++               CsmPropertiesDialog *dialog)
++{
++        GtkTreePath *path;
++        GtkTreeIter  iter;
++        CspApp      *app;
++
++        gtk_tree_view_get_cursor (GTK_TREE_VIEW (widget), &path, NULL);
++        gtk_tree_model_get_iter (GTK_TREE_MODEL (dialog->priv->tree_filter),
++                                 &iter, path);
++        gtk_tree_path_free (path);
++
++        gtk_tree_model_get (GTK_TREE_MODEL (dialog->priv->tree_filter),
++                            &iter,
++                            STORE_COL_APP, &app,
++                            -1);
++
++        if (app) {
++                g_object_set_data_full (G_OBJECT (context), "csp-app",
++                                        g_object_ref (app), g_object_unref);
++                g_object_unref (app);
++        }
++
++}
++
++static void
++on_drag_data_get (GtkWidget           *widget,
++                  GdkDragContext      *context,
++                  GtkSelectionData    *selection_data,
++                  guint                info,
++                  guint                time,
++                  CsmPropertiesDialog *dialog)
++{
++        CspApp *app;
++
++        app = g_object_get_data (G_OBJECT (context), "csp-app");
++        if (app) {
++                const char *uris[2];
++                char       *uri;
++
++                uri = g_filename_to_uri (csp_app_get_path (app), NULL, NULL);
++
++                uris[0] = uri;
++                uris[1] = NULL;
++                gtk_selection_data_set_uris (selection_data, (char **) uris);
++
++                g_free (uri);
++        }
++}
++
++static void
++on_add_app_clicked (GtkWidget           *widget,
++                    CsmPropertiesDialog *dialog)
++{
++        GtkWidget  *add_dialog;
++        char       *name;
++        char       *exec;
++        char       *comment;
++        char       *delay;
++
++        add_dialog = csm_app_dialog_new (NULL, NULL, NULL, NULL);
++        gtk_window_set_transient_for (GTK_WINDOW (add_dialog),
++                                      GTK_WINDOW (dialog));
++
++        gtk_widget_show_all (add_dialog);
++        if (csm_app_dialog_run (CSM_APP_DIALOG (add_dialog),
++                                &name, &exec, &comment, &delay)) {
++                csp_app_create (name, comment, exec, delay);
++                g_free (name);
++                g_free (exec);
++                g_free (comment);
++                g_free (delay);
++        }
++}
++
++static void
++on_delete_app_clicked (GtkWidget           *widget,
++                       CsmPropertiesDialog *dialog)
++{
++        GtkTreeSelection *selection;
++        GtkTreeIter       iter;
++        CspApp           *app;
++
++        selection = gtk_tree_view_get_selection (dialog->priv->treeview);
++
++        if (!gtk_tree_selection_get_selected (selection, NULL, &iter)) {
++                return;
++        }
++
++        app = NULL;
++        gtk_tree_model_get (GTK_TREE_MODEL (dialog->priv->tree_filter),
++                            &iter,
++                            STORE_COL_APP, &app,
++                            -1);
++
++        if (app) {
++                csp_app_delete (app);
++                g_object_unref (app);
++        }
++}
++
++static void
++on_edit_app_clicked (GtkWidget           *widget,
++                     CsmPropertiesDialog *dialog)
++{
++        GtkTreeSelection *selection;
++        GtkTreeIter       iter;
++        CspApp           *app;
++
++        selection = gtk_tree_view_get_selection (dialog->priv->treeview);
++
++        if (!gtk_tree_selection_get_selected (selection, NULL, &iter)) {
++                return;
++        }
++
++        app = NULL;
++        gtk_tree_model_get (GTK_TREE_MODEL (dialog->priv->tree_filter),
++                            &iter,
++                            STORE_COL_APP, &app,
++                            -1);
++
++        if (app) {
++                GtkWidget  *edit_dialog;
++                char       *name;
++                char       *exec;
++                char       *comment;
++                char       *delay;
++
++                edit_dialog = csm_app_dialog_new (csp_app_get_name (app),
++                                                  csp_app_get_exec (app),
++                                                  csp_app_get_comment (app),
++                                                  csp_app_get_delay (app));
++                gtk_window_set_transient_for (GTK_WINDOW (edit_dialog),
++                                              GTK_WINDOW (dialog));
++
++                gtk_widget_show_all (edit_dialog);
++                if (csm_app_dialog_run (CSM_APP_DIALOG (edit_dialog),
++                                        &name, &exec, &comment, &delay)) {
++                        csp_app_update (app, name, comment, exec, delay);
++                        g_free (name);
++                        g_free (exec);
++                        g_free (comment);
++                        g_free (delay);
++                }
++
++                g_object_unref (app);
++        }
++}
++
++static void
++on_row_activated (GtkTreeView         *tree_view,
++                  GtkTreePath         *path,
++                  GtkTreeViewColumn   *column,
++                  CsmPropertiesDialog *dialog)  
++{
++        on_edit_app_clicked (NULL, dialog);
++}
++
++static void
++on_save_session_clicked (GtkWidget           *widget,
++                         CsmPropertiesDialog *dialog)
++{
++        g_debug ("Session saving is not implemented yet!");
++}
++
++static void
++setup_dialog (CsmPropertiesDialog *dialog)
++{
++        GtkTreeView       *treeview;
++        GtkWidget         *button;
++        GtkTreeModel      *tree_filter;
++        GtkTreeViewColumn *column;
++        GtkCellRenderer   *renderer;
++        GtkTreeSelection  *selection;
++        GtkTargetList     *targetlist;
++
++        gtk_dialog_add_buttons (GTK_DIALOG (dialog),
++                                GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE,
++                                NULL);
++
++        dialog->priv->list_store = gtk_list_store_new (NUMBER_OF_COLUMNS,
++                                                       G_TYPE_BOOLEAN,
++                                                       G_TYPE_BOOLEAN,
++                                                       G_TYPE_ICON,
++                                                       G_TYPE_STRING,
++                                                       G_TYPE_OBJECT,
++                                                       G_TYPE_STRING,
++                                                       G_TYPE_STRING);
++        tree_filter = gtk_tree_model_filter_new (GTK_TREE_MODEL (dialog->priv->list_store),
++                                                 NULL);
++        g_object_unref (dialog->priv->list_store);
++        dialog->priv->tree_filter = tree_filter;
++
++        gtk_tree_model_filter_set_visible_column (GTK_TREE_MODEL_FILTER (tree_filter),
++                                                  STORE_COL_VISIBLE);
++
++        treeview = GTK_TREE_VIEW (gtk_builder_get_object (dialog->priv->xml,
++                                                          CAPPLET_TREEVIEW_WIDGET_NAME));
++        dialog->priv->treeview = treeview;
++
++        gtk_tree_view_set_model (treeview, tree_filter);
++        g_object_unref (tree_filter);
++
++        gtk_tree_view_set_headers_visible (treeview, TRUE);
++        g_signal_connect (treeview,
++                          "row-activated",
++                          G_CALLBACK (on_row_activated),
++                          dialog);
++
++        selection = gtk_tree_view_get_selection (treeview);
++        gtk_tree_selection_set_mode (selection, GTK_SELECTION_BROWSE);
++        g_signal_connect (selection,
++                          "changed",
++                          G_CALLBACK (on_selection_changed),
++                          dialog);
++
++        /* CHECKBOX COLUMN */
++        renderer = gtk_cell_renderer_toggle_new ();
++        column = gtk_tree_view_column_new_with_attributes (_("Enabled"),
++                                                           renderer,
++                                                           "active", STORE_COL_ENABLED,
++                                                           NULL);
++        gtk_tree_view_append_column (treeview, column);
++        g_signal_connect (renderer,
++                          "toggled",
++                          G_CALLBACK (on_startup_enabled_toggled),
++                          dialog);
++
++        /* ICON COLUMN */
++        renderer = gtk_cell_renderer_pixbuf_new ();
++        column = gtk_tree_view_column_new_with_attributes (NULL,
++                                                           renderer,
++                                                           "gicon", STORE_COL_GICON,
++                                                           "sensitive", STORE_COL_ENABLED,
++                                                           NULL);
++        g_object_set (renderer,
++                      "stock-size", CSM_PROPERTIES_ICON_SIZE,
++                      NULL);
++        gtk_tree_view_append_column (treeview, column);
++
++        /* NAME COLUMN */
++        renderer = gtk_cell_renderer_text_new ();
++        column = gtk_tree_view_column_new_with_attributes (_("Program"),
++                                                           renderer,
++                                                           "markup", STORE_COL_DESCRIPTION,
++                                                           "sensitive", STORE_COL_ENABLED,
++                                                           NULL);
++        g_object_set (renderer,
++                      "ellipsize", PANGO_ELLIPSIZE_END,
++                      NULL);
++        gtk_tree_view_append_column (treeview, column);
++        gtk_tree_view_column_set_expand (column, TRUE);
++
++        /* DELAY COLUMN */
++
++        renderer = gtk_cell_renderer_text_new ();
++        column = gtk_tree_view_column_new_with_attributes (_("Delay (s)"),
++                                                           renderer,
++                                                           "text", STORE_COL_DELAY,
++                                                           "sensitive", STORE_COL_ENABLED,
++                                                           NULL);
++        gtk_tree_view_append_column (treeview, column);
++
++        gtk_tree_view_column_set_sort_column_id (column, STORE_COL_DESCRIPTION);
++        gtk_tree_view_set_search_column (treeview, STORE_COL_SEARCH);
++        gtk_tree_view_set_rules_hint (treeview, TRUE);
++
++        gtk_tree_view_enable_model_drag_source (treeview,
++                                                GDK_BUTTON1_MASK|GDK_BUTTON2_MASK,
++                                                NULL, 0,
++                                                GDK_ACTION_COPY);
++        gtk_drag_source_add_uri_targets (GTK_WIDGET (treeview));
++
++        gtk_drag_dest_set (GTK_WIDGET (treeview),
++                           GTK_DEST_DEFAULT_ALL,
++                           NULL, 0,
++                           GDK_ACTION_COPY);
++
++        gtk_drag_dest_add_uri_targets (GTK_WIDGET (treeview));
++        /* we don't want to accept drags coming from this widget */
++        targetlist = gtk_drag_dest_get_target_list (GTK_WIDGET (treeview));
++        if (targetlist != NULL) {
++                GtkTargetEntry *targets;
++                gint n_targets;
++                gint i;
++
++                targets = gtk_target_table_new_from_list (targetlist, &n_targets);
++                for (i = 0; i < n_targets; i++)
++                        targets[i].flags = GTK_TARGET_OTHER_WIDGET;
++
++                targetlist = gtk_target_list_new (targets, n_targets);
++                gtk_drag_dest_set_target_list (GTK_WIDGET (treeview), targetlist);
++                gtk_target_list_unref (targetlist);
++
++                gtk_target_table_free (targets, n_targets);
++        }
++
++        g_signal_connect (treeview, "drag_begin",
++                          G_CALLBACK (on_drag_begin),
++                          dialog);
++        g_signal_connect (treeview, "drag_data_get",
++                          G_CALLBACK (on_drag_data_get),
++                          dialog);
++        g_signal_connect (treeview, "drag_data_received",
++                          G_CALLBACK (on_drag_data_received),
++                          dialog);
++
++        gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (dialog->priv->list_store),
++                                              STORE_COL_DESCRIPTION,
++                                              GTK_SORT_ASCENDING);
++
++
++        button = GTK_WIDGET (gtk_builder_get_object (dialog->priv->xml,
++                                                     CAPPLET_ADD_WIDGET_NAME));
++        dialog->priv->add_button = button;
++        g_signal_connect (button,
++                          "clicked",
++                          G_CALLBACK (on_add_app_clicked),
++                          dialog);
++
++        button = GTK_WIDGET (gtk_builder_get_object (dialog->priv->xml,
++                                                     CAPPLET_DELETE_WIDGET_NAME));
++        dialog->priv->delete_button = button;
++        g_signal_connect (button,
++                          "clicked",
++                          G_CALLBACK (on_delete_app_clicked),
++                          dialog);
++
++        button = GTK_WIDGET (gtk_builder_get_object (dialog->priv->xml,
++                                                     CAPPLET_EDIT_WIDGET_NAME));
++        dialog->priv->edit_button = button;
++        g_signal_connect (button,
++                          "clicked",
++                          G_CALLBACK (on_edit_app_clicked),
++                          dialog);
++
++        button = GTK_WIDGET (gtk_builder_get_object (dialog->priv->xml,
++                                                     CAPPLET_REMEMBER_WIDGET_NAME));
++        g_settings_bind (dialog->priv->settings, SPC_SETTINGS_AUTOSAVE_KEY,
++                         button, "active", G_SETTINGS_BIND_DEFAULT);
++
++        button = GTK_WIDGET (gtk_builder_get_object (dialog->priv->xml,
++                                                     CAPPLET_SAVE_WIDGET_NAME));
++        g_signal_connect (button,
++                          "clicked",
++                          G_CALLBACK (on_save_session_clicked),
++                          dialog);
++
++        dialog->priv->manager = csp_app_manager_get ();
++        csp_app_manager_fill (dialog->priv->manager);
++        g_signal_connect_swapped (dialog->priv->manager, "added",
++                                  G_CALLBACK (_app_added), dialog);
++        g_signal_connect_swapped (dialog->priv->manager, "removed",
++                                  G_CALLBACK (_app_removed), dialog);
++
++        populate_model (dialog);
++}
++
++static GObject *
++csm_properties_dialog_constructor (GType                  type,
++                                guint                  n_construct_properties,
++                                GObjectConstructParam *construct_properties)
++{
++        CsmPropertiesDialog *dialog;
++
++        dialog = CSM_PROPERTIES_DIALOG (G_OBJECT_CLASS (csm_properties_dialog_parent_class)->constructor (type,
++                                                                                                                  n_construct_properties,
++                                                                                                                  construct_properties));
++
++        setup_dialog (dialog);
++
++        return G_OBJECT (dialog);
++}
++
++static void
++csm_properties_dialog_dispose (GObject *object)
++{
++        CsmPropertiesDialog *dialog;
++
++        g_return_if_fail (object != NULL);
++        g_return_if_fail (CSM_IS_PROPERTIES_DIALOG (object));
++
++        dialog = CSM_PROPERTIES_DIALOG (object);
++
++        if (dialog->priv->xml != NULL) {
++                g_object_unref (dialog->priv->xml);
++                dialog->priv->xml = NULL;
++        }
++
++        if (dialog->priv->settings != NULL) {
++                g_object_unref (dialog->priv->settings);
++                dialog->priv->settings = NULL;
++        }
++
++        G_OBJECT_CLASS (csm_properties_dialog_parent_class)->dispose (object);
++
++        /* it's important to do this after chaining to the parent dispose
++         * method because we want to make sure the treeview has been disposed
++         * and removed all its references to CspApp objects */
++        if (dialog->priv->manager != NULL) {
++                g_object_unref (dialog->priv->manager);
++                dialog->priv->manager = NULL;
++        }
++}
++
++static void
++csm_properties_dialog_class_init (CsmPropertiesDialogClass *klass)
++{
++        GObjectClass   *object_class = G_OBJECT_CLASS (klass);
++
++        object_class->constructor = csm_properties_dialog_constructor;
++        object_class->dispose = csm_properties_dialog_dispose;
++        object_class->finalize = csm_properties_dialog_finalize;
++
++        g_type_class_add_private (klass, sizeof (CsmPropertiesDialogPrivate));
++}
++
++static void
++csm_properties_dialog_init (CsmPropertiesDialog *dialog)
++{
++        GtkWidget   *content_area;
++        GtkWidget   *widget;
++        GError      *error;
++
++        dialog->priv = CSM_PROPERTIES_DIALOG_GET_PRIVATE (dialog);
++
++        dialog->priv->settings = g_settings_new (SPC_SETTINGS_SCHEMA);
++
++        dialog->priv->xml = gtk_builder_new ();
++        gtk_builder_set_translation_domain (dialog->priv->xml, GETTEXT_PACKAGE);
++
++        error = NULL;
++        if (!gtk_builder_add_from_file (dialog->priv->xml,
++                                        GTKBUILDER_DIR "/" GTKBUILDER_FILE,
++                                        &error)) {
++                if (error) {
++                        g_warning ("Could not load capplet UI file: %s",
++                                   error->message);
++                        g_error_free (error);
++                } else {
++                        g_warning ("Could not load capplet UI file.");
++                }
++        }
++
++        content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
++        widget = GTK_WIDGET (gtk_builder_get_object (dialog->priv->xml,
++                                                     "main-notebook"));
++        gtk_box_pack_start (GTK_BOX (content_area), widget, TRUE, TRUE, 0);
++
++        gtk_window_set_default_size (GTK_WINDOW (dialog), 600, 450);
++        gtk_window_set_resizable (GTK_WINDOW (dialog), TRUE);
++        gtk_container_set_border_width (GTK_CONTAINER (dialog), 6);
++        gtk_box_set_spacing (GTK_BOX (content_area), 2);
++        gtk_window_set_icon_name (GTK_WINDOW (dialog), "session-properties");
++        gtk_window_set_title (GTK_WINDOW (dialog), _("Startup Applications Preferences"));
++}
++
++static void
++csm_properties_dialog_finalize (GObject *object)
++{
++        CsmPropertiesDialog *dialog;
++
++        g_return_if_fail (object != NULL);
++        g_return_if_fail (CSM_IS_PROPERTIES_DIALOG (object));
++
++        dialog = CSM_PROPERTIES_DIALOG (object);
++
++        g_return_if_fail (dialog->priv != NULL);
++
++        G_OBJECT_CLASS (csm_properties_dialog_parent_class)->finalize (object);
++}
++
++GtkWidget *
++csm_properties_dialog_new (void)
++{
++        GObject *object;
++
++        object = g_object_new (CSM_TYPE_PROPERTIES_DIALOG,
++                               NULL);
++
++        return GTK_WIDGET (object);
++}
+diff --git a/capplet/csm-properties-dialog.h b/capplet/csm-properties-dialog.h
+new file mode 100644
+index 0000000..15f6857
+--- /dev/null
++++ b/capplet/csm-properties-dialog.h
+@@ -0,0 +1,57 @@
++/* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 8 -*-
++ *
++ * Copyright (C) 2008 William Jon McCann <jmccann@redhat.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street - Suite 500, Boston, MA 02110-1335, USA.
++ *
++ */
++
++#ifndef __CSM_PROPERTIES_DIALOG_H
++#define __CSM_PROPERTIES_DIALOG_H
++
++#include <glib-object.h>
++#include <gtk/gtk.h>
++
++G_BEGIN_DECLS
++
++#define CSM_TYPE_PROPERTIES_DIALOG         (csm_properties_dialog_get_type ())
++#define CSM_PROPERTIES_DIALOG(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), CSM_TYPE_PROPERTIES_DIALOG, CsmPropertiesDialog))
++#define CSM_PROPERTIES_DIALOG_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST((k), CSM_TYPE_PROPERTIES_DIALOG, CsmPropertiesDialogClass))
++#define CSM_IS_PROPERTIES_DIALOG(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), CSM_TYPE_PROPERTIES_DIALOG))
++#define CSM_IS_PROPERTIES_DIALOG_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), CSM_TYPE_PROPERTIES_DIALOG))
++#define CSM_PROPERTIES_DIALOG_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), CSM_TYPE_PROPERTIES_DIALOG, CsmPropertiesDialogClass))
++
++typedef struct CsmPropertiesDialogPrivate CsmPropertiesDialogPrivate;
++
++typedef struct
++{
++        GtkDialog                   parent;
++        CsmPropertiesDialogPrivate *priv;
++} CsmPropertiesDialog;
++
++typedef struct
++{
++        GtkDialogClass   parent_class;
++} CsmPropertiesDialogClass;
++
++GType                  csm_properties_dialog_get_type           (void);
++
++GtkWidget            * csm_properties_dialog_new                (void);
++
++#define CSM_PROPERTIES_ICON_SIZE GTK_ICON_SIZE_LARGE_TOOLBAR
++
++G_END_DECLS
++
++#endif /* __CSM_PROPERTIES_DIALOG_H */
+diff --git a/capplet/csp-app-manager.c b/capplet/csp-app-manager.c
+new file mode 100644
+index 0000000..08cf191
+--- /dev/null
++++ b/capplet/csp-app-manager.c
+@@ -0,0 +1,593 @@
++/* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 8 -*-
++ *
++ * Copyright (C) 1999 Free Software Foundation, Inc.
++ * Copyright (C) 2007, 2009 Vincent Untz.
++ * Copyright (C) 2008 Lucas Rocha.
++ * Copyright (C) 2008 William Jon McCann <jmccann@redhat.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street - Suite 500, Boston, MA 02110-1335, USA.
++ *
++ */
++
++#include <string.h>
++
++#include "csm-util.h"
++#include "csp-app.h"
++
++#include "csp-app-manager.h"
++
++static CspAppManager *manager = NULL;
++
++typedef struct {
++        char         *dir;
++        int           index;
++        GFileMonitor *monitor;
++} CspXdgDir;
++
++struct _CspAppManagerPrivate {
++        GSList *apps;
++        GSList *dirs;
++};
++
++#define CSP_APP_MANAGER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), CSP_TYPE_APP_MANAGER, CspAppManagerPrivate))
++
++
++enum {
++        ADDED,
++        REMOVED,
++        LAST_SIGNAL
++};
++
++static guint csp_app_manager_signals[LAST_SIGNAL] = { 0 };
++
++
++G_DEFINE_TYPE (CspAppManager, csp_app_manager, G_TYPE_OBJECT)
++
++static void     csp_app_manager_dispose      (GObject       *object);
++static void     csp_app_manager_finalize     (GObject       *object);
++static void     _csp_app_manager_app_unref   (CspApp        *app,
++                                              CspAppManager *manager);
++static void     _csp_app_manager_app_removed (CspAppManager *manager,
++                                              CspApp        *app);
++
++static CspXdgDir *
++_csp_xdg_dir_new (const char *dir,
++                  int         index)
++{
++        CspXdgDir *xdgdir;
++
++        xdgdir = g_slice_new (CspXdgDir);
++
++        xdgdir->dir = g_strdup (dir);
++        xdgdir->index = index;
++        xdgdir->monitor = NULL;
++
++        return xdgdir;
++}
++
++static void
++_csp_xdg_dir_free (CspXdgDir *xdgdir)
++{
++        if (xdgdir->dir) {
++                g_free (xdgdir->dir);
++                xdgdir->dir = NULL;
++        }
++
++        if (xdgdir->monitor) {
++                g_file_monitor_cancel (xdgdir->monitor);
++                g_object_unref (xdgdir->monitor);
++                xdgdir->monitor = NULL;
++        }
++
++        g_slice_free (CspXdgDir, xdgdir);
++}
++
++static void
++csp_app_manager_class_init (CspAppManagerClass *class)
++{
++        GObjectClass *gobject_class = G_OBJECT_CLASS (class);
++
++        gobject_class->dispose  = csp_app_manager_dispose;
++        gobject_class->finalize = csp_app_manager_finalize;
++
++        csp_app_manager_signals[ADDED] =
++                g_signal_new ("added",
++                              G_TYPE_FROM_CLASS (gobject_class),
++                              G_SIGNAL_RUN_LAST,
++                              G_STRUCT_OFFSET (CspAppManagerClass,
++                                               added),
++                              NULL,
++                              NULL,
++                              g_cclosure_marshal_VOID__OBJECT,
++                              G_TYPE_NONE, 1, G_TYPE_OBJECT);
++
++        csp_app_manager_signals[REMOVED] =
++                g_signal_new ("removed",
++                              G_TYPE_FROM_CLASS (gobject_class),
++                              G_SIGNAL_RUN_LAST,
++                              G_STRUCT_OFFSET (CspAppManagerClass,
++                                               removed),
++                              NULL,
++                              NULL,
++                              g_cclosure_marshal_VOID__OBJECT,
++                              G_TYPE_NONE, 1, G_TYPE_OBJECT);
++
++        g_type_class_add_private (class, sizeof (CspAppManagerPrivate));
++}
++
++static void
++csp_app_manager_init (CspAppManager *manager)
++{
++        manager->priv = CSP_APP_MANAGER_GET_PRIVATE (manager);
++
++        memset (manager->priv, 0, sizeof (CspAppManagerPrivate));
++}
++
++static void
++csp_app_manager_dispose (GObject *object)
++{
++        CspAppManager *manager;
++
++        g_return_if_fail (object != NULL);
++        g_return_if_fail (CSP_IS_APP_MANAGER (object));
++
++        manager = CSP_APP_MANAGER (object);
++
++        /* we unref CspApp objects in dispose since they might need to
++         * reference us during their dispose/finalize */
++        g_slist_foreach (manager->priv->apps,
++                         (GFunc) _csp_app_manager_app_unref, manager);
++        g_slist_free (manager->priv->apps);
++        manager->priv->apps = NULL;
++
++        G_OBJECT_CLASS (csp_app_manager_parent_class)->dispose (object);
++}
++
++static void
++csp_app_manager_finalize (GObject *object)
++{
++        CspAppManager *manager;
++
++        g_return_if_fail (object != NULL);
++        g_return_if_fail (CSP_IS_APP_MANAGER (object));
++
++        manager = CSP_APP_MANAGER (object);
++
++        g_slist_foreach (manager->priv->dirs,
++                         (GFunc) _csp_xdg_dir_free, NULL);
++        g_slist_free (manager->priv->dirs);
++        manager->priv->dirs = NULL;
++
++        G_OBJECT_CLASS (csp_app_manager_parent_class)->finalize (object);
++
++        manager = NULL;
++}
++
++static void
++_csp_app_manager_emit_added (CspAppManager *manager,
++                             CspApp        *app)
++{
++        g_signal_emit (G_OBJECT (manager), csp_app_manager_signals[ADDED],
++                       0, app);
++}
++
++static void
++_csp_app_manager_emit_removed (CspAppManager *manager,
++                               CspApp        *app)
++{
++        g_signal_emit (G_OBJECT (manager), csp_app_manager_signals[REMOVED],
++                       0, app);
++}
++
++/*
++ * Directories
++ */
++
++static int
++csp_app_manager_get_dir_index (CspAppManager *manager,
++                               const char    *dir)
++{
++        GSList    *l;
++        CspXdgDir *xdgdir;
++
++        g_return_val_if_fail (CSP_IS_APP_MANAGER (manager), -1);
++        g_return_val_if_fail (dir != NULL, -1);
++
++        for (l = manager->priv->dirs; l != NULL; l = l->next) {
++                xdgdir = l->data;
++                if (strcmp (dir, xdgdir->dir) == 0) {
++                        return xdgdir->index;
++                }
++        }
++
++        return -1;
++}
++
++const char *
++csp_app_manager_get_dir (CspAppManager *manager,
++                         unsigned int   index)
++{
++        GSList    *l;
++        CspXdgDir *xdgdir;
++
++        g_return_val_if_fail (CSP_IS_APP_MANAGER (manager), NULL);
++
++        for (l = manager->priv->dirs; l != NULL; l = l->next) {
++                xdgdir = l->data;
++                if (index == xdgdir->index) {
++                        return xdgdir->dir;
++                }
++        }
++
++        return NULL;
++}
++
++static int
++_csp_app_manager_find_dir_with_basename (CspAppManager *manager,
++                                         const char    *basename,
++                                         int            minimum_index)
++{
++        GSList    *l;
++        CspXdgDir *xdgdir;
++        char      *path;
++        GKeyFile  *keyfile;
++        int        result = -1;
++
++        path = NULL;
++        keyfile = g_key_file_new ();
++
++        for (l = manager->priv->dirs; l != NULL; l = l->next) {
++                xdgdir = l->data;
++
++                if (xdgdir->index <= minimum_index) {
++                        continue;
++                }
++
++                g_free (path);
++                path = g_build_filename (xdgdir->dir, basename, NULL);
++                if (!g_file_test (path, G_FILE_TEST_EXISTS)) {
++                        continue;
++                }
++
++                if (!g_key_file_load_from_file (keyfile, path,
++                                                G_KEY_FILE_NONE, NULL)) {
++                        continue;
++                }
++
++                /* the file exists and is readable */
++                if (result == -1) {
++                        result = xdgdir->index;
++                } else {
++                        result = MIN (result, xdgdir->index);
++                }
++        }
++
++        g_key_file_free (keyfile);
++        g_free (path);
++
++        return result;
++}
++
++static void
++_csp_app_manager_handle_delete (CspAppManager *manager,
++                                CspApp        *app,
++                                const char    *basename,
++                                int            index)
++{
++        unsigned int position;
++        unsigned int system_position;
++
++        position = csp_app_get_xdg_position (app);
++        system_position = csp_app_get_xdg_system_position (app);
++
++        if (system_position < index) {
++                /* it got deleted, but we don't even care about it */
++                return;
++        }
++
++        if (index < position) {
++                /* it got deleted, but in a position earlier than the current
++                 * one. This happens when the user file was changed and became
++                 * identical to the system file; in this case, the user file is
++                 * simply removed. */
++                 g_assert (index == 0);
++                 return;
++        }
++
++        if (position == index &&
++            (system_position == index || system_position == G_MAXUINT)) {
++                /* the file used by the user was deleted, and there's no other
++                 * file in system directories. So it really got deleted. */
++                _csp_app_manager_app_removed (manager, app);
++                return;
++        }
++
++        if (system_position == index) {
++                /* then we know that position != index; we just hae to tell
++                 * CspApp if there's still a system directory containing this
++                 * basename */
++                int new_system;
++
++                new_system = _csp_app_manager_find_dir_with_basename (manager,
++                                                                      basename,
++                                                                      index);
++                if (new_system < 0) {
++                        csp_app_set_xdg_system_position (app, G_MAXUINT);
++                } else {
++                        csp_app_set_xdg_system_position (app, new_system);
++                }
++
++                return;
++        }
++
++        if (position == index) {
++                /* then we know that system_position != G_MAXUINT; we need to
++                 * tell CspApp to change position to system_position */
++                const char *dir;
++
++                dir = csp_app_manager_get_dir (manager, system_position);
++                if (dir) {
++                        char *path;
++
++                        path = g_build_filename (dir, basename, NULL);
++                        csp_app_reload_at (app, path,
++                                           (unsigned int) system_position);
++                        g_free (path);
++                } else {
++                        _csp_app_manager_app_removed (manager, app);
++                }
++
++                return;
++        }
++
++        g_assert_not_reached ();
++}
++
++static gboolean
++csp_app_manager_xdg_dir_monitor (GFileMonitor      *monitor,
++                                 GFile             *child,
++                                 GFile             *other_file,
++                                 GFileMonitorEvent  flags,
++                                 gpointer           data)
++{
++        CspAppManager *manager;
++        CspApp        *old_app;
++        CspApp        *app;
++        GFile         *parent;
++        char          *basename;
++        char          *dir;
++        char          *path;
++        int            index;
++
++        manager = CSP_APP_MANAGER (data);
++
++        basename = g_file_get_basename (child);
++        if (!g_str_has_suffix (basename, ".desktop")) {
++                /* not a desktop file, we can ignore */
++                g_free (basename);
++                return TRUE;
++        }
++        old_app = csp_app_manager_find_app_with_basename (manager, basename);
++
++        parent = g_file_get_parent (child);
++        dir = g_file_get_path (parent);
++        g_object_unref (parent);
++
++        index = csp_app_manager_get_dir_index (manager, dir);
++        if (index < 0) {
++                /* not a directory we know; should never happen, though */
++                g_free (dir);
++                return TRUE;
++        }
++
++        path = g_file_get_path (child);
++
++        switch (flags) {
++        case G_FILE_MONITOR_EVENT_CHANGED:
++        case G_FILE_MONITOR_EVENT_CREATED:
++                /* we just do as if it was a new file: CspApp is clever enough
++                 * to do the right thing */
++                app = csp_app_new (path, (unsigned int) index);
++
++                /* we didn't have this app before, so add it */
++                if (old_app == NULL && app != NULL) {
++                        csp_app_manager_add (manager, app);
++                        g_object_unref (app);
++                }
++                /* else: it was just updated, CspApp took care of
++                 * sending the event */
++                break;
++        case G_FILE_MONITOR_EVENT_DELETED:
++                if (!old_app) {
++                        /* it got deleted, but we don't know about it, so
++                         * nothing to do */
++                        break;
++                }
++
++                _csp_app_manager_handle_delete (manager, old_app,
++                                                basename, index);
++                break;
++        default:
++                break;
++        }
++
++        g_free (path);
++        g_free (dir);
++        g_free (basename);
++
++        return TRUE;
++}
++
++/*
++ * Initialization
++ */
++
++static void
++_csp_app_manager_fill_from_dir (CspAppManager *manager,
++                                CspXdgDir     *xdgdir)
++{
++        GFile      *file;
++        GDir       *dir;
++        const char *name;
++
++        file = g_file_new_for_path (xdgdir->dir);
++        xdgdir->monitor = g_file_monitor_directory (file, G_FILE_MONITOR_NONE,
++                                                    NULL, NULL);
++        g_object_unref (file);
++
++        if (xdgdir->monitor) {
++                g_signal_connect (xdgdir->monitor, "changed",
++                                  G_CALLBACK (csp_app_manager_xdg_dir_monitor),
++                                  manager);
++        }
++
++        dir = g_dir_open (xdgdir->dir, 0, NULL);
++        if (!dir) {
++                return;
++        }
++
++        while ((name = g_dir_read_name (dir))) {
++                CspApp *app;
++                char   *desktop_file_path;
++
++                if (!g_str_has_suffix (name, ".desktop")) {
++                        continue;
++                }
++
++                desktop_file_path = g_build_filename (xdgdir->dir, name, NULL);
++                app = csp_app_new (desktop_file_path, xdgdir->index);
++
++                if (app != NULL) {
++                        csp_app_manager_add (manager, app);
++                        g_object_unref (app);
++                }
++
++                g_free (desktop_file_path);
++        }
++
++        g_dir_close (dir);
++}
++
++void
++csp_app_manager_fill (CspAppManager *manager)
++{
++        char **autostart_dirs;
++        int    i;
++
++        if (manager->priv->apps != NULL)
++                return;
++
++        autostart_dirs = csm_util_get_autostart_dirs ();
++        /* we always assume that the first directory is the user one */
++        g_assert (g_str_has_prefix (autostart_dirs[0],
++                                    g_get_user_config_dir ()));
++
++        for (i = 0; autostart_dirs[i] != NULL; i++) {
++                CspXdgDir *xdgdir;
++
++                if (csp_app_manager_get_dir_index (manager,
++                                                   autostart_dirs[i]) >= 0) {
++                        continue;
++                }
++
++                xdgdir = _csp_xdg_dir_new (autostart_dirs[i], i);
++                manager->priv->dirs = g_slist_prepend (manager->priv->dirs,
++                                                       xdgdir);
++
++                _csp_app_manager_fill_from_dir (manager, xdgdir);
++        }
++
++        g_strfreev (autostart_dirs);
++}
++
++/*
++ * App handling
++ */
++
++static void
++_csp_app_manager_app_unref (CspApp        *app,
++                            CspAppManager *manager)
++{
++        g_signal_handlers_disconnect_by_func (app,
++                                              _csp_app_manager_app_removed,
++                                              manager);
++        g_object_unref (app);
++}
++
++static void
++_csp_app_manager_app_removed (CspAppManager *manager,
++                              CspApp        *app)
++{
++        _csp_app_manager_emit_removed (manager, app);
++        manager->priv->apps = g_slist_remove (manager->priv->apps, app);
++        _csp_app_manager_app_unref (app, manager);
++}
++
++void
++csp_app_manager_add (CspAppManager *manager,
++                     CspApp        *app)
++{
++        g_return_if_fail (CSP_IS_APP_MANAGER (manager));
++        g_return_if_fail (CSP_IS_APP (app));
++
++        manager->priv->apps = g_slist_prepend (manager->priv->apps,
++                                               g_object_ref (app));
++        g_signal_connect_swapped (app, "removed",
++                                  G_CALLBACK (_csp_app_manager_app_removed),
++                                  manager);
++        _csp_app_manager_emit_added (manager, app);
++}
++
++CspApp *
++csp_app_manager_find_app_with_basename (CspAppManager *manager,
++                                        const char    *basename)
++{
++        GSList *l;
++        CspApp *app;
++
++        g_return_val_if_fail (CSP_IS_APP_MANAGER (manager), NULL);
++        g_return_val_if_fail (basename != NULL, NULL);
++
++        for (l = manager->priv->apps; l != NULL; l = l->next) {
++                app = CSP_APP (l->data);
++                if (strcmp (basename, csp_app_get_basename (app)) == 0)
++                        return app;
++        }
++
++        return NULL;
++}
++
++/*
++ * Singleton
++ */
++
++CspAppManager *
++csp_app_manager_get (void)
++{
++        if (manager == NULL) {
++                manager = g_object_new (CSP_TYPE_APP_MANAGER, NULL);
++                return manager;
++        } else {
++                return g_object_ref (manager);
++        }
++}
++
++GSList *
++csp_app_manager_get_apps (CspAppManager *manager)
++{
++        g_return_val_if_fail (CSP_IS_APP_MANAGER (manager), NULL);
++
++        return g_slist_copy (manager->priv->apps);
++}
+diff --git a/capplet/csp-app-manager.h b/capplet/csp-app-manager.h
+new file mode 100644
+index 0000000..b17f025
+--- /dev/null
++++ b/capplet/csp-app-manager.h
+@@ -0,0 +1,81 @@
++/* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 8 -*-
++ *
++ * Copyright (C) 1999 Free Software Foundation, Inc.
++ * Copyright (C) 2007, 2009 Vincent Untz.
++ * Copyright (C) 2008 Lucas Rocha.
++ * Copyright (C) 2008 William Jon McCann <jmccann@redhat.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street - Suite 500, Boston, MA 02110-1335, USA.
++ *
++ */
++
++#ifndef __CSP_APP_MANAGER_H
++#define __CSP_APP_MANAGER_H
++
++#include <glib-object.h>
++
++#include <csp-app.h>
++
++G_BEGIN_DECLS
++
++#define CSP_TYPE_APP_MANAGER            (csp_app_manager_get_type ())
++#define CSP_APP_MANAGER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), CSP_TYPE_APP_MANAGER, CspAppManager))
++#define CSP_APP_MANAGER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), CSP_TYPE_APP_MANAGER, CspAppManagerClass))
++#define CSP_IS_APP_MANAGER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CSP_TYPE_APP_MANAGER))
++#define CSP_IS_APP_MANAGER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), CSP_TYPE_APP_MANAGER))
++#define CSP_APP_MANAGER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), CSP_TYPE_APP_MANAGER, CspAppManagerClass))
++
++typedef struct _CspAppManager        CspAppManager;
++typedef struct _CspAppManagerClass   CspAppManagerClass;
++
++typedef struct _CspAppManagerPrivate CspAppManagerPrivate;
++
++struct _CspAppManagerClass
++{
++        GObjectClass parent_class;
++
++        void (* added)   (CspAppManager *manager,
++                          CspApp        *app);
++        void (* removed) (CspAppManager *manager,
++                          CspApp        *app);
++};
++
++struct _CspAppManager
++{
++        GObject parent_instance;
++
++        CspAppManagerPrivate *priv;
++};
++
++GType           csp_app_manager_get_type               (void);
++
++CspAppManager  *csp_app_manager_get                    (void);
++
++void            csp_app_manager_fill                   (CspAppManager *manager);
++
++GSList         *csp_app_manager_get_apps               (CspAppManager *manager);
++
++CspApp         *csp_app_manager_find_app_with_basename (CspAppManager *manager,
++                                                        const char    *basename);
++
++const char     *csp_app_manager_get_dir                (CspAppManager *manager,
++                                                        unsigned int   index);
++
++void            csp_app_manager_add                    (CspAppManager *manager,
++                                                        CspApp        *app);
++
++G_END_DECLS
++
++#endif /* __CSP_APP_MANAGER_H */
+diff --git a/capplet/csp-app.c b/capplet/csp-app.c
+new file mode 100644
+index 0000000..c0bf176
+--- /dev/null
++++ b/capplet/csp-app.c
+@@ -0,0 +1,1145 @@
++/* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 8 -*-
++ *
++ * Copyright (C) 1999 Free Software Foundation, Inc.
++ * Copyright (C) 2007, 2009 Vincent Untz.
++ * Copyright (C) 2008 Lucas Rocha.
++ * Copyright (C) 2008 William Jon McCann <jmccann@redhat.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street - Suite 500, Boston, MA 02110-1335, USA.
++ *
++ */
++
++#ifdef HAVE_CONFIG_H
++#include <config.h>
++#endif
++
++#include <string.h>
++#include <sys/stat.h>
++
++#include <glib/gi18n.h>
++#include <glib/gstdio.h>
++
++#include "csm-app-dialog.h"
++#include "csm-properties-dialog.h"
++#include "csm-util.h"
++#include "csp-app-manager.h"
++#include "csp-keyfile.h"
++
++#include "csp-app.h"
++
++#define CSP_APP_SAVE_DELAY 2
++
++#define CSP_ASP_SAVE_MASK_HIDDEN     0x0001
++#define CSP_ASP_SAVE_MASK_ENABLED    0x0002
++#define CSP_ASP_SAVE_MASK_NAME       0x0004
++#define CSP_ASP_SAVE_MASK_EXEC       0x0008
++#define CSP_ASP_SAVE_MASK_COMMENT    0x0010
++#define CSP_ASP_SAVE_MASK_NO_DISPLAY 0x0020
++#define CSP_ASP_SAVE_MASK_DELAY      0x0040
++#define CSP_ASP_SAVE_MASK_ALL        0xffff
++
++struct _CspAppPrivate {
++        char         *basename;
++        char         *path;
++
++        gboolean      hidden;
++        gboolean      no_display;
++        gboolean      enabled;
++        gboolean      shown;
++
++        char         *name;
++        char         *exec;
++        char         *comment;
++        char         *icon;
++        char         *delay;
++
++        GIcon        *gicon;
++        char         *description;
++
++        /* position of the directory in the XDG environment variable */
++        unsigned int  xdg_position;
++        /* position of the first system directory in the XDG env var containing
++         * this autostart app too (G_MAXUINT means none) */
++        unsigned int  xdg_system_position;
++
++        unsigned int  save_timeout;
++        /* mask of what has changed */
++        unsigned int  save_mask;
++        /* path that contains the original file that needs to be saved */
++        char         *old_system_path;
++        /* after writing to file, we skip the next file monitor event of type
++         * CHANGED */
++        gboolean      skip_next_monitor_event;
++};
++
++#define CSP_APP_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), CSP_TYPE_APP, CspAppPrivate))
++
++
++enum {
++        CHANGED,
++        REMOVED,
++        LAST_SIGNAL
++};
++
++static guint csp_app_signals[LAST_SIGNAL] = { 0 };
++
++
++G_DEFINE_TYPE (CspApp, csp_app, G_TYPE_OBJECT)
++
++static void     csp_app_dispose  (GObject *object);
++static void     csp_app_finalize (GObject *object);
++static gboolean _csp_app_save    (gpointer data);
++
++
++static gboolean
++_csp_str_equal (const char *a,
++                const char *b)
++{
++        if (g_strcmp0 (a, b) == 0) {
++                return TRUE;
++        }
++
++        if (a && !b && a[0] == '\0') {
++                return TRUE;
++        }
++
++        if (b && !a && b[0] == '\0') {
++                return TRUE;
++        }
++
++        return FALSE;
++}
++
++
++static void
++csp_app_class_init (CspAppClass *class)
++{
++        GObjectClass *gobject_class = G_OBJECT_CLASS (class);
++
++        gobject_class->dispose  = csp_app_dispose;
++        gobject_class->finalize = csp_app_finalize;
++
++        csp_app_signals[CHANGED] =
++                g_signal_new ("changed",
++                              G_TYPE_FROM_CLASS (gobject_class),
++                              G_SIGNAL_RUN_LAST,
++                              G_STRUCT_OFFSET (CspAppClass,
++                                               changed),
++                              NULL,
++                              NULL,
++                              g_cclosure_marshal_VOID__VOID,
++                              G_TYPE_NONE, 0);
++
++        csp_app_signals[REMOVED] =
++                g_signal_new ("removed",
++                              G_TYPE_FROM_CLASS (gobject_class),
++                              G_SIGNAL_RUN_LAST,
++                              G_STRUCT_OFFSET (CspAppClass,
++                                               removed),
++                              NULL,
++                              NULL,
++                              g_cclosure_marshal_VOID__VOID,
++                              G_TYPE_NONE, 0);
++
++        g_type_class_add_private (class, sizeof (CspAppPrivate));
++}
++
++static void
++csp_app_init (CspApp *app)
++{
++        app->priv = CSP_APP_GET_PRIVATE (app);
++
++        memset (app->priv, 0, sizeof (CspAppPrivate));
++        app->priv->xdg_position        = G_MAXUINT;
++        app->priv->xdg_system_position = G_MAXUINT;
++}
++
++static void
++_csp_app_free_reusable_data (CspApp *app)
++{
++        if (app->priv->path) {
++                g_free (app->priv->path);
++                app->priv->path = NULL;
++        }
++
++        if (app->priv->name) {
++                g_free (app->priv->name);
++                app->priv->name = NULL;
++        }
++
++        if (app->priv->exec) {
++                g_free (app->priv->exec);
++                app->priv->exec = NULL;
++        }
++
++        if (app->priv->comment) {
++                g_free (app->priv->comment);
++                app->priv->comment = NULL;
++        }
++
++        if (app->priv->delay) {
++                g_free (app->priv->delay);
++                app->priv->delay = NULL;
++        }
++
++        if (app->priv->icon) {
++                g_free (app->priv->icon);
++                app->priv->icon = NULL;
++        }
++
++        if (app->priv->gicon) {
++                g_object_unref (app->priv->gicon);
++                app->priv->gicon = NULL;
++        }
++
++        if (app->priv->description) {
++                g_free (app->priv->description);
++                app->priv->description = NULL;
++        }
++
++        if (app->priv->old_system_path) {
++                g_free (app->priv->old_system_path);
++                app->priv->old_system_path = NULL;
++        }
++}
++
++static void
++csp_app_dispose (GObject *object)
++{
++        CspApp *app;
++
++        g_return_if_fail (object != NULL);
++        g_return_if_fail (CSP_IS_APP (object));
++
++        app = CSP_APP (object);
++
++        /* we save in dispose since we might need to reference CspAppManager */
++        if (app->priv->save_timeout) {
++                g_source_remove (app->priv->save_timeout);
++                app->priv->save_timeout = 0;
++
++                /* save now */
++                _csp_app_save (app);
++        }
++
++        G_OBJECT_CLASS (csp_app_parent_class)->dispose (object);
++}
++
++static void
++csp_app_finalize (GObject *object)
++{
++        CspApp *app;
++
++        g_return_if_fail (object != NULL);
++        g_return_if_fail (CSP_IS_APP (object));
++
++        app = CSP_APP (object);
++
++        if (app->priv->basename) {
++                g_free (app->priv->basename);
++                app->priv->basename = NULL;
++        }
++
++        _csp_app_free_reusable_data (app);
++
++        G_OBJECT_CLASS (csp_app_parent_class)->finalize (object);
++}
++
++static void
++_csp_app_emit_changed (CspApp *app)
++{
++        g_signal_emit (G_OBJECT (app), csp_app_signals[CHANGED], 0);
++}
++
++static void
++_csp_app_emit_removed (CspApp *app)
++{
++        g_signal_emit (G_OBJECT (app), csp_app_signals[REMOVED], 0);
++}
++
++static void
++_csp_app_update_description (CspApp *app)
++{
++        const char *primary;
++        const char *secondary;
++
++        if (!csm_util_text_is_blank (app->priv->name)) {
++                primary = app->priv->name;
++        } else if (!csm_util_text_is_blank (app->priv->exec)) {
++                primary = app->priv->exec;
++        } else {
++                primary = _("No name");
++        }
++
++        if (!csm_util_text_is_blank (app->priv->comment)) {
++                secondary = app->priv->comment;
++        } else {
++                secondary = _("No description");
++        }
++
++        g_free (app->priv->description);
++        app->priv->description = g_markup_printf_escaped ("<b>%s</b>\n%s",
++                                                          primary,
++                                                          secondary);
++}
++
++/*
++ * Saving
++ */
++
++static void
++_csp_ensure_user_autostart_dir (void)
++{
++        char *dir;
++
++        dir = g_build_filename (g_get_user_config_dir (), "autostart", NULL);
++        g_mkdir_with_parents (dir, S_IRWXU);
++
++        g_free (dir);
++}
++
++static gboolean
++_csp_app_user_equal_system (CspApp  *app,
++                            char   **system_path)
++{
++        CspAppManager *manager;
++        const char    *system_dir;
++        char          *path;
++        char          *str;
++        GKeyFile      *keyfile;
++
++        manager = csp_app_manager_get ();
++        system_dir = csp_app_manager_get_dir (manager,
++                                              app->priv->xdg_system_position);
++        g_object_unref (manager);
++        if (!system_dir) {
++                return FALSE;
++        }
++
++        path = g_build_filename (system_dir, app->priv->basename, NULL);
++
++        keyfile = g_key_file_new ();
++        if (!g_key_file_load_from_file (keyfile, path, G_KEY_FILE_NONE, NULL)) {
++                g_free (path);
++                g_key_file_free (keyfile);
++                return FALSE;
++        }
++
++        if (csp_key_file_get_boolean (keyfile,
++                                      G_KEY_FILE_DESKTOP_KEY_HIDDEN,
++                                      FALSE) != app->priv->hidden ||
++            csp_key_file_get_boolean (keyfile,
++                                      CSP_KEY_FILE_DESKTOP_KEY_AUTOSTART_ENABLED,
++                                      TRUE) != app->priv->enabled ||
++            csp_key_file_get_shown (keyfile,
++                                    csm_util_get_current_desktop ()) != app->priv->shown) {
++                g_free (path);
++                g_key_file_free (keyfile);
++                return FALSE;
++        }
++
++        if (csp_key_file_get_boolean (keyfile,
++                                      G_KEY_FILE_DESKTOP_KEY_NO_DISPLAY,
++                                      FALSE) != app->priv->no_display) {
++                g_free (path);
++                g_key_file_free (keyfile);
++                return FALSE;
++        }
++
++        str = csp_key_file_get_locale_string (keyfile,
++                                              G_KEY_FILE_DESKTOP_KEY_NAME);
++        if (!_csp_str_equal (str, app->priv->name)) {
++                g_free (str);
++                g_free (path);
++                g_key_file_free (keyfile);
++                return FALSE;
++        }
++        g_free (str);
++
++        str = csp_key_file_get_locale_string (keyfile,
++                                              G_KEY_FILE_DESKTOP_KEY_COMMENT);
++        if (!_csp_str_equal (str, app->priv->comment)) {
++                g_free (str);
++                g_free (path);
++                g_key_file_free (keyfile);
++                return FALSE;
++        }
++        g_free (str);
++
++        str = csp_key_file_get_string (keyfile,
++                                       G_KEY_FILE_DESKTOP_KEY_EXEC);
++        if (!_csp_str_equal (str, app->priv->exec)) {
++                g_free (str);
++                g_free (path);
++                g_key_file_free (keyfile);
++                return FALSE;
++        }
++        g_free (str);
++
++        str = csp_key_file_get_string (keyfile,
++                                       CSP_KEY_FILE_DESKTOP_KEY_AUTOSTART_DELAY);
++        if (char_to_int (app->priv->delay) > 0 && !_csp_str_equal (str, app->priv->delay)) {
++                g_free (str);
++                g_free (path);
++                g_key_file_free (keyfile);
++                return FALSE;
++        }
++        g_free (str);
++
++        str = csp_key_file_get_locale_string (keyfile,
++                                              G_KEY_FILE_DESKTOP_KEY_ICON);
++        if (!_csp_str_equal (str, app->priv->icon)) {
++                g_free (str);
++                g_free (path);
++                g_key_file_free (keyfile);
++                return FALSE;
++        }
++        g_free (str);
++
++        g_key_file_free (keyfile);
++
++        *system_path = path;
++
++        return TRUE;
++}
++
++static inline void
++_csp_app_save_done_success (CspApp *app)
++{
++        app->priv->save_mask = 0;
++
++        if (app->priv->old_system_path) {
++                g_free (app->priv->old_system_path);
++                app->priv->old_system_path = NULL;
++        }
++}
++
++static gboolean
++_csp_app_save (gpointer data)
++{
++        CspApp   *app;
++        char     *use_path;
++        GKeyFile *keyfile;
++        GError   *error;
++
++        app = CSP_APP (data);
++
++        /* first check if removing the data from the user dir and using the
++         * data from the system dir is enough -- this helps us keep clean the
++         * user config dir by removing unneeded files */
++        if (_csp_app_user_equal_system (app, &use_path)) {
++                if (g_file_test (app->priv->path, G_FILE_TEST_EXISTS)) {
++                        g_remove (app->priv->path);
++                }
++
++                g_free (app->priv->path);
++                app->priv->path = use_path;
++
++                app->priv->xdg_position = app->priv->xdg_system_position;
++
++                _csp_app_save_done_success (app);
++                return FALSE;
++        }
++
++        if (app->priv->old_system_path)
++                use_path = app->priv->old_system_path;
++        else
++                use_path = app->priv->path;
++
++        keyfile = g_key_file_new ();
++
++        error = NULL;
++        g_key_file_load_from_file (keyfile, use_path,
++                                   G_KEY_FILE_KEEP_COMMENTS|G_KEY_FILE_KEEP_TRANSLATIONS,
++                                   &error);
++
++        if (error) {
++                g_error_free (error);
++                csp_key_file_populate (keyfile);
++        }
++
++        if (app->priv->save_mask & CSP_ASP_SAVE_MASK_HIDDEN) {
++                csp_key_file_set_boolean (keyfile,
++                                          G_KEY_FILE_DESKTOP_KEY_HIDDEN,
++                                          app->priv->hidden);
++        }
++
++        if (app->priv->save_mask & CSP_ASP_SAVE_MASK_NO_DISPLAY) {
++                csp_key_file_set_boolean (keyfile,
++                                          G_KEY_FILE_DESKTOP_KEY_NO_DISPLAY,
++                                          app->priv->no_display);
++        }
++
++        if (app->priv->save_mask & CSP_ASP_SAVE_MASK_ENABLED) {
++                csp_key_file_set_boolean (keyfile,
++                                          CSP_KEY_FILE_DESKTOP_KEY_AUTOSTART_ENABLED,
++                                          app->priv->enabled);
++        }
++
++        if (app->priv->save_mask & CSP_ASP_SAVE_MASK_NAME) {
++                csp_key_file_set_locale_string (keyfile,
++                                                G_KEY_FILE_DESKTOP_KEY_NAME,
++                                                app->priv->name);
++                csp_key_file_ensure_C_key (keyfile, G_KEY_FILE_DESKTOP_KEY_NAME);
++        }
++
++        if (app->priv->save_mask & CSP_ASP_SAVE_MASK_COMMENT) {
++                csp_key_file_set_locale_string (keyfile,
++                                                G_KEY_FILE_DESKTOP_KEY_COMMENT,
++                                                app->priv->comment);
++                csp_key_file_ensure_C_key (keyfile, G_KEY_FILE_DESKTOP_KEY_COMMENT);
++        }
++
++        if (app->priv->save_mask & CSP_ASP_SAVE_MASK_EXEC) {
++                csp_key_file_set_string (keyfile,
++                                         G_KEY_FILE_DESKTOP_KEY_EXEC,
++                                         app->priv->exec);
++        }
++
++        if (app->priv->save_mask & CSP_ASP_SAVE_MASK_DELAY) {
++                csp_key_file_set_string (keyfile,
++                                         CSP_KEY_FILE_DESKTOP_KEY_AUTOSTART_DELAY,
++                                         app->priv->delay);
++        }
++
++        _csp_ensure_user_autostart_dir ();
++        if (csp_key_file_to_file (keyfile, app->priv->path, NULL)) {
++                app->priv->skip_next_monitor_event = TRUE;
++                _csp_app_save_done_success (app);
++        } else {
++                g_warning ("Could not save %s file", app->priv->path);
++        }
++
++        g_key_file_free (keyfile);
++
++        app->priv->save_timeout = 0;
++        return FALSE;
++}
++
++static void
++_csp_app_queue_save (CspApp *app)
++{
++        if (app->priv->save_timeout) {
++                g_source_remove (app->priv->save_timeout);
++                app->priv->save_timeout = 0;
++        }
++
++        /* if the file was not in the user directory, then we'll create a copy
++         * there */
++        if (app->priv->xdg_position != 0) {
++                app->priv->xdg_position = 0;
++
++                if (app->priv->old_system_path == NULL) {
++                        app->priv->old_system_path = app->priv->path;
++                        /* if old_system_path was not NULL, then it means we
++                         * tried to save and we failed; in that case, we want
++                         * to try again and use the old file as a basis again */
++                }
++
++                app->priv->path = g_build_filename (g_get_user_config_dir (),
++                                                    "autostart",
++                                                    app->priv->basename, NULL);
++        }
++
++        app->priv->save_timeout = g_timeout_add_seconds (CSP_APP_SAVE_DELAY,
++                                                         _csp_app_save,
++                                                         app);
++}
++
++/*
++ * Accessors
++ */
++
++const char *
++csp_app_get_basename (CspApp *app)
++{
++        g_return_val_if_fail (CSP_IS_APP (app), NULL);
++
++        return app->priv->basename;
++}
++
++const char *
++csp_app_get_path (CspApp *app)
++{
++        g_return_val_if_fail (CSP_IS_APP (app), NULL);
++
++        return app->priv->path;
++}
++
++gboolean
++csp_app_get_hidden (CspApp *app)
++{
++        g_return_val_if_fail (CSP_IS_APP (app), FALSE);
++
++        return app->priv->hidden;
++}
++
++gboolean
++csp_app_get_display (CspApp *app)
++{
++        g_return_val_if_fail (CSP_IS_APP (app), FALSE);
++
++        return !app->priv->no_display;
++}
++
++gboolean
++csp_app_get_enabled (CspApp *app)
++{
++        g_return_val_if_fail (CSP_IS_APP (app), FALSE);
++
++        return app->priv->enabled;
++}
++
++void
++csp_app_set_enabled (CspApp   *app,
++                     gboolean  enabled)
++{
++        g_return_if_fail (CSP_IS_APP (app));
++
++        if (enabled == app->priv->enabled) {
++                return;
++        }
++
++        app->priv->enabled = enabled;
++        app->priv->save_mask |= CSP_ASP_SAVE_MASK_ENABLED;
++
++        _csp_app_queue_save (app);
++        _csp_app_emit_changed (app);
++}
++
++gboolean
++csp_app_get_shown (CspApp *app)
++{
++        g_return_val_if_fail (CSP_IS_APP (app), FALSE);
++
++        return app->priv->shown;
++}
++
++const char *
++csp_app_get_name (CspApp *app)
++{
++        g_return_val_if_fail (CSP_IS_APP (app), NULL);
++
++        return app->priv->name;
++}
++
++const char *
++csp_app_get_exec (CspApp *app)
++{
++        g_return_val_if_fail (CSP_IS_APP (app), NULL);
++
++        return app->priv->exec;
++}
++
++const char *
++csp_app_get_comment (CspApp *app)
++{
++        g_return_val_if_fail (CSP_IS_APP (app), NULL);
++
++        return app->priv->comment;
++}
++
++const char *
++csp_app_get_delay (CspApp *app)
++{
++        g_return_val_if_fail (CSP_IS_APP (app), NULL);
++
++        return app->priv->delay;
++}
++
++GIcon *
++csp_app_get_icon (CspApp *app)
++{
++        g_return_val_if_fail (CSP_IS_APP (app), NULL);
++
++        if (app->priv->gicon) {
++                return g_object_ref (app->priv->gicon);
++        } else {
++                return NULL;
++        }
++}
++
++unsigned int
++csp_app_get_xdg_position (CspApp *app)
++{
++        g_return_val_if_fail (CSP_IS_APP (app), G_MAXUINT);
++
++        return app->priv->xdg_position;
++}
++
++unsigned int
++csp_app_get_xdg_system_position (CspApp *app)
++{
++        g_return_val_if_fail (CSP_IS_APP (app), G_MAXUINT);
++
++        return app->priv->xdg_system_position;
++}
++
++void
++csp_app_set_xdg_system_position (CspApp       *app,
++                                 unsigned int  position)
++{
++        g_return_if_fail (CSP_IS_APP (app));
++
++        app->priv->xdg_system_position = position;
++}
++
++const char *
++csp_app_get_description (CspApp *app)
++{
++        g_return_val_if_fail (CSP_IS_APP (app), NULL);
++
++        return app->priv->description;
++}
++
++/*
++ * High-level edition
++ */
++
++void
++csp_app_update (CspApp     *app,
++                const char *name,
++                const char *comment,
++                const char *exec,
++                const char *delay)
++{
++        gboolean    changed;
++
++        g_return_if_fail (CSP_IS_APP (app));
++
++        changed = FALSE;
++
++        if (!_csp_str_equal (name, app->priv->name)) {
++                changed = TRUE;
++                g_free (app->priv->name);
++                app->priv->name = g_strdup (name);
++                app->priv->save_mask |= CSP_ASP_SAVE_MASK_NAME;
++        }
++
++        if (!_csp_str_equal (comment, app->priv->comment)) {
++                changed = TRUE;
++                g_free (app->priv->comment);
++                app->priv->comment = g_strdup (comment);
++                app->priv->save_mask |= CSP_ASP_SAVE_MASK_COMMENT;
++        }
++
++        if (changed) {
++                _csp_app_update_description (app);
++        }
++
++        if (!_csp_str_equal (exec, app->priv->exec)) {
++                changed = TRUE;
++                g_free (app->priv->exec);
++                app->priv->exec = g_strdup (exec);
++                app->priv->save_mask |= CSP_ASP_SAVE_MASK_EXEC;
++        }
++
++        if (!_csp_str_equal (delay, app->priv->delay)) {
++                changed = TRUE;
++                g_free (app->priv->delay);
++                app->priv->delay = g_strdup (delay);
++                app->priv->save_mask |= CSP_ASP_SAVE_MASK_DELAY;
++        }
++
++        if (changed) {
++                _csp_app_queue_save (app);
++                _csp_app_emit_changed (app);
++        }
++}
++
++void
++csp_app_delete (CspApp *app)
++{
++        g_return_if_fail (CSP_IS_APP (app));
++
++        if (app->priv->xdg_position == 0 &&
++            app->priv->xdg_system_position == G_MAXUINT) {
++                /* exists in user directory only */
++                if (app->priv->save_timeout) {
++                        g_source_remove (app->priv->save_timeout);
++                        app->priv->save_timeout = 0;
++                }
++
++                if (g_file_test (app->priv->path, G_FILE_TEST_EXISTS)) {
++                        g_remove (app->priv->path);
++                }
++
++                /* for extra safety */
++                app->priv->hidden = TRUE;
++                app->priv->save_mask |= CSP_ASP_SAVE_MASK_HIDDEN;
++
++                _csp_app_emit_removed (app);
++        } else {
++                /* also exists in system directory, so we have to keep a file
++                 * in the user directory */
++                app->priv->hidden = TRUE;
++                app->priv->save_mask |= CSP_ASP_SAVE_MASK_HIDDEN;
++
++                _csp_app_queue_save (app);
++                _csp_app_emit_changed (app);
++        }
++}
++
++/*
++ * New autostart app
++ */
++
++void
++csp_app_reload_at (CspApp       *app,
++                   const char   *path,
++                   unsigned int  xdg_position)
++{
++        g_return_if_fail (CSP_IS_APP (app));
++
++        app->priv->xdg_position = G_MAXUINT;
++        csp_app_new (path, xdg_position);
++}
++
++CspApp *
++csp_app_new (const char   *path,
++             unsigned int  xdg_position)
++{
++        CspAppManager *manager;
++        CspApp        *app;
++        GKeyFile      *keyfile;
++        char          *basename;
++        gboolean       new;
++
++        basename = g_path_get_basename (path);
++
++        manager = csp_app_manager_get ();
++        app = csp_app_manager_find_app_with_basename (manager, basename);
++        g_object_unref (manager);
++
++        new = (app == NULL);
++
++        if (!new) {
++                if (app->priv->xdg_position == xdg_position) {
++                        if (app->priv->skip_next_monitor_event) {
++                                app->priv->skip_next_monitor_event = FALSE;
++                                return NULL;
++                        }
++                        /* else: the file got changed but not by us, we'll
++                         * update our data from disk */
++                }
++
++                if (app->priv->xdg_position < xdg_position ||
++                    app->priv->save_timeout != 0) {
++                        /* we don't really care about this file, since we
++                         * already have something with a higher priority, or
++                         * we're going to write something in the user config
++                         * anyway.
++                         * Note: xdg_position >= 1 so it's a system dir */
++                        app->priv->xdg_system_position = MIN (xdg_position,
++                                                              app->priv->xdg_system_position);
++                        return NULL;
++                }
++        }
++
++        keyfile = g_key_file_new ();
++        if (!g_key_file_load_from_file (keyfile, path, G_KEY_FILE_NONE, NULL)) {
++                g_key_file_free (keyfile);
++                g_free (basename);
++                return NULL;
++        }
++
++        if (new) {
++                app = g_object_new (CSP_TYPE_APP, NULL);
++                app->priv->basename = basename;
++        } else {
++                g_free (basename);
++                _csp_app_free_reusable_data (app);
++        }
++
++        app->priv->path = g_strdup (path);
++
++        app->priv->hidden = csp_key_file_get_boolean (keyfile,
++                                                      G_KEY_FILE_DESKTOP_KEY_HIDDEN,
++                                                      FALSE);
++        app->priv->no_display = csp_key_file_get_boolean (keyfile,
++                                                          G_KEY_FILE_DESKTOP_KEY_NO_DISPLAY,
++                                                          FALSE);
++        app->priv->enabled = csp_key_file_get_boolean (keyfile,
++                                                       CSP_KEY_FILE_DESKTOP_KEY_AUTOSTART_ENABLED,
++                                                       TRUE);
++        app->priv->shown = csp_key_file_get_shown (keyfile,
++                                                   csm_util_get_current_desktop ());
++
++        app->priv->name = csp_key_file_get_locale_string (keyfile,
++                                                          G_KEY_FILE_DESKTOP_KEY_NAME);
++        app->priv->exec = csp_key_file_get_string (keyfile,
++                                                   G_KEY_FILE_DESKTOP_KEY_EXEC);
++        app->priv->delay = csp_key_file_get_string (keyfile,
++                                                   CSP_KEY_FILE_DESKTOP_KEY_AUTOSTART_DELAY);
++        app->priv->comment = csp_key_file_get_locale_string (keyfile,
++                                                             G_KEY_FILE_DESKTOP_KEY_COMMENT);
++
++        if (csm_util_text_is_blank (app->priv->name)) {
++                g_free (app->priv->name);
++                app->priv->name = g_strdup (app->priv->exec);
++        }
++
++        app->priv->icon = csp_key_file_get_locale_string (keyfile,
++                                                          G_KEY_FILE_DESKTOP_KEY_ICON);
++
++        if (app->priv->icon) {
++                /* look at icon and see if it's a themed icon or not */
++                if (g_path_is_absolute (app->priv->icon)) {
++                        GFile *iconfile;
++
++                        iconfile = g_file_new_for_path (app->priv->icon);
++                        app->priv->gicon = g_file_icon_new (iconfile);
++                        g_object_unref (iconfile);
++                } else {
++                        app->priv->gicon = g_themed_icon_new (app->priv->icon);
++                }
++        } else {
++                app->priv->gicon = NULL;
++        }
++
++        g_key_file_free (keyfile);
++
++        _csp_app_update_description (app);
++
++        if (xdg_position > 0) {
++                g_assert (xdg_position <= app->priv->xdg_system_position);
++                app->priv->xdg_system_position = xdg_position;
++        }
++        /* else we keep the old value (which is G_MAXUINT if it wasn't set) */
++        app->priv->xdg_position = xdg_position;
++
++        g_assert (!new || app->priv->save_timeout == 0);
++        app->priv->save_timeout = 0;
++        app->priv->old_system_path = NULL;
++        app->priv->skip_next_monitor_event = FALSE;
++
++        if (!new) {
++                _csp_app_emit_changed (app);
++        }
++
++        return app;
++}
++
++static char *
++_csp_find_free_basename (const char *suggested_basename)
++{
++        CspAppManager *manager;
++        char          *base_path;
++        char          *filename;
++        char          *basename;
++        int            i;
++
++        if (g_str_has_suffix (suggested_basename, ".desktop")) {
++                char *basename_no_ext;
++
++                basename_no_ext = g_strndup (suggested_basename,
++                                             strlen (suggested_basename) - strlen (".desktop"));
++                base_path = g_build_filename (g_get_user_config_dir (),
++                                              "autostart",
++                                              basename_no_ext, NULL);
++                g_free (basename_no_ext);
++        } else {
++                base_path = g_build_filename (g_get_user_config_dir (),
++                                              "autostart",
++                                              suggested_basename, NULL);
++        }
++
++        filename = g_strdup_printf ("%s.desktop", base_path);
++        basename = g_path_get_basename (filename);
++
++        manager = csp_app_manager_get ();
++
++        i = 1;
++#define _CSP_FIND_MAX_TRY 10000
++        while (csp_app_manager_find_app_with_basename (manager,
++                                                       basename) != NULL &&
++               g_file_test (filename, G_FILE_TEST_EXISTS) &&
++               i < _CSP_FIND_MAX_TRY) {
++                g_free (filename);
++                g_free (basename);
++
++                filename = g_strdup_printf ("%s-%d.desktop", base_path, i);
++                basename = g_path_get_basename (filename);
++
++                i++;
++        }
++
++        g_object_unref (manager);
++
++        g_free (base_path);
++        g_free (filename);
++
++        if (i == _CSP_FIND_MAX_TRY) {
++                g_free (basename);
++                return NULL;
++        }
++
++        return basename;
++}
++
++void
++csp_app_create (const char *name,
++                const char *comment,
++                const char *exec,
++                const char *delay)
++{
++        CspAppManager  *manager;
++        CspApp         *app;
++        char           *basename;
++        char          **argv;
++        int             argc;
++
++        g_return_if_fail (!csm_util_text_is_blank (exec));
++
++        if (!g_shell_parse_argv (exec, &argc, &argv, NULL)) {
++                return;
++        }
++
++        basename = _csp_find_free_basename (argv[0]);
++        g_strfreev (argv);
++        if (basename == NULL) {
++                return;
++        }
++
++        app = g_object_new (CSP_TYPE_APP, NULL);
++
++        app->priv->basename = basename;
++        app->priv->path = g_build_filename (g_get_user_config_dir (),
++                                            "autostart",
++                                            app->priv->basename, NULL);
++
++        app->priv->hidden = FALSE;
++        app->priv->no_display = FALSE;
++        app->priv->enabled = TRUE;
++        app->priv->shown = TRUE;
++
++        if (!csm_util_text_is_blank (name)) {
++                app->priv->name = g_strdup (name);
++        } else {
++                app->priv->name = g_strdup (exec);
++        }
++        app->priv->exec = g_strdup (exec);
++        app->priv->delay = g_strdup (delay);
++        app->priv->comment = g_strdup (comment);
++        app->priv->icon = NULL;
++
++        app->priv->gicon = NULL;
++        _csp_app_update_description (app);
++
++        /* by definition */
++        app->priv->xdg_position = 0;
++        app->priv->xdg_system_position = G_MAXUINT;
++
++        app->priv->save_timeout = 0;
++        app->priv->save_mask |= CSP_ASP_SAVE_MASK_ALL;
++        app->priv->old_system_path = NULL;
++        app->priv->skip_next_monitor_event = FALSE;
++
++        _csp_app_queue_save (app);
++
++        manager = csp_app_manager_get ();
++        csp_app_manager_add (manager, app);
++        g_object_unref (app);
++        g_object_unref (manager);
++}
++
++gboolean
++csp_app_copy_desktop_file (const char *uri)
++{
++        CspAppManager *manager;
++        CspApp        *app;
++        GFile         *src_file;
++        char          *src_basename;
++        char          *dst_basename;
++        char          *dst_path;
++        GFile         *dst_file;
++        gboolean       changed;
++
++        g_return_val_if_fail (uri != NULL, FALSE);
++
++        src_file = g_file_new_for_uri (uri);
++        src_basename = g_file_get_basename (src_file);
++
++        if (src_basename == NULL) {
++                g_object_unref (src_file);
++                return FALSE;
++        }
++
++        dst_basename = _csp_find_free_basename (src_basename);
++        g_free (src_basename);
++
++        if (dst_basename == NULL) {
++                g_object_unref (src_file);
++                return FALSE;
++        }
++
++        dst_path = g_build_filename (g_get_user_config_dir (),
++                                     "autostart",
++                                     dst_basename, NULL);
++        g_free (dst_basename);
++
++        dst_file = g_file_new_for_path (dst_path);
++
++        _csp_ensure_user_autostart_dir ();
++        if (!g_file_copy (src_file, dst_file, G_FILE_COPY_NONE,
++                          NULL, NULL, NULL, NULL)) {
++                g_object_unref (src_file);
++                g_object_unref (dst_file);
++                g_free (dst_path);
++                return FALSE;
++        }
++
++        g_object_unref (src_file);
++        g_object_unref (dst_file);
++
++        app = csp_app_new (dst_path, 0);
++        if (!app) {
++                g_remove (dst_path);
++                g_free (dst_path);
++                return FALSE;
++        }
++
++        g_free (dst_path);
++
++        changed = FALSE;
++        if (app->priv->hidden) {
++                changed = TRUE;
++                app->priv->hidden = FALSE;
++                app->priv->save_mask |= CSP_ASP_SAVE_MASK_HIDDEN;
++        }
++
++        if (app->priv->no_display) {
++                changed = TRUE;
++                app->priv->no_display = FALSE;
++                app->priv->save_mask |= CSP_ASP_SAVE_MASK_NO_DISPLAY;
++        }
++
++        if (!app->priv->enabled) {
++                changed = TRUE;
++                app->priv->enabled = TRUE;
++                app->priv->save_mask |= CSP_ASP_SAVE_MASK_ENABLED;
++        }
++
++        if (changed) {
++                _csp_app_queue_save (app);
++        }
++
++        manager = csp_app_manager_get ();
++        csp_app_manager_add (manager, app);
++        g_object_unref (app);
++        g_object_unref (manager);
++
++        return TRUE;
++}
+diff --git a/capplet/csp-app.h b/capplet/csp-app.h
+new file mode 100644
+index 0000000..11d7dc5
+--- /dev/null
++++ b/capplet/csp-app.h
+@@ -0,0 +1,111 @@
++/* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 8 -*-
++ *
++ * Copyright (C) 1999 Free Software Foundation, Inc.
++ * Copyright (C) 2007, 2009 Vincent Untz.
++ * Copyright (C) 2008 Lucas Rocha.
++ * Copyright (C) 2008 William Jon McCann <jmccann@redhat.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street - Suite 500, Boston, MA 02110-1335, USA.
++ *
++ */
++
++#ifndef __CSP_APP_H
++#define __CSP_APP_H
++
++#include <glib-object.h>
++#include <gio/gio.h>
++
++G_BEGIN_DECLS
++
++#define CSP_TYPE_APP            (csp_app_get_type ())
++#define CSP_APP(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), CSP_TYPE_APP, CspApp))
++#define CSP_APP_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), CSP_TYPE_APP, CspAppClass))
++#define CSP_IS_APP(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CSP_TYPE_APP))
++#define CSP_IS_APP_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), CSP_TYPE_APP))
++#define CSP_APP_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), CSP_TYPE_APP, CspAppClass))
++
++typedef struct _CspApp        CspApp;
++typedef struct _CspAppClass   CspAppClass;
++
++typedef struct _CspAppPrivate CspAppPrivate;
++
++struct _CspAppClass
++{
++        GObjectClass parent_class;
++
++        void (* changed) (CspApp *app);
++        void (* removed) (CspApp *app);
++};
++
++struct _CspApp
++{
++        GObject parent_instance;
++
++        CspAppPrivate *priv;
++};
++
++GType            csp_app_get_type          (void);
++
++void             csp_app_create            (const char   *name,
++                                            const char   *comment,
++                                            const char   *exec,
++                                            const char   *delay);
++void             csp_app_update            (CspApp       *app,
++                                            const char   *name,
++                                            const char   *comment,
++                                            const char   *exec,
++                                            const char   *delay);
++
++gboolean         csp_app_copy_desktop_file (const char   *uri);
++
++void             csp_app_delete            (CspApp       *app);
++
++const char      *csp_app_get_basename      (CspApp       *app);
++const char      *csp_app_get_path          (CspApp       *app);
++
++gboolean         csp_app_get_hidden        (CspApp       *app);
++gboolean         csp_app_get_display       (CspApp       *app);
++
++gboolean         csp_app_get_enabled       (CspApp       *app);
++void             csp_app_set_enabled       (CspApp       *app,
++                                            gboolean      enabled);
++
++gboolean         csp_app_get_shown         (CspApp       *app);
++
++const char      *csp_app_get_name          (CspApp       *app);
++const char      *csp_app_get_exec          (CspApp       *app);
++const char      *csp_app_get_delay         (CspApp       *app);
++const char      *csp_app_get_comment       (CspApp       *app);
++
++const char      *csp_app_get_description   (CspApp       *app);
++GIcon           *csp_app_get_icon          (CspApp       *app);
++
++/* private interface for CspAppManager only */
++
++CspApp          *csp_app_new                      (const char   *path,
++                                                   unsigned int  xdg_position);
++
++void             csp_app_reload_at                (CspApp       *app,
++                                                   const char   *path,
++                                                   unsigned int  xdg_position);
++
++unsigned int     csp_app_get_xdg_position         (CspApp       *app);
++unsigned int     csp_app_get_xdg_system_position  (CspApp       *app);
++void             csp_app_set_xdg_system_position  (CspApp       *app,
++                                                   unsigned int  position);
++
++G_END_DECLS
++
++#endif /* __CSP_APP_H */
+diff --git a/capplet/csp-keyfile.c b/capplet/csp-keyfile.c
+new file mode 100644
+index 0000000..af95d65
+--- /dev/null
++++ b/capplet/csp-keyfile.c
+@@ -0,0 +1,170 @@
++/*
++ * csp-keyfile.c: GKeyFile extensions
++ *
++ * Copyright (C) 2008, 2009 Novell, Inc.
++ *
++ * Based on code from panel-keyfile.c (from gnome-panel)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation; either version 2 of the
++ * License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street - Suite 500, Boston, MA
++ * 02110-1335, USA.
++ *
++ * Authors:
++ *        Vincent Untz <vuntz@gnome.org>
++ */
++
++#include <string.h>
++
++#include <glib.h>
++#include <gio/gdesktopappinfo.h>
++
++#include "csp-keyfile.h"
++
++void
++csp_key_file_populate (GKeyFile *keyfile)
++{
++        csp_key_file_set_string (keyfile,
++                                 G_KEY_FILE_DESKTOP_KEY_TYPE,
++                                 "Application");
++
++        csp_key_file_set_string (keyfile,
++                                 G_KEY_FILE_DESKTOP_KEY_EXEC,
++                                 "/bin/false");
++}
++
++//FIXME: kill this when bug #309224 is fixed
++gboolean
++csp_key_file_to_file (GKeyFile     *keyfile,
++                      const gchar  *path,
++                      GError      **error)
++{
++        GError  *write_error;
++        gchar   *data;
++        gsize    length;
++        gboolean res;
++
++        g_return_val_if_fail (keyfile != NULL, FALSE);
++        g_return_val_if_fail (path != NULL, FALSE);
++
++        write_error = NULL;
++        data = g_key_file_to_data (keyfile, &length, &write_error);
++
++        if (write_error) {
++                g_propagate_error (error, write_error);
++                return FALSE;
++        }
++
++        res = g_file_set_contents (path, data, length, &write_error);
++        g_free (data);
++
++        if (write_error) {
++                g_propagate_error (error, write_error);
++                return FALSE;
++        }
++
++        return res;
++}
++
++gboolean
++csp_key_file_get_boolean (GKeyFile    *keyfile,
++                          const gchar *key,
++                          gboolean     default_value)
++{
++        GError   *error;
++        gboolean  retval;
++
++        error = NULL;
++        retval = g_key_file_get_boolean (keyfile, G_KEY_FILE_DESKTOP_GROUP,
++                                         key, &error);
++        if (error != NULL) {
++                retval = default_value;
++                g_error_free (error);
++        }
++
++        return retval;
++}
++
++gboolean
++csp_key_file_get_shown (GKeyFile   *keyfile,
++                        const char *current_desktop)
++{
++        g_autoptr(GDesktopAppInfo) app_info = NULL;
++
++        app_info = g_desktop_app_info_new_from_keyfile (keyfile);
++
++        if (app_info == NULL)
++                return TRUE;
++
++        g_desktop_app_info_set_desktop_env (current_desktop);
++
++        if (current_desktop != NULL &&
++            !g_desktop_app_info_get_show_in (app_info, NULL))
++                return FALSE;
++
++        return TRUE;
++}
++
++void
++csp_key_file_set_locale_string (GKeyFile    *keyfile,
++                                const gchar *key,
++                                const gchar *value)
++{
++        const char         *locale;
++        const char * const *langs_pointer;
++        int                 i;
++
++        if (value == NULL) {
++                value = "";
++        }
++
++        locale = NULL;
++        langs_pointer = g_get_language_names ();
++        for (i = 0; langs_pointer[i] != NULL; i++) {
++                /* find first without encoding  */
++                if (strchr (langs_pointer[i], '.') == NULL) {
++                        locale = langs_pointer[i]; 
++                        break;
++                }
++        }
++
++        if (locale != NULL) {
++                g_key_file_set_locale_string (keyfile, G_KEY_FILE_DESKTOP_GROUP,
++                                              key, locale, value);
++        } else {
++                g_key_file_set_string (keyfile, G_KEY_FILE_DESKTOP_GROUP,
++                                       key, value);
++        }
++}
++
++void
++csp_key_file_ensure_C_key (GKeyFile   *keyfile,
++                           const char *key)
++{
++        char *C_value;
++        char *buffer;
++
++        /* Make sure we set the "C" locale strings to the terms we set here.
++         * This is so that if the user logs into another locale they get their
++         * own description there rather then empty. It is not the C locale
++         * however, but the user created this entry herself so it's OK */
++        C_value = csp_key_file_get_string (keyfile, key);
++        if (C_value == NULL || C_value [0] == '\0') {
++                buffer = csp_key_file_get_locale_string (keyfile, key);
++                if (buffer) {
++                        csp_key_file_set_string (keyfile, key, buffer);
++                        g_free (buffer);
++                }
++        }
++        g_free (C_value);
++}
+diff --git a/capplet/csp-keyfile.h b/capplet/csp-keyfile.h
+new file mode 100644
+index 0000000..7feb9c2
+--- /dev/null
++++ b/capplet/csp-keyfile.h
+@@ -0,0 +1,66 @@
++/*
++ * csp-keyfile.h: GKeyFile extensions
++ *
++ * Copyright (C) 2008, 2009 Novell, Inc.
++ *
++ * Based on code from panel-keyfile.h (from gnome-panel)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation; either version 2 of the
++ * License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street - Suite 500, Boston, MA
++ * 02110-1335, USA.
++ *
++ * Authors:
++ *        Vincent Untz <vuntz@gnome.org>
++ */
++
++#ifndef CSP_KEYFILE_H
++#define CSP_KEYFILE_H
++
++#include "glib.h"
++
++G_BEGIN_DECLS
++
++#define CSP_KEY_FILE_DESKTOP_KEY_AUTOSTART_ENABLED "X-GNOME-Autostart-enabled"
++#define CSP_KEY_FILE_DESKTOP_KEY_AUTOSTART_DELAY "X-GNOME-Autostart-Delay"
++
++void      csp_key_file_populate        (GKeyFile *keyfile);
++
++gboolean  csp_key_file_to_file         (GKeyFile       *keyfile,
++                                        const gchar    *path,
++                                        GError        **error);
++
++gboolean csp_key_file_get_boolean      (GKeyFile       *keyfile,
++                                        const gchar    *key,
++                                        gboolean        default_value);
++gboolean csp_key_file_get_shown        (GKeyFile       *keyfile,
++                                        const char     *current_desktop);
++#define csp_key_file_get_string(key_file, key) \
++         g_key_file_get_string (key_file, G_KEY_FILE_DESKTOP_GROUP, key, NULL)
++#define csp_key_file_get_locale_string(key_file, key) \
++         g_key_file_get_locale_string(key_file, G_KEY_FILE_DESKTOP_GROUP, key, NULL, NULL)
++
++#define csp_key_file_set_boolean(key_file, key, value) \
++         g_key_file_set_boolean (key_file, G_KEY_FILE_DESKTOP_GROUP, key, value)
++#define csp_key_file_set_string(key_file, key, value) \
++         g_key_file_set_string (key_file, G_KEY_FILE_DESKTOP_GROUP, key, value)
++void    csp_key_file_set_locale_string (GKeyFile    *keyfile,
++                                        const gchar *key,
++                                        const gchar *value);
++
++void csp_key_file_ensure_C_key         (GKeyFile   *keyfile,
++                                        const char *key);
++
++G_END_DECLS
++
++#endif /* CSP_KEYFILE_H */
+diff --git a/capplet/main.c b/capplet/main.c
+new file mode 100644
+index 0000000..28e0768
+--- /dev/null
++++ b/capplet/main.c
+@@ -0,0 +1,122 @@
++/* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 8 -*-
++ * main.c
++ * Copyright (C) 1999 Free Software Foundation, Inc.
++ * Copyright (C) 2008 Lucas Rocha.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation; either version 2 of the
++ * License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street - Suite 500, Boston, MA
++ * 02110-1335, USA.
++ */
++
++#include <config.h>
++
++#include <unistd.h>
++#include <stdlib.h>
++
++#include <glib/gi18n.h>
++#include <gtk/gtk.h>
++
++#include "csm-properties-dialog.h"
++
++static gboolean    show_version     = FALSE;
++
++static GOptionEntry options[] = {
++        { "version", 0, 0, G_OPTION_ARG_NONE, &show_version, N_("Version of this application"), NULL },
++        { NULL, 0, 0, 0, NULL, NULL, NULL }
++};
++
++static gboolean
++delay_quit (GtkWidget *dialog)
++{
++    gtk_widget_destroy (dialog);
++    gtk_main_quit ();
++    return FALSE;
++}
++
++static void
++dialog_response (CsmPropertiesDialog *dialog,
++                 guint                response_id,
++                 gpointer             data)
++{
++        GdkScreen *screen;
++        GError    *error;
++
++        if (response_id == GTK_RESPONSE_HELP) {
++                screen = gtk_widget_get_screen (GTK_WIDGET (dialog));
++
++                error = NULL;
++                gtk_show_uri (screen, "ghelp:user-guide?gosstartsession-2",
++                              gtk_get_current_event_time (), &error);
++
++                if (error != NULL) {
++                        GtkWidget *d;
++                        d = gtk_message_dialog_new (GTK_WINDOW (dialog),
++                                                    GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
++                                                    GTK_MESSAGE_ERROR,
++                                                    GTK_BUTTONS_CLOSE,
++                                                    "%s",
++                                                    _("Could not display help document"));
++                        gtk_message_dialog_format_secondary_text (
++                                                GTK_MESSAGE_DIALOG (d),
++                                                "%s", error->message);
++                        g_error_free (error);
++
++                        gtk_dialog_run (GTK_DIALOG (d));
++                        gtk_widget_destroy (d);
++                }
++        } else {
++            gtk_widget_hide (GTK_WIDGET (dialog));
++            g_timeout_add_seconds (2, (GSourceFunc) delay_quit, dialog);
++        }
++}
++
++int
++main (int argc, char *argv[])
++{
++        GError    *error;
++        GtkWidget *dialog;
++
++        bindtextdomain ("unity-session-properties", LOCALE_DIR);
++        bind_textdomain_codeset ("unity-session-properties", "UTF-8");
++        textdomain ("unity-session-properties");
++
++        error = NULL;
++        if (! gtk_init_with_args (&argc, &argv, " - Cinnamon Session Properties", options, "cinnamon-session", &error)) {
++                g_warning ("Unable to start: %s", error->message);
++                g_error_free (error);
++                return 1;
++        }
++
++        if (show_version) {
++                g_print ("%s %s\n", argv [0], VERSION);
++                return 0;
++        }
++
++        dialog = csm_properties_dialog_new ();
++        g_signal_connect (dialog,
++                          "response",
++                          G_CALLBACK (dialog_response),
++                          NULL);
++
++        g_signal_connect (dialog,
++                          "delete-event",
++                          G_CALLBACK (gtk_widget_hide_on_delete),
++                          NULL);
++
++        gtk_widget_show (dialog);
++
++        gtk_main ();
++
++        return 0;
++}
+diff --git a/capplet/meson.build b/capplet/meson.build
+new file mode 100644
+index 0000000..c980319
+--- /dev/null
++++ b/capplet/meson.build
+@@ -0,0 +1,44 @@
++sub_conf = configuration_data()
++sub_conf.set_quoted('VERSION', meson.project_version())
++sub_conf.set_quoted('GETTEXT_PACKAGE', 'unity-session-properties')
++
++cflags = [
++	'-DLOCALE_DIR="@0@"'.format(session_localedir),
++	'-DGTKBUILDER_DIR="@0@"'.format(pkg_datadir)
++]
++
++deps = [
++	gio,
++	glib,
++	gtk3
++]
++
++sources = files(
++	'main.c',
++	'csm-properties-dialog.c',
++	'csm-app-dialog.c',
++	'csp-app.c',
++	'csp-app-manager.c',
++	'csp-keyfile.c',
++)
++
++includes = [
++	top_inc,
++	include_directories('../cinnamon-session')
++]
++
++configure_file(
++  output : 'config.h',
++  configuration : sub_conf
++)
++
++executable(
++	'unity-session-properties',
++	sources,
++	include_directories: includes,
++	dependencies: deps,
++	c_args: cflags,
++	link_with: libcsmutil,
++	install: true,
++	install_dir: session_bindir
++)
+diff --git a/cinnamon-session/csm-quit-compat.c b/cinnamon-session/csm-quit-compat.c
+new file mode 100644
+index 0000000..b7bebb8
+--- /dev/null
++++ b/cinnamon-session/csm-quit-compat.c
+@@ -0,0 +1,6 @@
++#include <stdlib.h>
++
++void csm_quit(void)
++{
++    exit(0);
++}
+diff --git a/cinnamon-session/meson.build b/cinnamon-session/meson.build
+index 073755d..b0e1bfe 100644
+--- a/cinnamon-session/meson.build
++++ b/cinnamon-session/meson.build
+@@ -27,6 +27,16 @@ foreach iface: gdbus_ifaces
+   )
+ endforeach
+ 
++libcsmutil = static_library(
++  'csmutil',
++  sources: [
++    'csm-util.c',
++    'csm-quit-compat.c'
++  ],
++  include_directories: top_inc,
++  dependencies: session_deps
++)
++
+ cinnamon_session_sources = [
+   'csm-app.c',
+   'csm-autostart-app.c',
+@@ -42,7 +52,6 @@ cinnamon_session_sources = [
+   'csm-store.c',
+   'csm-system.c',
+   'csm-systemd.c',
+-  'csm-util.c',
+   'csm-xsmp-client.c',
+   'csm-xsmp-server.c',
+   'inhibit-dialog-info.c',
+@@ -75,6 +84,7 @@ executable('cinnamon-session-binary',
+     elogind,
+   ],
+   include_directories: [ rootInclude ],
++  link_with: libcsmutil,
+   install: true,
+   install_dir: get_option('libexecdir'),
+ )
+diff --git a/data/meson.build b/data/meson.build
+index b158e66..9ef4dd7 100644
+--- a/data/meson.build
++++ b/data/meson.build
+@@ -7,10 +7,17 @@ foreach size: [ '16x16', '22x22', '24x24', '32x32', '48x48', 'scalable', ]
+   )
+ endforeach
+ 
++install_data(
++  'unity-session-properties.desktop.in',
++  rename: 'unity-session-properties.desktop',
++  install_dir: join_paths(get_option('datadir'), 'applications')
++)
++
+ install_data([
+     'hardware-compatibility',
++    'session-properties.ui',
+   ],
+-  install_dir: join_paths(get_option('datadir'), meson.project_name())
++  install_dir: pkg_datadir
+ )
+ 
+ install_data(
+diff --git a/data/session-properties.ui b/data/session-properties.ui
+new file mode 100644
+index 0000000..597341d
+--- /dev/null
++++ b/data/session-properties.ui
+@@ -0,0 +1,405 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<interface>
++  <!-- interface-requires gtk+ 3.0 -->
++  <!-- interface-naming-policy toplevel-contextual -->
++  <object class="GtkAdjustment" id="adjustment1">
++    <property name="upper">100</property>
++    <property name="step_increment">1</property>
++    <property name="page_increment">1</property>
++  </object>
++  <object class="GtkVBox" id="main-notebook">
++    <property name="width_request">500</property>
++    <property name="height_request">400</property>
++    <property name="visible">True</property>
++    <property name="can_focus">False</property>
++    <property name="border_width">6</property>
++    <child>
++      <object class="GtkVBox" id="vbox1">
++        <property name="visible">True</property>
++        <property name="can_focus">False</property>
++        <property name="border_width">12</property>
++        <property name="spacing">3</property>
++        <child>
++          <object class="GtkLabel" id="label6">
++            <property name="visible">True</property>
++            <property name="can_focus">False</property>
++            <property name="xalign">0</property>
++            <property name="xpad">3</property>
++            <property name="ypad">3</property>
++            <property name="label" translatable="yes">Additional startup _programs:</property>
++            <property name="use_underline">True</property>
++            <property name="mnemonic_widget">session_properties_treeview</property>
++          </object>
++          <packing>
++            <property name="expand">False</property>
++            <property name="fill">True</property>
++            <property name="position">0</property>
++          </packing>
++        </child>
++        <child>
++          <object class="GtkHBox" id="hbox1">
++            <property name="visible">True</property>
++            <property name="can_focus">False</property>
++            <property name="spacing">6</property>
++            <child>
++              <object class="GtkScrolledWindow" id="scrolledwindow1">
++                <property name="visible">True</property>
++                <property name="can_focus">True</property>
++                <property name="hscrollbar_policy">never</property>
++                <property name="shadow_type">etched-in</property>
++                <child>
++                  <object class="GtkTreeView" id="session_properties_treeview">
++                    <property name="height_request">210</property>
++                    <property name="visible">True</property>
++                    <property name="can_focus">True</property>
++                  </object>
++                </child>
++              </object>
++              <packing>
++                <property name="expand">True</property>
++                <property name="fill">True</property>
++                <property name="position">0</property>
++              </packing>
++            </child>
++            <child>
++              <object class="GtkVButtonBox" id="vbuttonbox1">
++                <property name="visible">True</property>
++                <property name="can_focus">False</property>
++                <property name="spacing">6</property>
++                <property name="layout_style">start</property>
++                <child>
++                  <object class="GtkButton" id="session_properties_add_button">
++                    <property name="label">gtk-add</property>
++                    <property name="visible">True</property>
++                    <property name="can_focus">True</property>
++                    <property name="receives_default">True</property>
++                    <property name="use_action_appearance">False</property>
++                    <property name="use_stock">True</property>
++                  </object>
++                  <packing>
++                    <property name="expand">False</property>
++                    <property name="fill">False</property>
++                    <property name="position">0</property>
++                  </packing>
++                </child>
++                <child>
++                  <object class="GtkButton" id="session_properties_delete_button">
++                    <property name="label">gtk-remove</property>
++                    <property name="visible">True</property>
++                    <property name="sensitive">False</property>
++                    <property name="can_focus">True</property>
++                    <property name="receives_default">True</property>
++                    <property name="use_action_appearance">False</property>
++                    <property name="use_stock">True</property>
++                  </object>
++                  <packing>
++                    <property name="expand">False</property>
++                    <property name="fill">False</property>
++                    <property name="position">1</property>
++                  </packing>
++                </child>
++                <child>
++                  <object class="GtkButton" id="session_properties_edit_button">
++                    <property name="label">gtk-edit</property>
++                    <property name="visible">True</property>
++                    <property name="sensitive">False</property>
++                    <property name="can_focus">True</property>
++                    <property name="receives_default">True</property>
++                    <property name="use_action_appearance">False</property>
++                    <property name="use_stock">True</property>
++                  </object>
++                  <packing>
++                    <property name="expand">False</property>
++                    <property name="fill">False</property>
++                    <property name="position">2</property>
++                  </packing>
++                </child>
++              </object>
++              <packing>
++                <property name="expand">False</property>
++                <property name="fill">False</property>
++                <property name="position">1</property>
++              </packing>
++            </child>
++          </object>
++          <packing>
++            <property name="expand">True</property>
++            <property name="fill">True</property>
++            <property name="position">1</property>
++          </packing>
++        </child>
++      </object>
++      <packing>
++        <property name="expand">True</property>
++        <property name="fill">True</property>
++        <property name="position">0</property>
++      </packing>
++    </child>
++    <child>
++      <object class="GtkVBox" id="vbox3">
++        <property name="visible">True</property>
++        <property name="can_focus">False</property>
++        <property name="border_width">12</property>
++        <property name="spacing">6</property>
++        <child>
++          <object class="GtkHButtonBox" id="hbuttonbox1">
++            <property name="visible">True</property>
++            <property name="can_focus">False</property>
++            <child>
++              <object class="GtkButton" id="session_properties_save_button">
++                <property name="can_focus">True</property>
++                <property name="receives_default">True</property>
++                <property name="use_action_appearance">False</property>
++                <child>
++                  <object class="GtkHBox" id="hbox2">
++                    <property name="visible">True</property>
++                    <property name="can_focus">False</property>
++                    <property name="spacing">4</property>
++                    <child>
++                      <object class="GtkImage" id="image1">
++                        <property name="visible">True</property>
++                        <property name="can_focus">False</property>
++                        <property name="stock">gtk-save</property>
++                      </object>
++                      <packing>
++                        <property name="expand">False</property>
++                        <property name="fill">False</property>
++                        <property name="position">0</property>
++                      </packing>
++                    </child>
++                    <child>
++                      <object class="GtkLabel" id="label7">
++                        <property name="visible">True</property>
++                        <property name="can_focus">False</property>
++                        <property name="label" translatable="yes">_Remember Currently Running Applications</property>
++                        <property name="use_underline">True</property>
++                      </object>
++                      <packing>
++                        <property name="expand">True</property>
++                        <property name="fill">True</property>
++                        <property name="position">1</property>
++                      </packing>
++                    </child>
++                  </object>
++                </child>
++              </object>
++              <packing>
++                <property name="expand">False</property>
++                <property name="fill">False</property>
++                <property name="position">0</property>
++              </packing>
++            </child>
++          </object>
++          <packing>
++            <property name="expand">False</property>
++            <property name="fill">False</property>
++            <property name="pack_type">end</property>
++            <property name="position">0</property>
++          </packing>
++        </child>
++        <child>
++          <object class="GtkCheckButton" id="session_properties_remember_toggle">
++            <property name="label" translatable="yes">_Automatically remember running applications when logging out</property>
++            <property name="visible">False</property>
++            <property name="can_focus">True</property>
++            <property name="receives_default">False</property>
++            <property name="use_action_appearance">False</property>
++            <property name="use_underline">True</property>
++            <property name="draw_indicator">True</property>
++          </object>
++          <packing>
++            <property name="expand">False</property>
++            <property name="fill">False</property>
++            <property name="pack_type">end</property>
++            <property name="position">1</property>
++          </packing>
++        </child>
++      </object>
++      <packing>
++        <property name="expand">False</property>
++        <property name="fill">True</property>
++        <property name="pack_type">end</property>
++        <property name="position">1</property>
++      </packing>
++    </child>
++  </object>
++  <object class="GtkTable" id="main-table">
++    <property name="visible">True</property>
++    <property name="can_focus">False</property>
++    <property name="border_width">6</property>
++    <property name="n_rows">4</property>
++    <property name="n_columns">3</property>
++    <property name="column_spacing">12</property>
++    <property name="row_spacing">6</property>
++    <child>
++      <object class="GtkHBox" id="hbox3">
++        <property name="visible">True</property>
++        <property name="can_focus">False</property>
++        <property name="spacing">12</property>
++        <child>
++          <object class="GtkEntry" id="session_properties_command_entry">
++            <property name="visible">True</property>
++            <property name="can_focus">True</property>
++            <property name="invisible_char">●</property>
++            <property name="primary_icon_activatable">False</property>
++            <property name="secondary_icon_activatable">False</property>
++            <property name="primary_icon_sensitive">True</property>
++            <property name="secondary_icon_sensitive">True</property>
++          </object>
++          <packing>
++            <property name="expand">True</property>
++            <property name="fill">True</property>
++            <property name="position">0</property>
++          </packing>
++        </child>
++        <child>
++          <object class="GtkButton" id="session_properties_browse_button">
++            <property name="label" translatable="yes">Browse…</property>
++            <property name="visible">True</property>
++            <property name="can_focus">True</property>
++            <property name="receives_default">True</property>
++            <property name="use_action_appearance">False</property>
++          </object>
++          <packing>
++            <property name="expand">False</property>
++            <property name="fill">False</property>
++            <property name="position">1</property>
++          </packing>
++        </child>
++      </object>
++      <packing>
++        <property name="left_attach">1</property>
++        <property name="right_attach">3</property>
++        <property name="top_attach">1</property>
++        <property name="bottom_attach">2</property>
++        <property name="y_options">GTK_FILL</property>
++      </packing>
++    </child>
++    <child>
++      <object class="GtkEntry" id="session_properties_comment_entry">
++        <property name="visible">True</property>
++        <property name="can_focus">True</property>
++        <property name="invisible_char">●</property>
++        <property name="primary_icon_activatable">False</property>
++        <property name="secondary_icon_activatable">False</property>
++        <property name="primary_icon_sensitive">True</property>
++        <property name="secondary_icon_sensitive">True</property>
++      </object>
++      <packing>
++        <property name="left_attach">1</property>
++        <property name="right_attach">3</property>
++        <property name="top_attach">2</property>
++        <property name="bottom_attach">3</property>
++        <property name="y_options">GTK_FILL</property>
++      </packing>
++    </child>
++    <child>
++      <object class="GtkEntry" id="session_properties_name_entry">
++        <property name="visible">True</property>
++        <property name="can_focus">True</property>
++        <property name="invisible_char">●</property>
++        <property name="primary_icon_activatable">False</property>
++        <property name="secondary_icon_activatable">False</property>
++        <property name="primary_icon_sensitive">True</property>
++        <property name="secondary_icon_sensitive">True</property>
++      </object>
++      <packing>
++        <property name="left_attach">1</property>
++        <property name="right_attach">3</property>
++        <property name="y_options">GTK_FILL</property>
++      </packing>
++    </child>
++    <child>
++      <object class="GtkLabel" id="label3">
++        <property name="visible">True</property>
++        <property name="can_focus">False</property>
++        <property name="xalign">0</property>
++        <property name="label" translatable="yes">Comm_ent:</property>
++        <property name="use_underline">True</property>
++        <property name="mnemonic_widget">label2</property>
++      </object>
++      <packing>
++        <property name="top_attach">2</property>
++        <property name="bottom_attach">3</property>
++        <property name="x_options">GTK_FILL</property>
++        <property name="y_options">GTK_FILL</property>
++      </packing>
++    </child>
++    <child>
++      <object class="GtkLabel" id="label2">
++        <property name="visible">True</property>
++        <property name="can_focus">False</property>
++        <property name="xalign">0</property>
++        <property name="label" translatable="yes">Co_mmand:</property>
++        <property name="use_underline">True</property>
++        <property name="mnemonic_widget">session_properties_command_entry</property>
++      </object>
++      <packing>
++        <property name="top_attach">1</property>
++        <property name="bottom_attach">2</property>
++        <property name="x_options">GTK_FILL</property>
++        <property name="y_options">GTK_FILL</property>
++      </packing>
++    </child>
++    <child>
++      <object class="GtkLabel" id="label1">
++        <property name="visible">True</property>
++        <property name="can_focus">False</property>
++        <property name="xalign">0</property>
++        <property name="label" translatable="yes">_Name:</property>
++        <property name="use_underline">True</property>
++        <property name="mnemonic_widget">session_properties_name_entry</property>
++      </object>
++      <packing>
++        <property name="x_options">GTK_FILL</property>
++        <property name="y_options">GTK_FILL</property>
++      </packing>
++    </child>
++    <child>
++      <object class="GtkLabel" id="label4">
++        <property name="visible">True</property>
++        <property name="can_focus">False</property>
++        <property name="xalign">0</property>
++        <property name="label" translatable="yes">Startup Delay:</property>
++      </object>
++      <packing>
++        <property name="top_attach">3</property>
++        <property name="bottom_attach">4</property>
++        <property name="x_options">GTK_FILL</property>
++        <property name="y_options">GTK_FILL</property>
++      </packing>
++    </child>
++    <child>
++      <object class="GtkSpinButton" id="session_properties_spinner">
++        <property name="visible">True</property>
++        <property name="can_focus">True</property>
++        <property name="invisible_char">●</property>
++        <property name="primary_icon_activatable">False</property>
++        <property name="secondary_icon_activatable">False</property>
++        <property name="primary_icon_sensitive">True</property>
++        <property name="secondary_icon_sensitive">True</property>
++        <property name="adjustment">adjustment1</property>
++      </object>
++      <packing>
++        <property name="left_attach">1</property>
++        <property name="right_attach">2</property>
++        <property name="top_attach">3</property>
++        <property name="bottom_attach">4</property>
++      </packing>
++    </child>
++    <child>
++      <object class="GtkLabel" id="label5">
++        <property name="visible">True</property>
++        <property name="can_focus">False</property>
++        <property name="xalign">0</property>
++        <property name="label" translatable="yes">seconds</property>
++      </object>
++      <packing>
++        <property name="left_attach">2</property>
++        <property name="right_attach">3</property>
++        <property name="top_attach">3</property>
++        <property name="bottom_attach">4</property>
++      </packing>
++    </child>
++  </object>
++</interface>
+diff --git a/data/unity-session-properties.desktop.in b/data/unity-session-properties.desktop.in
+new file mode 100644
+index 0000000..0969d5d
+--- /dev/null
++++ b/data/unity-session-properties.desktop.in
+@@ -0,0 +1,12 @@
++[Desktop Entry]
++Name=Startup Applications
++Comment=Choose what applications to start when you log in
++Exec=unity-session-properties
++Icon=session-properties
++Terminal=false
++Type=Application
++StartupNotify=true
++Categories=GTK;GNOME;Settings;X-GNOME-PersonalSettings;
++OnlyShowIn=Unity;
++NoDisplay=false
++X-GNOME-Gettext-Domain=unity-session-properties
+diff --git a/doc/man/cinnamon-session.1 b/doc/man/cinnamon-session.1
+index 633c0a2..bb12e2a 100644
+--- a/doc/man/cinnamon-session.1
++++ b/doc/man/cinnamon-session.1
+@@ -102,7 +102,7 @@ when cinnamon-session is invoked.
+ .B /usr/share/gnome/autostart
+ .IP
+ The applications defined in those directories will be started on login.
+-\fIcinnamon-settings(1)\fP can be used to easily configure them.
++\fIunity-session-properties(1)\fP can be used to easily configure them.
+ .PP
+ .B $XDG_CONFIG_HOME/cinnamon-session/sessions
+ .B $XDG_CONFIG_DIRS/cinnamon-session/sessions
+@@ -115,5 +115,5 @@ with the \fI--session\fP option.
+ .IP
+ This directory contains the list of applications of the saved session.
+ .SH SEE ALSO
+-.BR cinnamon-settings(1)
++.BR unity-session-properties(1)
+ .BR cinnamon-session-quit(1)
+diff --git a/doc/man/meson.build b/doc/man/meson.build
+index 5990017..f38f86d 100644
+--- a/doc/man/meson.build
++++ b/doc/man/meson.build
+@@ -1,5 +1,6 @@
+ install_man([
+     'cinnamon-session.1',
+     'cinnamon-session-quit.1',
++    'unity-session-properties.1'
+   ],
+ )
+diff --git a/doc/man/unity-session-properties.1 b/doc/man/unity-session-properties.1
+new file mode 100644
+index 0000000..611ef42
+--- /dev/null
++++ b/doc/man/unity-session-properties.1
+@@ -0,0 +1,24 @@
++.\"
++.\" unity-session-properties manual page.
++.\" (C) 2009-2010 Vincent Untz (vuntz@gnome.org)
++.\"
++.TH UNITY-SESSION-PROPERTIES 1 "CINNAMON"
++.SH NAME
++unity-session-properties \- Configure applications to start on login
++.SH SYNOPSIS
++.B unity-session-properties
++.SH DESCRIPTION
++.PP
++The \fIunity-session-properties\fP program enables the users to
++configure what applications should be started on login, in addition to
++the default startup applications configured on the system.
++.PP
++It also proposes an interface to save a snapshot of the currently
++running applications so that they can automatically be restored to
++their current state on your next GNOME session.
++.SH BUGS
++If you find bugs in the \fIunity-session-properties\fP program, please report
++these on https://github.com/c4pp4/gentoo-unity7.
++.SH SEE ALSO
++.BR cinnamon-session(1)
++.BR cinnamon-session-quit(1)
+diff --git a/meson.build b/meson.build
+index 8412943..415b691 100644
+--- a/meson.build
++++ b/meson.build
+@@ -77,6 +77,12 @@ conf.set10('HAVE_EXECINFO_H', cc.has_header('execinfo.h'))
+ backtrace = cc.find_library('backtrace',  required: false)
+ execinfo  = cc.find_library('execinfo',   required: false)
+ 
++session_deps = [
++  gio,
++  glib,
++  cinnamon_desktop,
++  dependency('json-glib-1.0', version: '>= 0.10')
++]
+ 
+ # Check for X transport interface - allows to disable ICE Transports
+ # See also https://bugzilla.gnome.org/show_bug.cgi?id=725100
+@@ -124,10 +130,12 @@ conf.set('ENABLE_IPV6', have_ipv6)
+ rootInclude = include_directories('.')
+ 
+ pkg_datadir = join_paths(get_option('prefix'), get_option('datadir'), meson.project_name())
++session_localedir = join_paths(get_option('prefix'), get_option('localedir'))
++session_bindir = join_paths(get_option('prefix'), get_option('bindir'))
+ 
+ conf.set_quoted('PKGDATADIR',         pkg_datadir)
+ conf.set_quoted('LIBEXECDIR',         join_paths(get_option('prefix'), get_option('libexecdir')))
+-conf.set_quoted('LOCALE_DIR',         join_paths(get_option('prefix'), get_option('localedir')))
++conf.set_quoted('LOCALE_DIR',         session_localedir)
+ 
+ conf.set_quoted('PACKAGE', meson.project_name())
+ conf.set_quoted('VERSION', meson.project_version())
+@@ -147,8 +155,11 @@ add_project_arguments(project_cflags,
+   language: 'c',
+ )
+ 
++top_inc = include_directories('.')
++
+ subdir('cinnamon-session')
+ subdir('data')
++subdir('capplet')
+ subdir('doc')
+ subdir('po')
+ subdir('tools')
+-- 
+2.53.0
+
