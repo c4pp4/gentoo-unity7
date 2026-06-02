@@ -1,2 +1,4 @@
 ## Overlay keyword unmasking ##
 */*::gentoo-unity7
+~app-accessibility/orca-49.5
+~dev-python/dasbus-1.7
