@@ -25,6 +25,7 @@ RDEPEND="
 	sys-apps/systemd
 	unity-base/unity
 	unity-base/unity-settings-daemon
+	x11-misc/xdg-user-dirs-gtk
 "
 
 S="${WORKDIR}/${PN}"
