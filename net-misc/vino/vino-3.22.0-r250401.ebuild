@@ -75,3 +75,12 @@ src_configure() {
 	)
 	gnome2_src_configure "${mygnome2args[@]}"
 }
+
+pkg_postinst() {
+	ubuntu-versionator_pkg_postinst
+
+	echo
+	ewarn "Vino is no longer under active development and supported."
+	ewarn "If you decide to use Vino anyway, you do so at your own risk."
+	echo
+}

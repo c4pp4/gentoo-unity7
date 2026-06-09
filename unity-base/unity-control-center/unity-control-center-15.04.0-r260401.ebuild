@@ -16,7 +16,8 @@ SRC_URI="${UURL}-${UREV}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="+accessibility +bluetooth +colord +cups +gnome-online-accounts +input_devices_wacom +kerberos +networkmanager +sharing +v4l wayland"
+IUSE="+accessibility +bluetooth +colord +cups +gnome-online-accounts +input_devices_wacom +kerberos +networkmanager +sharing +v4l vnc wayland"
+REQUIRED_USE="vnc? ( sharing )"
 RESTRICT="test"
 
 COMMON_DEPEND="
@@ -85,7 +86,7 @@ RDEPEND="${COMMON_DEPEND}
 		net-misc/openssh
 		net-misc/remmina
 		net-misc/rygel
-		net-misc/vino
+		vnc? ( net-misc/vino )
 	)
 "
 DEPEND="${COMMON_DEPEND}
@@ -235,4 +236,16 @@ src_install() {
 	for f in "${ED}"/usr/share/applications/*.desktop; do
 		echo "X-GNOME-Gettext-Domain=${PN}" >> "${f}"
 	done
+}
+
+pkg_postinst() {
+	ubuntu-versionator_pkg_postinst
+
+	if use vnc; then
+		echo
+		ewarn "USE flag 'vnc' declared:"
+		ewarn "Vino is no longer under active development and supported."
+		ewarn "If you decide to use Vino anyway, you do so at your own risk."
+		echo
+	fi
 }
