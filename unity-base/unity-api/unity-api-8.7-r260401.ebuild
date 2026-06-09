@@ -25,9 +25,7 @@ COMMON_DEPEND="
 RDEPEND="${COMMON_DEPEND}
 	>=sys-libs/glibc-2.33
 "
-DEPEND="${COMMON_DEPEND}
-	dev-qt/qtdeclarative:5
-"
+DEPEND="${COMMON_DEPEND}"
 BDEPEND="
 	sys-apps/lsb-release
 	virtual/pkgconfig
