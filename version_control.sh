@@ -8,20 +8,20 @@ repos=(
 )
 
 ## Don't check these packages.
-remove=(
-	app-eselect/eselect-lightdm
-	dev-java/jayatana
-	unity-base/gentoo-unity-env
-	unity-base/ubuntu-docs
-	unity-base/unity-language-pack
-	unity-base/unity-meta
-	unity-base/unity-settings
-	unity-extra/indicator-netspeed
-	unity-extra/indicator-privacy
-	unity-indicators/unity-indicators-meta
-	unity-lens/unity-lens-meta
-	unity-lens/unity-scope-extras
-	x11-plugins/mailnag-messagingmenu-plugin
+declare -A remove=(
+	["app-eselect/eselect-lightdm"]=
+	["dev-java/jayatana"]=
+	["unity-base/gentoo-unity-env"]=
+	["unity-base/ubuntu-docs"]=
+	["unity-base/unity-language-pack"]=
+	["unity-base/unity-meta"]=
+	["unity-base/unity-settings"]=
+	["unity-extra/indicator-netspeed"]=
+	["unity-extra/indicator-privacy"]=
+	["unity-indicators/unity-indicators-meta"]=
+	["unity-lens/unity-lens-meta"]=
+	["unity-lens/unity-scope-extras"]=
+	["x11-plugins/mailnag-messagingmenu-plugin"]=
 )
 
 ## Temporarily accept keywords from testing branch.
@@ -551,7 +551,7 @@ debian_changes() {
 
 update_packages() {
 	local \
-		path
+		path tmparr
 
 	[[ -z $1 ]] && path="${PWD}" || path="$1"
 	check_path "${path}"
@@ -562,9 +562,10 @@ update_packages() {
 
 	packages=( $(find ${path} -type f -name *.ebuild | rev | cut -d "/" -f 2,3 | rev | sort -u) )
 
-	for x in "${remove[@]}"; do
-		packages=( ${packages[@]/${x}} )
+	for pkg in "${packages[@]}"; do
+		[[ ! -v remove["${pkg}"] ]] && tmparr+=( "${pkg}" )
 	done
+	packages=( "${tmparr[@]}" )
 
 	for pkg in "${packages[@]}"; do
 		printf "\b\b %s" "${indicator[${count}]}"

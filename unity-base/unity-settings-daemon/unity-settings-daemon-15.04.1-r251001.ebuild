@@ -4,8 +4,8 @@
 EAPI=8
 GNOME2_EAUTORECONF="yes"
 
-UVER=+21.10.20210715
-UREV=0ubuntu1
+UVER=+21.10.20220802
+UREV=0ubuntu6
 
 inherit flag-o-matic gnome2 ubuntu-versionator udev
 
@@ -83,11 +83,9 @@ DEPEND="${COMMON_DEPEND}
 "
 BDEPEND=" >=dev-util/intltool-0.37.1"
 
-S="${WORKDIR}"
+S="${S}${UVER}"
 
 PATCHES=(
-	"${FILESDIR}"/add-gerror.patch
-	"${FILESDIR}"/fix-gcc-14-build.patch
 	"${FILESDIR}"/optional-colord-and-wacom.patch
 	"${FILESDIR}"/remove-nautilus-support.patch
 	"${FILESDIR}"/rename-mutter-dbus-interface-to-muffin.patch
@@ -101,9 +99,6 @@ src_prepare() {
 			-e "/g_ptr_array_add/{s/1.0/0.5/}" \
 			plugins/mouse/gsd-mouse-manager.c || die
 	fi
-
-	# Ensure libunity-settings-daemon.so.1 gets linked to libudev.so #
-	sed -i 's:-lm :-lm -ludev :g' gnome-settings-daemon/Makefile.am || die
 
 	# Disable all language files as they can be incomplete #
 	#  due to being provided by Ubuntu's language-pack packages #
@@ -120,8 +115,8 @@ src_prepare() {
 
 src_configure() {
 	append-ldflags -Wl,--warn-unresolved-symbols
-	use input_devices_wacom \
-		&& append-cflags -Wno-deprecated-declarations -I/usr/include/librsvg-2.0
+	append-cflags -Wno-error=incompatible-pointer-types -Wno-error=implicit-int -Wno-error=return-mismatch
+	use input_devices_wacom && append-cflags -I/usr/include/librsvg-2.0
 
 	local mygnome2args=(
 		--disable-static
