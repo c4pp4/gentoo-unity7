@@ -3,7 +3,7 @@
 >app-text/evince-48.1
 >dev-cpp/gtest-1.17.0
 >dev-libs/glib-2.84.4-r5:2
->dev-qt/qtbase-6.10.3-r1:6
+>dev-qt/qtbase-6.11.1:6
 >gnome-base/gnome-desktop-44.4-r300:3
 >gnome-base/gnome-menus-3.36.0-r1:3
 >gnome-extra/cinnamon-session-6.6.3
@@ -31,7 +31,7 @@
 >www-client/firefox-152:rapid
 >x11-libs/gtk+-2.24.33-r3:2
 >x11-libs/gtk+-3.24.51:3
->x11-libs/vte-0.80.4-r1:2.91
+>x11-libs/vte-0.82.3:2.91
 >x11-misc/lightdm-1.32.0-r5
 >x11-plugins/pidgin-libnotify-0.14-r3
 >x11-terms/mate-terminal-1.28.1

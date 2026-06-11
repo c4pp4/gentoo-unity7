@@ -2,6 +2,14 @@
 * Reasons for patching/maintaining packages:
 ========================================================================
 dev-python/python-zombie-imp            # Copy of the 'imp' module that was removed in Python 3.12
+dev-qt/qtcore:5                         # Required by unity-base/hud. Qt5 is no longer under active development and supported.
+dev-qt/qtdbus:5
+dev-qt/qtdeclarative:5
+dev-qt/qtgui:5
+dev-qt/qtnetwork:5
+dev-qt/qtsql:5
+dev-qt/qttest:5
+dev-qt/qtwidgets:5
 media-fonts/fonts-noto-cjk              # Repacked version with reduced size
 media-fonts/fonts-ubuntu                # Newer version of Ubuntu fonts
 media-libs/glewmx                       # Needed by unity-base/nux, MX discontinued as of GLEW v2.0.0
