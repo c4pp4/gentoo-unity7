@@ -73,10 +73,12 @@ RDEPEND="
 		|| (
 			app-editors/pluma
 			app-editors/gedit
+			app-editors/gnome-text-editor
 		)
 		|| (
 			app-text/evince
 			app-text/atril
+			app-text/papers
 		)
 		|| (
 			gnome-extra/gnome-calculator
@@ -84,7 +86,11 @@ RDEPEND="
 		)
 		|| (
 			mate-extra/mate-utils
-			media-gfx/gnome-screenshot
+			(
+				gnome-extra/gnome-logs
+				media-gfx/gnome-screenshot
+				sys-apps/baobab
+			)
 		)
 		|| (
 			media-gfx/eog:1
@@ -107,8 +113,7 @@ RDEPEND="
 	extra? (
 		app-crypt/seahorse
 		gnome-base/dconf-editor
-		media-gfx/simple-scan
-		media-video/cheese
+		gnome-extra/gnome-system-monitor
 		net-p2p/transmission[appindicator]
 		sys-apps/gnome-disk-utility
 		unity-base/unity-control-center[gnome-online-accounts]
@@ -122,9 +127,10 @@ RDEPEND="
 			gnome-extra/gnome-calendar
 			gnome-extra/gnome-characters
 			gnome-extra/gnome-contacts
-			gnome-extra/gnome-system-monitor
 			gnome-extra/gnome-weather
 			media-gfx/gnome-font-viewer
+			media-gfx/simple-scan
+			sci-geosciences/gnome-maps
 		)
 	)
 	fonts? (

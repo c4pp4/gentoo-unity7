@@ -20,7 +20,6 @@
 		<flag name="extra">Install Unity extra applications</flag>
 		<flag name="fonts">Install additional fonts</flag>
 		<flag name="games">Install games</flag>
-		<flag name="gnome">Install Gnome extra applications depending on
-			<pkg>gui-libs/libadwaita</pkg></flag>
+		<flag name="gnome">Install Gnome extra applications</flag>
 	</use>
 </pkgmetadata>
