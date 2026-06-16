@@ -6,5 +6,7 @@
 	</maintainer>
 	<use>
 		<flag name="files">Enable Files lens support</flag>
+		<flag name="hud">Enable HUD support</flag>
+
 	</use>
 </pkgmetadata>

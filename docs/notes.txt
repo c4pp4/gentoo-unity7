@@ -2,7 +2,7 @@
 * Reasons for patching/maintaining packages:
 ========================================================================
 dev-python/python-zombie-imp            # Copy of the 'imp' module that was removed in Python 3.12
-dev-qt/qtcore:5                         # Required by unity-base/hud. Qt5 is no longer under active development and supported.
+dev-qt/qtcore:5                         # Required by unity-base/hud. Qt5 is no longer under active development and is not supported.
 dev-qt/qtdbus:5
 dev-qt/qtdeclarative:5
 dev-qt/qtgui:5

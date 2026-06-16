@@ -18,7 +18,7 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="+bluetooth +files"
+IUSE="+bluetooth +files hud"
 RESTRICT="test"
 
 RDEPEND="
@@ -26,9 +26,6 @@ RDEPEND="
 	x11-misc/notify-osd
 	>=unity-base/unity-6.8
 	x11-libs/gtk+:3[introspection]
-
-	bluetooth? ( unity-indicators/unity-indicators-meta[bluetooth] )
-	files? ( unity-lens/unity-lens-meta[files] )
 
 	$(python_gen_cond_dep '
 		dev-python/pycairo[${PYTHON_USEDEP}]
@@ -40,6 +37,11 @@ DEPEND="
 	$(python_gen_cond_dep '
 		dev-python/python-distutils-extra[${PYTHON_USEDEP}]
 	')
+"
+PDEPEND="
+	bluetooth? ( unity-indicators/unity-indicators-meta[bluetooth] )
+	files? ( unity-lens/unity-lens-meta[files] )
+	hud? ( unity-base/unity[hud] )
 "
 
 PATCHES=(
@@ -82,6 +84,9 @@ src_prepare() {
 			-e "/FilesLens/d" \
 			UnityTweakTool/section/spaghetti/gsettings.py || die
 	fi
+
+	# Remove HUD support #
+	! use hud && eapply "${FILESDIR}"/remove-hud.diff
 
 	ubuntu-versionator_src_prepare
 }

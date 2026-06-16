@@ -1,0 +1,164 @@
+diff '--color=auto' -Nur a/data/unity.ui b/data/unity.ui
+--- a/data/unity.ui	2016-03-28 06:24:07.000000000 +0200
++++ b/data/unity.ui	2026-06-16 10:39:59.811264087 +0200
+@@ -39,10 +39,6 @@
+     </columns>
+     <data>
+       <row>
+-        <col id="0" translatable="yes">Invoke HUD</col>
+-        <col id="1" translatable="yes">Super+H</col>
+-      </row>
+-      <row>
+         <col id="0" translatable="yes">Show the launcher</col>
+         <col id="1" translatable="yes">Super+E</col>
+       </row>
+@@ -2308,42 +2304,6 @@
+             <property name="orientation">vertical</property>
+             <property name="spacing">6</property>
+             <child>
+-              <object class="GtkLabel" id="l_hud">
+-                <property name="visible">True</property>
+-                <property name="can_focus">False</property>
+-                <property name="halign">start</property>
+-                <property name="margin_left">12</property>
+-                <property name="label" translatable="yes">HUD</property>
+-                <attributes>
+-                  <attribute name="weight" value="bold"/>
+-                </attributes>
+-              </object>
+-              <packing>
+-                <property name="expand">False</property>
+-                <property name="fill">True</property>
+-                <property name="position">0</property>
+-              </packing>
+-            </child>
+-            <child>
+-              <object class="GtkCheckButton" id="check_hud_store_data">
+-                <property name="label" translatable="yes">Remember previous commands</property>
+-                <property name="visible">True</property>
+-                <property name="can_focus">False</property>
+-                <property name="receives_default">False</property>
+-                <property name="tooltip_markup" translatable="yes">If enabled, the HUD will remember previously executed entries and sort them by frequently used.</property>
+-                <property name="tooltip_text" translatable="yes">If enabled, the HUD will remember previously executed entries and sort them by frequently used.</property>
+-                <property name="margin_left">18</property>
+-                <property name="xalign">0</property>
+-                <property name="draw_indicator">True</property>
+-                <signal name="toggled" handler="on_check_hud_store_data_toggled" swapped="no"/>
+-              </object>
+-              <packing>
+-                <property name="expand">False</property>
+-                <property name="fill">True</property>
+-                <property name="position">1</property>
+-              </packing>
+-            </child>
+-            <child>
+               <object class="GtkLabel" id="l_unity_addtional_shortcuts">
+                 <property name="visible">True</property>
+                 <property name="can_focus">False</property>
+diff '--color=auto' -Nur a/UnityTweakTool/section/spaghetti/gsettings.py b/UnityTweakTool/section/spaghetti/gsettings.py
+--- a/UnityTweakTool/section/spaghetti/gsettings.py	2016-03-28 06:24:07.000000000 +0200
++++ b/UnityTweakTool/section/spaghetti/gsettings.py	2026-06-15 19:23:51.806950717 +0200
+@@ -106,7 +106,6 @@
+ 
+ bluetooth = canonical('indicator.bluetooth')
+ datetime = canonical('indicator.datetime')
+-hud = canonical('indicator.appmenu.hud')
+ power = canonical('indicator.power')
+ notifyosd = canonical('notify-osd')
+ session = canonical('indicator.session')
+diff '--color=auto' -Nur a/UnityTweakTool/section/spaghetti/unity.py b/UnityTweakTool/section/spaghetti/unity.py
+--- a/UnityTweakTool/section/spaghetti/unity.py	2016-03-28 06:24:07.000000000 +0200
++++ b/UnityTweakTool/section/spaghetti/unity.py	2026-06-16 10:34:25.257290225 +0200
+@@ -149,12 +149,8 @@
+         # ====== Unity additional helpers ======= #
+         model = self.ui['list_unity_additional_accelerators']
+ 
+-        show_hud = gsettings.unityshell.get_string('show-hud')
+-        iter_show_hud = model.get_iter_first()
+-        model.set_value(iter_show_hud, 1, show_hud)
+-
+         show_launcher = gsettings.unityshell.get_string('show-launcher')
+-        iter_show_launcher = model.iter_next(iter_show_hud)
++        iter_show_launcher = model.get_iter_first()
+         model.set_value(iter_show_launcher, 1, show_launcher)
+ 
+         execute_command = gsettings.unityshell.get_string('execute-command')
+@@ -169,7 +165,7 @@
+         iter_panel_first_menu = model.iter_next(iter_keyboard_focus)
+         model.set_value(iter_panel_first_menu, 1, panel_first_menu)
+ 
+-        del model, show_hud, iter_show_hud, show_launcher, iter_show_launcher, execute_command, iter_execute_command, keyboard_focus, iter_keyboard_focus, panel_first_menu, iter_panel_first_menu
++        del model, show_launcher, iter_show_launcher, execute_command, iter_execute_command, keyboard_focus, iter_keyboard_focus, panel_first_menu, iter_panel_first_menu
+ 
+ 
+ # ===== BEGIN: Unity settings =====
+@@ -375,12 +371,10 @@
+ # That is against OOP principles. -jpm
+ 
+         if path == '0':
+-            gsettings.unityshell.set_string('show-hud', accel)
+-        elif path == '1':
+             gsettings.unityshell.set_string('show-launcher', accel)
+-        elif path == '2':
++        elif path == '1':
+             gsettings.unityshell.set_string('execute-command', accel)
+-        elif path == '3':
++        elif path == '2':
+             gsettings.unityshell.set_string('keyboard-focus', accel)
+         else:
+             gsettings.unityshell.set_string('panel-first-menu', accel)
+@@ -390,19 +384,16 @@
+         titer = model.get_iter(path)
+         model.set_value(titer, 1, 'Disabled')
+         if path == '0':
+-            gsettings.unityshell.set_string('show-hud', 'Disabled')
+-        elif path == '1':
+             gsettings.unityshell.set_string('show-launcher', 'Disabled')
+-        elif path == '2':
++        elif path == '1':
+             gsettings.unityshell.set_string('execute-command', 'Disabled')
+-        elif path == '3':
++        elif path == '2':
+             gsettings.unityshell.set_string('keyboard-focus', 'Disabled')
+         else:
+             gsettings.unityshell.set_string('panel-first-menu', 'Disabled')
+ 
+     def on_b_unity_additional_reset_clicked(self, widget):
+         gsettings.unityshell.reset('shortcut-overlay')
+-        gsettings.unityshell.reset('show-hud')
+         gsettings.unityshell.reset('show-launcher')
+         gsettings.unityshell.reset('execute-command')
+         gsettings.unityshell.reset('keyboard-focus')
+diff '--color=auto' -Nur a/UnityTweakTool/section/unity.py b/UnityTweakTool/section/unity.py
+--- a/UnityTweakTool/section/unity.py	2016-03-28 06:24:07.000000000 +0200
++++ b/UnityTweakTool/section/unity.py	2026-06-16 10:36:27.606122935 +0200
+@@ -706,19 +706,6 @@
+ 
+ #=============== ADDITIONAL ==========================
+ 
+-check_hud_store_data= CheckBox({
+-    'id'        : 'check_hud_store_data',
+-    'builder'   : Unity.builder,
+-    'schema'    : 'com.canonical.indicator.appmenu.hud',
+-    'path'      : None,
+-    'key'       : 'store-usage-data',
+-    'type'      : 'boolean',
+-    'map'       : {True:True,False:False},
+-    'dependants': []
+-})
+-
+-
+-
+ check_shortcuts_hints_overlay= CheckBox({
+     'id'        : 'check_shortcuts_hints_overlay',
+     'builder'   : Unity.builder,
+@@ -758,8 +745,7 @@
+ # list_unity_additional_accelerators
+ 
+ 
+-AdditionalIcons=Tab([check_hud_store_data,
+-                     check_shortcuts_hints_overlay,
++AdditionalIcons=Tab([check_shortcuts_hints_overlay,
+                      radio_all_monitors,
+                      radio_active_monitor])
+ 

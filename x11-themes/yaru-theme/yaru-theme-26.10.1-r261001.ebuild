@@ -14,7 +14,7 @@ SRC_URI="${UURL}.tar.xz"
 
 LICENSE="CC-BY-SA-4.0 GPL-2 GPL-3 GPL-3+ LGPL-2.1 LGPL-2.1+ LGPL-3 MIT"
 SLOT="0"
-KEYWORDS="amd64"
+KEYWORDS="~amd64"
 IUSE="cinnamon gnome-shell mate +unity xfwm"
 RESTRICT="binchecks strip test"
 
@@ -23,7 +23,6 @@ RDEPEND="
 	sys-apps/xdg-desktop-portal-gtk
 	x11-libs/gtk+:2
 	x11-themes/gtk-engines-adwaita
-	x11-themes/gtk-engines-murrine
 "
 BDEPEND="
 	dev-libs/glib:2

@@ -320,8 +320,8 @@ qt5-build_pkg_postinst() {
 	qt5_regenerate_global_configs
 
 	echo
-	ewarn "Qt5 is no longer under active development and supported."
-	ewarn "In Gentoo Unity⁷, the Qt5 packages are required for unity-base/hud."
+	ewarn "Qt5 is no longer under active development and is not supported."
+	ewarn "In Gentoo Unity⁷, Qt5 packages are required for unity-base/hud."
 	ewarn "If you decide to use HUD anyway, you do so at your own risk."
 	echo
 }
