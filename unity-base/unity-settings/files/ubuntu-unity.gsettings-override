@@ -1,6 +1,6 @@
 ## Unity specific session ##
 
-[org.cinnamon.SessionManager]
+[org.cinnamon.SessionManager:Unity]
 logout-prompt = false
 
 [org.gnome.desktop.background:Unity]
