@@ -38,7 +38,10 @@ src_install() {
 	doins 50-unity.conf
 
 	# Autostart nemo-desktop to manage Unity7 desktop and icons #
-	sed -i "/NoDisplay/{s/false/true/}" "${S}"/nemo-unity-autostart.desktop || die
+	sed -i \
+		-e "/NoDisplay/{s/false/true/}" \
+		-e "/X-GNOME-Autostart-Delay/{s/2/3/}" \
+		"${S}"/nemo-unity-autostart.desktop || die
 	insinto /etc/xdg/autostart
 	newins nemo-unity-autostart.desktop unity-nemo-desktop.desktop
 
@@ -50,9 +53,11 @@ src_install() {
 	doexe "${PN}"
 	doexe "${FILESDIR}"/"${PN}"-quit
 
+	sed -i "/DesktopName/{s/:ubuntu//}" "${S}"/unity.session || die
 	insinto /usr/share/cinnamon-session/sessions
 	doins unity.session
 
+	sed -i "/DesktopNames/{s/ubuntu;//}" "${S}"/unity.desktop || die
 	insinto /usr/share/xsessions
 	doins unity.desktop
 
