@@ -1,5 +1,5 @@
 ## These are packages maintained via ehooks that must be checked before bump ##
->app-i18n/ibus-1.5.31-r1
+>app-i18n/ibus-1.5.33
 >app-text/evince-48.1
 >dev-cpp/gtest-1.17.0
 >dev-libs/glib-2.84.4-r5:2
