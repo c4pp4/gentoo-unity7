@@ -6,34 +6,24 @@ if [ "x$DESKTOP_SESSION" = "xunity" ]; then
 	XMODIFIERS=@im=ibus
 
 	GTK_IM_MODULE=xim
-	# use ibus module only when available for both GTK 2.0 and 3.0
-	for GTK2_IBUS in /usr/lib64/gtk-2.0/*/immodules/im-ibus.so ; do
-		if [ -e "${GTK2_IBUS}" ]; then
-			for GTK3_IBUS in /usr/lib64/gtk-3.0/*/immodules/im-ibus.so ; do
-				if [ -e "${GTK3_IBUS}" ]; then
-					GTK_IM_MODULE=ibus
-					break 2
-				fi
-			done
+	# use ibus module when available for GTK 3.0
+	for GTK3_IBUS in /usr/lib64/gtk-3.0/*/immodules/im-ibus.so ; do
+		if [ -e "${GTK3_IBUS}" ]; then
+			GTK_IM_MODULE=ibus
+			break
 		fi
 	done
 
-	# use ibus module when available for Qt5
-	[ -f /usr/lib64/qt5/plugins/platforminputcontexts/libibusplatforminputcontextplugin.so ] \
+	# use ibus module when available for Qt6
+	[ -f /usr/lib64/qt6/plugins/platforminputcontexts/libibusplatforminputcontextplugin.so ] \
 		&& QT_IM_MODULE=ibus \
 		|| QT_IM_MODULE=xim
-
-	# use ibus module when available for Qt4
-	[ -f /usr/lib64/qt4/plugins/inputmethods/libqtim-ibus.so ] \
-		&& QT4_IM_MODULE=ibus \
-		|| QT4_IM_MODULE=xim
 
 	CLUTTER_IM_MODULE=xim
 
 	export XMODIFIERS
 	export GTK_IM_MODULE
 	export QT_IM_MODULE
-	export QT4_IM_MODULE
 	export CLUTTER_IM_MODULE
 
 fi

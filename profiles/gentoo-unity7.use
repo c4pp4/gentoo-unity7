@@ -3,7 +3,7 @@
 app-accessibility/brltty                python                                  # Required by app-accessibility/orca[braille]
 app-accessibility/onboard                                       -gnome-shell    # Don't install gnome-base/gnome-shell extension
 app-dicts/myspell-en                    l10n_en-US                              # REQUIRED_USE flag
-app-i18n/ibus                           appindicator gtk2 vala                  # Required by unity-indicators/indicator-keyboard
+app-i18n/ibus                           appindicator vala                       # Required by unity-indicators/indicator-keyboard
 app-misc/tinysparql                     vala                                    # Required by unity-base/unity-control-center (net-misc/rygel)
 app-office/libreoffice                  gtk3                    -gtk4           # Prefer gtk3
 dev-libs/boost                          python                                  # Required by dev-libs/libcolumbus
