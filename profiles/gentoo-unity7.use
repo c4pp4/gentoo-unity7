@@ -25,7 +25,7 @@ net-libs/gupnp-av                       vala                                    
 net-libs/libnma                         vala                                    # Required by unity-base/unity-control-center
 net-misc/modemmanager                   vala                                    # Required by unity-base/unity-control-center
 net-misc/networkmanager                 vala                                    # Required by unity-base/unity-control-center
-net-p2p/transmission                    appindicator gtk        -qt6            # Prefer gtk with appindicator
+net-p2p/transmission                                            -gtk            # Prefer qt for Unity global menu (https://github.com/transmission/transmission/issues/5332)
 sys-libs/zlib                           minizip                                 # Required by net-im/telegram-desktop
 virtual/notification-daemon                                     -gnome          # Prefer x11-misc/notify-osd
 x11-base/xorg-server                    xvfb                                    # Required by x11-misc/xvfb-run

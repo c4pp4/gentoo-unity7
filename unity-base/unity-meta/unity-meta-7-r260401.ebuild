@@ -114,7 +114,7 @@ RDEPEND="
 		app-crypt/seahorse
 		gnome-base/dconf-editor
 		gnome-extra/gnome-system-monitor
-		net-p2p/transmission[appindicator]
+		net-p2p/transmission
 		sys-apps/gnome-disk-utility
 		unity-base/unity-control-center[gnome-online-accounts]
 		unity-extra/unity-tweak-tool

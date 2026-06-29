@@ -75,7 +75,6 @@ media-video/totem                       # Add traditional menubar (https://bugzi
 net-im/pidgin                           # Add chat section into messaging menu (Available, Away, Busy, Invisible, Offline)
 net-im/telegram-desktop                 # Add ubuntu-mono-dark and Yaru-dark tray icons
 net-im/telegram-desktop-bin             # Add ubuntu-mono-dark and Yaru-dark tray icons
-net-p2p/transmission                    # Use GTK3 and libappindicator, export "win" actions for Unity global menu (https://github.com/transmission/transmission/issues/5332)
 sys-apps/accountsservice                # Requires patching for SetInputSources as needed by unity-indicators/indicator-keyboard and u-c-c text entry settings
                                         #  Ubuntu patchset:
                                         #  0001-formats-locale-property.patch
