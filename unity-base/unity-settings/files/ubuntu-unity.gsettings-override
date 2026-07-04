@@ -1,5 +1,8 @@
 ## Unity specific session ##
 
+[org.cinnamon.desktop.session:Unity]
+idle-delay = 300
+
 [org.cinnamon.SessionManager:Unity]
 logout-prompt = false
 

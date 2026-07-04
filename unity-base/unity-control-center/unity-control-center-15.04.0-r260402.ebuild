@@ -124,6 +124,7 @@ PATCHES=(
 	"${FILESDIR}"/prevent-multiple-ibus_init-call.patch
 	"${FILESDIR}"/sharing-fix_translation.patch
 	"${FILESDIR}"/shell-fix_theme_selection_and_hover.patch
+	"${FILESDIR}"/use-cinnamon-schema-for-idle-delay.patch
 )
 
 src_prepare() {
