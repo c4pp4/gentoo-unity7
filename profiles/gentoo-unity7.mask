@@ -2,7 +2,7 @@
 >app-i18n/ibus-1.5.33
 >app-text/evince-48.4
 >dev-cpp/gtest-1.17.0
->dev-libs/glib-2.84.4-r5:2
+>dev-libs/glib-2.88.2:2
 >dev-qt/qtbase-6.11.1:6
 >gnome-base/gnome-desktop-44.5-r300:3
 >gnome-base/gnome-menus-3.38.1:3
