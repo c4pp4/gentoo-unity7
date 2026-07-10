@@ -15,7 +15,7 @@ fetch_debian() {
 		fi
 		if [[ ${ret} -ne 0 ]]; then
 			ebegin "Downloading ${color_bold}${archive}${color_norm}"
-				wget "https://launchpad.net/ubuntu/+archive/primary/+files/${archive}" -O "${archive}" -o ${wlog}
+				wget -t 3 -T 60 -U "Portage (Gentoo, https://www.gentoo.org) distfile-fetch" -O "${archive}" -o ${wlog} "https://launchpad.net/ubuntu/+archive/primary/+files/${archive}"
 			eend $?
 			grep -iqs "failed\|error" ${wlog} && cat ${wlog} >> ${log}
 			[[ -s ${archive} ]] || die "ehooks: archive not fetched"
