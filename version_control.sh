@@ -344,8 +344,8 @@ portage_updates() {
 			old_pkg="${x%|*}"; old_pkg="${old_pkg#>}"; slot=$(get_slot "${old_pkg}"); old_pkg="${old_pkg%:*}"
 			new_pkg="${x#*|}"
 			echo " * Update to ${color_yellow}${new_pkg}${color_norm} (old pmask entry: ${color_bold}>${old_pkg}${color_norm})"
-			printf "%s" " * Test command 'EHOOKS_PATH=${pmask%/*}/ehooks ebuild \$(portageq get_repo_path / gentoo)/${new_pkg%-[0-9]*}/${new_pkg#*/}.ebuild clean prepare clean'${color_blink}...${color_norm}"
-			if EHOOKS_PATH="${pmask%/*}/ehooks" ebuild "${main_repo}/${new_pkg%-[0-9]*}/${new_pkg#*/}".ebuild clean prepare clean 1>/dev/null; then
+			printf "%s" " * Test command 'EHOOKS_PATH=$1/ehooks ebuild \$(portageq get_repo_path / gentoo)/${new_pkg%-[0-9]*}/${new_pkg#*/}.ebuild clean prepare clean'${color_blink}...${color_norm}"
+			if EHOOKS_PATH="$1/ehooks" ebuild "${main_repo}/${new_pkg%-[0-9]*}/${new_pkg#*/}".ebuild clean prepare clean 1>/dev/null; then
 				printf "\b\b\b%s\n" "... ${color_blue}[ ${color_green}passed ${color_blue}]${color_norm}"
 				for y in "${majorver[@]}"; do
 					if [[ ${new_pkg} == "${y}"* ]]; then

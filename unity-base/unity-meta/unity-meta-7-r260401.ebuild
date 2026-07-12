@@ -95,6 +95,7 @@ RDEPEND="
 		|| (
 			media-gfx/eog:1
 			media-gfx/eom
+			media-gfx/loupe
 		)
 		|| (
 			media-gfx/shotwell
