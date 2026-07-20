@@ -20,7 +20,7 @@ SRC_URI="${UURL}-${UREV}.tar.xz"
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="bfb2013 bfb2023 classic-dash classic-panel debug doc gles2 hud pch systray +uwidgets"
+IUSE="bfb2013 bfb2023 classic-dash classic-panel debug doc gles2 +hud pch systray +uwidgets"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="test"
 
@@ -398,12 +398,4 @@ pkg_postinst() {
 	elog '    unset f'
 	elog 'fi'
 	echo
-
-	if use hud; then
-		ewarn "USE flag 'hud' declared:"
-		ewarn "Qt5 is no longer under active development and is not supported."
-		ewarn "In Gentoo Unity⁷, Qt5 packages are required for unity-base/hud."
-		ewarn "If you decide to use HUD anyway, you do so at your own risk."
-		echo
-	fi
 }

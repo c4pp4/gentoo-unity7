@@ -1,0 +1,190 @@
+From 282d8dc34d994ea2bc183d6924c76582ddb653ec Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sat, 18 Jul 2026 14:30:42 +0200
+Subject: [PATCH 1/1] GenerateExportHeader migration
+
+Signed-off-by: c4pp4
+---
+ src/libqtdbusmock/CMakeLists.txt     | 9 +++++++++
+ src/libqtdbusmock/DBusMock.h         | 5 +++--
+ src/libqtdbusmock/ExportInterfaces.h | 7 ++++---
+ src/libqtdbusmock/Method.h           | 7 ++++---
+ src/libqtdbusmock/MethodCall.h       | 9 +++++----
+ src/libqtdbusmock/NamedMethodCall.h  | 9 +++++----
+ 6 files changed, 30 insertions(+), 16 deletions(-)
+
+diff --git a/src/libqtdbusmock/CMakeLists.txt b/src/libqtdbusmock/CMakeLists.txt
+index c9dd6e5..db79e39 100644
+--- a/src/libqtdbusmock/CMakeLists.txt
++++ b/src/libqtdbusmock/CMakeLists.txt
+@@ -10,6 +10,7 @@ set(
+ set(
+ 	QTDBUSMOCK_PUBLIC_HEADERS
+ 	"${CMAKE_CURRENT_BINARY_DIR}/config.h"
++	"${CMAKE_CURRENT_BINARY_DIR}/libqtdbusmock/qtdbusmock_export.h"
+ 	DBusMock.h
+ 	DeclareMetatypes.h
+ 	ExportInterfaces.h
+@@ -199,6 +200,14 @@ add_library(
+ 	${QTDBUSMOCK_SRC}
+ )
+ 
++file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/libqtdbusmock")
++
++generate_export_header(
++	qtdbusmock
++	BASE_NAME qtdbusmock
++	EXPORT_FILE_NAME "${CMAKE_CURRENT_BINARY_DIR}/libqtdbusmock/qtdbusmock_export.h"
++)
++
+ target_link_libraries(
+     qtdbusmock
+     Qt::Core
+diff --git a/src/libqtdbusmock/DBusMock.h b/src/libqtdbusmock/DBusMock.h
+index 2c38d86..1f7dbed 100644
+--- a/src/libqtdbusmock/DBusMock.h
++++ b/src/libqtdbusmock/DBusMock.h
+@@ -18,6 +18,7 @@
+ 
+ #pragma once
+ 
++#include <libqtdbusmock/qtdbusmock_export.h>
+ #include <libqtdbustest/DBusTestRunner.h>
+ #include <libqtdbusmock/MockInterface.h>
+ #include <libqtdbusmock/NetworkManagerMockInterface.h>
+@@ -35,13 +36,13 @@ namespace QtDBusMock {
+ 
+ class DBusMockPrivate;
+ 
+-class Q_DECL_EXPORT DBusMock {
++class QTDBUSMOCK_EXPORT DBusMock {
+ public:
+ 	DBusMock(QtDBusTest::DBusTestRunner &testRunner);
+ 
+ 	virtual ~DBusMock();
+ 
+-	Q_DECL_EXPORT
++	QTDBUSMOCK_EXPORT
+ 	static void registerMetaTypes();
+ 
+ 	virtual void registerTemplate(const QString &service,
+diff --git a/src/libqtdbusmock/ExportInterfaces.h b/src/libqtdbusmock/ExportInterfaces.h
+index c7ccc33..2fcac2f 100644
+--- a/src/libqtdbusmock/ExportInterfaces.h
++++ b/src/libqtdbusmock/ExportInterfaces.h
+@@ -18,10 +18,11 @@
+ 
+ #pragma once
+ 
++#include <libqtdbusmock/qtdbusmock_export.h>
+ #include <QtCore/QObject>
+-class Q_DECL_EXPORT OrgFreedesktopDBusMockInterface;
+-class Q_DECL_EXPORT NetworkManagerMockInterface;
+-class Q_DECL_EXPORT OrgFreedesktopDBusPropertiesInterface;
++class QTDBUSMOCK_EXPORT OrgFreedesktopDBusMockInterface;
++class QTDBUSMOCK_EXPORT NetworkManagerMockInterface;
++class QTDBUSMOCK_EXPORT OrgFreedesktopDBusPropertiesInterface;
+ 
+ namespace QtDBusMock {
+ 
+diff --git a/src/libqtdbusmock/Method.h b/src/libqtdbusmock/Method.h
+index 4579a4e..b18f10d 100644
+--- a/src/libqtdbusmock/Method.h
++++ b/src/libqtdbusmock/Method.h
+@@ -18,11 +18,12 @@
+ 
+ #pragma once
+ 
++#include <libqtdbusmock/qtdbusmock_export.h>
+ #include <QtDBus>
+ 
+ namespace QtDBusMock {
+ 
+-class Q_DECL_EXPORT Method {
++class QTDBUSMOCK_EXPORT Method {
+ public:
+ 	explicit Method();
+ 
+@@ -62,11 +63,11 @@ protected:
+ 
+ }
+ 
+-Q_DECL_EXPORT
++QTDBUSMOCK_EXPORT
+ QDBusArgument &operator<<(QDBusArgument &argument,
+ 		const QtDBusMock::Method &method);
+ 
+-Q_DECL_EXPORT
++QTDBUSMOCK_EXPORT
+ const QDBusArgument &operator>>(const QDBusArgument &argument,
+ 		QtDBusMock::Method &method);
+ 
+diff --git a/src/libqtdbusmock/MethodCall.h b/src/libqtdbusmock/MethodCall.h
+index e85fb54..03ceb7a 100644
+--- a/src/libqtdbusmock/MethodCall.h
++++ b/src/libqtdbusmock/MethodCall.h
+@@ -18,11 +18,12 @@
+ 
+ #pragma once
+ 
++#include <libqtdbusmock/qtdbusmock_export.h>
+ #include <QtDBus>
+ 
+ namespace QtDBusMock {
+ 
+-class Q_DECL_EXPORT MethodCall {
++class QTDBUSMOCK_EXPORT MethodCall {
+ public:
+ 	explicit MethodCall();
+ 
+@@ -50,11 +51,11 @@ protected:
+ 
+ }
+ 
+-Q_DECL_EXPORT
++QTDBUSMOCK_EXPORT
+ QDBusArgument &operator<<(QDBusArgument &argument,
+-		const QtDBusMock::MethodCall &methodCalls);
++		const QtDBusMock::MethodCall &methodCall);
+ 
+-Q_DECL_EXPORT
++QTDBUSMOCK_EXPORT
+ const QDBusArgument &operator>>(const QDBusArgument &argument,
+ 		QtDBusMock::MethodCall &methodCalls);
+ 
+diff --git a/src/libqtdbusmock/NamedMethodCall.h b/src/libqtdbusmock/NamedMethodCall.h
+index 0e450f4..365816a 100644
+--- a/src/libqtdbusmock/NamedMethodCall.h
++++ b/src/libqtdbusmock/NamedMethodCall.h
+@@ -18,11 +18,12 @@
+ 
+ #pragma once
+ 
++#include <libqtdbusmock/qtdbusmock_export.h>
+ #include <QtDBus>
+ 
+ namespace QtDBusMock {
+ 
+-class Q_DECL_EXPORT NamedMethodCall {
++class QTDBUSMOCK_EXPORT NamedMethodCall {
+ public:
+ 	explicit NamedMethodCall();
+ 
+@@ -56,11 +57,11 @@ protected:
+ 
+ }
+ 
+-Q_DECL_EXPORT
++QTDBUSMOCK_EXPORT
+ QDBusArgument &operator<<(QDBusArgument &argument,
+-		const QtDBusMock::NamedMethodCall &methodCalls);
++		const QtDBusMock::NamedMethodCall &method);
+ 
+-Q_DECL_EXPORT
++QTDBUSMOCK_EXPORT
+ const QDBusArgument &operator>>(const QDBusArgument &argument,
+ 		QtDBusMock::NamedMethodCall &methodCalls);
+ 
+-- 
+2.54.0
+

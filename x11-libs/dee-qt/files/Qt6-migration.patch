@@ -1,0 +1,434 @@
+From c197fbd05c88e2267d1cef4ea990cac86eac549e Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sat, 11 Jul 2026 01:32:33 +0200
+Subject: [PATCH 1/1] Qt6 migration
+
+Signed-off-by: c4pp4
+---
+ CMakeLists.txt             | 46 +++++++++++++-------------------------
+ deelistmodel.cpp           |  6 -----
+ libdee-qt.pc.in            |  2 +-
+ modules/Dee/CMakeLists.txt | 24 +++-----------------
+ modules/Dee/plugin.cpp     | 10 +--------
+ modules/Dee/plugin.h       | 17 +++-----------
+ tests/CMakeLists.txt       | 31 ++++++++-----------------
+ tests/conversiontest.cpp   |  1 -
+ tests/deelistmodeltest.cpp |  2 --
+ tests/test-helper.cpp      |  1 -
+ tests/test_qtquick1.qml    | 15 -------------
+ variantconversions.cpp     | 27 ++++++++++++----------
+ 12 files changed, 48 insertions(+), 134 deletions(-)
+ delete mode 100644 tests/test_qtquick1.qml
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index e7b3d00..a37ee12 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,5 +1,5 @@
++cmake_minimum_required(VERSION 3.16)
+ project(dee-qt)
+-cmake_minimum_required(VERSION 2.8.6)
+ 
+ set(SONAME 3)
+ set(VERSION 3.3)
+@@ -7,47 +7,34 @@ set(SOVERSION 3.0.0)
+ 
+ # Instruct CMake to run moc automatically when needed.
+ set(CMAKE_AUTOMOC ON)
++set(CMAKE_CXX_STANDARD 17)
++set(CMAKE_CXX_STANDARD_REQUIRED ON)
++set(CMAKE_CXX_EXTENSIONS OFF)
+ 
+ # Dependencies
+ include(FindPkgConfig)
++include(GNUInstallDirs)
+ 
+ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_MODULE_PATH}")
+ 
+ include(Coverage)
+ 
+-if (WITHQT5)
+-  message("Building Qt5 version")
++message(STATUS "Building Qt6 version")
+ 
+-  find_package(Qt5Core REQUIRED)
+-  find_package(Qt5DBus REQUIRED)
++find_package(Qt6 REQUIRED COMPONENTS Core DBus)
+ 
+-  add_definitions(-DWITHQT5=1)
+-
+-  set(DEE_QT_LIBNAME dee-qt5)
+-  set(OUR_QT_INCLUDES ${Qt5Core_INCLUDE_DIRS} ${Qt5DBus_INCLUDE_DIRS})
+-  set(OUR_QT_CORE_LIB ${Qt5Core_LIBRARIES})
+-  set(OUR_QT_DBUS_LIB ${Qt5DBus_LIBRARIES})
+-  set(QT_PKGCONFIG_DEPENDENCIES "Qt5Core")
+-else ()
+-  message("Building Qt4 version")
+-
+-  find_package(Qt4 REQUIRED)
+-
+-  add_definitions(-DWITHQT5=0)
+-
+-  set(DEE_QT_LIBNAME dee-qt4)
+-  set(OUR_QT_INCLUDES ${QT_INCLUDE_DIR} ${QT_QTCORE_INCLUDE_DIR} ${QT_QTDBUS_INCLUDE_DIR})
+-  set(OUR_QT_CORE_LIB ${QT_QTCORE_LIBRARIES})
+-  set(OUR_QT_DBUS_LIB ${QT_QTDBUS_LIBRARIES})
+-  set(QT_PKGCONFIG_DEPENDENCIES "QtCore QtDBus")
+-endif ()
++set(DEE_QT_LIBNAME dee-qt6)
++set(OUR_QT_CORE_LIB Qt6::Core)
++set(OUR_QT_DBUS_LIB Qt6::DBus)
++set(QT_PKGCONFIG_DEPENDENCIES "Qt6Core Qt6DBus")
++set(QT_IMPORTS_DIR "${CMAKE_INSTALL_LIBDIR}/qt6/qml" CACHE PATH "Qt6 QML import installation directory")
+ 
+ set(QT_DEE_PKGCONFIG_FILE lib${DEE_QT_LIBNAME}.pc)
+ 
+ pkg_check_modules(DEE REQUIRED dee-1.0>=1.2.7)
+ 
+ # Build flags
+-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wall -Wundef -std=c++0x")
++set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wall -Wundef")
+ 
+ # Sources
+ set(DEE_QT_SRCS
+@@ -61,13 +48,12 @@ add_definitions(-DQT_NO_KEYWORDS)
+ include_directories(
+     ${CMAKE_CURRENT_SOURCE_DIR}
+     ${CMAKE_CURRENT_BINARY_DIR}
+-    ${OUR_QT_INCLUDES}
+     ${DEE_INCLUDE_DIRS}
+     )
+ 
+ add_library(${DEE_QT_LIBNAME} SHARED ${DEE_QT_SRCS})
+ target_link_libraries(${DEE_QT_LIBNAME}
+-    ${OUR_QT_CORE_LIB}
++    PUBLIC ${OUR_QT_CORE_LIB}
+     ${DEE_LDFLAGS}
+     )
+ 
+@@ -86,7 +72,7 @@ add_subdirectory(tests)
+ set(INCLUDE_INSTALL_DIR include/lib${DEE_QT_LIBNAME})
+ 
+ install(TARGETS ${DEE_QT_LIBNAME}
+-    LIBRARY DESTINATION lib/${CMAKE_LIBRARY_ARCHITECTURE}${LIB_SUFFIX}
++    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+     )
+ 
+ install(FILES deelistmodel.h
+@@ -101,5 +87,5 @@ configure_file (libdee-qt.pc.in
+     ${CMAKE_CURRENT_BINARY_DIR}/${QT_DEE_PKGCONFIG_FILE} @ONLY)
+ 
+ install(FILES  ${CMAKE_CURRENT_BINARY_DIR}/${QT_DEE_PKGCONFIG_FILE}
+-    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_LIBRARY_ARCHITECTURE}/pkgconfig
++    DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+     )
+diff --git a/deelistmodel.cpp b/deelistmodel.cpp
+index 8d49c60..12d3103 100644
+--- a/deelistmodel.cpp
++++ b/deelistmodel.cpp
+@@ -273,11 +273,6 @@ DeeListModelPrivate::createRoles()
+         roles[index] = column.toLocal8Bit();
+     }
+ 
+-#if WITHQT5==0
+-    // In Qt4, roleNames() is non-virtual and non-const, so we still need to
+-    // call the old setRoleNames() which doesn't exist any more in Qt5.
+-    m_parent->setRoleNames(roles);
+-#endif
+     m_roleNames = roles;
+     Q_EMIT m_parent->roleNamesChanged(roles);
+ }
+@@ -377,7 +372,6 @@ DeeListModelPrivate::onFinishChangeset(DeeListModel* model)
+ DeeListModel::DeeListModel(QObject *parent) :
+     QAbstractListModel(parent), d(new DeeListModelPrivate(this))
+ {
+-    g_type_init();
+ }
+ 
+ DeeListModel::~DeeListModel()
+diff --git a/libdee-qt.pc.in b/libdee-qt.pc.in
+index ecf1f5e..d429283 100644
+--- a/libdee-qt.pc.in
++++ b/libdee-qt.pc.in
+@@ -1,6 +1,6 @@
+ prefix=@PREFIX@
+ exec_prefix=@EXEC_PREFIX@
+-libdir=${exec_prefix}/lib/@CMAKE_LIBRARY_ARCHITECTURE@
++libdir=${exec_prefix}/@CMAKE_INSTALL_LIBDIR@
+ includedir=${prefix}/@INCLUDE_INSTALL_DIR@
+ 
+ Name: @DEE_QT_LIBNAME@
+diff --git a/modules/Dee/CMakeLists.txt b/modules/Dee/CMakeLists.txt
+index 601814e..eb9a844 100644
+--- a/modules/Dee/CMakeLists.txt
++++ b/modules/Dee/CMakeLists.txt
+@@ -1,19 +1,6 @@
+ 
+-if (WITHQT5)
+-  find_package(Qt5Quick REQUIRED)
+-  set(OUR_QT_QUICK_LIB ${Qt5Quick_LIBRARIES})
+-
+-  get_target_property(QMAKE_EXECUTABLE Qt5::qmake LOCATION)
+-  exec_program(${QMAKE_EXECUTABLE} ARGS "-query QT_INSTALL_QML" OUTPUT_VARIABLE QT_IMPORTS_DIR)
+-  file(TO_CMAKE_PATH "${QT_IMPORTS_DIR}" QT_IMPORTS_DIR)
+-
+-  set(OUR_QT_QUICK_INCLUDE ${Qt5Quick_INCLUDE_DIRS})
+-  LIST(APPEND QT_PKGCONFIG_DEPENDENCIES "Qt5Quick")
+-else ()
+-  set(OUR_QT_QUICK_LIB ${QT_QTDECLARATIVE_LIBRARIES})
+-  set(OUR_QT_QUICK_INCLUDE ${QT_QTDECLARATIVE_INCLUDE_DIR})
+-  LIST(APPEND QT_PKGCONFIG_DEPENDENCIES "QtDeclarative")
+-endif ()
++find_package(Qt6 REQUIRED COMPONENTS Qml)
++list(APPEND QT_PKGCONFIG_DEPENDENCIES "Qt6Qml")
+ 
+ set(DeePlugin_SRCS
+     plugin.cpp
+@@ -23,14 +10,9 @@ add_library(DeePlugin SHARED ${DeePlugin_SRCS})
+ 
+ target_link_libraries(DeePlugin
+   ${DEE_QT_LIBNAME}
+-  ${OUR_QT_QUICK_LIB}
++  Qt6::Qml
+   )
+ 
+-include_directories(
+-    ${CMAKE_CURRENT_BINARY_DIR}
+-    ${OUR_QT_QUICK_INCLUDE}
+-    )
+-
+ # copy qmldir file into build directory for shadow builds
+ file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/qmldir"
+     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
+diff --git a/modules/Dee/plugin.cpp b/modules/Dee/plugin.cpp
+index dbd4ed0..bfb4bbc 100644
+--- a/modules/Dee/plugin.cpp
++++ b/modules/Dee/plugin.cpp
+@@ -19,17 +19,9 @@
+ 
+ #include "deelistmodel.h"
+ #include "plugin.h"
+-#if WITHQT5
+-  #include <qqml.h>
+-#else
+-  #include <QtDeclarative/qdeclarative.h>
+-#endif
++#include <qqml.h>
+ 
+ void DeePlugin::registerTypes(const char *uri)
+ {
+     qmlRegisterType<DeeListModel>(uri, 3, 0, "DeeListModel");
+ }
+-
+-#if !WITHQT5
+-  Q_EXPORT_PLUGIN2(Dee, DeePlugin);
+-#endif
+diff --git a/modules/Dee/plugin.h b/modules/Dee/plugin.h
+index ff5a61b..a7fa00d 100644
+--- a/modules/Dee/plugin.h
++++ b/modules/Dee/plugin.h
+@@ -20,25 +20,14 @@
+ #ifndef QTDEEPLUGIN_H
+ #define QTDEEPLUGIN_H
+ 
+-#if WITHQT5
+-  #include <QQmlExtensionPlugin>
+-#else
+-  #include <QtDeclarative/QDeclarativeExtensionPlugin>
+-#endif
++#include <QQmlExtensionPlugin>
+ 
+-class DeePlugin :
+-#if WITHQT5
+-  public QQmlExtensionPlugin
+-#else
+-  public QDeclarativeExtensionPlugin
+-#endif
++class DeePlugin : public QQmlExtensionPlugin
+ {
+     Q_OBJECT
+-#if WITHQT5
+     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QQmlExtensionInterface")
+-#endif
+ public:
+-    void registerTypes(const char *uri);
++    void registerTypes(const char *uri) override;
+ };
+ 
+ 
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index 9e210c5..a77aebe 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -1,38 +1,25 @@
+-if (WITHQT5)
+-  find_package(Qt5Test REQUIRED)
+-  set(OUR_QT_TEST_LIB ${Qt5Test_LIBRARIES})
+-  set(OUR_QT_TEST_INCLUDES ${Qt5Test_INCLUDE_DIRS})
+-else ()
+-  set(OUR_QT_TEST_LIB ${QT_QTTEST_LIBRARIES})
+-  set(OUR_QT_TEST_INCLUDES ${QT_QTTEST_INCLUDE_DIR})
+-endif ()
++find_package(Qt6 REQUIRED COMPONENTS Test)
+ 
+-include_directories(
+-    ${CMAKE_CURRENT_BINARY_DIR}
+-    ${OUR_QT_TEST_INCLUDES}
+-    )
++include_directories(${CMAKE_CURRENT_BINARY_DIR})
+ 
+ add_executable(conversiontest conversiontest.cpp)
+-target_link_libraries(conversiontest ${OUR_QT_TEST_LIB} ${DEE_QT_LIBNAME})
++target_link_libraries(conversiontest Qt6::Test ${DEE_QT_LIBNAME})
+ set_target_properties(conversiontest PROPERTIES COMPILE_FLAGS -fPIC)
+ add_test(NAME conversiontest COMMAND "${CMAKE_CURRENT_BINARY_DIR}/conversiontest" "-o" "${CMAKE_CURRENT_BINARY_DIR}/conversiontest-xunit.xml,xunitxml" "-o" "-,txt")
+ set_property(TEST conversiontest PROPERTY ENVIRONMENT "LD_LIBRARY_PATH=.")
+ 
+-if (WITHQT5)
+-	# the test is using signal connections with lambdas, only available in Qt5
+-	add_executable(signaltest signaltest.cpp)
+-	target_link_libraries(signaltest ${OUR_QT_TEST_LIB} ${DEE_QT_LIBNAME})
+-	set_target_properties(signaltest PROPERTIES COMPILE_FLAGS -fPIC)
+-	add_test(NAME signaltest COMMAND "${CMAKE_CURRENT_BINARY_DIR}/signaltest" "-o" "${CMAKE_CURRENT_BINARY_DIR}/signaltest-xunit.xml,xunitxml" "-o" "-,txt")
+-	set_property(TEST signaltest PROPERTY ENVIRONMENT "LD_LIBRARY_PATH=.")
+-endif ()
++add_executable(signaltest signaltest.cpp)
++target_link_libraries(signaltest Qt6::Test ${DEE_QT_LIBNAME})
++set_target_properties(signaltest PROPERTIES COMPILE_FLAGS -fPIC)
++add_test(NAME signaltest COMMAND "${CMAKE_CURRENT_BINARY_DIR}/signaltest" "-o" "${CMAKE_CURRENT_BINARY_DIR}/signaltest-xunit.xml,xunitxml" "-o" "-,txt")
++set_property(TEST signaltest PROPERTY ENVIRONMENT "LD_LIBRARY_PATH=.")
+ 
+ add_executable(test-helper test-helper.cpp)
+ target_link_libraries(test-helper ${OUR_QT_CORE_LIB} ${OUR_QT_DBUS_LIB} ${DEE_LDFLAGS})
+ set_target_properties(test-helper PROPERTIES COMPILE_FLAGS -fPIC)
+ 
+ add_executable(deelistmodeltest deelistmodeltest.cpp)
+-target_link_libraries(deelistmodeltest ${OUR_QT_TEST_LIB} ${OUR_QT_DBUS_LIB} ${DEE_QT_LIBNAME})
++target_link_libraries(deelistmodeltest Qt6::Test ${OUR_QT_DBUS_LIB} ${DEE_QT_LIBNAME})
+ set_target_properties(deelistmodeltest PROPERTIES COMPILE_FLAGS -fPIC)
+ add_test(NAME deelistmodeltest COMMAND "dbus-test-runner" "--task" "${CMAKE_CURRENT_BINARY_DIR}/test-helper" "--task" "${CMAKE_CURRENT_BINARY_DIR}/deelistmodeltest" "-p" "-xunitxml" "-p" "-o" "-p" "deelistmodeltest-xunit.xml")
+ set_property(TEST deelistmodeltest PROPERTY ENVIRONMENT "LD_LIBRARY_PATH=.")
+diff --git a/tests/conversiontest.cpp b/tests/conversiontest.cpp
+index e36b81c..75e28ec 100644
+--- a/tests/conversiontest.cpp
++++ b/tests/conversiontest.cpp
+@@ -28,7 +28,6 @@ class ConversionTest : public QObject
+ private Q_SLOTS:
+     void initTestCase()
+     {
+-      g_type_init();
+     }
+ 
+     void ModelQVariantConversionTest()
+diff --git a/tests/deelistmodeltest.cpp b/tests/deelistmodeltest.cpp
+index 9540146..bd1c020 100644
+--- a/tests/deelistmodeltest.cpp
++++ b/tests/deelistmodeltest.cpp
+@@ -69,8 +69,6 @@ class DeeListModelTest : public QObject
+ private Q_SLOTS:
+     void initTestCase()
+     {
+-        g_type_init();
+-
+         QVERIFY(wait_until_test_service_appears());
+     }
+ 
+diff --git a/tests/test-helper.cpp b/tests/test-helper.cpp
+index 64d98ce..7e0e220 100644
+--- a/tests/test-helper.cpp
++++ b/tests/test-helper.cpp
+@@ -27,7 +27,6 @@ class TestControl : public QObject
+ public:
+     TestControl()
+     {
+-        g_type_init();
+         DeeModel* model = dee_shared_model_new("com.deeqt.test.model");
+         dee_model_set_schema(model, "b", NULL);
+ 
+diff --git a/tests/test_qtquick1.qml b/tests/test_qtquick1.qml
+deleted file mode 100644
+index bbb9428..0000000
+--- a/tests/test_qtquick1.qml
++++ /dev/null
+@@ -1,15 +0,0 @@
+-import QtQuick 1.0
+-import Dee 3.0
+-
+-ListView {
+-    width: 200
+-    height: 200
+-    delegate: Text {
+-        x: 66
+-        y: 93
+-        text: column_4
+-    }
+-    model: DeeListModel {
+-        name: "com.canonical.Unity.Lens.applications.T1313498309.Results"
+-    }
+-}
+diff --git a/variantconversions.cpp b/variantconversions.cpp
+index 56761c7..f0d78c3 100644
+--- a/variantconversions.cpp
++++ b/variantconversions.cpp
+@@ -24,35 +24,38 @@ GVariant* GVariantFromQVariant(const QVariant &var)
+ {
+     GVariant *gv = nullptr;
+ 
+-    switch (var.type()) {
+-        case QVariant::String:
+-            gv = g_variant_new_string(var.toString().toUtf8());
++    switch (var.typeId()) {
++        case QMetaType::QString: {
++            const QByteArray utf8 = var.toString().toUtf8();
++            gv = g_variant_new_string(utf8.constData());
+             break;
+-        case QVariant::UInt:
++        }
++        case QMetaType::UInt:
+             gv = g_variant_new_uint32(var.toUInt());
+             break;
+-        case QVariant::Int:
++        case QMetaType::Int:
+             gv = g_variant_new_int32(var.toInt());
+             break;
+-        case QVariant::LongLong:
++        case QMetaType::LongLong:
+             gv = g_variant_new_int64(var.toLongLong());
+             break;
+-        case QVariant::ULongLong:
++        case QMetaType::ULongLong:
+             gv = g_variant_new_uint64(var.toULongLong());
+             break;
+-        case QVariant::Double:
++        case QMetaType::Double:
+             gv = g_variant_new_double(var.toDouble());
+             break;
+-        case QVariant::Bool:
++        case QMetaType::Bool:
+             gv = g_variant_new_boolean(var.toBool());
+             break;
+-        case QVariant::Hash: {
++        case QMetaType::QVariantHash: {
+             const auto hash = var.toHash();
+             GVariant **children = new GVariant*[hash.size()];
+             int cnt = 0;
+             QHash<QString, QVariant>::const_iterator it = hash.constBegin();
+             while (it != hash.constEnd()) {
+-                GVariant *key = g_variant_new_string(it.key().toUtf8());
++                const QByteArray utf8 = it.key().toUtf8();
++                GVariant *key = g_variant_new_string(utf8.constData());
+                 children[cnt++] = g_variant_new_dict_entry(key, g_variant_new_variant(GVariantFromQVariant(it.value())));
+                 ++it;
+             }
+@@ -60,7 +63,7 @@ GVariant* GVariantFromQVariant(const QVariant &var)
+             delete [] children;
+             break;
+         }
+-        case QVariant::List: {
++        case QMetaType::QVariantList: {
+             const auto list = var.toList();
+             GVariant **children = new GVariant*[list.size()];
+             int i = 0;
+-- 
+2.54.0
+

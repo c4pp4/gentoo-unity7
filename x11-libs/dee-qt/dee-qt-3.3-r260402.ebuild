@@ -19,8 +19,8 @@ RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
 	>=dev-libs/dee-1.0.0:0=
-	>=dev-qt/qtcore-5.12.2:5
-	>=dev-qt/qtdeclarative-5.0.2:5
+	dev-qt/qtbase:6
+	dev-qt/qtdeclarative:6
 "
 RDEPEND="${COMMON_DEPEND}
 	>=dev-libs/glib-2.24.0:2
@@ -33,22 +33,11 @@ DEPEND="${COMMON_DEPEND}
 
 S="${S}${UVER}"
 
-src_prepare() {
-	# Fix build with CMake 4 #
-	sed -i "/cmake_minimum_required/{s/2\.8\.6/3.10/}" CMakeLists.txt || die
+PATCHES=( "${FILESDIR}"/Qt6-migration.patch )
 
-	# Fix lib #
-	sed -i "s:lib/::" CMakeLists.txt libdee-qt.pc.in || die
+src_prepare() {
+	# Make test optional #
+	use test || cmake_comment_add_subdirectory tests
 
 	ubuntu-versionator_src_prepare
-}
-
-src_configure() {
-	local mycmakeargs=(
-		-DWITHQT5=1
-		-DCMAKE_LIBRARY_ARCHITECTURE=$(get_libdir)
-		-DLIB_SUFFIX=""
-		-Wno-dev
-	)
-	cmake_src_configure
 }

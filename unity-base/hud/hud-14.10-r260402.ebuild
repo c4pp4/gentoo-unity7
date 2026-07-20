@@ -27,15 +27,10 @@ COMMON_DEPEND="
 	>=dev-libs/dee-0.5.2:0=[${PYTHON_SINGLE_USEDEP}]
 	>=dev-libs/glib-2.37.3:2
 	>=dev-libs/libcolumbus-1.1.0:0=[${PYTHON_SINGLE_USEDEP}]
-	>=dev-libs/libdbusmenu-qt-0.9.3_pre20160218
-	>=dev-qt/qtcore-5.15.1:5
-	>=dev-qt/qtdbus-5.0.2:5
-	>=dev-qt/qtgui-5.0.2:5[ibus]
-	>=dev-qt/qtsql-5.0.2:5[sqlite]
-	dev-qt/qttest:5
-	>=dev-qt/qtwidgets-5.0.2:5
-	>=x11-libs/dee-qt-3.3
-	>=x11-libs/gsettings-qt-0.1[qt5]
+	>=dev-libs/libdbusmenu-qt-0.9.3-r260402
+	dev-qt/qtbase:6[dbus,gui,sql,sqlite,widgets]
+	>=x11-libs/dee-qt-3.3-r260402
+	>=x11-libs/gsettings-qt-1.1.1-r260402
 	>=x11-libs/gtk+-3.5.4:3[introspection]
 
 	${PYTHON_DEPS}
@@ -65,8 +60,8 @@ DEPEND="${COMMON_DEPEND}
 	)
 	test? (
 		>=dev-cpp/gtest-1.6.0
-		>=dev-libs/libqtdbusmock-0.2[${PYTHON_SINGLE_USEDEP},qt5]
-		>=dev-libs/libqtdbustest-0.2[qt5]
+		>=dev-libs/libqtdbusmock-0.10.0-r260402[${PYTHON_SINGLE_USEDEP}]
+		>=dev-libs/libqtdbustest-0.4.0-r260402
 		x11-misc/xvfb-run
 	)
 
@@ -84,6 +79,8 @@ BDEPEND="
 
 S="${S}${UVER}"
 
+PATCHES=( "${FILESDIR}"/Qt6-migration.patch )
+
 wrap_distutils() {
 	pushd tools/hudkeywords >/dev/null || die
 		distutils-r1_${1}
@@ -98,17 +95,6 @@ src_prepare() {
 			-e '/subdirectory(libhud/d' \
 			docs/CMakeLists.txt || die
 	fi
-
-	# Don't try to find test deps #
-	if ! use test; then
-		sed -i \
-			-e '/QTDBUSTEST/d' \
-			-e '/QTDBUSMOCK/d' \
-			CMakeLists.txt || die
-	fi
-
-	# Fix build with CMake 4 #
-	sed -i "/cmake_minimum_required/{s/2\.8\.9/3.10/}" CMakeLists.txt || die
 
 	# Stop cmake doing the job of distutils #
 	sed -i \
@@ -127,19 +113,26 @@ src_prepare() {
 	wrap_distutils ${FUNCNAME}
 
 	ubuntu-versionator_src_prepare
+
+	# Don't try to find test deps #
+	if ! use test; then
+		sed -i \
+			-e '/QTDBUSTEST/d' \
+			-e '/QTDBUSMOCK/d' \
+			CMakeLists.txt || die
+	fi
 }
 
 src_configure() {
 	local mycmakeargs=(
 		-DBUILD_SHARED_LIBS=OFF
 		-DCMAKE_INSTALL_DATADIR=/usr/share
-		-DCMAKE_POLICY_VERSION_MINIMUM=3.10
+		-DCMAKE_POLICY_VERSION_MINIMUM=3.16
 		-DENABLE_BAMF=ON
 		-DENABLE_DOCUMENTATION=$(usex doc ON OFF)
 		-DENABLE_TESTS=$(usex test ON OFF)
 		-DVALA_COMPILER=${VALAC}
 		-DVAPI_GEN=${VAPIGEN}
-		-Wno-dev
 	)
 	cmake_src_configure
 
@@ -156,14 +149,4 @@ src_install() {
 
 	wrap_distutils ${FUNCNAME}
 	python_optimize
-}
-
-pkg_postinst() {
-	ubuntu-versionator_pkg_postinst
-
-	echo
-	ewarn "Qt5 is no longer under active development and is not supported."
-	ewarn "In Gentoo Unity⁷, Qt5 packages are required for unity-base/hud."
-	ewarn "If you decide to use HUD anyway, you do so at your own risk."
-	echo
 }

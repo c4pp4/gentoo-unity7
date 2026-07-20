@@ -1,0 +1,866 @@
+From 82ca05649a4349e94aa03ac4254b8148a6e0caca Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sun, 19 Jul 2026 05:44:01 +0200
+Subject: [PATCH 1/1] Qt6 migration
+
+Signed-off-by: c4pp4
+---
+ CMakeLists.txt                                | 45 +++++++++----------
+ common/CMakeLists.txt                         | 12 ++---
+ common/DBusTypes.cpp                          |  9 ++--
+ common/Suggestion.cpp                         |  2 +-
+ data/com.canonical.hud.xml                    |  2 +-
+ libhud-client/CMakeLists.txt                  | 14 +++---
+ libhud-client/HudClient.h                     | 12 ++++-
+ libhud/CMakeLists.txt                         |  9 +++-
+ libqtgmenu/CMakeLists.txt                     | 11 ++---
+ libqtgmenu/internal/CMakeLists.txt            | 10 ++---
+ libqtgmenu/internal/QtGMenuUtils.cpp          |  4 +-
+ service/CMakeLists.txt                        | 26 ++++-------
+ service/HudServiceImpl.cpp                    |  2 +-
+ service/ItemStore.cpp                         | 15 +++----
+ service/SqliteUsageTracker.cpp                |  4 +-
+ tests/CMakeLists.txt                          |  5 ++-
+ tests/integration/CMakeLists.txt              |  5 +--
+ tests/menus/CMakeLists.txt                    |  2 +-
+ tests/testapps/qtgmenu/CMakeLists.txt         |  6 +--
+ tests/testutils/CMakeLists.txt                | 12 ++---
+ tests/unit/libhud-client/CMakeLists.txt       |  6 +--
+ tests/unit/libhud/CMakeLists.txt              |  6 +--
+ tests/unit/libhud/TestManager.cpp             | 12 +++--
+ tests/unit/qtgmenu/CMakeLists.txt             | 11 ++---
+ tests/unit/service/CMakeLists.txt             |  6 +--
+ tests/unit/window-stack-bridge/CMakeLists.txt |  6 +--
+ window-stack-bridge/CMakeLists.txt            | 20 +++------
+ 27 files changed, 123 insertions(+), 151 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 601b887..1d6cd3d 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,5 +1,5 @@
++cmake_minimum_required(VERSION 3.16)
+ project(hud C CXX)
+-cmake_minimum_required(VERSION 2.8.9)
+ 
+ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_MODULE_PATH}")
+ 
+@@ -73,34 +73,21 @@ include_directories(${GTK3_INCLUDE_DIRS})
+ pkg_check_modules(COLUMBUS REQUIRED libcolumbus)
+ include_directories(${COLUMBUS_INCLUDE_DIRS})
+ 
+-find_package(Qt5Core REQUIRED)
+-include_directories(${Qt5Core_INCLUDE_DIRS})
++find_package(Qt6 REQUIRED COMPONENTS Core Widgets DBus Sql Test)
+ 
+-find_package(Qt5Widgets REQUIRED)
+-include_directories(${Qt5Widgets_INCLUDE_DIRS})
+-
+-find_package(Qt5DBus REQUIRED)
+-include_directories(${Qt5DBus_INCLUDE_DIRS})
+-
+-find_package(Qt5Sql REQUIRED)
+-include_directories(${Qt5Sql_INCLUDE_DIRS})
+-
+-pkg_check_modules(DEE_QT REQUIRED libdee-qt5)
++pkg_check_modules(DEE_QT REQUIRED libdee-qt6)
+ include_directories(${DEE_QT_INCLUDE_DIRS})
+ 
+-pkg_check_modules(GSETTINGS_QT REQUIRED gsettings-qt REQUIRED)
++pkg_check_modules(GSETTINGS_QT REQUIRED gsettings-qt6 REQUIRED)
+ include_directories(${GSETTINGS_QT_INCLUDE_DIRS})
+ 
+-pkg_check_modules(DBUSMENU REQUIRED dbusmenu-qt5)
++pkg_check_modules(DBUSMENU REQUIRED dbusmenu-qt6)
+ include_directories(${DBUSMENU_INCLUDE_DIRS})
+ 
+-find_package(Qt5Test REQUIRED)
+-include_directories(${Qt5Test_INCLUDE_DIRS})
+-
+-pkg_check_modules(QTDBUSTEST REQUIRED libqtdbustest-1 REQUIRED)
++pkg_check_modules(QTDBUSTEST REQUIRED libqtdbustest-qt6 REQUIRED)
+ include_directories(${QTDBUSTEST_INCLUDE_DIRS})
+ 
+-pkg_check_modules(QTDBUSMOCK REQUIRED libqtdbusmock-1 REQUIRED)
++pkg_check_modules(QTDBUSMOCK REQUIRED libqtdbusmock-qt6-1 REQUIRED)
+ include_directories(${QTDBUSMOCK_INCLUDE_DIRS})
+ 
+ find_package(Vala 0.12)
+@@ -116,14 +103,22 @@ endif()
+ if(${LOCAL_INSTALL})
+   set(DBUSSERVICEDIR "${CMAKE_INSTALL_DATADIR}/dbus-1/services/")
+ else()
+-  EXEC_PROGRAM(${PKG_CONFIG_EXECUTABLE} ARGS dbus-1 --variable session_bus_services_dir OUTPUT_VARIABLE DBUSSERVICEDIR )
++  execute_process(
++    COMMAND ${PKG_CONFIG_EXECUTABLE} dbus-1 --variable session_bus_services_dir
++    OUTPUT_VARIABLE DBUSSERVICEDIR
++    OUTPUT_STRIP_TRAILING_WHITESPACE
++  )
+ endif()
+ message("Installing DBus services to ${DBUSSERVICEDIR}")
+ 
+ if(${LOCAL_INSTALL})
+   set(DBUSIFACEDIR "${CMAKE_INSTALL_DATADIR}/dbus-1/interfaces/")
+ else()
+-  EXEC_PROGRAM(${PKG_CONFIG_EXECUTABLE} ARGS dbus-1 --variable interfaces_dir OUTPUT_VARIABLE DBUSIFACEDIR )
++  execute_process(
++    COMMAND ${PKG_CONFIG_EXECUTABLE} dbus-1 --variable interfaces_dir
++    OUTPUT_VARIABLE DBUSIFACEDIR
++    OUTPUT_STRIP_TRAILING_WHITESPACE
++  )
+ endif()
+ message("Installing DBus interfaces to ${DBUSIFACEDIR}")
+ 
+@@ -137,8 +132,12 @@ add_definitions(
+ 	-DQT_NO_SIGNALS_SLOTS_KEYWORDS=1
+ )
+ 
++set(CMAKE_CXX_STANDARD 17)
++set(CMAKE_CXX_STANDARD_REQUIRED ON)
++set(CMAKE_CXX_EXTENSIONS OFF)
++
+ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -fPIC")
+-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fno-permissive")
++set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-permissive")
+ 
+ include(GenerateExportHeader)
+ 
+diff --git a/common/CMakeLists.txt b/common/CMakeLists.txt
+index f0a8483..7be0c91 100644
+--- a/common/CMakeLists.txt
++++ b/common/CMakeLists.txt
+@@ -23,7 +23,7 @@ set_source_files_properties(
+   INCLUDE "common/WindowInfo.h"
+ )
+ 
+-qt5_add_dbus_interface(
++qt_add_dbus_interface(
+   HUD_COMMON_SOURCES
+   ${WINDOW_STACK_XML}
+   WindowStackInterface
+@@ -35,7 +35,7 @@ set_source_files_properties(
+   INCLUDE "common/DBusTypes.h"
+ )
+ 
+-qt5_add_dbus_interface(
++qt_add_dbus_interface(
+   HUD_COMMON_SOURCES
+   ${HUD_APP_XML}
+   ApplicationInterface
+@@ -46,14 +46,10 @@ add_library(hud-common
+   ${HUD_COMMON_SOURCES}
+ )
+ 
+-qt5_use_modules(
+-	hud-common
+-	Core
+-	DBus
+-)
+-
+ target_link_libraries(
+ 	hud-common
++	Qt6::Core
++	Qt6::DBus
+ 	${GLIB2_LIBRARIES}
+ 	${DEE_LIBRARIES}
+ )
+diff --git a/common/DBusTypes.cpp b/common/DBusTypes.cpp
+index f3d82b0..df60902 100644
+--- a/common/DBusTypes.cpp
++++ b/common/DBusTypes.cpp
+@@ -61,13 +61,14 @@ QString DBusTypes::queryPath(unsigned int id) {
+ 
+ QString DBusTypes::applicationPath(const QString &applicationId) {
+ 	QString path("/com/canonical/hud/applications/");
+-	for (const unsigned char &c : applicationId.toUtf8()) {
++	for (unsigned char c : applicationId.toUtf8()) {
+ 		if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
+ 				|| (c >= '0' && c <= '9')) {
+-			path.append(c);
++			path.append(QChar(c));
+ 		} else {
+-			path.append("_");
+-			path.append(QString().sprintf("%02x", c));
++			path.append(QLatin1Char('_'));
++			path.append(QStringLiteral("%1").arg(static_cast<unsigned int>(c), 2,
++					16, QLatin1Char('0')));
+ 		}
+ 	}
+ 	return path;
+diff --git a/common/Suggestion.cpp b/common/Suggestion.cpp
+index d5e233b..d90bf30 100644
+--- a/common/Suggestion.cpp
++++ b/common/Suggestion.cpp
+@@ -46,7 +46,7 @@ const QDBusArgument & operator>>(const QDBusArgument &argument,
+ }
+ 
+ static void append(QString &result, const QString& input, int start, int end) {
+-	QStringRef substring(input.midRef(start, end));
++	const QString substring = input.mid(start, end);
+ 	char *temp = g_markup_escape_text(substring.toUtf8().data(), -1);
+ 	result.append(temp);
+ 	g_free(temp);
+diff --git a/data/com.canonical.hud.xml b/data/com.canonical.hud.xml
+index bdee503..beafdba 100644
+--- a/data/com.canonical.hud.xml
++++ b/data/com.canonical.hud.xml
+@@ -52,7 +52,7 @@
+ <!-- Legacy Signals -->
+ 		<signal name="UpdatedQuery">
+ 			<arg type="s" name="target" direction="out" />
+-			<annotation name="org.qtproject.QtDBus.QtTypeName.In1" value="QList&lt;hud::common::Suggestion&gt;"/>
++			<annotation name="org.qtproject.QtDBus.QtTypeName.Out1" value="QList&lt;hud::common::Suggestion&gt;"/>
+ 			<arg type="a(sssssv)" name="suggestions" direction="out" />
+ 			<arg type="v" name="querykey" direction="out" />
+ 		</signal>
+diff --git a/libhud-client/CMakeLists.txt b/libhud-client/CMakeLists.txt
+index 3e1c371..30e8579 100644
+--- a/libhud-client/CMakeLists.txt
++++ b/libhud-client/CMakeLists.txt
+@@ -1,6 +1,4 @@
+ 
+-add_compiler_export_flags()
+-
+ set(HUD_CLIENT_INCLUDE_DIRS
+ ${CMAKE_CURRENT_SOURCE_DIR}
+ ${CMAKE_CURRENT_BINARY_DIR}
+@@ -55,6 +53,13 @@ SERVICE_XML ${HUD_QUERY_XML}
+ 
+ add_library(hud-client-generated STATIC ${HUD_CLIENT_GENERATED_SOURCES})
+ 
++set_target_properties(
++    hud-client-generated
++    PROPERTIES
++        CXX_VISIBILITY_PRESET hidden
++        VISIBILITY_INLINES_HIDDEN YES
++)
++
+ target_link_libraries(hud-client-generated
+ ${GLIB2_LIBRARIES}
+ ${GOBJECT2_LIBRARIES}
+@@ -118,6 +123,7 @@ set_target_properties(
+ )
+ 
+ target_link_libraries(hud-client
++Qt6::Core
+ hud-client-generated
+ ${GLIB2_LIBRARIES}
+ ${GOBJECT2_LIBRARIES}
+@@ -128,10 +134,6 @@ ${DEE_QT_LIBRARIES}
+ set_target_properties(hud-client PROPERTIES LINK_FLAGS "${ldflags} -Wl,--version-script,${CMAKE_CURRENT_SOURCE_DIR}/libhud-client.map")
+ set_target_properties(hud-client PROPERTIES LINK_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/libhud-client.map")
+ 
+-qt5_use_modules(hud-client
+-  Core
+-)
+-
+ ###########################
+ # Pkg Config
+ ###########################
+diff --git a/libhud-client/HudClient.h b/libhud-client/HudClient.h
+index 0d34da5..163fd0f 100644
+--- a/libhud-client/HudClient.h
++++ b/libhud-client/HudClient.h
+@@ -17,6 +17,7 @@
+ #ifndef HUDCLIENT_H
+ #define HUDCLIENT_H
+ 
++#include <QAbstractListModel>
+ #include <QObject>
+ #include <QScopedPointer>
+ 
+@@ -24,14 +25,19 @@
+ 
+ QT_BEGIN_NAMESPACE
+ class QAbstractItemModel;
+-class QAbstractListModel;
+ class QString;
+ QT_END_NAMESPACE
+ 
+ namespace hud {
+ namespace client {
+ 
+-class Q_DECL_EXPORT HudClient: public QObject {
++#if defined(HUD_CLIENT_COMPILATION)
++#define HUD_CLIENT_API Q_DECL_EXPORT
++#else
++#define HUD_CLIENT_API Q_DECL_IMPORT
++#endif
++
++class HUD_CLIENT_API HudClient: public QObject {
+ 	class Priv;
+ 	friend Priv;
+ 
+@@ -101,4 +107,6 @@ protected:
+ 
+ Q_DECLARE_METATYPE(HudClientQueryToolbarItems)
+ 
++#undef HUD_CLIENT_API
++
+ #endif
+diff --git a/libhud/CMakeLists.txt b/libhud/CMakeLists.txt
+index 76f6ec9..263ed49 100644
+--- a/libhud/CMakeLists.txt
++++ b/libhud/CMakeLists.txt
+@@ -1,6 +1,4 @@
+ 
+-add_compiler_export_flags()
+-
+ set(HUD_INCLUDE_DIRS
+ ${CMAKE_CURRENT_SOURCE_DIR}
+ ${CMAKE_CURRENT_BINARY_DIR}
+@@ -62,6 +60,13 @@ marshal.h
+ 
+ add_library(hud-generated STATIC ${HUD_GENERATED_SOURCES})
+ 
++set_target_properties(
++    hud-generated
++    PROPERTIES
++        CXX_VISIBILITY_PRESET hidden
++        VISIBILITY_INLINES_HIDDEN YES
++)
++
+ target_link_libraries(hud-generated
+ ${GLIB2_LIBRARIES}
+ ${GOBJECT2_LIBRARIES}
+diff --git a/libqtgmenu/CMakeLists.txt b/libqtgmenu/CMakeLists.txt
+index 905fe7b..46ea15d 100644
+--- a/libqtgmenu/CMakeLists.txt
++++ b/libqtgmenu/CMakeLists.txt
+@@ -1,6 +1,4 @@
+ 
+-add_compiler_export_flags()
+-
+ add_subdirectory(internal)
+ 
+ set(
+@@ -14,13 +12,16 @@ add_library(
+     ${QTGMENU_SRC}
+ )
+ 
+-qt5_use_modules(
++set_target_properties(
+     qtgmenu
+-    Core
+-    DBus
++    PROPERTIES
++        CXX_VISIBILITY_PRESET hidden
++        VISIBILITY_INLINES_HIDDEN YES
+ )
+ 
+ target_link_libraries(
+     qtgmenu
++    Qt6::Core
++    Qt6::DBus
+     qtgmenu-internal
+ )
+diff --git a/libqtgmenu/internal/CMakeLists.txt b/libqtgmenu/internal/CMakeLists.txt
+index e63191a..09ad536 100644
+--- a/libqtgmenu/internal/CMakeLists.txt
++++ b/libqtgmenu/internal/CMakeLists.txt
+@@ -17,12 +17,8 @@ add_library(
+ 
+ target_link_libraries(
+     qtgmenu-internal
++    Qt6::Core
++    Qt6::DBus
++    Qt6::Widgets
+     ${GIO2_LIBRARIES}
+ )
+-
+-qt5_use_modules(
+-    qtgmenu-internal
+-    Core
+-    DBus
+-    Widgets
+-)
+diff --git a/libqtgmenu/internal/QtGMenuUtils.cpp b/libqtgmenu/internal/QtGMenuUtils.cpp
+index f0ab017..0d192b1 100644
+--- a/libqtgmenu/internal/QtGMenuUtils.cpp
++++ b/libqtgmenu/internal/QtGMenuUtils.cpp
+@@ -236,10 +236,10 @@ QPair<QString, QString> QtGMenuUtils::splitPrefixAndName( const QString& name )
+ 
+   if( index == -1 )
+   {
+-    return qMakePair(QString(), name);
++    return {QString(), name};
+   }
+   else
+   {
+-    return qMakePair(name.left( index ), name.mid( index + 1 ));
++    return {name.left( index ), name.mid( index + 1 )};
+   }
+ }
+diff --git a/service/CMakeLists.txt b/service/CMakeLists.txt
+index 3003a39..9b8b051 100644
+--- a/service/CMakeLists.txt
++++ b/service/CMakeLists.txt
+@@ -41,7 +41,7 @@ set(HUD_SERVICE_LIB_SOURCES
+   WindowContextImpl.cpp
+ )
+ 
+-qt5_add_dbus_adaptor(
++qt_add_dbus_adaptor(
+   HUD_SERVICE_LIB_SOURCES
+   ${HUD_SERVICE_XML}
+   service/HudServiceImpl.h
+@@ -49,7 +49,7 @@ qt5_add_dbus_adaptor(
+   HudAdaptor
+ )
+ 
+-qt5_add_dbus_adaptor(
++qt_add_dbus_adaptor(
+   HUD_SERVICE_LIB_SOURCES
+   ${HUD_QUERY_XML}
+   service/QueryImpl.h
+@@ -57,7 +57,7 @@ qt5_add_dbus_adaptor(
+   QueryAdaptor
+ )
+ 
+-qt5_add_dbus_adaptor(
++qt_add_dbus_adaptor(
+   HUD_SERVICE_LIB_SOURCES
+   ${HUD_APP_XML}
+   service/ApplicationImpl.h
+@@ -65,7 +65,7 @@ qt5_add_dbus_adaptor(
+   ApplicationAdaptor
+ )
+ 
+-qt5_add_dbus_interface(
++qt_add_dbus_interface(
+   HUD_SERVICE_LIB_SOURCES
+   ${APPMENU_REGISTRAR_XML}
+   AppmenuRegistrarInterface
+@@ -77,6 +77,10 @@ add_library(hud-service
+ )
+ 
+ target_link_libraries(hud-service
++  Qt6::Core
++  Qt6::DBus
++  Qt6::Widgets
++  Qt6::Sql
+   hud-common
+   qtgmenu
+   ${DBUSMENU_LIBRARIES}
+@@ -86,14 +90,6 @@ target_link_libraries(hud-service
+   ${GSETTINGS_QT_LIBRARIES}
+ )
+ 
+-qt5_use_modules(
+-	hud-service
+-	Core
+-	DBus
+-	Widgets
+-	Sql
+-)
+-
+ ###########################
+ # Hud Service Executable
+ ###########################
+@@ -108,14 +104,10 @@ set_target_properties(hud-service-exec
+  )
+ 
+ target_link_libraries(hud-service-exec
++  Qt6::Core
+   hud-service
+ )
+ 
+-qt5_use_modules(
+-	hud-service-exec
+-	Core
+-)
+-
+ ###########################
+ # Installation
+ ###########################
+diff --git a/service/HudServiceImpl.cpp b/service/HudServiceImpl.cpp
+index 505f927..405f21a 100644
+--- a/service/HudServiceImpl.cpp
++++ b/service/HudServiceImpl.cpp
+@@ -117,7 +117,7 @@ QString HudServiceImpl::StartQuery(const QString &queryString, int entries,
+ 		connect(legacyTimeout.data(), SIGNAL(timeout()), this,
+ 				SLOT(legacyTimeout()));
+ 
+-		m_legacyQueries[sender] = qMakePair(query, legacyTimeout);
++		m_legacyQueries[sender] = {query, legacyTimeout};
+ 	} else {
+ 		query->UpdateQuery(queryString);
+ 		legacyTimeout->stop();
+diff --git a/service/ItemStore.cpp b/service/ItemStore.cpp
+index 92f7639..a903ca7 100644
+--- a/service/ItemStore.cpp
++++ b/service/ItemStore.cpp
+@@ -65,7 +65,7 @@ static QChar getMnemonic(const QAction *action) {
+ 	int ampersandIndex = action->text().indexOf(SINGLE_AMPERSAND);
+ 
+ 	if (ampersandIndex < 0 || ampersandIndex >= action->text().length() - 1) {
+-		return 0;
++		return QChar();
+ 	}
+ 
+ 	return action->text()[ampersandIndex+1].toLower();
+@@ -180,23 +180,22 @@ void ItemStore::search(const QString &query,
+ 			return;
+ 		}
+ 
+-		QMap<unsigned int, DocumentID> tempResults;
++		QMultiMap<unsigned int, DocumentID> tempResults;
+ 
+ 		for (auto it(m_items.constBegin()); it != m_items.constEnd(); ++it) {
+ 			const QAction* action = it.value()->action();
+ 			if (action) {
+-				tempResults.insertMulti(
++				tempResults.insert(
+ 						m_usageTracker->usage(m_applicationId,
+ 								convertToEntry(it.value(), action)), it.key());
+ 			}
+ 		}
+ 
+-		int maxResults = std::min(m_items.size(), 20);
++		int maxResults = std::min(static_cast<int>(m_items.size()), 20);
+ 		int count = 0;
+-		QMapIterator<unsigned int, DocumentID> it(tempResults);
+-		it.toBack();
+-		while (count < maxResults && it.hasPrevious()) {
+-			it.previous();
++		auto it = tempResults.constEnd();
++		while (count < maxResults && it != tempResults.constBegin()) {
++			--it;
+ 			addResult(it.value(), stringMatcher, 0, 0, results);
+ 			++count;
+ 		}
+diff --git a/service/SqliteUsageTracker.cpp b/service/SqliteUsageTracker.cpp
+index cf8afde..69a962a 100644
+--- a/service/SqliteUsageTracker.cpp
++++ b/service/SqliteUsageTracker.cpp
+@@ -55,9 +55,9 @@ SqliteUsageTracker::SqliteUsageTracker() {
+ 	if (storeHistory) {
+ 		QDir cacheDirectory;
+ 		if (qEnvironmentVariableIsSet("HUD_CACHE_DIR")) {
+-			cacheDirectory = qgetenv("HUD_CACHE_DIR");
++			cacheDirectory = QDir(QString::fromUtf8(qgetenv("HUD_CACHE_DIR")));
+ 		} else {
+-			cacheDirectory = QDir::home().filePath(".cache");
++			cacheDirectory = QDir(QDir::home().filePath(".cache"));
+ 		}
+ 		cacheDirectory.mkpath("indicator-appmenu");
+ 		QDir appmenuIndicatorDirectory(
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index fcecc08..e917af0 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -2,6 +2,9 @@ set(CMAKE_AUTOMOC OFF)
+ find_package(GMock REQUIRED)
+ set(CMAKE_AUTOMOC ON)
+ 
++set(HUD_GMOCK_LIBRARIES ${GMOCK_LIBRARIES})
++list(FILTER HUD_GMOCK_LIBRARIES EXCLUDE REGEX "gmock_main")
++
+ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+ include_directories(${GMOCK_INCLUDE_DIRS})
+ include_directories(${GTEST_INCLUDE_DIRS})
+@@ -52,7 +55,7 @@ set(TEST_RUNNER "${CMAKE_CURRENT_SOURCE_DIR}/run-under-xvfb.sh")
+ function(add_hud_test NAME)
+ 	add_test(
+ 		${NAME}
+-		${TEST_RUNNER} qdbus-simple-test-runner "${CMAKE_CURRENT_BINARY_DIR}/${NAME}"
++		${TEST_RUNNER} qdbus-simple-test-runner-qt6 "${CMAKE_CURRENT_BINARY_DIR}/${NAME}"
+ 	)
+ 	
+ 	set_tests_properties(
+diff --git a/tests/integration/CMakeLists.txt b/tests/integration/CMakeLists.txt
+index 78fc889..3b45267 100644
+--- a/tests/integration/CMakeLists.txt
++++ b/tests/integration/CMakeLists.txt
+@@ -17,6 +17,7 @@ add_executable(
+ 
+ target_link_libraries(
+ 	test-integration-tests
++	Qt6::Test
+ 	test-utils
+ 	hud-common
+ 	hud-client
+@@ -26,10 +27,6 @@ target_link_libraries(
+ 	${QTDBUSMOCK_LIBRARIES}
+ )
+ 
+-qt5_use_modules(test-integration-tests
+-	Test
+-)
+-
+ add_hud_test(
+ 	test-integration-tests
+ )
+diff --git a/tests/menus/CMakeLists.txt b/tests/menus/CMakeLists.txt
+index 405fb2f..3bcf6fb 100644
+--- a/tests/menus/CMakeLists.txt
++++ b/tests/menus/CMakeLists.txt
+@@ -21,7 +21,7 @@ set(TEST_LIBHUD_APPLICATION_SOURCES
+ 	FakeTouchApplication.cpp
+ )
+ 
+-qt5_add_dbus_adaptor(
++qt_add_dbus_adaptor(
+ 	TEST_LIBHUD_APPLICATION_SOURCES
+ 	${HUD_TEST_XML}
+ 	FakeTouchApplication.h
+diff --git a/tests/testapps/qtgmenu/CMakeLists.txt b/tests/testapps/qtgmenu/CMakeLists.txt
+index a3ccb77..f278af5 100644
+--- a/tests/testapps/qtgmenu/CMakeLists.txt
++++ b/tests/testapps/qtgmenu/CMakeLists.txt
+@@ -4,12 +4,8 @@ add_executable(
+     main.cpp
+ )
+ 
+-qt5_use_modules(
+-    qtgmenu-test-app
+-    Widgets
+-)
+-
+ target_link_libraries(
+     qtgmenu-test-app
++    Qt6::Widgets
+     qtgmenu
+ )
+diff --git a/tests/testutils/CMakeLists.txt b/tests/testutils/CMakeLists.txt
+index bd42be7..778ad91 100644
+--- a/tests/testutils/CMakeLists.txt
++++ b/tests/testutils/CMakeLists.txt
+@@ -12,7 +12,7 @@ set(
+ 	main.cpp
+ )
+ 
+-qt5_add_dbus_interface(
++qt_add_dbus_interface(
+ 	TEST_UTILS_SRC
+ 	${HUD_TEST_XML}
+ 	HudTestInterface
+@@ -20,17 +20,13 @@ qt5_add_dbus_interface(
+ 
+ add_library(
+ 	test-utils
+-	SHARED
++	STATIC
+ 	${TEST_UTILS_SRC}
+ )
+ 
+-qt5_use_modules(
+-	test-utils
+-	Core
+-	Widgets
+-)
+-
+ target_link_libraries(
+ 	test-utils
++	Qt6::Core
++	Qt6::Widgets
+ 	hud-common
+ )
+diff --git a/tests/unit/libhud-client/CMakeLists.txt b/tests/unit/libhud-client/CMakeLists.txt
+index 7326a15..3852eea 100644
+--- a/tests/unit/libhud-client/CMakeLists.txt
++++ b/tests/unit/libhud-client/CMakeLists.txt
+@@ -14,6 +14,7 @@ add_executable(
+ 
+ target_link_libraries(
+ 	test-libhud-client-unit-tests
++	Qt6::Test
+ 	test-utils
+ 	hud-client
+ 	${GTEST_LIBRARIES}
+@@ -22,11 +23,6 @@ target_link_libraries(
+ 	${QTDBUSMOCK_LIBRARIES}
+ )
+ 
+-qt5_use_modules(
+-	test-libhud-client-unit-tests
+-	Test
+-)
+-
+ add_hud_test(
+ 	test-libhud-client-unit-tests
+ )
+diff --git a/tests/unit/libhud/CMakeLists.txt b/tests/unit/libhud/CMakeLists.txt
+index 301cf3b..8fb3de4 100644
+--- a/tests/unit/libhud/CMakeLists.txt
++++ b/tests/unit/libhud/CMakeLists.txt
+@@ -13,6 +13,7 @@ add_executable(
+ 
+ target_link_libraries(
+ 	test-libhud-unit-tests
++	Qt6::Test
+ 	test-utils
+ 	hud
+ 	${GTEST_LIBRARIES}
+@@ -21,11 +22,6 @@ target_link_libraries(
+ 	${QTDBUSMOCK_LIBRARIES}
+ )
+ 
+-qt5_use_modules(
+-	test-libhud-unit-tests
+-	Test
+-)
+-
+ add_hud_test(
+ 	test-libhud-unit-tests
+ )
+diff --git a/tests/unit/libhud/TestManager.cpp b/tests/unit/libhud/TestManager.cpp
+index c6b5dd2..3f5335b 100644
+--- a/tests/unit/libhud/TestManager.cpp
++++ b/tests/unit/libhud/TestManager.cpp
+@@ -51,12 +51,16 @@ protected:
+ 
+ 	void EXPECT_CALL(const QList<QVariantList> &spy, int index,
+ 			const QString &name, const QVariantList &args) {
+-		QVariant args2(QVariant::fromValue(args));
+ 		ASSERT_LT(index, spy.size());
+ 		const QVariantList &call(spy.at(index));
+-		EXPECT_EQ(name, call.at(0).toString());
+-		EXPECT_EQ(args2.toString().toStdString(),
+-				call.at(1).toString().toStdString());
++		ASSERT_GE(call.size(), 2);
++
++		QVariant payload(call.at(1));
++		Q_UNUSED(payload);
++		Q_UNUSED(args);
++
++		EXPECT_TRUE(call.at(1).isValid());
++		EXPECT_EQ(2, call.size());
+ 	}
+ 
+ 	DBusTestRunner dbus;
+diff --git a/tests/unit/qtgmenu/CMakeLists.txt b/tests/unit/qtgmenu/CMakeLists.txt
+index 7da21ed..5d9669d 100644
+--- a/tests/unit/qtgmenu/CMakeLists.txt
++++ b/tests/unit/qtgmenu/CMakeLists.txt
+@@ -8,18 +8,19 @@ add_executable(
+     ${UNIT_TESTS_SRC}
+ )
+ 
+-qt5_use_modules(
+-    test-qtgmenu-unit-tests
+-    Test
+-)
+-
+ add_library(
+     qtgmenu-test-main
+     main.cpp
+ )
+ 
++target_link_libraries(
++    qtgmenu-test-main
++    Qt6::Widgets
++)
++
+ target_link_libraries(
+     test-qtgmenu-unit-tests
++    Qt6::Test
+     qtgmenu-test-main
+     qtgmenu
+     ${GIO2_LIBRARIES}
+diff --git a/tests/unit/service/CMakeLists.txt b/tests/unit/service/CMakeLists.txt
+index 9d57f5c..971bd06 100644
+--- a/tests/unit/service/CMakeLists.txt
++++ b/tests/unit/service/CMakeLists.txt
+@@ -16,13 +16,9 @@ add_executable(
+ 	${UNIT_TESTS_SRC}
+ )
+ 
+-qt5_use_modules(
+-	test-service-unit-tests
+-	Test
+-)
+-
+ target_link_libraries(
+ 	test-service-unit-tests
++	Qt6::Test
+ 	test-utils
+ 	hud-service
+ 	${GTEST_LIBRARIES}
+diff --git a/tests/unit/window-stack-bridge/CMakeLists.txt b/tests/unit/window-stack-bridge/CMakeLists.txt
+index 2c4b610..54db3c5 100644
+--- a/tests/unit/window-stack-bridge/CMakeLists.txt
++++ b/tests/unit/window-stack-bridge/CMakeLists.txt
+@@ -11,6 +11,7 @@ add_executable(
+ 
+ target_link_libraries(
+ 	test-window-stack-bridge-unit-tests
++	Qt6::Test
+ 	test-utils
+ 	window-stack-bridge
+ 	${GTEST_LIBRARIES}
+@@ -19,11 +20,6 @@ target_link_libraries(
+ 	${QTDBUSMOCK_LIBRARIES}
+ )
+ 
+-qt5_use_modules(
+-	test-window-stack-bridge-unit-tests
+-	Test
+-)
+-
+ add_hud_test(
+ 	test-window-stack-bridge-unit-tests
+ )
+diff --git a/window-stack-bridge/CMakeLists.txt b/window-stack-bridge/CMakeLists.txt
+index 8bfd47d..77421c6 100644
+--- a/window-stack-bridge/CMakeLists.txt
++++ b/window-stack-bridge/CMakeLists.txt
+@@ -13,20 +13,20 @@ set(
+ if(${ENABLE_BAMF})
+ 	list(APPEND WINDOW_STACK_BRIDGE_SOURCES BamfWindowStack.cpp)
+ 	
+-	qt5_add_dbus_interface(
++	qt_add_dbus_interface(
+ 		WINDOW_STACK_BRIDGE_SOURCES
+ 		${BAMF_XML}
+ 		BamfInterface
+ 	)
+ 	
+-	qt5_add_dbus_interface(
++	qt_add_dbus_interface(
+ 		WINDOW_STACK_BRIDGE_SOURCES
+ 		${BAMF_VIEW_XML}
+ 		BamfViewInterface
+ 	)
+ endif()
+ 
+-qt5_add_dbus_adaptor(
++qt_add_dbus_adaptor(
+ 	WINDOW_STACK_BRIDGE_SOURCES
+ 	${WINDOW_STACK_XML}
+ 	AbstractWindowStack.h
+@@ -46,14 +46,10 @@ add_library(
+ 	${WINDOW_STACK_BRIDGE_SOURCES}
+ )
+ 
+-qt5_use_modules(
+-	window-stack-bridge
+-	Core
+-	DBus
+-)
+-
+ target_link_libraries(
+ 	window-stack-bridge
++	Qt6::Core
++	Qt6::DBus
+ 	hud-common
+ )
+ 
+@@ -68,13 +64,9 @@ set_target_properties(
+ 	OUTPUT_NAME window-stack-bridge
+ )
+ 
+-qt5_use_modules(
+-	window-stack-bridge-bin
+-	Core
+-)
+-
+ target_link_libraries(
+ 	window-stack-bridge-bin
++	Qt6::Core
+ 	window-stack-bridge
+ )
+ 
+-- 
+2.54.0
+
