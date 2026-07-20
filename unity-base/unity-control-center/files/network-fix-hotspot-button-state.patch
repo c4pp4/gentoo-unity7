@@ -1,0 +1,133 @@
+From c6b9e6131e604db32e11df5f4402361e341868e8 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Mon, 20 Jul 2026 13:08:13 +0200
+Subject: [PATCH 1/1] Network: fix hotspot button state
+
+NetworkManager permissions are loaded asynchronously. When the network
+panel is constructed, nm_client_get_permission_result() may return
+NM_CLIENT_PERMISSION_RESULT_UNKNOWN and Wi-Fi capabilities may not be
+available yet. This caused the hotspot button to be permanently disabled.
+
+Recheck the hotspot state when permissions-state or capabilities change.
+
+Signed-off-by: c4pp4
+---
+ panels/network/net-device-wifi.c | 77 ++++++++++++++++++++++++--------
+ 1 file changed, 59 insertions(+), 18 deletions(-)
+
+diff --git a/panels/network/net-device-wifi.c b/panels/network/net-device-wifi.c
+index 0c5ae39..03d2f96 100644
+--- a/panels/network/net-device-wifi.c
++++ b/panels/network/net-device-wifi.c
+@@ -1109,12 +1109,13 @@ start_shared_connection (NetDeviceWifi *device_wifi)
+ 
+                 sw = nm_connection_get_setting_wireless (c);
+                 g_object_set (sw, "ssid", ssid, NULL);
+-                g_bytes_unref (ssid);
+ 
+                 c_path = nm_connection_get_path (c);
+                 connection = nm_client_get_connection_by_path (client, c_path);
+ 
+-                g_debug ("overwriting ssid to %s", (char *) g_bytes_get_data (ssid, NULL));
++                g_debug ("overwriting ssid (%zu bytes)", g_bytes_get_size (ssid));        
++
++                g_bytes_unref (ssid);
+ 
+                 nm_remote_connection_commit_changes_async (connection,
+                                                            TRUE,
+@@ -1413,15 +1414,60 @@ client_connection_removed_cb (NMClient           *client,
+ }
+ 
+ static void
+-net_device_wifi_constructed (GObject *object)
++update_hotspot_button (NetDeviceWifi *device_wifi)
+ {
+-        NetDeviceWifi *device_wifi = NET_DEVICE_WIFI (object);
+         NMClient *client;
+         NMClientPermissionResult perm;
+         NMDevice *nm_device;
+         NMDeviceWifiCapabilities caps;
+         GtkWidget *widget;
+ 
++        client = net_object_get_client (NET_OBJECT (device_wifi));
++        nm_device = net_device_get_nm_device (NET_DEVICE (device_wifi));
++
++        widget = GTK_WIDGET (gtk_builder_get_object (device_wifi->priv->builder,
++                                                     "start_hotspot_button"));
++
++        perm = nm_client_get_permission_result (client,
++                                                NM_CLIENT_PERMISSION_WIFI_SHARE_OPEN);
++        caps = nm_device_wifi_get_capabilities (NM_DEVICE_WIFI (nm_device));
++
++        if (perm == NM_CLIENT_PERMISSION_RESULT_UNKNOWN ||
++            caps == 0)
++                return;
++        
++        if (perm != NM_CLIENT_PERMISSION_RESULT_YES &&
++            perm != NM_CLIENT_PERMISSION_RESULT_AUTH) {
++                gtk_widget_set_tooltip_text (widget,
++                                             _("System policy prohibits use as a Hotspot"));
++                gtk_widget_set_sensitive (widget, FALSE);
++        } else if (!(caps & (NM_WIFI_DEVICE_CAP_AP |
++                             NM_WIFI_DEVICE_CAP_ADHOC))) {
++                gtk_widget_set_tooltip_text (widget,
++                                             _("Wireless device does not support Hotspot mode"));
++                gtk_widget_set_sensitive (widget, FALSE);
++        } else {
++                gtk_widget_set_tooltip_text (widget, NULL);
++                gtk_widget_set_sensitive (widget, TRUE);
++        }
++}
++
++static void
++hotspot_state_changed_cb (GObject *object,
++                          GParamSpec *pspec,
++                          gpointer user_data)
++{
++        update_hotspot_button (NET_DEVICE_WIFI (user_data));
++}
++
++static void
++net_device_wifi_constructed (GObject *object)
++{
++        NetDeviceWifi *device_wifi = NET_DEVICE_WIFI (object);
++        NMClient *client;
++        NMDevice *nm_device;
++        GtkWidget *widget;
++
+         G_OBJECT_CLASS (net_device_wifi_parent_class)->constructed (object);
+ 
+         client = net_object_get_client (NET_OBJECT (device_wifi));
+@@ -1437,20 +1483,15 @@ net_device_wifi_constructed (GObject *object)
+                                  G_CALLBACK (net_device_wifi_access_point_changed),
+                                  device_wifi, 0);
+ 
+-        /* only enable the button if the user can create a hotspot */
+-        widget = GTK_WIDGET (gtk_builder_get_object (device_wifi->priv->builder,
+-                                                     "start_hotspot_button"));
+-        perm = nm_client_get_permission_result (client, NM_CLIENT_PERMISSION_WIFI_SHARE_OPEN);
+-        caps = nm_device_wifi_get_capabilities (NM_DEVICE_WIFI (nm_device));
+-        if (perm != NM_CLIENT_PERMISSION_RESULT_YES &&
+-            perm != NM_CLIENT_PERMISSION_RESULT_AUTH) {
+-                gtk_widget_set_tooltip_text (widget, _("System policy prohibits use as a Hotspot"));
+-                gtk_widget_set_sensitive (widget, FALSE);
+-        } else if (!(caps & (NM_WIFI_DEVICE_CAP_AP | NM_WIFI_DEVICE_CAP_ADHOC))) {
+-                gtk_widget_set_tooltip_text (widget, _("Wireless device does not support Hotspot mode"));
+-                gtk_widget_set_sensitive (widget, FALSE);
+-        } else
+-                gtk_widget_set_sensitive (widget, TRUE);
++        g_signal_connect (client,
++                          "notify::permissions-state",
++                          G_CALLBACK (hotspot_state_changed_cb),
++                          device_wifi);
++        g_signal_connect (nm_device,
++                          "notify::capabilities",
++                          G_CALLBACK (hotspot_state_changed_cb),
++                          device_wifi);
++        update_hotspot_button (device_wifi);
+ 
+         g_signal_connect (client, NM_CLIENT_CONNECTION_ADDED,
+                           G_CALLBACK (client_connection_added_cb), device_wifi);
+-- 
+2.54.0
+
