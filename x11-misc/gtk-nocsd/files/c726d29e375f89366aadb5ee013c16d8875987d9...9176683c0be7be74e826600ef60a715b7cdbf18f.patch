@@ -1,0 +1,317 @@
+From a4146a163f19ea175cb8348cae0a5818f24bd02d Mon Sep 17 00:00:00 2001
+From: MorsMortium <mors.mortium.8@protonmail.com>
+Date: Fri, 24 Jul 2026 04:11:01 +0200
+Subject: [PATCH 1/3] Simplify gtk_container_add, do not transfer window
+ without child in GTK3 when only child visibility changed
+
+Fixes PDF Arranger controls missing
+---
+ Source/GTK-NoCSD.c | 67 ++++++++++++++++++++++++----------------------
+ 1 file changed, 35 insertions(+), 32 deletions(-)
+
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index dc42c46..422cd0e 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -2234,6 +2234,7 @@ void GTKNoCSDLoadCSS(const char *CSS) {
+ int GTKNoCSDMagic(GtkWindow *Window, size_t Options) {
+ 	// Do all needed changes to disable CSD
+ 	// Options: 0: Nothing, 1: No layout loading, 2: Retry later on no child
++	// with GTK4, 3: Same as 2 with GTK3
+ 
+ 	// This is most likely an application bug
+ 	if (Window == NULL) {
+@@ -2742,19 +2743,24 @@ int GTKNoCSDMagic(GtkWindow *Window, size_t Options) {
+ 		o_gtk_application_set_app_menu(Application, NULL);
+ 	}
+ 
+-	// Builder might map a window and unset the child after
+-	// It is also possible that such window depends on not getting unrealized
+-	// later, for example with WebKitWebView. So the titlebar removal happens
+-	// early, and later it will be added to the window. Liferea specific fix
+-	if (WindowChild == NULL && Options == 2 && GTKNoCSDGTKVersion == 4) {
+-		// Unset and save header
+-		o_g_object_ref((GObject *) Header);
+-		o_gtk_window_set_titlebar(Window, NULL);
+-		o_g_object_set_data((GObject *) Window, "GTKNoCSDTitleBar", Header);
++	if (WindowChild == NULL) {
++		// Builder might map a window and unset the child after. It is also
++		// possible that such window depends on not getting unrealized later,
++		// for example with WebKitWebView. So the titlebar removal happens
++		// early, and later it will be added to the window. Liferea specific fix
++		if (Options == 2 && GTKNoCSDGTKVersion == 4) {
++			// Unset and save header
++			o_g_object_ref((GObject *) Header);
++			o_gtk_window_set_titlebar(Window, NULL);
++			o_g_object_set_data((GObject *) Window, "GTKNoCSDTitleBar", Header);
++		}
+ 
+ 		// Come back later
+-		o_g_timeout_add(1, GTKNoCSDRecall, Window);
+-		return 14;
++		if ((Options == 3 && GTKNoCSDGTKVersion == 3) ||
++			(Options == 2 && GTKNoCSDGTKVersion == 4)) {
++			o_g_timeout_add(1, GTKNoCSDRecall, Window);
++			return 14;
++		}
+ 	}
+ 
+ 	// Create own vertical container
+@@ -2932,7 +2938,7 @@ void gtk_widget_set_visible(GtkWidget *Widget, gboolean Visible) {
+ 		// This function might not get called with the window
+ 		GtkWidget *Window = GTKNoCSDGetWindow(Widget);
+ 		if (Window != NULL && Visible) {
+-			GTKNoCSDMagic((GtkWindow *) Window, 0);
++			GTKNoCSDMagic((GtkWindow *) Window, Window == Widget ? 0 : 3);
+ 		}
+ 	}
+ }
+@@ -2976,29 +2982,26 @@ void gtk_container_add(GtkWidget *Container, GtkWidget *Widget) {
+ 
+ 	GTKNoCSDGetReferences(true);
+ 
+-	if (2 < GTKNoCSDGTKVersion) {
+-		GtkWidget *Window = GTKNoCSDGetWindow(Container);
+-		if (Window == Container) {
+-			GtkWidget *WindowChild = GTKNoCSDFirstChild(Window);
+-			if (GTKNoCSDTest(WindowChild)) {
+-				GtkWidget *ContentBox = o_g_object_get_data(
+-					(GObject *) WindowChild, "ContentBox");
++	if (2 < GTKNoCSDGTKVersion && Container == GTKNoCSDGetWindow(Container)) {
++		GtkWidget *WindowChild = GTKNoCSDFirstChild(Container);
++		if (GTKNoCSDTest(WindowChild)) {
++			GtkWidget *ContentBox = o_g_object_get_data(
++				(GObject *) WindowChild, "ContentBox");
+ 
+-				// Remove existing child if present
+-				GtkWidget *OldContent = GTKNoCSDFirstChild(ContentBox);
+-				if (OldContent != NULL) {
+-					o_gtk_container_remove(ContentBox, OldContent);
+-				}
+-
+-				o_gtk_container_add(ContentBox, Widget);
+-				o_gtk_widget_set_vexpand(Widget, TRUE);
+-				o_gtk_widget_set_hexpand(Widget, TRUE);
+-			} else {
+-				o_gtk_container_add(Container, Widget);
+-				GTKNoCSDMagic((GtkWindow *) Window, 0);
++			// Remove existing child if present
++			GtkWidget *OldContent = GTKNoCSDFirstChild(ContentBox);
++			if (OldContent != NULL) {
++				o_gtk_container_remove(ContentBox, OldContent);
+ 			}
+-			return;
++
++			o_gtk_container_add(ContentBox, Widget);
++			o_gtk_widget_set_vexpand(Widget, TRUE);
++			o_gtk_widget_set_hexpand(Widget, TRUE);
++		} else {
++			o_gtk_container_add(Container, Widget);
++			GTKNoCSDMagic((GtkWindow *) Container, 0);
+ 		}
++		return;
+ 	}
+ 
+ 	o_gtk_container_add(Container, Widget);
+
+From 38f660ee1bada73b54117753945c108909506753 Mon Sep 17 00:00:00 2001
+From: MorsMortium <mors.mortium.8@protonmail.com>
+Date: Fri, 24 Jul 2026 04:47:34 +0200
+Subject: [PATCH 2/3] Add Void Linux package link
+
+---
+ README.md | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/README.md b/README.md
+index 02a14eb..dc3e7d8 100644
+--- a/README.md
++++ b/README.md
+@@ -96,6 +96,10 @@ https://packages.ubuntu.com/search?keywords=libgtk-nocsd0
+ 
+ https://pkg.kali.org/pkg/gtk-nocsd  
+ 
++### Void Linux
++
++https://voidlinux.org/packages/?arch=x86_64&q=gtk-nocsd  
++
+ ### ALT Linux
+ 
+ https://packages.altlinux.org/en/p11/srpms/libgtk-nocsd/  
+
+From 9176683c0be7be74e826600ef60a715b7cdbf18f Mon Sep 17 00:00:00 2001
+From: MorsMortium <mors.mortium.8@protonmail.com>
+Date: Fri, 24 Jul 2026 19:21:11 +0200
+Subject: [PATCH 3/3] Simplify internal CSD handling, while also allowing live
+ reload
+
+---
+ README.md          |  1 -
+ Source/GTK-NoCSD.c | 85 ++++++++--------------------------------------
+ 2 files changed, 14 insertions(+), 72 deletions(-)
+
+diff --git a/README.md b/README.md
+index dc3e7d8..599131c 100644
+--- a/README.md
++++ b/README.md
+@@ -137,7 +137,6 @@ Make sure to set gtk-decoration-layout to be able to use the internal CSD.
+ On GNOME with `gsettings set org.gnome.desktop.wm.preferences button-layout 'icon:minimize,maximize,close'`.  
+ Generally with editing your `~/.config/gtk-4.0/settings.ini` and/or `~/.config/gtk-3.0/settings.ini` and adding `gtk-decoration-layout=icon:minimize,maximize,close` in the `[Settings]` block.  
+ The layout was only an example, it is up to preference, documentation is here: https://docs.gtk.org/gtk4/property.Settings.gtk-decoration-layout.html  
+-Live reloading is not supported.  
+ 
+ ### Flatpak
+ 
+diff --git a/Source/GTK-NoCSD.c b/Source/GTK-NoCSD.c
+index 422cd0e..45b03b7 100644
+--- a/Source/GTK-NoCSD.c
++++ b/Source/GTK-NoCSD.c
+@@ -292,8 +292,7 @@ void GTKNoCSDUnsetLDPreload(void) {
+ 
+ bool GTKNoCSDOnLomiri = false, GTKNoCSDCSD = false, GTKNoCSDCSDPadding = false;
+ void *(*o_dlsym)(void *, const char *) = NULL;
+-char *GTKNoCSDLD = NULL, *GTKNoCSDLibC = NULL, *GTKNoCSDTheme = NULL,
+-	*GTKNoCSDDecorationLayout = NULL;
++char *GTKNoCSDLD = NULL, *GTKNoCSDLibC = NULL, *GTKNoCSDTheme = NULL;
+ 
+ void *GTKNoCSDResolvePointer(ElfW(Addr) Base, ElfW(Addr) Pointer) {
+ 	// Musl pointers are offsets from base, so they are added to it
+@@ -1511,7 +1510,8 @@ bool GTKNoCSDCheckGTK4Header(GtkWidget *Widget) {
+ 	if (GTKNoCSDAdwHeaderBar((GObject *) Widget)) {
+ 		o_adw_header_bar_set_decoration_layout((AdwHeaderBar *) Widget, "");
+ 		return true;
+-	} else if (GTKNoCSDGtkHeaderBar((GObject *) Widget)) {
++	} else if (GTKNoCSDGtkHeaderBar((GObject *) Widget) &&
++		!(GTKNoCSDCSD && GTKNoCSDHasClass(Widget, "default-decoration"))) {
+ 		// GTK4 headers are never looked for so they are never confirmed
+ 		o_gtk_header_bar_set_decoration_layout((GtkHeaderBar *) Widget, "");
+ 	}
+@@ -1659,7 +1659,9 @@ void GTKNoCSDForceInvisible(GtkWidget *Widget, G_GNUC_UNUSED GParamSpec *Spec,
+ 	// forced off here
+ 
+ 	o_gtk_widget_set_visible(Widget, false);
+-	o_gtk_widget_set_no_show_all(Widget, true);
++	if (o_gtk_widget_set_no_show_all != NULL) {
++		o_gtk_widget_set_no_show_all(Widget, true);
++	}
+ }
+ 
+ void GTKNoCSDGTK3SetForceInvisible(GtkWidget *Widget) {
+@@ -1712,9 +1714,10 @@ bool GTKNoCSDGetGTK3Headers(GtkWidget *Container) {
+ 
+ 	// Certain applications set this layout for themselves, here it is unset
+ 	// Also remove empty titles
+-	if (GTKNoCSDGtkHeaderBar((GObject *) Container)) {
+-		o_gtk_header_bar_set_decoration_layout((GtkHeaderBar *) Container, "");
++	if (GTKNoCSDGtkHeaderBar((GObject *) Container) && !(GTKNoCSDCSD &&
++		GTKNoCSDHasClass(Container, "default-decoration"))) {
+ 		GtkHeaderBar *Header = (GtkHeaderBar *) Container;
++		o_gtk_header_bar_set_decoration_layout(Header, "");
+ 		if (o_gtk_header_bar_get_custom_title(Header) == NULL) {
+ 			GTKNoCSDGTK3SetEmptyTitle(Container, true);
+ 		}
+@@ -2194,25 +2197,6 @@ GtkWidget *GTKNoCSDSetUpFileChooser(GtkFileChooser *Chooser, bool Set,
+ 	return Extra;
+ }
+ 
+-void GTKNoCSDGetDecorationLayout(void) {
+-	// Save decoration layout if needed
+-
+-	if (GTKNoCSDCSD && GTKNoCSDDecorationLayout == NULL) {
+-		// Only do it once and only with the option enabled
+-
+-		GtkSettings *Settings = o_gtk_settings_get_default();
+-		if (Settings != NULL) {
+-			const char *Decoration = NULL;
+-			o_g_object_get((GObject *) Settings,
+-				"gtk-decoration-layout", &Decoration, NULL);
+-
+-			if (Decoration != NULL) {
+-				GTKNoCSDDecorationLayout = strdup(Decoration);
+-			}
+-		}
+-	}
+-}
+-
+ void GTKNoCSDLoadCSS(const char *CSS) {
+ 	// Load CSS for both GTK3 and GTK4
+ 
+@@ -2376,9 +2360,6 @@ int GTKNoCSDMagic(GtkWindow *Window, size_t Options) {
+ 			o_g_object_set((GObject *) Settings, "gtk-dialogs-use-header",
+ 				FALSE, NULL);
+ 
+-			// Save original decoration layout if needed
+-			GTKNoCSDGetDecorationLayout();
+-
+ 			// If theme was set from environment
+ 			if (GTKNoCSDTheme != NULL) {
+ 				const char *Colon = strchr(GTKNoCSDTheme, ':');
+@@ -2448,7 +2429,7 @@ int GTKNoCSDMagic(GtkWindow *Window, size_t Options) {
+ 		}
+ 	}
+ 
+-	if (!GTKNoCSDLayout && Options != 1) {
++	if (!GTKNoCSDLayout && Options != 1 && !GTKNoCSDCSD) {
+ 		GtkSettings *Settings = o_gtk_settings_get_default();
+ 		if (Settings != NULL) {
+ 			// Remove titlebar buttons
+@@ -3602,55 +3583,17 @@ void gtk_show_about_dialog(GtkWindow *Window, const char *FirstProperty, ...) {
+ // True when the first GTK GObject is loaded
+ bool GTKNoCSDGTKGObject = false;
+ 
+-GtkWidget *GTKNoCSDHeaderBar = NULL;
+-
+-void GTKNoCSDGetHeaderBar(GtkWidget *Widget, G_GNUC_UNUSED gpointer Data) {
+-	// Check if a widget is a GtkHeaderBar and has the class for the internal
+-	// one, set global variable if so
+-
+-	if (GTKNoCSDGtkHeaderBar((GObject *) Widget)) {
+-		if (GTKNoCSDHasClass(Widget, "default-decoration")) {
+-			GTKNoCSDHeaderBar = Widget;
+-		}
+-	}
+-}
+-
+-gboolean GTKNoCSDHeaderBarParentFinalize(gpointer Data) {
+-	// Finish what GTKNoCSDHeaderBarParent started, hide the widget or set
+-	// decoration layout again, depending on setting
+-
+-	if (GTKNoCSDCSD && GTKNoCSDDecorationLayout != NULL) {
+-		o_gtk_header_bar_set_decoration_layout((GtkHeaderBar *) Data,
+-			GTKNoCSDDecorationLayout);
+-	} else {
+-		o_gtk_widget_set_visible((GtkWidget *) Data, false);
+-	}
+-	return FALSE;
+-}
+-
+ void GTKNoCSDHeaderBarParent(GtkWidget *Widget, G_GNUC_UNUSED GParamSpec *Spec,
+ 	G_GNUC_UNUSED gpointer Data) {
+ 	// GTK displays a CSD HeaderBar when the wayland compositor does not support
+ 	// SSD (or the KDE protocol for it) and the application does not set a CSD
+ 	// either. Depending on user preference this is either hidden or kept
+ 
+-	// Only activate on the specific widget we need
++	// Only activate on the specific widget we need, hide it
+ 	GtkWidget *Parent = o_gtk_widget_get_parent(Widget);
+-	if (Parent != NULL && GTKNoCSDGtkWindow((GObject *) Parent)) {
+-		if (GTKNoCSDHasClass(Widget, "default-decoration")) {
+-			// Get decoration layout if this was earlier than GTKNoCSDMagic
+-			GTKNoCSDGetDecorationLayout();
+-
+-			// It looks better if set here, it does not blink, but sometimes it
+-			// is not picked up, so it is repeated later
+-			if (GTKNoCSDCSD && GTKNoCSDDecorationLayout != NULL) {
+-				o_gtk_header_bar_set_decoration_layout((GtkHeaderBar *) Widget,
+-					GTKNoCSDDecorationLayout);
+-			}
+-
+-			// Hide it or reset decoration layout later
+-			o_g_idle_add(GTKNoCSDHeaderBarParentFinalize, Widget);
+-		}
++	if (Parent != NULL && GTKNoCSDGtkWindow((GObject *) Parent) &&
++		GTKNoCSDHasClass(Widget, "default-decoration") && !GTKNoCSDCSD) {
++		GTKNoCSDGTK3SetForceInvisible(Widget);
+ 	}
+ }
+ 

@@ -84,7 +84,10 @@ RDEPEND="${COMMON_DEPEND}
 		gnome-extra/gnome-user-share
 		net-dns/avahi[dbus]
 		net-misc/openssh
-		net-misc/remmina
+		|| (
+			net-misc/remmina
+			net-misc/gnome-connections
+		)
 		net-misc/rygel
 		vnc? ( net-misc/vino )
 	)
