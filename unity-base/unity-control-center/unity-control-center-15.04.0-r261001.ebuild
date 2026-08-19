@@ -85,8 +85,8 @@ RDEPEND="${COMMON_DEPEND}
 		net-dns/avahi[dbus]
 		net-misc/openssh
 		|| (
-			net-misc/remmina
 			net-misc/gnome-connections
+			net-misc/remmina
 		)
 		net-misc/rygel
 		vnc? ( net-misc/vino )
