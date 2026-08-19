@@ -25,6 +25,8 @@ DEPEND=">=gui-libs/libadwaita-1.5"
 
 S="${WORKDIR}/${PN}"
 
+PATCHES=( "${FILESDIR}"/4da818c17b6923bbf2c736d3eb2eed063dc475af.patch )
+
 src_install() {
 	emake \
 		DESTDIR="${D}" \

@@ -26,8 +26,8 @@
 >net-p2p/transmission-4.0.6-r6
 >sys-apps/accountsservice-23.13.9
 >sys-devel/gcc-16
->www-client/firefox-141:esr
->www-client/firefox-154:rapid
+>www-client/firefox-154:esr
+>www-client/firefox-155:rapid
 >x11-libs/gtk+-2.24.33-r3:2
 >x11-libs/gtk+-3.24.52:3
 >x11-libs/vte-0.82.3:2.91
