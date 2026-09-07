@@ -4,7 +4,7 @@
 EAPI=8
 
 UVER=
-UREV=1
+UREV=2
 
 inherit cmake ubuntu-versionator
 
@@ -13,7 +13,7 @@ HOMEPAGE="https://launchpad.net/geonames"
 SRC_URI="${UURL}.orig.tar.bz2
 	${UURL}-${UREV}.debian.tar.xz"
 
-LICENSE="CC-BY-3.0 GPL-3"
+LICENSE="CC-BY-3.0 GPL-2+ GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="demo doc test"
