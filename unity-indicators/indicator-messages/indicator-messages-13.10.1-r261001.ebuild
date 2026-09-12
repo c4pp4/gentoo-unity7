@@ -6,7 +6,7 @@ GNOME2_EAUTORECONF="yes"
 GNOME2_LA_PUNT="yes"
 
 UVER=+18.10.20180918
-UREV=0ubuntu7
+UREV=0ubuntu8
 
 inherit gnome2 ubuntu-versionator vala
 
@@ -16,7 +16,7 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="amd64"
+KEYWORDS="~amd64"
 IUSE="doc"
 RESTRICT="test"
 

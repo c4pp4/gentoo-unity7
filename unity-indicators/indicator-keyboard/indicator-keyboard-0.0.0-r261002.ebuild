@@ -23,7 +23,7 @@ COMMON_DEPEND="
 	>=dev-libs/libgee-0.8.3:0.8
 	>=gnome-base/gnome-desktop-3.17.92:3=
 	gnome-base/libgnomekbd
-	>=sys-apps/accountsservice-0.6.40
+	>=sys-apps/accountsservice-0.6.40:=
 	>=x11-libs/gtk+-3.1.6:3
 	>=x11-misc/lightdm-1.1.3[vala]
 "

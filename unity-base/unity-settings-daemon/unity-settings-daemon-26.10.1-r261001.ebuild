@@ -34,7 +34,7 @@ COMMON_DEPEND="
 	>=media-libs/libcanberra-gtk3-0.25
 	>=media-libs/libpulse-2.0[glib]
 	>=net-misc/networkmanager-1.0.0
-	>=sys-apps/accountsservice-0.6.40
+	>=sys-apps/accountsservice-0.6.40:=
 	>=sys-power/upower-0.99.1:=
 	>=unity-base/gsettings-ubuntu-touch-schemas-0.0.7
 	>=x11-libs/gdk-pixbuf-2.23.0:2

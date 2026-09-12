@@ -36,7 +36,7 @@ COMMON_DEPEND="
 	>=media-libs/libcanberra-gtk3-0.25
 	>=media-libs/libpulse-2.0[glib]
 	>=net-libs/geonames-0.1
-	>=sys-apps/accountsservice-0.6.34
+	>=sys-apps/accountsservice-0.6.34:=
 	sys-auth/polkit[gtk]
 	>=sys-libs/glibc-2.4
 	>=sys-power/upower-0.99.1:=
