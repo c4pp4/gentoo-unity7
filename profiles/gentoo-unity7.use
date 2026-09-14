@@ -14,6 +14,7 @@ gnome-extra/nm-applet                   appindicator                            
 media-libs/freetype                     harfbuzz                                # Required by x11-libs/pango
 media-libs/libmediaart                  vala                                    # Required by unity-base/unity-control-center (net-misc/rygel)
 media-libs/libvpx                       postproc                                # Required by mail-client/thunderbird, www-client/firefox
+media-plugins/audacious-plugins         mpris                                   # Enable control media player using unity-indicators/indicator-sound
 media-video/ffmpeg                      opus                                    # Required by net-im/telegram-desktop
 net-libs/gnome-online-accounts          vala                    -gnome          # Don't install gnome-base/gnome-control-center
 net-libs/gssdp                          vala                                    # Required by unity-base/unity-control-center (net-misc/rygel)
