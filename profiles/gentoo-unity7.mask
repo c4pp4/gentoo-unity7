@@ -27,7 +27,7 @@
 >sys-apps/accountsservice-26.27.3
 >sys-devel/gcc-16
 >www-client/firefox-154:esr
->www-client/firefox-156:rapid
+>www-client/firefox-157:rapid
 >x11-libs/gtk+-2.24.33-r3:2
 >x11-libs/gtk+-3.24.52:3
 >x11-libs/vte-0.82.4:2.91

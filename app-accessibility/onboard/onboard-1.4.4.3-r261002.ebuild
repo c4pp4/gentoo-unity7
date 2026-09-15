@@ -8,7 +8,7 @@ DISTUTILS_USE_PEP517=setuptools
 PYTHON_COMPAT=( python3_{10..14} )
 
 UVER=+ds
-UREV=1
+UREV=1ubuntu1
 
 inherit gnome2 distutils-r1 ubuntu-versionator
 
