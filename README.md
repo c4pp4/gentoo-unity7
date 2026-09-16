@@ -2,13 +2,13 @@
 
 # Gentoo Unity⁷ Desktop
 
-A Gentoo overlay to build the Unity7 user interface.
+A Gentoo overlay for building and running the Unity7 desktop environment.
 
 - [Build instructions][build]
 - [USE flag tips][tips]
 - [Additional packages list][addp]
 - [Source URIs list][uris]
-- [Join the Telegram group⬀][tg]
+- [Join the Telegram group⬀ (the community home)][tg]
 
 #
 
@@ -18,14 +18,12 @@ A Gentoo overlay to build the Unity7 user interface.
 
 #
 
-###### It defaults to the Gentoo stable software branch for the system's architecture amd64 and requires systemd. You can build `www-client/firefox` from the Gentoo testing branch since the *unity-menubar.patch* is available for both branches: stable ([Extended Support Release][fesr]) and testing ([Rapid Release][ftlr]). The same applies to `mail-client/thunderbird`.
+###### The overlay currently supports amd64, uses the Gentoo stable branch by default, and requires systemd. Some Unity integration patches are applied to packages from the main Gentoo repository through the ehooks patching system. You can build `www-client/firefox` from either the Gentoo stable or testing branch, since *unity-menubar.patch* is available for both slots: `esr` and `rapid`. The same applies to `mail-client/thunderbird` (slots `0/esr` and `0/stable`).
 
 [//]: # (LINKS)
 [addp]: docs/additional_packages.md
 [build]: docs/build_instructions.md
-[fesr]: ehooks/www-client/firefox:esr/files
 [fork]: https://github.com/shiznix/unity-gentoo
-[ftlr]: ehooks/www-client/firefox:rapid/files
 [gld]: https://gitlab.com/renegart/gentoo-lomiri
 [preview_image]: https://github.com/c4pp4/gentoo-unity7/blob/master/docs/assets/preview.png "Preview of Gentoo Unity⁷ Desktop"
 [preview_image_url]: https://raw.githubusercontent.com/c4pp4/gentoo-unity7/master/docs/assets/preview.png
