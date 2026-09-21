@@ -1,3 +1,4 @@
 ehooks() {
+	rm .elibtoolized || die
 	eautoreconf
 }
