@@ -45,6 +45,9 @@ BDEPEND="
 MAKEOPTS="${MAKEOPTS} -j1"
 
 src_configure() {
+	# Fix libdir #
+	sed -i "s:/lib:/$(get_libdir):" data/properties-cpp.pc.in || die
+
 	local mycmakeargs=(
 		-DBUILD_TESTING=$(usex test ON OFF)
 		-DCMAKE_INSTALL_DOCDIR="/usr/share/doc/${PF}"

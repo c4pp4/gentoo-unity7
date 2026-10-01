@@ -5,7 +5,7 @@ EAPI=8
 GNOME2_EAUTORECONF="yes"
 
 UVER=+23.04.20230220
-UREV=0ubuntu14
+UREV=0ubuntu16
 
 inherit gnome2 ubuntu-versionator vala
 
@@ -102,6 +102,7 @@ DEPEND="${COMMON_DEPEND}
 		media-fonts/ubuntu-font-family
 	)
 	>=sys-apps/dbus-0.32
+	sys-libs/libxcrypt
 	>=x11-libs/libXft-2.1.2
 	x11-libs/libxkbfile
 	>=x11-libs/libxklavier-5.1

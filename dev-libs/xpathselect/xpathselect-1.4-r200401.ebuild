@@ -33,6 +33,9 @@ src_prepare() {
 	# Fix build with CMake 4 #
 	sed -i "/cmake_minimum_required/{s/2\.6/3.10/}" CMakeLists.txt || die
 
+	# Fix libdir #
+	sed -i "s:/lib:/$(get_libdir):" lib/xpathselect.pc.in || die
+
 	# Make test optional #
 	use test || cmake_comment_add_subdirectory test
 

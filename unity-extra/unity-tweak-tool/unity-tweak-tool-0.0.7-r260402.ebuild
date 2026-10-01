@@ -18,7 +18,7 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="+bluetooth +files hud"
+IUSE="+bluetooth +files +hud"
 RESTRICT="test"
 
 RDEPEND="

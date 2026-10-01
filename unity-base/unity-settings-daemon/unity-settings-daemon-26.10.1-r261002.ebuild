@@ -4,7 +4,7 @@
 EAPI=8
 GNOME2_EAUTORECONF="yes"
 
-UVER=ubuntu
+UVER=ubuntu.build1
 UREV=
 
 inherit flag-o-matic gnome2 ubuntu-versionator udev
@@ -83,7 +83,7 @@ DEPEND="${COMMON_DEPEND}
 "
 BDEPEND=" >=dev-util/intltool-0.37.1"
 
-S="${WORKDIR}/${PN}"
+S="${S}${UVER}"
 
 PATCHES=(
 	"${FILESDIR}"/optional-colord-and-wacom.patch
