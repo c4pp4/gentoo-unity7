@@ -3,7 +3,7 @@
 
 EAPI=8
 
-UVER=~20260321+0b77e1b
+UVER="~20260321+0b77e1b"
 UREV=1
 
 inherit ubuntu-versionator
