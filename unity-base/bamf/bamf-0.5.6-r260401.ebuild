@@ -31,15 +31,12 @@ RDEPEND="${COMMON_DEPEND}
 	>=x11-libs/gdk-pixbuf-2.22.0:2
 	x11-libs/libX11
 	>=x11-libs/startup-notification-0.11
-
-	doc? ( dev-util/devhelp )
 "
 DEPEND="${COMMON_DEPEND}
+	dev-util/gtk-doc
 	gnome-base/gnome-common
 	>=sys-apps/dbus-1.8
 	x11-themes/hicolor-icon-theme
-
-	doc? ( dev-util/gtk-doc )
 
 	$(vala_depend)
 "

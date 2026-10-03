@@ -31,10 +31,9 @@ RDEPEND="${COMMON_DEPEND}
 	>=sys-libs/glibc-2.4
 "
 DEPEND="${COMMON_DEPEND}
+	dev-util/gtk-doc
 	gnome-base/gnome-common
 	sys-apps/systemd
-
-	doc? ( dev-util/gtk-doc )
 
 	$(vala_depend)
 "

@@ -26,13 +26,10 @@ COMMON_DEPEND="
 RDEPEND="${COMMON_DEPEND}
 	>=sys-libs/glibc-2.14
 	>=x11-libs/cairo-1.2.4
-
-	doc? ( dev-util/devhelp )
 "
 DEPEND="${COMMON_DEPEND}
+	dev-util/gtk-doc
 	gnome-base/gnome-common
-
-	doc? ( dev-util/gtk-doc )
 "
 
 S="${S}${UVER}"
