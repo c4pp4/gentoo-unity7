@@ -1,21 +1,21 @@
 # Create fontconfig configuration symlinks #
 
 ehooks() {
-	ehooks_require fontconfig
-
-	local f
-
-	einfo "Creating fontconfig configuration symlinks ..."
-	for f in "${ED}"/etc/fonts/conf.avail/*; do
-		if [[ -f ${f} ]]; then
-			f=${f##*/}
-		else
-			ewarn "No fontconfig configuration available"
-			break
-		fi
-		if [[ ! -L ${ED}/etc/fonts/conf.d/${f} ]]; then
-			echo " * ${f}"
-			dosym ../conf.avail/"${f}" /etc/fonts/conf.d/"${f}"
-		fi
-	done
+	if ehooks_use fontconfig; then
+		local f
+	
+		einfo "Creating fontconfig configuration symlinks ..."
+		for f in "${ED}"/etc/fonts/conf.avail/*; do
+			if [[ -f ${f} ]]; then
+				f=${f##*/}
+			else
+				ewarn "No fontconfig configuration available"
+				break
+			fi
+			if [[ ! -L ${ED}/etc/fonts/conf.d/${f} ]]; then
+				echo " * ${f}"
+				dosym ../conf.avail/"${f}" /etc/fonts/conf.d/"${f}"
+			fi
+		done
+	fi
 }

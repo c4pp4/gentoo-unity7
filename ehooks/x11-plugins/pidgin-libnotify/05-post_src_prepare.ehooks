@@ -1,4 +1,3 @@
 ehooks() {
-	rm .elibtoolized || die
-	eautoreconf
+	AT_NOELIBTOOLIZE="yes" eautoreconf
 }

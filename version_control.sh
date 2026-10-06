@@ -274,14 +274,12 @@ portage_updates() {
 
 	local \
 		main_repo="$(portageq get_repo_path / gentoo)" \
+		pmask="${1:-${PWD}}/profiles/gentoo-unity7.mask" \
 		tmp_um=ehooks-punmask.tmp \
 		tmp_ak=ehooks-paccept_keywords.tmp \
-		line new_pkg old_pkg pmask slot start_reading update x y
+		line new_pkg old_pkg slot start_reading update x y
 
 	local -a updates
-
-	[[ -z $1 ]] && pmask="${PWD}" || pmask="$1"
-	pmask+="/profiles/gentoo-unity7.mask"
 
 	## Temporarily unmask packages maintained via ehooks.
 	install -m 666 /dev/null /tmp/"${tmp_um}" || exit 1
@@ -344,8 +342,8 @@ portage_updates() {
 			old_pkg="${x%|*}"; old_pkg="${old_pkg#>}"; slot=$(get_slot "${old_pkg}"); old_pkg="${old_pkg%:*}"
 			new_pkg="${x#*|}"
 			echo " * Update to ${color_yellow}${new_pkg}${color_norm} (old pmask entry: ${color_bold}>${old_pkg}${color_norm})"
-			printf "%s" " * Test command 'EHOOKS_PATH=$1/ehooks ebuild \$(portageq get_repo_path / gentoo)/${new_pkg%-[0-9]*}/${new_pkg#*/}.ebuild clean prepare clean'${color_blink}...${color_norm}"
-			if EHOOKS_PATH="$1/ehooks" ebuild "${main_repo}/${new_pkg%-[0-9]*}/${new_pkg#*/}".ebuild clean prepare clean 1>/dev/null; then
+			printf "%s" " * Test command 'EHOOKS_PATH=${1:-${PWD}}/ehooks ebuild \$(portageq get_repo_path / gentoo)/${new_pkg%-[0-9]*}/${new_pkg#*/}.ebuild clean prepare clean'${color_blink}...${color_norm}"
+			if EHOOKS_PATH="${1:-${PWD}}/ehooks" ebuild "${main_repo}/${new_pkg%-[0-9]*}/${new_pkg#*/}".ebuild clean prepare clean 1>/dev/null; then
 				printf "\b\b\b%s\n" "... ${color_blue}[ ${color_green}passed ${color_blue}]${color_norm}"
 				for y in "${majorver[@]}"; do
 					if [[ ${new_pkg} == "${y}"* ]]; then
@@ -425,13 +423,42 @@ get_uvers() {
 }
 
 get_debian_archive() {
-	local x
+	local \
+		x archive target tmp
 
-	local -a filenames=( $1.debian.tar.xz $1.debian.tar.gz )
+	local -a filenames=( "$1.debian.tar.xz" "$1.debian.tar.gz" )
 
 	for x in "${filenames[@]}"; do
-		[[ -z $2 ]] && [[ -r /tmp/ehooks-${USER}-${x} ]] && return
-		wget -q -T 60 "https://launchpad.net/ubuntu/+archive/primary/+files/${x}" -O "/tmp/${2:-ehooks-${USER}-${x}}" && return
+		archive="/tmp/${2:-ehooks-${USER}-${x}}"
+
+		[[ -z $2 ]] && [[ -s ${archive} ]] && tar -tf "${archive}" >/dev/null 2>&1 && return 0
+
+		tmp=$(mktemp "${archive}.XXXXXX") || return 1
+		if wget -q -T 60 \
+			"https://launchpad.net/ubuntu/+archive/primary/+files/${x}" \
+			-O "${tmp}"; then
+			mv -f "${tmp}" "${archive}" && return 0
+		fi
+
+		rm -f "${tmp}"
+	done
+
+	return 1
+}
+
+extract_debian_series() {
+	local \
+		pkg="$1" \
+		target="$2" \
+		archive
+
+	: > "${target}"
+	for archive in \
+		"/tmp/ehooks-${USER}-${pkg}.debian.tar.xz" \
+		"/tmp/ehooks-${USER}-${pkg}.debian.tar.gz"; do
+		[[ -f ${archive} ]] || continue
+		tar -xOf "${archive}" debian/patches/series > "${target}" 2>/dev/null && return 0
+		: > "${target}"
 	done
 
 	return 1
@@ -477,12 +504,12 @@ debian_changes() {
 			download_sources
 			check_sources || return 1
 
-			local \
-				rls frls rp
-
 			printf "%s" "Looking for available version changes${color_blink}...${color_norm}"
 
-			local ipn pn un utd uv
+			local \
+				local_series="/tmp/ehooks-${USER}-series" \
+				upstream_series="/tmp/ehooks-${USER}-aseries" \
+				ipn pn rls frls rp un utd uv
 
 			local -a an auvers result
 
@@ -513,17 +540,22 @@ debian_changes() {
 						an[0]="$(tput bold)${color_cyan}[ package is masked ]${color_norm}"
 					fi
 					result+=( " * ${ipn}... local: ${utd} available: ${auvers[*]}" )
-					get_debian_archive "${un}"
-					[[ -e debian/patches/series ]] \
-						&& tar --overwrite -xf "/tmp/ehooks-${USER}-${un}.debian.tar.xz" -C /tmp debian/patches/series --strip-components 2 --transform "s/series/ehooks-${USER}-series/" \
-						|| touch "/tmp/ehooks-${USER}-series"
+
+					if get_debian_archive "${un}"; then
+						extract_debian_series "${un}" "${local_series}"
+					else
+						: > "${local_series}"
+					fi
+
 					auvers=( "${auvers[@]//\'}" )
 					for uv in "${auvers[@]}"; do
-						get_debian_archive "${un%_*}_${uv}"
-						[[ -e debian/patches/series ]] \
-							&& tar --overwrite -xf "/tmp/ehooks-${USER}-${un%_*}_${uv}.debian.tar.xz" -C /tmp debian/patches/series --strip-components 2 --transform "s/series/ehooks-${USER}-aseries/" \
-							|| touch "/tmp/ehooks-${USER}-aseries"
-						if [[ -n $(diff /tmp/ehooks-${USER}-series /tmp/ehooks-${USER}-aseries) ]]; then
+						if get_debian_archive "${un%_*}_${uv}"; then
+							extract_debian_series "${un%_*}_${uv}" "${upstream_series}"
+						else
+							: > "${upstream_series}"
+						fi
+
+						if ! cmp -s "${local_series}" "${upstream_series}"; then
 							result[${#result[@]}-1]="${result[${#result[@]}-1]/\'${uv}\'/\'${color_red}${uv}${color_norm}\'}"
 							an[2]="${color_red}[ debian/patches/series file differs from local ]${color_norm}"
 						fi
@@ -560,7 +592,7 @@ update_packages() {
 	tput sc
 	printf "%s" "Looking for updates ${indicator[0]}"
 
-	packages=( $(find ${path} -type f -name *.ebuild | rev | cut -d "/" -f 2,3 | rev | sort -u) )
+	packages=( $(find "${path}" -type f -name "*.ebuild" | rev | cut -d "/" -f 2,3 | rev | sort -u) )
 
 	for pkg in "${packages[@]}"; do
 		[[ ! -v remove["${pkg}"] ]] && tmparr+=( "${pkg}" )
@@ -652,7 +684,7 @@ update_scopes() {
 	tput sc
 	printf "%s" "Looking for updates ${indicator[0]}"
 
-	ebuilds=( $(find ${x} -type f -name "unity-scope-extras*.ebuild") )
+	ebuilds=( $(find "${x}" -type f -name "unity-scope-extras*.ebuild") )
 	packages=( $(grep -- "^setvar " "${ebuilds[@]}" | cut -d " " -f 2 | sed -E 's/\t+/|/g' | sort -u) )
 	for pkg in "${packages[@]}"; do
 		printf "\b\b %s" "${indicator[${count}]}"
@@ -722,7 +754,7 @@ update_languages() {
 	printf "%s\n\n" "${color_blue}Languages:${color_norm}"
 	tput sc
 	printf "%s" "Looking for updates ${indicator[0]}"
-	ebuilds=( $(find ${x} -type f -name "unity-language-pack*.ebuild") )
+	ebuilds=( $(find "${x}" -type f -name "unity-language-pack*.ebuild") )
 	packages=( $(grep -- "^setvar " "${ebuilds[@]}" | sed -E 's/[ \t]+/|/g' | cut -d "|" -f 2,3,4,5 | sort -u) )
 	for pkg in "${packages[@]}"; do
 		printf "\b\b %s" "${indicator[${count}]}"
@@ -810,7 +842,7 @@ case $1 in
 		;;
 	-u|--update)
 		download_sources
-		check_sources || return 1
+		check_sources || exit 1
 		portage_updates "$2"
 		update_languages "$2"
 		update_scopes "$2"

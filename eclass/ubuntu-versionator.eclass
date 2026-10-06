@@ -5,32 +5,31 @@
 # @MAINTAINER: c4pp4
 # @AUTHOR: c4pp4
 # @SUPPORTED_EAPIS: 8
-# @BLURB: Provides phases for Ubuntu based packages.
+# @BLURB: Provides phase functions for Ubuntu-based packages.
 # @DESCRIPTION:
-# Exports portage base functions used by ebuilds written for packages using
-# the gentoo-unity7 framework.
+# Provides common phase functions for ebuilds using the gentoo-unity7
+# framework.
 
 case ${EAPI} in
 	8) ;;
-	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
+	*) die "${ECLASS}: EAPI ${EAPI:-0} is not supported." ;;
 esac
 
 # @ECLASS-VARIABLE: UBUNTU_EAUTORECONF
 # @DEFAULT_UNSET
 # @DESCRIPTION:
-# Run eautoreconf
+# Set to "yes" before inheriting this eclass to run eautoreconf in src_prepare.
 UBUNTU_EAUTORECONF=${UBUNTU_EAUTORECONF:-""}
 
 [[ ${UBUNTU_EAUTORECONF} == "yes" ]] && inherit autotools
 
-# Set base sane vala version for all packages requiring vala, override
-# in ebuild if or when specific higher/lower versions are needed
+# Set the default Vala API version for packages requiring Vala.
+# Override these values in the ebuild if a different version is needed.
 VALA_MIN_API_VERSION=0.56
 VALA_MAX_API_VERSION=0.56
 
-# Ubuntu delete superceded release tarballs from their mirrors if the release
-# is not Long Term Supported (LTS). Download tarballs from the always available
-# Launchpad archive
+# Superseded source tarballs from non-LTS Ubuntu releases may no longer be
+# available on Ubuntu mirrors. Fetch them from the Launchpad archive instead.
 UURL="https://launchpad.net/ubuntu/+archive/primary/+files/${PN}_${PV}${UVER}"
 
 # Default variables
@@ -50,8 +49,9 @@ usub() {
 
 # @FUNCTION: einstalldocs
 # @DESCRIPTION:
-# Based on eutils.eclass' function. Install documentation using DOCS
-# including COPYING* files. Inherit values if DOCS is declared.
+# Based on the einstalldocs implementation in eutils.eclass.
+# Extend any existing DOCS array with common documentation files and
+# Ubuntu package metadata, then install the resulting list.
 einstalldocs() {
 	debug-print-function ${FUNCNAME} "${@}"
 
@@ -76,6 +76,7 @@ einstalldocs() {
 		fi
 	done
 
+	docinto /
 	if [[ -n ${DOCS[@]} ]]; then
 		dodoc -r "${DOCS[@]}" || die
 	fi
@@ -85,13 +86,16 @@ einstalldocs() {
 
 # @FUNCTION: ubuntu-versionator_pkg_setup
 # @DESCRIPTION:
-# Check we have a valid profile set
-# and apply python-single-r1_pkg_setup if declared.
+# Verify that the selected profile belongs to gentoo-unity7.
+# Call font_pkg_setup and python-single-r1_pkg_setup if defined.
 ubuntu-versionator_pkg_setup() {
 	debug-print-function ${FUNCNAME} "$@"
 
-	[[ "$(readlink /etc/portage/make.profile)" == *"gentoo-unity7"* ]] \
-		|| die "Invalid profile detected, please select gentoo-unity7 profile shown in 'eselect profile list'."
+	local profile_dir
+	profile_dir=$(readlink -e "${PORTAGE_CONFIGROOT%/}/etc/portage/make.profile") \
+		|| die "The selected profile could not be resolved."
+	grep -Fqx -- "gentoo-unity7" "${profile_dir%/*/*/*/*/*}/repo_name" \
+		|| die "The selected profile does not belong to gentoo-unity7. Please select a gentoo-unity7 profile from 'eselect profile list'."
 
 	declare -F font_pkg_setup 1>/dev/null && font_pkg_setup
 	declare -F python-single-r1_pkg_setup 1>/dev/null && python-single-r1_pkg_setup
@@ -99,21 +103,21 @@ ubuntu-versionator_pkg_setup() {
 
 # @FUNCTION: ubuntu-versionator_src_unpack
 # @DESCRIPTION:
-# Relocate the sources in src_unpack as S=WORKDIR is deprecated
-# for cmake.eclass (see b.g.o #889420).
+# Unpack sources into ${S} to avoid using S=${WORKDIR} with cmake.eclass
+# (see b.g.o #889420).
 ubuntu-versionator_src_unpack() {
 	debug-print-function ${FUNCNAME} "$@"
 
-	mkdir -p ${S} || die
-	cd ${S} || die
+	mkdir -p "${S}" || die
+	cd "${S}" || die
 	default
 }
 
 # @FUNCTION: ubuntu-versionator_src_prepare
 # @DESCRIPTION:
-# Apply common src_prepare tasks such as patching and vala setting.
-# Apply {xdg,gnome2,distutils-r1,cmake-utils}_src_prepare functions
-# if declared or only apply default.
+# Perform common src_prepare tasks, including patching and Vala setup.
+# Call the first available src_prepare function from cmake, distutils-r1,
+# or gnome2, in that order; otherwise, call default.
 ubuntu-versionator_src_prepare() {
 	debug-print-function ${FUNCNAME} "$@"
 
@@ -122,16 +126,16 @@ ubuntu-versionator_src_prepare() {
 		color_norm=$(tput sgr0) \
 		x
 
-	# Apply Ubuntu diff file if present #
+	# Apply the Ubuntu diff file if present.
 	local diff_file="${PN}_${PV}${UVER}-${UREV}.diff"
 	[[ -f ${WORKDIR}/${diff_file} ]] && diff_file="${WORKDIR}/${diff_file}"
 	if [[ -f ${diff_file} ]]; then
-		echo "${color_bold}>>> Processing Ubuntu diff file${color_norm} ..."
+		echo "${color_bold}>>> Applying the Ubuntu diff file...${color_norm}"
 		eapply "${diff_file}"
 		echo "${color_bold}>>> Done.${color_norm}"
 	fi
 
-	# Apply Ubuntu patchset if one is present #
+	# Apply the Ubuntu patchset if present.
 	local upatch_dir="debian/patches"
 	local -a upatches
 	[[ -f ${WORKDIR}/${upatch_dir}/series ]] && upatch_dir="${WORKDIR}/debian/patches"
@@ -141,7 +145,7 @@ ubuntu-versionator_src_prepare() {
 		done
 	fi
 	if [[ -n ${upatches[@]} ]]; then
-		echo "${color_bold}>>> Processing Ubuntu patchset${color_norm} ..."
+		echo "${color_bold}>>> Applying the Ubuntu patchset...${color_norm}"
 		eapply "${upatches[@]}"
 		echo "${color_bold}>>> Done.${color_norm}"
 	fi
@@ -166,8 +170,10 @@ ubuntu-versionator_src_prepare() {
 
 # @FUNCTION: ubuntu-versionator_pkg_postinst
 # @DESCRIPTION:
-# Apply {gnome2,xdg}_pkg_postinst function if declared and re-create
-# bamf-2.index file of every package to capture all *.desktop files.
+# Call font_pkg_postinst if defined, then gnome2_pkg_postinst or
+# xdg_pkg_postinst, whichever is available.
+# Rebuild the BAMF desktop file index when the package installs desktop
+# files and bamf-index-create is available.
 ubuntu-versionator_pkg_postinst() {
 	debug-print-function ${FUNCNAME} "$@"
 

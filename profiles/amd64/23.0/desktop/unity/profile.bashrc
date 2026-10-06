@@ -1,15 +1,15 @@
 ## ehooks patching system.
 if [[ ${EBUILD_PHASE} == "setup" ]]; then
-	## Get gentoo-unity7 repo path via portageq tool.
+	## Get the gentoo-unity7 repository path using portageq.
 	PORTAGE_QUERY_TOOL=portageq
 	[[ -e "${PORTAGE_BIN_PATH}"/portageq-wrapper ]] && PORTAGE_QUERY_TOOL="${PORTAGE_BIN_PATH}"/portageq-wrapper
 	if "${PORTAGE_QUERY_TOOL}" get_repo_path / gentoo-unity7 >/dev/null 2>&1; then
 		REPO_ROOT=$("${PORTAGE_QUERY_TOOL}" get_repo_path / gentoo-unity7)
 	else
-		die "portageq: gentoo-unity7 repo path not found. If you have recently updated sys-apps/portage then you should re-run 'emerge -avuDU --with-bdeps=y @world' to catch any updates."
+		die "portageq: path to the gentoo-unity7 repository not found. If you have recently updated sys-apps/portage, rerun 'emerge -avuDU --with-bdeps=y @world' to pick up any required updates."
 	fi
 
-	## Look for ehooks in setup phase.
+	## Look for ehooks during the setup phase.
 	local \
 		pkg \
 		basedir="${REPO_ROOT}"/ehooks
@@ -25,8 +25,8 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 			continue
 		fi
 
-		## Skip basedir/generic ehooks for packages
-		## from gentoo-unity7 overlay.
+		## Skip ehooks in ${basedir}/generic for packages
+		## from the gentoo-unity7 overlay.
 		[[ ${PORTAGE_REPO_NAME} == "gentoo-unity7" ]] && \
 		[[ ${EHOOKS_ROOT}/${pkg} == ${basedir}/"generic" ]] && \
 		continue
@@ -38,21 +38,26 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 		[[ ${pkg} != "generic" ]] && break
 	done
 
-	## Define function to check if USE flag is declared.
+	## Define a function to check whether a USE flag is enabled
+	## for unity-base/gentoo-unity-env.
 	ehooks_use() {
 		return $("${PORTAGE_QUERY_TOOL}" has_version / unity-base/gentoo-unity-env["$1"])
 	}
 
-	## Define function to skip all related ehooks if USE flag is not declared.
+	## Define a function to request skipping non-generic ehooks
+	## if a required USE flag is not enabled for unity-base/gentoo-unity-env.
 	ehooks_require() {
 		if ! "${PORTAGE_QUERY_TOOL}" has_version / unity-base/gentoo-unity-env["$1"]; then
-			echo " * USE flag '$1' not declared: skipping related ehooks..."
+			echo " * Required USE flag '$1' is not enabled: skipping remaining non-generic ehooks..."
 			exit ${SKIP_CODE}
 		fi
 	}
 
-	## Define function to apply ehooks.
+	## Define a function to apply ehooks.
 	ehooks_apply() {
+		## Redirect shell tracing to FD 3.
+		local BASH_XTRACEFD=3
+
 		## Process EHOOKS_SOURCE.
 		if [[ ${EHOOKS_SOURCE[@]} == *"${FUNCNAME[1]}"* ]]; then
 
@@ -65,26 +70,26 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 
 		> "${log}"
 
-		## Append bug information to 'die' command.
+		## Add ehooks bug reporting information to the 'die' function.
 		local \
 			bugapnd="eerror \"S: '\${S}'\"" \
-			bugmsg="eerror \"${color_bold}Please submit ehooks bug at ${color_norm}'https://github.com/c4pp4/gentoo-unity7/issues'.\"" \
+			bugmsg="eerror \"${color_bold}Please report ehooks bugs at ${color_norm}'https://github.com/c4pp4/gentoo-unity7/issues'.\"" \
 			buglog="eerror \"${color_bold}The ehooks log is located at ${color_norm}'${log}'.\""
 
 		source <(declare -f die | sed -e "/${bugapnd}/a ${bugmsg}" -e "/${bugapnd}/a ${buglog}")
-		## End of modifying 'die' command
+		## End of modifications to the 'die' function.
 
 		x="$(grep -rh --color=never -- '^EHOOKS_ACCEPT=' ${EROOT}/etc/portage/make.conf)"
-		[[ -n ${x} ]] && eval "$x" ## Needed when installing binary package
+		[[ -n ${x} ]] && eval "$x" ## Needed when installing a binary package.
 		if [[ ${EHOOKS_ACCEPT} != "yes" ]]; then
 			eerror
-			eerror "Warning!"
+			eerror "Warning:"
 			eerror
-			eerror "Patches from gentoo-unity7 overlay will be applied to ${CATEGORY}/${PN} and some other packages from the Gentoo tree via ehooks patching system."
-			eerror "For more details, see ${REPO_ROOT}/docs/ehooks.md - Chapter I."
-			eerror "Set EHOOKS_ACCEPT=\"yes\" in make.conf to confirm you agree with it."
+			eerror "The ehooks patching system from the gentoo-unity7 overlay will apply patches to ${CATEGORY}/${PN} and other packages from the Gentoo tree."
+			eerror "For more details, see Chapter I of '${REPO_ROOT}/docs/ehooks.md'."
+			eerror "Set EHOOKS_ACCEPT=\"yes\" in make.conf to accept the use of the ehooks patching system."
 			eerror
-			echo "Acceptance needed" > "${log}"
+			echo "Acceptance of ehooks patches is required." > "${log}"
 			die "$(<${log})"
 		fi
 
@@ -96,7 +101,12 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 		echo "${color_red}${color_bold}>>> Loading gentoo-unity7 ehooks ...${color_norm}"
 		for x in "${EHOOKS_SOURCE[@]}"; do
 
-		## Process current phase.
+		## Always process generic ehooks, even after a skip request.
+		[[ ${EHOOKS_SOURCE[-1]} == SKIP_NON-GENERIC ]] && \
+		[[ ${x%/*} != *"/generic" ]] && \
+		continue
+
+		## Process ehooks for the current phase.
 		if [[ ${x} == *"${FUNCNAME[1]}.ehooks" ]]; then
 
 		if [[ ! -r ${x} ]]; then
@@ -117,7 +127,7 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 
 		local EHOOKS_FILESDIR=${x%/*}/files
 
-		## Check for eautoreconf.
+		## Load eautoreconf and its helpers if needed.
 		if [[ ${EBUILD_PHASE} == prepare ]]; then
 
 		if declare -f ehooks | grep -q "eautoreconf"; then
@@ -138,8 +148,12 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 						die "$(<${log})"
 					fi
 
-					source <(awk "/^(${eautoreconf_names// /|})(\(\)|=\(\$)/ { p = 1 } p { print } /(^(}|\))|; })\$/ { p = 0 }" ${x} 2>/dev/null)
+					source <(awk "/^(${eautoreconf_names// /|})(\(\)|=\(\$)/ { p = 1 } p { print } /(^(}|\))|; })\$/ { p = 0 }" "${x}" 2>/dev/null)
 				done
+
+				source <(grep -rh --color=never -- '^_LATEST_AUTOCONF=' "${fn_source[0]}")
+				source <(grep -rh --color=never -- '^_LATEST_AUTOMAKE=' "${fn_source[0]}")
+				eautoreconf_names+=" _LATEST_AUTOCONF _LATEST_AUTOMAKE"
 
 				if ! declare -F eautoreconf 1>/dev/null; then
 					echo "eautoreconf: function not found" > "${log}"
@@ -148,55 +162,55 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 			fi
 		fi
 
-		fi ## End of checking for eautoreconf.
+		fi ## End of eautoreconf handling.
 
-		## Output information messages to fd 3 instead of stderr (issue #193).
-		local msgfunc_names="einfo einfon ewarn ebegin __eend __vecho"
+		## Redirect informational messages to FD 3 instead of stderr (issue #193).
+		local msgfunc_names="einfo einfon ewarn ebegin __eend __vecho elog eqawarn"
 
 		for x in ${msgfunc_names}; do
 			source <(declare -f ${x} | sed "s/\(1>&\)2/\13/")
 		done
 
-		## Define exit code to skip ehooks.
+		## Define the exit code for requesting that non-generic ehooks be skipped.
 		local SKIP_CODE=99
 
-		## Log errors to screen and logfile via fd 3.
-		exec 3>&1
+		## Display and log ehooks stderr; send ehooks stdout to FD 3.
 		ehooks 2>&1 >&3 | tee -a "${log}"
 
-		## Clear source when exit status SKIP_CODE is returned.
-		## Needs to be right after the ehooks call.
-		[[ ${PIPESTATUS[0]} -eq ${SKIP_CODE} ]] && EHOOKS_SOURCE=()
+		## Mark non-generic ehooks for skipping when SKIP_CODE is returned.
+		## Check PIPESTATUS immediately after the ehooks pipeline.
+		[[ ${PIPESTATUS[0]} -eq ${SKIP_CODE} ]] && \
+		[[ ${EHOOKS_SOURCE[-1]} != SKIP_NON-GENERIC ]] && \
+		EHOOKS_SOURCE+=( "SKIP_NON-GENERIC" )
 
 		[[ -s ${log} ]] \
 			&& die "$(<${log})"
 
-		## Sanitize.
-		exec 3>&-
+		## Restore message functions and clean up temporary definitions.
 		for x in ${msgfunc_names}; do
 			source <(declare -f ${x} | sed "s/\(1>&\)3/\12/")
 		done
 		unset -f ehooks
 		if [[ -n ${eautoreconf_names} ]]; then
-			eautoreconf_names="${eautoreconf_names/ elibtoolize tc-getLD tc-getPROG _tc-getPROG}"
+			eautoreconf_names="${eautoreconf_names/ gnuconfig_findnewest elibtoolize tc-getLD tc-getPROG _tc-getPROG}"
 			for x in ${eautoreconf_names}; do
 				unset ${x}
 			done
 		fi
 
-		## Exit the current loop when source is cleared.
-		[[ -z ${EHOOKS_SOURCE[@]} ]] && break
-
-		fi ## End of processing current phase.
+		fi ## End of processing the current phase.
 
 		done
 		echo "${color_red}${color_bold}>>> Done.${color_norm}"
 
-		## Sanitize 'die' command.
+		## Remove ehooks diagnostics from the 'die' function.
 		source <(declare -f die | sed "/ehooks/d")
 
 		fi ## End of processing EHOOKS_SOURCE.
-	} ## End of ehooks_apply function.
+
+		## Close the temporary tracing descriptor before restoring the caller's FD 3.
+		unset BASH_XTRACEFD
+	} 3>&1 ## End of the ehooks_apply function.
 
 	pre_pkg_setup() { ehooks_apply; }
 	post_pkg_setup() { ehooks_apply; }
@@ -214,15 +228,16 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 	post_pkg_preinst() { ehooks_apply; }
 	pre_pkg_postinst() { ehooks_apply; }
 	post_pkg_postinst() { ehooks_apply; }
-fi ## End of setup phase.
+fi ## End of the setup phase.
 
-## Check for {pre,post} function name collision with ehooks patching system.
+## Check for name collisions between {pre,post} phase functions
+## and ehooks phase functions.
 if [[ ${EBUILD_PHASE} == "unpack" ]]; then
 	local x
 	local -a EHOOKS_FUNC=()
 	for x in {pre,post}_pkg_{setup,preinst,postinst} {pre,post}_src_{unpack,prepare,configure,compile,install}; do
 		! declare -F ${x} 1>/dev/null || declare -f ${x} | grep -q "ehooks_apply" || EHOOKS_FUNC+=( "'${x}'," )
 	done
-	[[ -n ${EHOOKS_FUNC[@]} ]] && EHOOKS_FUNC[-1]="${EHOOKS_FUNC[-1]%,}" && die "ehooks: function name collision\n  If you have ${EHOOKS_FUNC[@]} inside '${EROOT}/etc/portage/bashrc', call 'ehooks_apply' function inside it or use generic ehooks instead.\n  For more details, see ${REPO_ROOT}/docs/ehooks.md - Chapter II. - Generic ehooks."
+	[[ -n ${EHOOKS_FUNC[@]} ]] && EHOOKS_FUNC[-1]="${EHOOKS_FUNC[-1]%,}" && die "ehooks: function name collision\n  If you define ${EHOOKS_FUNC[@]} in '${EROOT}/etc/portage/bashrc', call ehooks_apply inside each function, or use generic ehooks instead.\n  For more details, see Chapter II (Generic ehooks) of '${REPO_ROOT}/docs/ehooks.md'."
 fi
-## End of ehooks patching system.
+## End of the ehooks patching system.
