@@ -63,7 +63,7 @@ src_prepare() {
 }
 
 src_install() {
-	local DOCS=( MAINTAINERS )
+	DOCS+=( MAINTAINERS )
 	default
 
 	find "${ED}" -name '*.la' -delete || die

@@ -5,7 +5,7 @@ EAPI=8
 
 COMMIT="f16187ed0ea0763af1e6d6a3245afc8e"
 
-inherit java-pkg-2 meson
+inherit ubuntu-versionator java-pkg-2 meson
 
 DESCRIPTION="Global menu for Java applications"
 HOMEPAGE="https://gitlab.com/vala-panel-project/vala-panel-appmenu/tree/master/subprojects/jayatana"
@@ -66,11 +66,8 @@ src_prepare() {
 }
 
 src_install() {
-	DOCS=(
-		AUTHORS
-		LICENSE
-		README.md
-	)
+	epreparedocs
+
 	meson_src_install
 
 	java-pkg_regjar "${ED}"/usr/share/"${PN}-${SLOT}"/lib/*.jar

@@ -1,0 +1,23 @@
+[com.canonical.unity-greeter]
+draw-grid = false
+
+[com.canonical.unity-greeter:unity-greeter]
+play-ready-sound = false
+background = '/usr/share/backgrounds/osselo-Ask_a_friend.jpg'
+background-color = '#2D2446'
+theme-name = 'Yaru-dark'
+icon-theme-name = 'Yaru-purple-dark'
+
+[com.canonical.unity.settings-daemon.plugins.power:unity-greeter]
+button-sleep = 'suspend'
+critical-battery-action = 'suspend'
+sleep-inactive-ac-timeout = 0
+
+## nm-applet and indicator-keyboard icon theme, password field cursor ##
+[org.gnome.desktop.interface:unity-greeter]
+icon-theme = 'Yaru-purple-dark'
+cursor-theme = 'Yaru'
+
+## libnotify font rendering (nm-applet notification) ##
+[org.gnome.settings-daemon.plugins.xsettings.deprecated:unity-greeter]
+antialiasing = 'rgba'

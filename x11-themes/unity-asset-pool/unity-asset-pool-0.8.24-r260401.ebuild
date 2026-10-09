@@ -28,7 +28,7 @@ DEPEND="
 S="${WORKDIR}"
 
 src_install() {
-	local DOCS=( COPYRIGHT )
+	DOCS+=( COPYRIGHT )
 	default
 
 	insinto /usr/share/unity/themes

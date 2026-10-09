@@ -45,7 +45,7 @@ S="${FILESDIR}"
 
 src_install() {
 	local \
-		gschema="10_ubuntu-unity.gschema.override" \
+		gschema="10_ubuntu-unity-resolute.gschema.override" \
 		gschema_dir="/usr/share/glib-2.0/schemas"
 
 	insinto "${gschema_dir}"

@@ -47,41 +47,43 @@ usub() {
 	echo "${sub}"
 }
 
-# @FUNCTION: einstalldocs
+# @FUNCTION: epreparedocs
 # @DESCRIPTION:
-# Based on the einstalldocs implementation in eutils.eclass.
-# Extend any existing DOCS array with common documentation files and
-# Ubuntu package metadata, then install the resulting list.
-einstalldocs() {
-	debug-print-function ${FUNCNAME} "${@}"
-
-	local \
-		clog="changelog.ubuntu" \
-		cright="copyright.ubuntu"
-
-	if mv -n "${WORKDIR}"/debian/changelog "${clog}" 2>/dev/null; then
-		mv -n "${WORKDIR}"/debian/copyright "${cright}" 2>/dev/null
-	elif mv -n debian/changelog "${clog}" 2>/dev/null; then
-		mv -n debian/copyright "${cright}" 2>/dev/null
+# Append common documentation files (README*, ChangeLog, AUTHORS, NEWS,
+# COPYING*, debian/changelog, debian/copyright, ...) found in the source
+# tree to DOCS, respecting its array/string type.
+epreparedocs() {
+	if [[ $(declare -p DOCS 2>/dev/null) == "declare -a"* ]] && (( ${#DOCS[@]} == 0 )); then
+		return
 	fi
-	[[ -s ${cright} ]] || cright="COPYING* LICENSE*"
 
-	local x
-	local -aI DOCS
-	for x in README* ChangeLog AUTHORS NEWS TODO CHANGES \
-		THANKS BUGS FAQ CREDITS CHANGELOG \
-		${clog} ${cright}; do
-		if [[ -s ${x} ]] ; then
-			DOCS+=( "${x}" )
-		fi
+	local d src dst
+	local -a found=()
+
+	for d in README* ChangeLog AUTHORS NEWS TODO CHANGES \
+		THANKS BUGS FAQ CREDITS CHANGELOG COPYING* LICENSE*; do
+		[[ -s ${d} ]] && found+=( "${S}/${d}" )
 	done
 
-	docinto /
-	if [[ -n ${DOCS[@]} ]]; then
-		dodoc -r "${DOCS[@]}" || die
-	fi
+	for src in "${S}" "${WORKDIR}"; do
+		for d in changelog copyright; do
+			[[ -s ${src}/debian/${d} ]] || continue
+			dst="${T}/debian.${d}"
+			cp "${src}/debian/${d}" "${dst}" || die
+			found+=( "${dst}" )
+		done
+	done
 
-	return 0
+	for d in "${found[@]}"; do
+		has "${d}" ${DOCS[*]} && continue
+		if [[ $(declare -p DOCS 2>/dev/null) == "declare -a"* ]]; then
+			DOCS+=( "${d}" )
+		elif [[ -n ${DOCS+set} ]]; then
+			DOCS+=" ${d}"
+		else
+			DOCS=( "${d}" )
+		fi
+	done
 }
 
 # @FUNCTION: ubuntu-versionator_pkg_setup
@@ -117,7 +119,8 @@ ubuntu-versionator_src_unpack() {
 # @DESCRIPTION:
 # Perform common src_prepare tasks, including patching and Vala setup.
 # Call the first available src_prepare function from cmake, distutils-r1,
-# or gnome2, in that order; otherwise, call default.
+# or gnome2, in that order; otherwise, call default. Append common
+# documentation files.
 ubuntu-versionator_src_prepare() {
 	debug-print-function ${FUNCNAME} "$@"
 
@@ -166,6 +169,8 @@ ubuntu-versionator_src_prepare() {
 	fi
 
 	[[ ${UBUNTU_EAUTORECONF} == 'yes' ]] && eautoreconf
+
+	epreparedocs
 }
 
 # @FUNCTION: ubuntu-versionator_pkg_postinst

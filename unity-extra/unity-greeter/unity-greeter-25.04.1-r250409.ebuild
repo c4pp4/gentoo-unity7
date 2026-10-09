@@ -101,7 +101,7 @@ src_install() {
 	default
 
 	local \
-		gschema="10_ubuntu-${PN}.gschema.override" \
+		gschema="10_ubuntu-${PN}-resolute.gschema.override" \
 		gschema_dir="/usr/share/glib-2.0/schemas"
 
 	insinto "${gschema_dir}"

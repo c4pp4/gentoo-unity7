@@ -56,6 +56,8 @@ src_prepare() {
 	echo "$(tput bold)>>> Processing Ubuntu diff file$(tput sgr0) ..."
 	eapply "${diff_file}.ignore"
 	echo "$(tput bold)>>> Done.$(tput sgr0)"
+
+	epreparedocs
 }
 
 src_configure() {
@@ -74,10 +76,11 @@ src_configure() {
 }
 
 src_install() {
-	local DOCS=(
+	DOCS+=(
 		"coding style.txt"
 		hacking.txt
 		readme.txt
 	)
+
 	cmake_src_install
 }

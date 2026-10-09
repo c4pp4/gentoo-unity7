@@ -58,11 +58,8 @@ src_prepare() {
 }
 
 src_install() {
-	DOCS=(
-		AUTHORS
-		LICENSE
-		README.md
-	)
+	epreparedocs
+
 	meson_src_install
 
 	java-pkg_regjar "${ED}"/usr/share/"${PN}-${SLOT}"/lib/*.jar
