@@ -8,16 +8,15 @@ UREV=
 
 inherit ubuntu-versionator
 
-DESCRIPTION="Default audio theme for the Unity"
-HOMEPAGE="https://launchpad.net/ubuntu-sounds"
+DESCRIPTION="Notification and ringtone sounds from Ubuntu Touch"
+HOMEPAGE="https://launchpad.net/ubuntu/+source/ubuntu-touch-sounds"
 SRC_URI="${UURL}.tar.gz"
+S="${S}${UVER}"
 
 LICENSE="CC-BY-SA-3.0"
-KEYWORDS="amd64"
 SLOT="0"
+KEYWORDS="amd64"
 RESTRICT="binchecks strip test"
-
-S="${S}${UVER}"
 
 src_install() {
 	default

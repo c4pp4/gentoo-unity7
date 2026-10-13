@@ -11,15 +11,20 @@
 	-r[release_number][revision_number]
 	release number, e.g. 2110
 	revision number 01-99
+- exceptions:
+	a slot prefix may precede the release number, e.g. libindicator-16.10.0-r3240401
+	packages not based on Ubuntu sources use plain revisions
 - related ebuild variables declared before the inherit command:
 	UVER="+21.10.20210601.1"   # ubuntu version
 	UREV="0ubuntu1"		   # ubuntu revision
 	inherit ubuntu-versionator
 
-* Development Ubuntu release versions of ebuilds are always masked by ~arch package.keywords
-* Any ebuild that installs *.desktop file(s) AND specifies pkg_postinst(), must specify ubuntu-versionator_pkg_postinst
-    within pkg_postinst() {...} so that /usr/share/applications/bamf-2.index remains up-to-date
-* Custom patches for packages that we only wish to patch and not maintain are placed in the ehooks directory
-    see docs/ehooks.md
-* When creating or bumping ebuilds that are also maintained within the main portage tree,
-    try to keep them as identical to the portage tree ebuilds as possible
+* Ebuilds for the Ubuntu development release are always marked as testing (KEYWORDS="~amd64")
+    and are accepted via profiles/gentoo-unity7-dev.accept_keywords
+* Any ebuild that installs *.desktop file(s) AND specifies pkg_postinst() must call ubuntu-versionator_pkg_postinst
+    within pkg_postinst() {...} so that /usr/share/applications/bamf-2.index remains up-to-date.
+    The ebuild must also inherit xdg or gnome2, since the index is rebuilt only when XDG_ECLASS_DESKTOPFILES is set.
+* Custom patches for packages that we only wish to patch and not maintain are placed in the ehooks directory,
+    see docs/ehooks.md.
+* When creating or bumping ebuilds that are also maintained in the Gentoo repository (::gentoo),
+    try to keep them as identical to the ::gentoo ebuilds as possible.

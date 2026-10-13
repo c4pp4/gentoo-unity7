@@ -10,36 +10,39 @@ UREV=0ubuntu8
 
 inherit gnome2 ubuntu-versionator vala
 
-DESCRIPTION="Indicator that collects messages that need a response used by the Unity7 user interface"
+DESCRIPTION="Indicator collecting messages that need a response for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/indicator-messages"
 SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+S="${WORKDIR}"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="doc"
 RESTRICT="test"
 
 COMMON_DEPEND="
-	>=dev-libs/gobject-introspection-0.9.12
+	>=dev-libs/glib-2.37.3:2
 	>=sys-apps/accountsservice-0.6.8:=
 "
 RDEPEND="${COMMON_DEPEND}
-	>=dev-libs/glib-2.37.3:2
 	dev-libs/libindicator:3
 	gnome-base/dconf
-	>=sys-libs/glibc-2.4
 "
 DEPEND="${COMMON_DEPEND}
-	dev-util/gtk-doc
-	gnome-base/gnome-common
 	sys-apps/systemd
+"
+BDEPEND="
+	dev-build/gtk-doc-am
+	>=dev-libs/gobject-introspection-0.9.12
+	dev-util/intltool
+	gnome-base/gnome-common
+	virtual/pkgconfig
+
+	doc? ( dev-util/gtk-doc )
 
 	$(vala_depend)
 "
-BDEPEND="dev-util/intltool"
-
-S="${WORKDIR}"
 
 src_prepare() {
 	# Don't try to find test dep #

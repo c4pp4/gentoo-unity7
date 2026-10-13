@@ -12,6 +12,7 @@ inherit ubuntu-versionator
 DESCRIPTION="Application indicators used by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/indicator-application"
 SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+S="${WORKDIR}"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -25,25 +26,23 @@ COMMON_DEPEND="
 	>=dev-libs/libdbusmenu-0.5.90:=[gtk3]
 	>=dev-libs/libindicator-0.4.90:3
 	>=x11-libs/gtk+-3.0.0:3
-"
-RDEPEND="${COMMON_DEPEND}
-	>=sys-libs/glibc-2.4
 	>=x11-libs/pango-1.14.0
 "
+RDEPEND="${COMMON_DEPEND}"
 DEPEND="${COMMON_DEPEND}
 	dev-libs/json-glib
-	gnome-base/gnome-common
 	sys-apps/systemd
 "
-BDEPEND="dev-util/intltool"
-
-S="${WORKDIR}"
+BDEPEND="
+	dev-util/intltool
+	virtual/pkgconfig
+"
 
 src_prepare() {
 	# Fix desktop file installation location #
 	sed -i \
 		-e 's:$(pkgdatadir)/upstart/xdg/autostart:$(datadir)/upstart/xdg/autostart:g' \
-		data/upstart/Makefile.am
+		data/upstart/Makefile.am || die
 
 	ubuntu-versionator_src_prepare
 }

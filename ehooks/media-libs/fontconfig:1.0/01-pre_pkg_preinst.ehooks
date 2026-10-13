@@ -1,6 +1,4 @@
 ehooks() {
-	ehooks_require fontconfig
-
 	local \
 		f \
 		symlink_dir="/etc/fonts/conf.d"

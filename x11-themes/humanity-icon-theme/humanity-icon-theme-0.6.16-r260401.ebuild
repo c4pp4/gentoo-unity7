@@ -11,6 +11,7 @@ inherit gnome2 ubuntu-versionator
 DESCRIPTION="A nice and well polished icon theme"
 HOMEPAGE="https://launchpad.net/human-icon-theme"
 SRC_URI="${UURL}.tar.xz"
+S="${S}${UVER}"
 
 LICENSE="CC-BY-SA-3.0 GPL-2 GPL-3 LGPL-3+ MPL-1.1"
 SLOT="0"
@@ -24,24 +25,23 @@ RDEPEND="
 
 	extra? ( x11-themes/tangerine-icon-theme )
 "
-DEPEND="
-	dev-python/pygobject:3
-	gnome-base/librsvg
-
+BDEPEND="
 	optimize? (
 		>=media-gfx/scour-0.36
 		x11-misc/icon-naming-utils
 	)
 "
 
-S="${S}${UVER}"
+src_prepare() {
+	# Add AdwaitaLegacy icons support #
+	sed -i "s/Inherits=/Inherits=AdwaitaLegacy,/" Humanity/index.theme || die
+
+	ubuntu-versionator_src_prepare
+}
 
 src_configure() { :; }
 
 src_install() {
-	# Add AdwaitaLegacy icons support #
-	sed -i "s/Inherits=/Inherits=AdwaitaLegacy,/" Humanity/index.theme || die
-
 	insinto /usr/share/icons
 	doins -r Humanity
 	doins -r Humanity-Dark
@@ -61,12 +61,12 @@ src_install() {
 		done
 
 		for x in "${ED}"/usr/share/icons/*/*/*; do
-			[[ -d ${x} ]] && "${EROOT}"/usr/libexec/icon-name-mapping -c "${x}"
+			[[ -d ${x} ]] && "${BROOT}"/usr/libexec/icon-name-mapping -c "${x}"
 		done
 	fi
 
 	# Remove broken symlinks #
-	find -L "${ED}" -type l -delete
+	find -L "${ED}" -type l -delete || die
 
 	einstalldocs
 }

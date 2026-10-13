@@ -2,11 +2,12 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
+PYTHON_COMPAT=( python3_{12..15} )
 
 UVER=
 UREV=0ubuntu2
 
-inherit gnome2 ubuntu-versionator
+inherit gnome2 python-any-r1 ubuntu-versionator
 
 DESCRIPTION="Monochrome icons for the Unity7 user interface (default icon theme)"
 HOMEPAGE="https://launchpad.net/ubuntu-themes"
@@ -24,12 +25,10 @@ RDEPEND="
 	x11-themes/hicolor-icon-theme
 	x11-themes/humanity-icon-theme
 	x11-themes/ubuntu-wallpapers
-"
-DEPEND="
-	dev-python/pygobject:3
-	gnome-base/librsvg
 	x11-themes/yaru-theme[unity]
-
+"
+BDEPEND="
+	${PYTHON_DEPS}
 	optimize? (
 		>=media-gfx/scour-0.36
 		x11-misc/icon-naming-utils
@@ -73,7 +72,7 @@ src_install() {
 		done
 
 		for x in "${ED}"/usr/share/icons/*/*/*; do
-			[[ -d ${x} ]] && "${EROOT}"/usr/libexec/icon-name-mapping -c "${x}"
+			[[ -d ${x} ]] && "${BROOT}"/usr/libexec/icon-name-mapping -c "${x}"
 		done
 	fi
 
@@ -82,7 +81,7 @@ src_install() {
 	doins -r Ambiance Radiance ubuntu-mobile
 
 	## Remove broken symlinks ##
-	find -L "${ED}" -type l -delete
+	find -L "${ED}" -type l -delete || die
 
 	einstalldocs
 }

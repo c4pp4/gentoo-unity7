@@ -12,6 +12,7 @@ inherit vala ubuntu-versionator
 DESCRIPTION="Music lens for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/unity-lens-music"
 SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+S="${S}${UVER}"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -29,24 +30,22 @@ COMMON_DEPEND="
 	>=media-libs/gstreamer-1.0.0:1.0
 	>=sys-libs/tdb-1.2.7
 "
-RDEPEND="${COMMON_DEPEND}
-	>=sys-libs/glibc-2.4
-"
+RDEPEND="${COMMON_DEPEND}"
 DEPEND="${COMMON_DEPEND}
 	dev-libs/json-glib
-	gnome-base/gnome-common
 	x11-libs/libnotify
-
+"
+BDEPEND="
+	dev-util/intltool
+	sys-devel/gettext
+	virtual/pkgconfig
 	$(vala_depend)
 "
-BDEPEND="virtual/pkgconfig"
 PDEPEND="
 	|| (
 		media-sound/rhythmbox
 		unity-lens/unity-scope-extras[audacious]
 	)
 "
-
-S="${S}${UVER}"
 
 PATCHES=( "${FILESDIR}"/Remove-Banshee-support.patch )

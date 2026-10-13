@@ -1,0 +1,151 @@
+# Copyright 1999-2026 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=8
+DISTUTILS_OPTIONAL=1
+DISTUTILS_SINGLE_IMPL=1
+DISTUTILS_USE_PEP517=setuptools
+PYTHON_COMPAT=( python3_{12..15} )
+
+UVER=+17.10.20170619
+UREV=0ubuntu6
+
+inherit distutils-r1 cmake gnome2 ubuntu-versionator vala
+
+DESCRIPTION="Backend for the Unity HUD"
+HOMEPAGE="https://launchpad.net/hud"
+SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+S="${S}${UVER}"
+
+LICENSE="GPL-3"
+SLOT="0"
+KEYWORDS="amd64"
+IUSE="doc test"
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
+RESTRICT="!test? ( test )"
+
+COMMON_DEPEND="
+	>=dev-libs/dee-0.5.2:0=[${PYTHON_SINGLE_USEDEP}]
+	>=dev-libs/glib-2.37.3:2
+	>=dev-libs/libcolumbus-1.1.0:0=[${PYTHON_SINGLE_USEDEP}]
+	>=dev-libs/libdbusmenu-qt-0.9.3-r260402
+	dev-qt/qtbase:6[dbus,gui,sql,sqlite,widgets]
+	>=x11-libs/dee-qt-3.3-r260402
+	>=x11-libs/gsettings-qt-1.1.1-r260402
+	>=x11-libs/gtk+-3.5.4:3[introspection]
+	>=x11-libs/pango-1.14.0[introspection]
+
+	${PYTHON_DEPS}
+"
+RDEPEND="${COMMON_DEPEND}
+	gnome-base/dconf
+
+	$(python_gen_cond_dep '
+		dev-python/lxml[${PYTHON_USEDEP}]
+		dev-python/polib[${PYTHON_USEDEP}]
+	')
+"
+DEPEND="${COMMON_DEPEND}
+	>=dev-libs/libdbusmenu-0.5.90[gtk3,test?]
+	sys-apps/systemd
+
+	test? (
+		>=dev-cpp/gtest-1.6.0
+		>=dev-libs/libqtdbusmock-0.10.0-r260402[${PYTHON_SINGLE_USEDEP}]
+		>=dev-libs/libqtdbustest-0.4.0-r260402
+	)
+"
+BDEPEND="
+	>=dev-build/cmake-extras-0.10
+	dev-libs/gobject-introspection
+	dev-util/intltool
+	virtual/pkgconfig
+
+	doc? (
+		app-text/docbook-xsl-stylesheets
+		dev-libs/libxslt
+		media-gfx/mscgen
+	)
+	test? ( x11-misc/xvfb-run )
+
+	${DISTUTILS_DEPS}
+	${PYTHON_DEPS}
+	$(vala_depend)
+"
+
+PATCHES=( "${FILESDIR}"/Qt6-migration.patch )
+
+wrap_distutils() {
+	pushd tools/hudkeywords >/dev/null || die
+		distutils-r1_${1}
+	popd >/dev/null || die
+}
+
+src_prepare() {
+	# As of focal 14.10+17.10.20170619-0ubuntu3, disable #
+	# gtkdoc-mktmpl as it was removed from gtk-doc 1.26. #
+	if use doc; then
+		sed -i \
+			-e '/subdirectory(libhud/d' \
+			docs/CMakeLists.txt || die
+	fi
+
+	# Stop cmake doing the job of distutils #
+	sed -i \
+		-e '/add_subdirectory(hudkeywords)/d' \
+		tools/CMakeLists.txt || die
+
+	# Fix Python 3 incompatibilities #
+	sed -i \
+		-e '/except /{s/,/ as/}' \
+		-e 's/^import po$/from hudkeywords import po/' \
+		-e 's/action="count", help/action="count", default=0, help/' \
+		tools/hudkeywords/hudkeywords/cli.py || die
+
+	# Remove unsupported setuptools option #
+	sed -i '/test_suite/d' tools/hudkeywords/setup.py || die
+
+	# Remove invalid attribute #
+	sed -i 's/ visible="0"//' tools-vala/hud-gtk.ui || die
+
+	python_fix_shebang tools/hudkeywords
+	wrap_distutils ${FUNCNAME}
+
+	ubuntu-versionator_src_prepare
+
+	# Don't try to find test deps #
+	if ! use test; then
+		sed -i \
+			-e '/QTDBUSTEST/d' \
+			-e '/QTDBUSMOCK/d' \
+			CMakeLists.txt || die
+	fi
+}
+
+src_configure() {
+	local mycmakeargs=(
+		-DBUILD_SHARED_LIBS=OFF
+		-DCMAKE_INSTALL_DATADIR=/usr/share
+		-DCMAKE_POLICY_VERSION_MINIMUM=3.16
+		-DENABLE_BAMF=ON
+		-DENABLE_DOCUMENTATION=$(usex doc ON OFF)
+		-DENABLE_TESTS=$(usex test ON OFF)
+		-DVALA_COMPILER=${VALAC}
+		-DVAPI_GEN=${VAPIGEN}
+	)
+	cmake_src_configure
+
+	wrap_distutils ${FUNCNAME}
+}
+
+src_compile() {
+	cmake_src_compile
+	wrap_distutils ${FUNCNAME}
+}
+
+src_install() {
+	cmake_src_install
+
+	wrap_distutils ${FUNCNAME}
+	python_optimize
+}

@@ -9,13 +9,14 @@ UREV=0ubuntu1
 
 inherit ubuntu-versionator gnome2 vala
 
-DESCRIPTION="The greeter (login screen) application for Unity. It is implemented as a LightDM greeter."
+DESCRIPTION="LightDM greeter (login screen) for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/unity-greeter"
 SRC_URI="${UURL}-${UREV}.tar.xz"
+S="${WORKDIR}/${PN}-24.10.1"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="nls +ready-sound"
 RESTRICT="test"
 
@@ -29,11 +30,16 @@ COMMON_DEPEND="
 	>=x11-misc/lightdm-1.20.0[vala]
 "
 RDEPEND="${COMMON_DEPEND}
+	>=app-eselect/eselect-lightdm-0.1
 	>=dev-libs/glib-2.43.92:2
 	gnome-base/dconf
 	gnome-extra/nm-applet[appindicator]
+	|| (
+		media-fonts/fonts-ubuntu
+		media-fonts/ubuntu-font-family
+	)
 	sys-apps/systemd
-	>=sys-libs/glibc-2.34
+	sys-auth/polkit
 	unity-indicators/indicator-application
 	unity-indicators/indicator-datetime
 	unity-indicators/indicator-keyboard
@@ -48,26 +54,21 @@ RDEPEND="${COMMON_DEPEND}
 	x11-libs/libXext
 	>=x11-libs/pango-1.14.0
 	x11-misc/notify-osd
+	x11-themes/humanity-icon-theme
 
 	ready-sound? ( x11-themes/ubuntu-sounds )
 "
 DEPEND="${COMMON_DEPEND}
-	>=app-eselect/eselect-lightdm-0.1
-	gnome-base/gnome-common
-	gnome-base/gnome-desktop:3=
-	|| (
-		media-fonts/fonts-ubuntu
-		media-fonts/ubuntu-font-family
-	)
 	media-libs/freetype:2
-	sys-apps/dbus[X]
 	x11-libs/pixman
-	x11-themes/humanity-icon-theme
+"
+BDEPEND="
+	acct-group/polkitd
+	dev-util/intltool
+	virtual/pkgconfig
 
 	$(vala_depend)
 "
-
-S="${WORKDIR}/${PN}-24.10.1"
 
 PATCHES=(
 	"${FILESDIR}"/environment-variables.patch # Import DISPLAY and XDG_SESSION_CLASS1, set XDG_CURRENT_DESKTOP
@@ -124,7 +125,7 @@ src_install() {
 	fowners root:polkitd /var/lib/polkit-1/localauthority/10-vendor.d/${PN}.pkla
 
 	insinto /usr/share/polkit-1/rules.d
-	newins debian/01-${PN}.rules 01-${PN}.rules || die
+	newins debian/01-${PN}.rules 01-${PN}.rules
 
 	find "${ED}" -name '*.la' -delete || die
 }

@@ -17,18 +17,17 @@ LICENSE="GPL-3 LGPL-2.1"
 SLOT="0"
 KEYWORDS="amd64"
 IUSE="doc"
+# Tests require a running zeitgeist daemon on the session bus #
+RESTRICT="test"
 
-COMMON_DEPEND="
-	>=dev-libs/glib-2.37.3:2
-"
+COMMON_DEPEND=">=dev-libs/glib-2.37.3:2"
 RDEPEND="${COMMON_DEPEND}
 	gnome-extra/zeitgeist
-	>=sys-libs/glibc-2.4
-
-	doc? ( dev-util/devhelp )
 "
-DEPEND="${COMMON_DEPEND}
-	>=sys-apps/dbus-1.0
+DEPEND="${COMMON_DEPEND}"
+BDEPEND="
+	dev-build/gtk-doc-am
+	virtual/pkgconfig
 
 	doc? ( dev-util/gtk-doc )
 "

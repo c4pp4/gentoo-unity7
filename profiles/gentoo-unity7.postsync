@@ -1,0 +1,7 @@
+#!/bin/bash
+## Portage repo.postsync.d hook: report packages affected by ehooks changes.
+## Arguments: repository name, sync URI, repository path.
+
+[[ $1 == "gentoo-unity7" ]] || exit 0
+
+"$3"/version_control.sh --notice

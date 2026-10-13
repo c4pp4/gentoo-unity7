@@ -11,6 +11,7 @@ inherit vala ubuntu-versionator
 
 DESCRIPTION="Video lens for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/unity-lens-video"
+S="${S}${UVER}"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -29,15 +30,14 @@ RDEPEND="${COMMON_DEPEND}
 		sys-apps/plocate
 		sys-apps/mlocate
 	)
-	>=sys-libs/glibc-2.4
 "
-DEPEND="${COMMON_DEPEND}
-	gnome-base/gnome-common
-
+DEPEND="${COMMON_DEPEND}"
+BDEPEND="
+	dev-util/intltool
+	sys-devel/gettext
+	virtual/pkgconfig
 	$(vala_depend)
 "
-
-S="${S}${UVER}"
 
 PATCHES=( "${FILESDIR}"/Remove-remote-video-support.patch )
 

@@ -12,6 +12,7 @@ inherit multilib-minimal ubuntu-versionator virtualx
 DESCRIPTION="A set of symbols and convenience functions that all indicators would like to use"
 HOMEPAGE="https://launchpad.net/libindicator"
 SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+S="${WORKDIR}"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -21,26 +22,18 @@ RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.37.3:2[${MULTILIB_USEDEP}]
+	>=x11-libs/gdk-pixbuf-2.22.0:2[${MULTILIB_USEDEP}]
 	>=x11-libs/gtk+-2.18:2[${MULTILIB_USEDEP}]
 "
-RDEPEND="${COMMON_DEPEND}
-	>=sys-libs/glibc-2.4
-	>=x11-libs/gdk-pixbuf-2.22.0:2[${MULTILIB_USEDEP}]
-"
-DEPEND="${COMMON_DEPEND}
-	gnome-base/gnome-common
-
-	test? (
-		dev-util/dbus-test-runner
-		x11-misc/xvfb-run
-	)
-"
+RDEPEND="${COMMON_DEPEND}"
+DEPEND="${COMMON_DEPEND}"
 BDEPEND="
-	dev-util/intltool
 	dev-build/libtool
-"
+	dev-util/intltool
+	virtual/pkgconfig
 
-S="${WORKDIR}"
+	test? ( dev-util/dbus-test-runner )
+"
 
 MAKEOPTS="${MAKEOPTS} -j1"
 
@@ -61,7 +54,7 @@ multilib_src_configure() {
 
 multilib_src_test() {
 	# b.g.o #391179
-	virtx emake
+	virtx emake check
 }
 
 multilib_src_install_all() {

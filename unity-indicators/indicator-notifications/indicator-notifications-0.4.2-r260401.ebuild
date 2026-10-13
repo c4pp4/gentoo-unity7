@@ -24,7 +24,6 @@ COMMON_DEPEND="
 "
 RDEPEND="${COMMON_DEPEND}
 	gnome-base/dconf
-	>=sys-libs/glibc-2.4
 "
 DEPEND="${COMMON_DEPEND}
 	>=x11-libs/gdk-pixbuf-2.22:2

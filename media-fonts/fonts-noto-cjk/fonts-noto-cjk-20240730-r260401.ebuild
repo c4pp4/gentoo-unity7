@@ -12,6 +12,7 @@ inherit font ubuntu-versionator
 DESCRIPTION="'No Tofu' CJK font families with large Unicode coverage (CJK regular and bold)"
 HOMEPAGE="https://github.com/notofonts/noto-cjk"
 SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
+S="${WORKDIR}/tmp03n08f3k"
 
 LICENSE="OFL-1.1"
 SLOT="0"
@@ -20,8 +21,6 @@ IUSE="extra"
 RESTRICT="binchecks strip test"
 
 RDEPEND="!media-fonts/noto-cjk"
-
-S="${WORKDIR}/tmp03n08f3k"
 
 FONT_SUFFIX="ttc"
 FONT_S=(

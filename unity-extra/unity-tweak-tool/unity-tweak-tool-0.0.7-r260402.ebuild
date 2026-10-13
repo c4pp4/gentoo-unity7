@@ -28,12 +28,13 @@ RDEPEND="
 	x11-libs/gtk+:3[introspection]
 
 	$(python_gen_cond_dep '
+		dev-python/dbus-python[${PYTHON_USEDEP}]
 		dev-python/pycairo[${PYTHON_USEDEP}]
+		dev-python/pygobject:3[${PYTHON_USEDEP}]
 		dev-python/pyxdg[${PYTHON_USEDEP}]
 	')
 "
-DEPEND="
-	${PYTHON_DEPS}
+BDEPEND="
 	$(python_gen_cond_dep '
 		dev-python/python-distutils-extra[${PYTHON_USEDEP}]
 	')
@@ -66,7 +67,7 @@ src_prepare() {
 	# Exp #1: Fix /usr/share/unity-tweak-tool path #
 	# Exp #2: Disable recompiling GSettings schemas #
 	sed -i \
-		-e "/target_pkgdata =/{s:target_data:'${EROOT}/usr/':}" \
+		-e "/target_pkgdata =/{s:target_data:'${EPREFIX}/usr/':}" \
 		-e "/compile_schemas(self/d" \
 		setup.py || die
 
@@ -96,7 +97,7 @@ src_install() {
 	python_optimize
 
 	# Fix /usr/share/applications path #
-	local pysite="${ED}/$(python_get_sitedir)"
+	local pysite="${D}$(python_get_sitedir)"
 	newmenu "${pysite}"/usr/share/applications/extras-"${PN}".desktop \
 		"${PN}".desktop
 	rm -r "${pysite}"/usr || die

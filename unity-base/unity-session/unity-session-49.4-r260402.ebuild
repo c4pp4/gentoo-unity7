@@ -8,9 +8,10 @@ UREV=
 
 inherit desktop gnome2-utils systemd ubuntu-versionator
 
-DESCRIPTION="Utility to change the LightDM greeter being used"
-HOMEPAGE="https://www.gentoo.org/"
+DESCRIPTION="Session files and startup scripts for the Unity7 user interface"
+HOMEPAGE="https://launchpad.net/ubuntu/+source/unity-session"
 SRC_URI="${UURL}.tar.xz"
+S="${WORKDIR}/${PN}"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -27,8 +28,6 @@ RDEPEND="
 	unity-base/unity-settings-daemon
 	x11-misc/xdg-user-dirs-gtk
 "
-
-S="${WORKDIR}/${PN}"
 
 src_install() {
 	insinto /usr/share/nemo/actions

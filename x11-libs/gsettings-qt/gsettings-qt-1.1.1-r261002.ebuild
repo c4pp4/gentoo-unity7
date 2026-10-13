@@ -8,37 +8,39 @@ UREV=2
 
 inherit cmake ubuntu-versionator
 
-DESCRIPTION="Qml bindings for GSettings."
+DESCRIPTION="QML bindings for GSettings"
 HOMEPAGE="https://gitlab.com/ubports/development/core/gsettings-qt"
 SRC_URI="${UURL}.orig.tar.bz2"
+S="${WORKDIR}/${PN}-v${PV}"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
-RESTRICT="test"
+KEYWORDS="amd64"
+IUSE="test"
+RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.76.0:2
 	>=dev-qt/qtbase-6.10.2:6
 	>=dev-qt/qtdeclarative-6.6.0:6
 "
-RDEPEND="${COMMON_DEPEND}
-	>=sys-devel/gcc-5
-	>=sys-libs/glibc-2.14
-"
-DEPEND="${COMMON_DEPEND}
+RDEPEND="${COMMON_DEPEND}"
+DEPEND="${COMMON_DEPEND}"
+BDEPEND="
 	>=dev-build/cmake-extras-1.8
-	x11-apps/xauth
+	virtual/pkgconfig
 "
-BDEPEND="virtual/pkgconfig"
 
-S="${WORKDIR}/${PN}-v${PV}"
+src_prepare() {
+	# Support new multilib layout #
+	sed -i "s:/usr/lib/:/usr/$(get_libdir)/:" GSettings/CMakeLists.txt || die
+
+	ubuntu-versionator_src_prepare
+}
 
 src_configure() {
-	# Support new multilib layout #
-	sed -i "s:/usr/lib:/usr/lib64:" GSettings/CMakeLists.txt
-
 	local mycmakeargs=(
+		-DBUILD_TESTING=$(usex test)
 		-DENABLE_QT6=ON
 		-Wno-dev
 	)

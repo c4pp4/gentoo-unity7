@@ -12,6 +12,7 @@ inherit multilib-minimal ubuntu-versionator vala
 DESCRIPTION="Widgets and other objects used for indicators by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/ido"
 SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+S="${WORKDIR}"
 
 LICENSE="LGPL-2.1 LGPL-3"
 SLOT="0/$(usub)"
@@ -20,25 +21,23 @@ RESTRICT="test"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.41.1:2[${MULTILIB_USEDEP}]
-	>=x11-libs/gtk+-3.8.2:3[${MULTILIB_USEDEP}]
-"
-RDEPEND="${COMMON_DEPEND}
-	>=sys-libs/glibc-2.29
-	virtual/pkgconfig
 	>=x11-libs/cairo-1.2.4[${MULTILIB_USEDEP}]
 	>=x11-libs/gdk-pixbuf-2.23.0:2[${MULTILIB_USEDEP}]
+	>=x11-libs/gtk+-3.8.2:3[${MULTILIB_USEDEP}]
 	>=x11-libs/pango-1.20.0[${MULTILIB_USEDEP}]
 "
+RDEPEND="${COMMON_DEPEND}"
 DEPEND="${COMMON_DEPEND}
-	dev-libs/gobject-introspection
-	gnome-base/gnome-common
 	x11-libs/libX11[${MULTILIB_USEDEP}]
 	x11-libs/libXi[${MULTILIB_USEDEP}]
+"
+BDEPEND="
+	dev-build/gtk-doc-am
+	dev-libs/gobject-introspection
+	virtual/pkgconfig
 
 	$(vala_depend)
 "
-
-S="${WORKDIR}"
 
 MAKEOPTS="${MAKEOPTS} -j1"
 

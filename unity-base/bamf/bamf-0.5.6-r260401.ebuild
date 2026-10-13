@@ -2,16 +2,18 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
+PYTHON_COMPAT=( python3_{12..15} )
 UBUNTU_EAUTORECONF="yes"
 
 UVER=+22.04.20220217
 UREV=0ubuntu6
 
-inherit ubuntu-versionator vala
+inherit python-any-r1 ubuntu-versionator vala
 
 DESCRIPTION="BAMF Application Matching Framework"
 HOMEPAGE="https://launchpad.net/bamf"
 SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+S="${WORKDIR}"
 
 LICENSE="GPL-3 LGPL-2.1 LGPL-3"
 SLOT="0/$(usub)"
@@ -23,25 +25,31 @@ COMMON_DEPEND="
 	>=dev-libs/glib-2.43.2:2
 	>=dev-libs/libdbusmenu-0.4.2[gtk3]
 	>=gnome-base/libgtop-2.22.3:2
-	>=x11-libs/libwnck-3.4.7:3
-	>=x11-libs/gtk+-3.9.10:3[introspection]
-"
-RDEPEND="${COMMON_DEPEND}
-	>=sys-libs/glibc-2.14
 	>=x11-libs/gdk-pixbuf-2.22.0:2
+	>=x11-libs/gtk+-3.9.10:3[introspection]
+	>=x11-libs/libwnck-3.4.7:3
 	x11-libs/libX11
 	>=x11-libs/startup-notification-0.11
 "
-DEPEND="${COMMON_DEPEND}
-	dev-util/gtk-doc
-	gnome-base/gnome-common
-	>=sys-apps/dbus-1.8
-	x11-themes/hicolor-icon-theme
+RDEPEND="${COMMON_DEPEND}"
+DEPEND="${COMMON_DEPEND}"
+BDEPEND="
+	dev-build/gtk-doc-am
+	dev-libs/gobject-introspection
+	dev-util/glib-utils
+	virtual/pkgconfig
+
+	doc? ( dev-util/gtk-doc )
+
+	${PYTHON_DEPS}
+	$(python_gen_any_dep 'dev-python/lxml[${PYTHON_USEDEP}]')
 
 	$(vala_depend)
 "
 
-S="${WORKDIR}"
+python_check_deps() {
+	python_has_version "dev-python/lxml[${PYTHON_USEDEP}]"
+}
 
 src_prepare() {
 	# GNOME_COMMON_INIT: command not found #

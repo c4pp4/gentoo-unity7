@@ -12,40 +12,42 @@ inherit gnome2 savedconfig ubuntu-versionator
 DESCRIPTION="Canonical's on-screen-display notification agent"
 HOMEPAGE="https://launchpad.net/notify-osd"
 SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
+S="${WORKDIR}"
 
 LICENSE="LGPL-2+ GPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="minimal"
 RESTRICT="test"
 
 COMMON_DEPEND="
+	>=app-accessibility/at-spi2-core-2.46.0:2
 	>=dev-libs/dbus-glib-0.88
 	>=dev-libs/glib-2.37.3:2
 	>=sys-apps/dbus-1.9.14
-	>=x11-libs/gtk+-3.9.10:3
-	>=x11-libs/libwnck-3.4.0:3
-"
-RDEPEND="${COMMON_DEPEND}
-	>=app-accessibility/at-spi2-core-2.46.0:2
-	gnome-base/dconf
-	gnome-base/gsettings-desktop-schemas
-	>=sys-libs/glibc-2.34
 	>=x11-libs/cairo-1.14.0
 	>=x11-libs/gdk-pixbuf-2.22.0:2
+	>=x11-libs/gtk+-3.9.10:3
+	>=x11-libs/libwnck-3.4.0:3
 	x11-libs/libX11
 	>=x11-libs/pango-1.20.0
 	>=x11-libs/pixman-0.30.0
+"
+RDEPEND="${COMMON_DEPEND}
+	gnome-base/dconf
+	gnome-base/gsettings-desktop-schemas
 
 	!minimal? ( x11-themes/notify-osd-icons )
 "
 DEPEND="${COMMON_DEPEND}
-	gnome-base/gnome-common
 	>=x11-libs/libnotify-0.6.1
 "
-BDEPEND="dev-util/intltool"
-
-S="${WORKDIR}"
+BDEPEND="
+	dev-libs/dbus-glib
+	dev-util/intltool
+	gnome-base/gnome-common
+	virtual/pkgconfig
+"
 
 src_prepare() {
 	# GNOME_COMMON_INIT: command not found #

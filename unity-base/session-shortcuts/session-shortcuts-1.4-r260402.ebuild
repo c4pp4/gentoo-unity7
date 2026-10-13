@@ -11,6 +11,7 @@ inherit desktop xdg ubuntu-versionator
 DESCRIPTION="Allows shutdown, logout, and reboot from dash"
 HOMEPAGE="https://wiki.ubuntu.com/Unity"
 SRC_URI="${UURL}.tar.xz"
+S="${S}${UVER}"
 
 LICENSE="GPL-2+"
 SLOT="0"
@@ -21,13 +22,7 @@ RDEPEND="
 	!gnome-base/gnome-session
 	gnome-extra/cinnamon-session
 "
-DEPEND="
-	dev-util/intltool
-	sys-devel/gettext
-"
 PDEPEND="unity-base/unity"
-
-S="${S}${UVER}"
 
 src_install() {
 	local x

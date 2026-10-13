@@ -10,7 +10,8 @@ inherit ubuntu-versionator
 
 DESCRIPTION="Unity Desktop - merge this to pull in all Unity lenses"
 HOMEPAGE="https://wiki.ubuntu.com/Unity"
-SRC_URI=""
+unset SRC_URI
+S="${WORKDIR}"
 
 LICENSE="metapackage"
 SLOT="0"
@@ -30,5 +31,3 @@ RDEPEND="
 "
 
 PDEPEND="unity-base/unity-settings[files=,music=,photos=,video=]"
-
-S="${WORKDIR}"

@@ -10,12 +10,13 @@ inherit ubuntu-versionator
 
 DESCRIPTION="Unity Desktop - merge this to pull in all Unity indicators"
 HOMEPAGE="https://wiki.ubuntu.com/Unity"
-SRC_URI=""
+unset SRC_URI
+S="${WORKDIR}"
 
 LICENSE="metapackage"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="+appearance +battery bluetooth +cups +datetime java8 java11 java17 java21 java25 +keyboard mail +notifications paste sensors +session +sound weather"
+IUSE="+appearance +battery bluetooth +cups java8 java11 java17 java21 java25 +keyboard mail +notifications paste sensors +session +sound weather"
 RESTRICT="binchecks strip test"
 
 RDEPEND="
@@ -40,5 +41,3 @@ RDEPEND="
 	sound? ( unity-indicators/indicator-sound )
 	weather? ( unity-extra/meteo-qt )
 "
-
-S="${WORKDIR}"

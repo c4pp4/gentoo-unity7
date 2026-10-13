@@ -10,7 +10,8 @@ inherit ubuntu-versionator
 
 DESCRIPTION="Unity Desktop - merge this to pull in all Unity packages"
 HOMEPAGE="https://wiki.ubuntu.com/Unity"
-SRC_URI=""
+unset SRC_URI
+S="${WORKDIR}"
 
 LICENSE="metapackage"
 SLOT="0"
@@ -131,6 +132,7 @@ RDEPEND="
 			gnome-extra/gnome-weather
 			media-gfx/gnome-font-viewer
 			media-gfx/simple-scan
+			net-misc/gnome-connections
 			sci-geosciences/gnome-maps
 		)
 	)
@@ -166,5 +168,3 @@ RDEPEND="
 		games-puzzle/swell-foop
 	)
 "
-
-S="${WORKDIR}"

@@ -20,23 +20,25 @@ RESTRICT="test"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.39.4:2
+	unity-base/gsettings-ubuntu-touch-schemas
 	>=x11-libs/libnotify-0.7.6
 "
 RDEPEND="${COMMON_DEPEND}
 	dev-libs/libindicator:3
 	gnome-base/dconf
-	>=sys-libs/glibc-2.4
 	sys-power/upower:=
 
 	powerman? ( gnome-extra/gnome-power-manager )
 "
 DEPEND="${COMMON_DEPEND}
 	dev-libs/libgudev:=
-	>=dev-build/cmake-extras-0.10
 	sys-apps/systemd
-	unity-base/gsettings-ubuntu-touch-schemas
 "
-BDEPEND="dev-util/intltool"
+BDEPEND="
+	>=dev-build/cmake-extras-0.10
+	dev-util/intltool
+	virtual/pkgconfig
+"
 
 MAKEOPTS="${MAKEOPTS} -j1"
 
@@ -56,14 +58,19 @@ src_prepare() {
 		-e '/Compiling GSettings schemas/,+1 d' \
 		cmake/UseGSettings.cmake || die
 
-	# Deactivate gnome-power-statistics launcher
-	use powerman || eapply "${FILESDIR}/disable-powerman.diff"
-
 	# Disable all language files as they can be incomplete #
 	#  due to being provided by Ubuntu's language-pack packages #
 	cmake_comment_add_subdirectory po
 
 	ubuntu-versionator_src_prepare
+
+	# Deactivate gnome-power-statistics launcher #
+	if ! use powerman; then
+		sed -i \
+			-e 's|^\(\s*g_menu_item_set_attribute (item, "x-canonical-type", "s", "com.canonical.indicator.basic");\)|//\1|' \
+			-e 's|^\(\s*{ "activate-statistics", on_statistics_activated, "s" }\)|//\1|' \
+			src/service.c || die
+	fi
 }
 
 src_configure() {

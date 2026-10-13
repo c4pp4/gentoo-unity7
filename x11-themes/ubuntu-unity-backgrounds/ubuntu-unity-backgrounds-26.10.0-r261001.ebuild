@@ -11,13 +11,12 @@ inherit ubuntu-versionator
 DESCRIPTION="Default backgrounds in Ubuntu Unity"
 HOMEPAGE="https://gitlab.com/ubuntu-unity"
 SRC_URI="${UURL}.tar.xz"
+S="${WORKDIR}/${PN}"
 
 LICENSE="CC-BY-NC-SA-4.0"
-KEYWORDS="~amd64"
 SLOT="0"
+KEYWORDS="amd64"
 RESTRICT="binchecks strip test"
-
-S="${WORKDIR}/${PN}"
 
 src_install() {
 	default

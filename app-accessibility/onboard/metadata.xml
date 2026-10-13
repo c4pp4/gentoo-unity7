@@ -4,4 +4,7 @@
 	<maintainer type="project">
 		<name>gentoo-unity7</name>
 	</maintainer>
+	<use>
+		<flag name="gnome-shell">Install the GNOME Shell extensions (Onboard indicator and keyboard-window helper)</flag>
+	</use>
 </pkgmetadata>

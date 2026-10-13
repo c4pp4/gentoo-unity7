@@ -25,32 +25,33 @@ COMMON_DEPEND="
 	>=gnome-extra/zeitgeist-0.9.9
 	sys-auth/polkit
 	>=unity-base/unity-control-center-14.04.0
-	>=x11-libs/gtk+-3.5.12:3
-"
-RDEPEND="${COMMON_DEPEND}
-	>=sys-libs/glibc-2.4
 	>=x11-libs/cairo-1.2.4
 	>=x11-libs/gdk-pixbuf-2.22.0:2
+	>=x11-libs/gtk+-3.5.12:3
 	>=x11-libs/pango-1.22.0
 "
-DEPEND="${COMMON_DEPEND}
-	dev-libs/libgcrypt
+RDEPEND="${COMMON_DEPEND}"
+DEPEND="${COMMON_DEPEND}"
+BDEPEND="
 	dev-util/desktop-file-utils
+	>=dev-util/intltool-0.35.0
+	virtual/pkgconfig
 
 	$(vala_depend)
-"
-BDEPEND="
-	>=dev-util/intltool-0.35.0
 "
 
 PATCHES=( "${FILESDIR}"/remove-dash-online-search-tab.patch )
 
-src_configure() {
+src_prepare() {
 	# Don't resize record switch #
 	sed -i \
 		"/record_button = new Switch();/a record_button.valign = Gtk.Align.CENTER;" \
 		src/unified-privacy.vala || die
 
+	ubuntu-versionator_src_prepare
+}
+
+src_configure() {
 	local myeconfargs=(
 		--with-unity-ccpanel=yes
 		--with-ccpanel=no

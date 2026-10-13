@@ -11,43 +11,42 @@ inherit gnome2 ubuntu-versionator vala
 
 DESCRIPTION="Keyboard indicator used by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/indicator-keyboard"
+S="${S}${UVER}"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="+charmap"
 RESTRICT="test"
 
 COMMON_DEPEND="
 	>=app-i18n/ibus-1.5.1[vala]
+	>=dev-libs/glib-2.37.5:2
 	>=dev-libs/libgee-0.8.3:0.8
 	>=gnome-base/gnome-desktop-3.17.92:3=
 	gnome-base/libgnomekbd
 	>=sys-apps/accountsservice-0.6.40:=
+	>=x11-libs/cairo-1.2.4
 	>=x11-libs/gtk+-3.1.6:3
+	>=x11-libs/libxklavier-5.1
+	>=x11-libs/pango-1.18.0
 	>=x11-misc/lightdm-1.1.3[vala]
 "
 RDEPEND="${COMMON_DEPEND}
-	>=dev-libs/glib-2.37.5:2
 	dev-libs/libindicator:3
 	gnome-base/dconf
-	>=sys-libs/glibc-2.4
-	>=x11-libs/cairo-1.2.4
-	>=x11-libs/libxklavier-5.1
-	>=x11-libs/pango-1.18.0
 
 	charmap? ( gnome-extra/gucharmap:2.90 )
 "
 DEPEND="${COMMON_DEPEND}
-	dev-libs/gobject-introspection
-	sys-apps/dbus
 	sys-apps/systemd
-	x11-apps/xauth
+"
+BDEPEND="
+	dev-libs/gobject-introspection
+	virtual/pkgconfig
 
 	$(vala_depend)
 "
-
-S="${S}${UVER}"
 
 PATCHES=(
 	"${FILESDIR}"/optional-fcitx.patch

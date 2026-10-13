@@ -3,7 +3,8 @@ diff -Nur a/src/unity_firefoxbookmarks_daemon.py b/src/unity_firefoxbookmarks_da
 +++ b/src/unity_firefoxbookmarks_daemon.py	2020-01-22 21:22:44.941148161 +0100
 @@ -41,12 +41,10 @@
  DEFAULT_RESULT_TYPE = Unity.ResultType.DEFAULT
- FIREFOX_EXECUTABLE = '/usr/bin/firefox'
+-FIREFOX_EXECUTABLE = '/usr/bin/firefox'
++FIREFOX_EXECUTABLE = GLib.find_program_in_path('firefox') or GLib.find_program_in_path('firefox-bin') or '/usr/bin/firefox'
  BOOKMARKS_PATH = os.getenv("HOME") + "/.mozilla/firefox/"
 -BOOKMARKS_QUERY = '''SELECT moz_bookmarks.title, moz_places.url, moz_favicons.url, '%s', '%s'
 -                     FROM moz_bookmarks, moz_places, moz_favicons

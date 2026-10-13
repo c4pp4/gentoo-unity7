@@ -20,9 +20,10 @@ RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.46:2
-	>=dev-libs/libpeas-1.1.1
+	>=dev-libs/libpeas-1.1.1:0[gtk]
 	>=gnome-extra/zeitgeist-0.9.14
 	>=x11-libs/gtk+-3.22:3[introspection]
+	>=x11-libs/libX11-1.6.3
 	>=x11-libs/libXtst-1.2.0
 
 	indicator? ( >=dev-libs/libayatana-appindicator-0.5.3 )
@@ -30,14 +31,14 @@ COMMON_DEPEND="
 "
 RDEPEND="${COMMON_DEPEND}
 	gnome-base/dconf
-	>=sys-libs/glibc-2.14
 	>=x11-libs/gdk-pixbuf-2.22.0:2[introspection]
-	x11-libs/libX11
 "
-DEPEND="${COMMON_DEPEND}
+DEPEND="${COMMON_DEPEND}"
+BDEPEND="
 	dev-libs/gobject-introspection
 	dev-util/desktop-file-utils
-	x11-apps/xauth
+	dev-util/glib-utils
+	virtual/pkgconfig
 
 	test? ( x11-misc/xvfb-run )
 

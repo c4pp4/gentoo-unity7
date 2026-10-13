@@ -8,11 +8,9 @@
 
 - The overlay's ehooks are located in the [gentoo-unity7/ehooks][ehooks] directory.
 
-- **Changes** are managed via the **unity-base/gentoo-unity-env** package. The package detects changes to ehooks, generates the required emerge command, and displays it as a warning during the pkg_postinst phase.
+- **Changes** are reported after each synchronization of the overlay (via a repo.postsync.d hook installed by **unity-base/gentoo-unity-env**). Rebuild affected packages using the **@ehooks-rebuild** package set: `emerge @ehooks-rebuild`.
 
-- **Optional** ehooks are managed via [unity-base/gentoo-unity-env USE flags][uflags].
-
-- Some [special ehooks][env] download a Debian archive to apply the Ubuntu patchset. Downloads are permitted via [network-sandbox-proxy][cenv]. The downloaded archive is verified using b2sum, which checks its 512-bit BLAKE2 checksum.
+- Some [special ehooks][env] download a Debian archive to apply the Ubuntu patchset. Downloads are permitted via [network-sandbox-proxy][cenv]. The downloaded archive is verified with b2sum against its 512-bit BLAKE2 checksum.
 
 - Set **EHOOKS_ACCEPT="yes"** in make.conf to accept the use of this patching system.
 
@@ -24,7 +22,7 @@
 
   - Run **gentoo-unity-ver** to see the available options.
 
-- **Directory names and search order:**
+- **Directory names and search order** (the `generic` directory is always processed first):
 
   ```
    1) app-arch/file-roller-3.22.3-r0:0
@@ -92,6 +90,10 @@
 
   - You can use any [ebuild function⬀][efn].
 
+  - As in ebuilds, the return value of **ehooks()** is ignored. Use `|| die` to report failures; any output to stderr is also treated as an error.
+
+  - **ehooks()** runs in a subshell. Changes to variables (e.g. `export`, `append-cflags`) and the working directory do not affect the ebuild.
+
   - **Templates** are available in the [gentoo-unity7/ehooks/templates][templates] directory.
 
     The preferred way to use templates is through **symbolic links**:
@@ -102,7 +104,7 @@
 
     `eapply "${EHOOKS_FILESDIR}"`
 
-  - To run **eautoreconf**:
+  - To run **eautoreconf** (the autotools eclass does not need to be inherited, eautoreconf is loaded automatically):
 
     `eautoreconf`
 
@@ -121,19 +123,6 @@
 
   - Extensions: `*.patch` or `*.diff`.
   - Use filename prefixes to control the order in which patches are applied.
-
-- **Query functions:**
-
-  `ehooks_use [USE flag]`
-
-  - Returns success if the specified USE flag is enabled for **unity-base/gentoo-unity-env**.
-  - For example, `if ehooks_use fontconfig; then`; see [app-office/libreoffice/01-pre_pkg_preinst.ehooks][libreoffice].
-
-  `ehooks_require [USE flag]`
-
-  - Skips the remaining non-generic ehooks if the specified USE flag is not enabled for **unity-base/gentoo-unity-env**.
-  - This should be the first command in the **ehooks()** function.
-  - For example, `ehooks_require fontconfig`; see [media-libs/fontconfig:1.0/01-pre_pkg_preinst.ehooks][fconf].
 
 - The **EHOOKS_PATH** variable specifies the location of additional ehooks, allowing users to provide their own ehooks. Set it in **/etc/portage/make.conf**.
 
@@ -168,7 +157,7 @@
         blake= \
         uver=gnome-session_42.0-1ubuntu3
 
-      source "${EHOOKS_PATH}"/templates/fetch_debian.template
+      source "${EHOOKS_ROOT}"/templates/fetch_debian.template
       fetch_debian "${blake}" "${uver}"
     }
     ```
@@ -186,8 +175,5 @@
 [efn]: https://devmanual.gentoo.org/function-reference/index.html
 [ehooks]: ../ehooks
 [env]: ../profiles/gentoo-unity7.env
-[fconf]: ../ehooks/media-libs/fontconfig:1.0/01-pre_pkg_preinst.ehooks
-[libreoffice]: ../ehooks/app-office/libreoffice/01-pre_pkg_preinst.ehooks
 [templates]: ../ehooks/templates
-[uflags]: ../unity-base/gentoo-unity-env/metadata.xml
 [warch]: https://web.archive.org/web/20191226202345/https://wiki.gentoo.org/wiki//etc/portage/patches#Enabling_.2Fetc.2Fportage.2Fpatches_for_all_ebuilds

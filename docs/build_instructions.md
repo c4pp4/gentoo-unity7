@@ -10,45 +10,29 @@
 
    NOTE: The package [dev-vcs/git⬀][git] is required.
 
-3. **Set** `gentoo-unity7:amd64/23.0/desktop/unity/systemd (stable)` [profile⬀][ep] listed with `eselect profile list`.
+3. **Set** the `gentoo-unity7:amd64/23.0/desktop/unity/systemd (stable)` [profile⬀][ep] (listed by `eselect profile list`).
 
 4. **Add** the `EHOOKS_ACCEPT="yes"` **variable** into the `/etc/portage/make.conf` configuration file.
 
-   WARNING: Some overlay patches will be applied to packages from the Gentoo tree via the ehooks patching system. For more details, see [ehooks - Chapter I.][ehooks] Set the variable to confirm you agree with it.
+   WARNING: Some overlay patches will be applied to packages from the Gentoo repository via the ehooks patching system. For more details, see [ehooks - Chapter I.][ehooks] Set the variable to confirm you agree with it.
 
 5. **Set up** the Gentoo Unity⁷ Desktop **build environment**:
 
    `emerge gentoo-unity-env`
 
-   WARNING: Don't use the portage variable EMERGE_DEFAULT_OPTS with the `--jobs N` option, as it causes informational and warning messages to be ignored. Such messages are important mainly in the next step.
+6. **Update** the whole system and **rebuild** packages affected by ehooks:
 
-6. The previous emerge command installs the *'unity-base/gentoo-unity-env'* package. The package, among other things, generates an emerge command that needs to be applied and displays it as a warning message in the pkg_postinst phase. **Rebuild all affected packages**, if any.
+   `emerge -avuDU --with-bdeps=y @world @ehooks-rebuild`
 
-   FOR EXAMPLE, YOU CAN SEE:
-   ```
-   >>> Looking for ehooks changes... done!
-
-    ------------------------------------------------------------
-    * Rebuild the following packages affected by ehooks changes:
-    * emerge -av1 app-i18n/ibus gnome-base/gnome-menus gnome-base/gsettings-desktop-schemas gnome-extra/cinnamon-session gnome-extra/polkit-gnome x11-libs/gtk+:2 x11-libs/gtk+:3
-    ------------------------------------------------------------
-   ```
-
-   WARNING: If you don't see a similar message, don't continue with the installation. Please write to our [Telegram group⬀][tg] or create an issue report.
-
-7. **Update the whole system**:
-
-   `emerge -avuDU --with-bdeps=y @world`
-
-   NOTE: A circular dependencies error may appear between *'media-libs/freetype'* and *'media-libs/harfbuzz'*. Before the update, try:
+   NOTE: A circular dependency error may appear between *'media-libs/freetype'* and *'media-libs/harfbuzz'*. Before the update, try:
    <br/>
    `USE="-harfbuzz" emerge --oneshot media-libs/freetype`
 
-8. **Install Unity7**:
+7. **Install Unity7**:
 
    `emerge -av unity-meta`
 
-#
+---
 
 NOTES:
 
@@ -72,6 +56,5 @@ NOTES:
 [pw]: https://wiki.gentoo.org/wiki/PipeWire#systemd
 [s3]: https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Stage#Downloading_the_stage_file
 [sysd]: https://wiki.gentoo.org/wiki/Systemd
-[tg]: https://t.me/gentoo_unity7_lomiri
 [wp]: https://wiki.gentoo.org/wiki/WirePlumber#systemd
 [xirc]: /unity-base/unity/files/xinitrc

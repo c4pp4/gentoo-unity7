@@ -12,6 +12,7 @@ inherit ubuntu-versionator
 DESCRIPTION="Miscellaneous modules for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/libunity-misc"
 SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+S="${S}${UVER}"
 
 LICENSE="GPL-2 LGPL-2 LGPL-3"
 SLOT="0/$(usub)"
@@ -21,18 +22,18 @@ RESTRICT="test"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.37.3:2
-	>=x11-libs/gtk+-3.0:3[X]
-"
-RDEPEND="${COMMON_DEPEND}
-	>=sys-libs/glibc-2.14
 	>=x11-libs/cairo-1.2.4
+	>=x11-libs/gtk+-3.0:3[X]
+	x11-libs/libX11
 "
-DEPEND="${COMMON_DEPEND}
-	dev-util/gtk-doc
-	gnome-base/gnome-common
-"
+RDEPEND="${COMMON_DEPEND}"
+DEPEND="${COMMON_DEPEND}"
+BDEPEND="
+	dev-build/gtk-doc-am
+	virtual/pkgconfig
 
-S="${S}${UVER}"
+	doc? ( dev-util/gtk-doc )
+"
 
 src_configure() {
 	local myeconfargs=(

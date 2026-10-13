@@ -12,6 +12,7 @@ inherit multilib-minimal ubuntu-versionator vala
 DESCRIPTION="A library to allow applications to export a menu into the Unity Menu bar"
 HOMEPAGE="https://launchpad.net/libappindicator"
 SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+S="${WORKDIR}"
 
 LICENSE="LGPL-2.1 LGPL-3"
 SLOT="0"
@@ -20,29 +21,23 @@ IUSE="test"
 RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
-	>=dev-libs/dbus-glib-0.82[${MULTILIB_USEDEP}]
 	>=dev-libs/glib-2.35.4:2[${MULTILIB_USEDEP}]
 	>=dev-libs/libdbusmenu-0.5.90:=[gtk,${MULTILIB_USEDEP}]
 	>=x11-libs/gtk+-2.12.0:2[${MULTILIB_USEDEP}]
 "
-RDEPEND="${COMMON_DEPEND}
-	>=sys-libs/glibc-2.4
-"
+RDEPEND="${COMMON_DEPEND}"
 DEPEND="${COMMON_DEPEND}
-	>=app-accessibility/at-spi2-core-2.46.0:2
-	dev-libs/libxml2:2[${MULTILIB_USEDEP}]
-	gnome-base/gnome-common
+	>=dev-libs/dbus-glib-0.82[${MULTILIB_USEDEP}]
+"
+BDEPEND="
+	dev-build/gtk-doc-am
+	dev-util/intltool
+	virtual/pkgconfig
 
 	test? ( dev-util/dbus-test-runner )
 
 	$(vala_depend)
 "
-BDEPEND="
-	dev-util/gtk-doc
-	dev-util/intltool
-"
-
-S="${WORKDIR}"
 
 MAKEOPTS="${MAKEOPTS} -j1"
 

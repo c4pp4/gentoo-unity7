@@ -4,4 +4,7 @@
 	<maintainer type="project">
 		<name>gentoo-unity7</name>
 	</maintainer>
+	<use>
+		<flag name="messagingmenu">Install the plugin integrating Mailnag with the Messaging Menu (indicator-messages)</flag>
+	</use>
 </pkgmetadata>

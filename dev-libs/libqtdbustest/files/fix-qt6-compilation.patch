@@ -3,19 +3,34 @@ From: c4pp4
 Date: Sun, 5 Apr 2026 21:48:01 +0200
 Subject: [PATCH 1/1] Fix qt6 compilation
 
+Qt 6 defines Q_DECL_EXPORT as protected visibility, which breaks
+linking of the bundled runner and tests against the library.
+
 Signed-off-by: c4pp4
 ---
+ src/libqtdbustest/DBusService.h         | 2 +-
  src/libqtdbustest/DBusTestRunner.h      | 2 +-
  src/libqtdbustest/QProcessDBusService.h | 2 +-
+ src/libqtdbustest/SuicidalProcess.h     | 2 +-
  src/qdbus-test-runner/CMakeLists.txt    | 5 +++++
- src/watchdog/CMakeLists.txt             | 5 +++++
- 4 files changed, 12 insertions(+), 2 deletions(-)
+ 5 files changed, 9 insertions(+), 4 deletions(-)
 
+diff --git a/src/libqtdbustest/DBusService.h b/src/libqtdbustest/DBusService.h
+--- a/src/libqtdbustest/DBusService.h
++++ b/src/libqtdbustest/DBusService.h
+@@ -30,7 +30,7 @@
+ 
+ typedef QSharedPointer<DBusService> DBusServicePtr;
+ 
+-class Q_DECL_EXPORT DBusService {
++class __attribute__((visibility("default"))) DBusService {
+ public:
+ 	DBusService(const QString &name, QDBusConnection::BusType busType);
+ 
 diff --git a/src/libqtdbustest/DBusTestRunner.h b/src/libqtdbustest/DBusTestRunner.h
-index 984ae3b..cf227b0 100644
 --- a/src/libqtdbustest/DBusTestRunner.h
 +++ b/src/libqtdbustest/DBusTestRunner.h
-@@ -29,7 +29,7 @@ namespace QtDBusTest {
+@@ -29,7 +29,7 @@
  
  class DBusTestRunnerPrivate;
  
@@ -25,10 +40,9 @@ index 984ae3b..cf227b0 100644
  	explicit DBusTestRunner(const QString &dbusSessionConfigFile =
  			DBUS_SESSION_CONFIG_FILE, const QString &dbusSystemConfigFile =
 diff --git a/src/libqtdbustest/QProcessDBusService.h b/src/libqtdbustest/QProcessDBusService.h
-index 35d54cf..7b3f8b4 100644
 --- a/src/libqtdbustest/QProcessDBusService.h
 +++ b/src/libqtdbustest/QProcessDBusService.h
-@@ -29,7 +29,7 @@ namespace QtDBusTest {
+@@ -29,7 +29,7 @@
  
  class QProcessDBusServicePrivate;
  
@@ -37,11 +51,22 @@ index 35d54cf..7b3f8b4 100644
  
  public:
  	explicit QProcessDBusService(const QString &name,
+diff --git a/src/libqtdbustest/SuicidalProcess.h b/src/libqtdbustest/SuicidalProcess.h
+--- a/src/libqtdbustest/SuicidalProcess.h
++++ b/src/libqtdbustest/SuicidalProcess.h
+@@ -26,7 +26,7 @@
+ 
+ class SuicidalProcessPrivate;
+ 
+-class Q_DECL_EXPORT SuicidalProcess: public QProcess {
++class __attribute__((visibility("default"))) SuicidalProcess: public QProcess {
+ Q_OBJECT
+ public:
+ 	explicit SuicidalProcess(QObject *parent = 0);
 diff --git a/src/qdbus-test-runner/CMakeLists.txt b/src/qdbus-test-runner/CMakeLists.txt
-index 00525f9..559e9bc 100644
 --- a/src/qdbus-test-runner/CMakeLists.txt
 +++ b/src/qdbus-test-runner/CMakeLists.txt
-@@ -4,6 +4,11 @@ add_executable(
+@@ -4,6 +4,11 @@
  	qdbus-simple-test-runner.cpp
  )
  
@@ -53,22 +78,5 @@ index 00525f9..559e9bc 100644
  target_link_libraries(
  	qdbus-simple-test-runner
  	qtdbustest${QT_SUFFIX}
-diff --git a/src/watchdog/CMakeLists.txt b/src/watchdog/CMakeLists.txt
-index 63e4043..acf7a12 100644
---- a/src/watchdog/CMakeLists.txt
-+++ b/src/watchdog/CMakeLists.txt
-@@ -5,6 +5,11 @@ add_executable(
- 	main.cpp
- )
- 
-+set_target_properties(
-+	watchdog
-+	PROPERTIES OUTPUT_NAME "watchdog${QT_SUFFIX}"
-+)
-+
- target_link_libraries(
- 	watchdog
- 	Qt::Core
 -- 
 2.52.0
-

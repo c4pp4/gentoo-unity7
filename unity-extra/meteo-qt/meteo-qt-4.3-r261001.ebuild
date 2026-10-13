@@ -13,10 +13,11 @@ inherit distutils-r1 xdg ubuntu-versionator
 
 DESCRIPTION="System tray application for weather status information"
 HOMEPAGE="https://github.com/dglent/meteo-qt"
+S="${WORKDIR}/dglent-${PN}-0896950"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 RESTRICT="test"
 
 COMMON_DEPEND="
@@ -28,11 +29,8 @@ RDEPEND="${COMMON_DEPEND}
 
 	$(python_gen_cond_dep 'dev-python/lxml[${PYTHON_USEDEP}]')
 "
-DEPEND="${COMMON_DEPEND}
-	dev-qt/qttools:6
-"
-
-S="${WORKDIR}/dglent-${PN}-0896950"
+DEPEND="${COMMON_DEPEND}"
+BDEPEND="dev-qt/qttools:6[linguist]"
 
 src_prepare() {
 	# Fix lrelease path, data_dir and doc #

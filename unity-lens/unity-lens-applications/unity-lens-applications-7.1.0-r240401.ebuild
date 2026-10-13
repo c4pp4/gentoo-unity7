@@ -12,6 +12,7 @@ inherit gnome2 ubuntu-versionator vala
 DESCRIPTION="Application lens for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/unity-lens-applications"
 SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+S="${WORKDIR}"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -26,21 +27,18 @@ COMMON_DEPEND="
 	>=dev-libs/libzeitgeist-0.3.8
 	>=dev-libs/xapian-1.4.14:=
 	>=gnome-base/gnome-menus-3.2.0.1:3
+	sys-libs/db:5.3
 "
 RDEPEND="${COMMON_DEPEND}
 	gnome-base/dconf
-	>=sys-devel/gcc-5.2
-	sys-libs/db:5.3
-	>=sys-libs/glibc-2.14
 "
-DEPEND="${COMMON_DEPEND}
-	gnome-base/gnome-common
-
+DEPEND="${COMMON_DEPEND}"
+BDEPEND="
+	dev-util/intltool
+	sys-devel/gettext
+	virtual/pkgconfig
 	$(vala_depend)
 "
-BDEPEND="virtual/pkgconfig"
-
-S="${WORKDIR}"
 
 PATCHES=( "${FILESDIR}"/remove-software-center-filter-option.patch )
 
@@ -52,7 +50,7 @@ src_prepare() {
 
 	# Disable all language files as they can be incomplete #
 	#  due to being provided by Ubuntu's language-pack packages #
-	> po/LINGUAS
+	> po/LINGUAS || die
 
 	ubuntu-versionator_src_prepare
 

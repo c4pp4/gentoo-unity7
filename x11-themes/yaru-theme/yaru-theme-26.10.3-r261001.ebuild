@@ -11,26 +11,23 @@ inherit meson xdg ubuntu-versionator
 DESCRIPTION="Yaru theme from the Ubuntu Community"
 HOMEPAGE="https://discourse.ubuntu.com/c/desktop/theme-refresh"
 SRC_URI="${UURL}.tar.xz"
+S="${WORKDIR}/${P}${UVER}"
 
 LICENSE="CC-BY-SA-4.0 GPL-2 GPL-3 GPL-3+ LGPL-2.1 LGPL-2.1+ LGPL-3 MIT"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="cinnamon gnome-shell mate +unity xfwm"
 RESTRICT="binchecks strip test"
 
 RDEPEND="
 	dev-libs/glib:2
 	sys-apps/xdg-desktop-portal-gtk
-	x11-libs/gtk+:2
-	x11-themes/gtk-engines-adwaita
 "
 BDEPEND="
 	dev-libs/glib:2
 	dev-libs/libxml2:2
 	dev-lang/sassc
 "
-
-S="${WORKDIR}/${P}${UVER}"
 
 PATCHES=( "${FILESDIR}"/Remove-light-edges-in-menu-corners.patch )
 
@@ -75,15 +72,15 @@ src_configure() {
 		-Dmetacity=true
 		-Dsessions=false
 		-Dsounds=true
-		$(meson_use cinnamon )
-		$(meson_use cinnamon cinnamon-dark )
-		$(meson_use cinnamon cinnamon-shell )
-		$(meson_use gnome-shell )
-		$(meson_use gnome-shell gnome-shell-gresource )
-		$(meson_use mate )
-		$(meson_use mate mate-dark )
-		$(meson_use unity ubuntu-unity )
-		$(meson_use xfwm xfwm4 )
+		$(meson_use cinnamon)
+		$(meson_use cinnamon cinnamon-dark)
+		$(meson_use cinnamon cinnamon-shell)
+		$(meson_use gnome-shell)
+		$(meson_use gnome-shell gnome-shell-gresource)
+		$(meson_use mate)
+		$(meson_use mate mate-dark)
+		$(meson_use unity ubuntu-unity)
+		$(meson_use xfwm xfwm4)
 	)
 	meson_src_configure
 }
@@ -95,7 +92,7 @@ src_install() {
 	insinto /usr/share/icons
 	doins -r "${FILESDIR}"/go-down-icon/Yaru-dark
 	local accent
-	for accent in ${ED}/usr/share/icons/Yaru-*-dark; do
+	for accent in "${ED}"/usr/share/icons/Yaru-*-dark; do
 		dosym -r /usr/share/icons/Yaru-dark/scalable/actions/go-down-symbolic.svg \
 			"${accent/${ED}}"/scalable/actions/go-down-symbolic.svg
 	done

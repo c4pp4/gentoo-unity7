@@ -9,7 +9,7 @@ UREV=4build2
 
 inherit ubuntu-versionator
 
-DESCRIPTION="An implementation of the GRAIL (Gesture Recognition And Instantiation Library) interface"
+DESCRIPTION="Gesture Recognition And Instantiation Library (GRAIL)"
 HOMEPAGE="https://launchpad.net/grail"
 SRC_URI="${UURL}.orig.tar.bz2"
 
@@ -25,10 +25,7 @@ COMMON_DEPEND="
 	>=x11-libs/libXext-1.3
 	>=x11-libs/libXi-1.5.99.2
 "
-RDEPEND="${COMMON_DEPEND}
-	>=sys-devel/gcc-5.2
-	>=sys-libs/glibc-2.15
-"
+RDEPEND="${COMMON_DEPEND}"
 DEPEND="${COMMON_DEPEND}
 	>=x11-base/xorg-proto-2.1.99.5
 

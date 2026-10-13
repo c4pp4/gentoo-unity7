@@ -8,16 +8,15 @@ UREV=
 
 inherit ubuntu-versionator
 
-DESCRIPTION="Default audio theme for the Unity"
+DESCRIPTION="Default sound theme for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/ubuntu-sounds"
 SRC_URI="${UURL}.tar.xz"
+S="${S}${UVER}"
 
 LICENSE="CC-BY-SA-2.0 GPL-2+"
-KEYWORDS="amd64"
 SLOT="0"
+KEYWORDS="amd64"
 RESTRICT="binchecks strip test"
-
-S="${S}${UVER}"
 
 src_install() {
 	default

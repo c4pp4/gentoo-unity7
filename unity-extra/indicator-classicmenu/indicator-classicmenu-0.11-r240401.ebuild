@@ -15,6 +15,7 @@ inherit distutils-r1 xdg ubuntu-versionator
 DESCRIPTION="Indicator showing the main menu from GNOME Classic"
 HOMEPAGE="https://launchpad.net/classicmenu-indicator"
 SRC_URI="${UURL/${PN}/${MY_PN}}.orig.tar.gz"
+S="${WORKDIR}/${MY_PN}-${PV}"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -22,9 +23,10 @@ KEYWORDS="amd64"
 RESTRICT="test"
 
 COMMON_DEPEND="
+	dev-libs/glib:2
 	dev-libs/libappindicator:3
-	gnome-base/gnome-menus:3
-	x11-libs/gtk+:3
+	gnome-base/gnome-menus:3[introspection]
+	x11-libs/gtk+:3[introspection]
 
 	${PYTHON_DEPS}
 	$(python_gen_cond_dep '
@@ -32,18 +34,13 @@ COMMON_DEPEND="
 		dev-python/pygobject:3[${PYTHON_USEDEP}]
 	')
 "
-RDEPEND="${COMMON_DEPEND}
-	dev-libs/gobject-introspection
-"
-DEPEND="${COMMON_DEPEND}
-	dev-libs/glib:2
-
+RDEPEND="${COMMON_DEPEND}"
+DEPEND="${COMMON_DEPEND}"
+BDEPEND="
 	$(python_gen_cond_dep '
 		dev-python/python-distutils-extra[${PYTHON_USEDEP}]
 	')
 "
-
-S="${WORKDIR}/${MY_PN}-${PV}"
 
 src_prepare() {
 	# Remove python2 deprecated attribute #
@@ -56,6 +53,12 @@ src_prepare() {
 		-e "/build_/{s/# //}" \
 		-e 's/"build_icons" :  build_icons.build_icons//' \
 		setup.py || die
+
+	# Fix "command 'build_i18n' has no such option 'po-dir'" with newer setuptools #
+	sed -i \
+		-e "s/^po-dir/po_dir/" \
+		-e "s/^merge-po/merge_po/" \
+		setup.cfg || die
 
 	ubuntu-versionator_src_prepare
 }

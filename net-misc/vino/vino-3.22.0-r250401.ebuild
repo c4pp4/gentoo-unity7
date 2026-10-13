@@ -17,13 +17,13 @@ SRC_URI="${UURL}.orig.tar.xz
 LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="crypt debug keyring ipv6 jpeg ssl telepathy zeroconf +zlib"
-REQUIRED_USE="jpeg? ( zlib )"
+IUSE="crypt debug keyring ipv6 jpeg ssl telepathy zeroconf"
 RESTRICT="test"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.37.3:2
 	>=net-libs/miniupnpc-1.9.20140610
+	>=x11-libs/cairo-1.10.0:=
 	>=x11-libs/gtk+-3.0.0:3
 	>=x11-libs/libICE-1.0.0
 	>=x11-libs/libnotify-0.7.0
@@ -33,32 +33,37 @@ COMMON_DEPEND="
 	x11-libs/libXext
 	x11-libs/libXfixes
 	x11-libs/libXtst
+	>=virtual/zlib-1.1.4:=
 
 	crypt? ( >=dev-libs/libgcrypt-1.8.0:0= )
 	keyring? ( >=app-crypt/libsecret-0.7 )
-	jpeg? ( virtual/jpeg:0= )
+	jpeg? ( media-libs/libjpeg-turbo:= )
 	ssl? ( >=net-libs/gnutls-3.6.14:= )
 	telepathy? (
 		dev-libs/dbus-glib
 		>=net-libs/telepathy-glib-0.18
 	)
 	zeroconf? ( >=net-dns/avahi-0.6.16:=[dbus] )
-	zlib? ( >=virtual/zlib-1.1.4:= )
 "
 RDEPEND="${COMMON_DEPEND}
 	gnome-base/dconf
-	>=sys-libs/glibc-2.15
-	>=x11-libs/cairo-1.10.0:=
 	x11-libs/pango[X]
 "
-DEPEND="${COMMON_DEPEND}
-	gnome-base/gnome-common
-	x11-libs/libXt
-"
+DEPEND="${COMMON_DEPEND}"
 BDEPEND="
 	>=dev-util/intltool-0.50.0
+	gnome-base/gnome-common
 	virtual/pkgconfig
 "
+
+src_prepare() {
+	# Fix implicit declaration of getpid() without gcrypt #
+	sed -i \
+		-e "/#include <time.h>/a #include <unistd.h>" \
+		server/libvncserver/vncauth.c || die
+
+	ubuntu-versionator_src_prepare
+}
 
 src_configure() {
 	local mygnome2args=(
@@ -70,7 +75,7 @@ src_configure() {
 		$(use_with ssl gnutls)
 		$(use_with telepathy)
 		$(use_with zeroconf avahi)
-		$(use_with zlib)
+		--with-zlib
 		--with-systemduserunitdir="$(systemd_get_userunitdir)"
 	)
 	gnome2_src_configure "${mygnome2args[@]}"

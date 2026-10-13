@@ -21,7 +21,7 @@ index c9dd6e5..db79e39 100644
  set(
  	QTDBUSMOCK_PUBLIC_HEADERS
  	"${CMAKE_CURRENT_BINARY_DIR}/config.h"
-+	"${CMAKE_CURRENT_BINARY_DIR}/libqtdbusmock/qtdbusmock_export.h"
++	"${CMAKE_CURRENT_BINARY_DIR}/qtdbusmock_export.h"
  	DBusMock.h
  	DeclareMetatypes.h
  	ExportInterfaces.h
@@ -29,12 +29,12 @@ index c9dd6e5..db79e39 100644
  	${QTDBUSMOCK_SRC}
  )
  
-+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/libqtdbusmock")
++include(GenerateExportHeader)
 +
 +generate_export_header(
 +	qtdbusmock
 +	BASE_NAME qtdbusmock
-+	EXPORT_FILE_NAME "${CMAKE_CURRENT_BINARY_DIR}/libqtdbusmock/qtdbusmock_export.h"
++	EXPORT_FILE_NAME "${CMAKE_CURRENT_BINARY_DIR}/qtdbusmock_export.h"
 +)
 +
  target_link_libraries(

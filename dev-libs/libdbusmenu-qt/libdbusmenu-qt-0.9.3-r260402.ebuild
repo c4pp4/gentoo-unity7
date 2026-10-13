@@ -10,6 +10,7 @@ inherit cmake ubuntu-versionator
 
 DESCRIPTION="Library providing Qt implementation of DBusMenu specification"
 HOMEPAGE="https://launchpad.net/libdbusmenu-qt/"
+S="${S}${UVER}"
 
 LICENSE="LGPL-2"
 SLOT="0"
@@ -22,10 +23,11 @@ RDEPEND="${COMMON_DEPEND}"
 DEPEND="${COMMON_DEPEND}"
 BDEPEND="
 	doc? ( app-text/doxygen )
-	test? (	x11-themes/adwaita-icon-theme )
+	test? (
+		sys-apps/dbus
+		x11-themes/adwaita-icon-theme
+	)
 "
-
-S="${S}${UVER}"
 
 PATCHES=( "${FILESDIR}"/Qt6-migration.patch )
 
@@ -54,8 +56,8 @@ src_configure() {
 }
 
 src_test() {
-    local -x QT_QPA_PLATFORM=offscreen
+	local -x QT_QPA_PLATFORM=offscreen
 
-    dbus-run-session -- \
-        cmake --build "${BUILD_DIR}" --target check --verbose
+	dbus-run-session -- \
+		cmake --build "${BUILD_DIR}" --target check --verbose || die
 }

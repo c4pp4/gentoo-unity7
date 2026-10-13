@@ -10,6 +10,7 @@ inherit xdg ubuntu-versionator
 
 DESCRIPTION="Unity7 user interface icon theme"
 HOMEPAGE="https://launchpad.net/unity-asset-pool"
+S="${WORKDIR}"
 
 LICENSE="CC-BY-SA-3.0"
 SLOT="0"
@@ -20,12 +21,10 @@ RDEPEND="
 	x11-themes/adwaita-icon-theme
 	x11-themes/hicolor-icon-theme
 "
-DEPEND="
+BDEPEND="
 	>=media-gfx/scour-0.36
 	x11-misc/icon-naming-utils
 "
-
-S="${WORKDIR}"
 
 src_install() {
 	DOCS+=( COPYRIGHT )
@@ -47,9 +46,9 @@ src_install() {
 	done
 
 	for x in "${ED}"/usr/share/icons/*/*/*; do
-		[[ -d ${x} ]] && "${EROOT}"/usr/libexec/icon-name-mapping -c "${x}"
+		[[ -d ${x} ]] && "${BROOT}"/usr/libexec/icon-name-mapping -c "${x}"
 	done
 
 	# Remove broken symlinks #
-	find -L "${ED}" -type l -delete
+	find -L "${ED}" -type l -delete || die
 }

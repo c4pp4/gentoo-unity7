@@ -22,6 +22,7 @@ RESTRICT="test"
 
 RDEPEND="
 	>=dev-libs/libappindicator-0.1:3
+	sys-auth/polkit
 	sys-power/cpufrequtils
 
 	$(python_gen_cond_dep '
@@ -29,8 +30,7 @@ RDEPEND="
 		dev-python/pygobject:3[${PYTHON_USEDEP}]
 	')
 "
-DEPEND="
-	${PYTHON_DEPS}
+BDEPEND="
 	$(python_gen_cond_dep '
 		dev-python/python-distutils-extra[${PYTHON_USEDEP}]
 	')
@@ -55,7 +55,7 @@ src_install() {
 	doman "${WORKDIR}"/debian/"${PN}"-selector.1
 
 	# Fix /etc/dbus-1/system.d path #
-	mv "${ED}/$(python_get_sitedir)"/etc "${ED}" || die
+	mv "${D}$(python_get_sitedir)"/etc "${ED}" || die
 
 	dosym -r /usr/share/applications/"${PN}".desktop \
 		/etc/xdg/autostart/"${PN}".desktop

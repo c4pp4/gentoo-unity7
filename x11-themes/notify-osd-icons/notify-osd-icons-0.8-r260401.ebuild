@@ -10,15 +10,14 @@ inherit ubuntu-versionator
 
 DESCRIPTION="Icons for on-screen-display notification agent"
 HOMEPAGE="https://launchpad.net/notify-osd"
+S="${S}${UVER}"
 
 LICENSE="CC-BY-SA-3.0"
 SLOT="0"
 KEYWORDS="amd64"
 RESTRICT="binchecks strip test"
 
-DEPEND="media-gfx/scour"
-
-S="${S}${UVER}"
+BDEPEND="media-gfx/scour"
 
 src_install() {
 	default

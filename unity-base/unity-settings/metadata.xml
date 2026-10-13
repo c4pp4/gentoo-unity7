@@ -8,7 +8,6 @@
 		<flag name="classic-fonts">Prefer Ubuntu classic and DejaVu fonts</flag>
 		<flag name="classic-theme">Set Ambiance theme as the default one</flag>
 		<flag name="files">Enable Files lens in Dash</flag>
-		<flag name="fontconfig">Add Ubuntu's fontconfig</flag>
 		<flag name="lowgfx">Enable Low Graphics Mode</flag>
 		<flag name="music">Enable Music lens in Dash</flag>
 		<flag name="photos">Enable Photos lens in Dash</flag>

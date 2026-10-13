@@ -22,7 +22,6 @@ COMMON_DEPEND="
 	$(python_gen_cond_dep 'dev-python/pygobject:3[${PYTHON_USEDEP}]')
 "
 RDEPEND="${COMMON_DEPEND}
-	dev-libs/geoip
 	dev-libs/glib:2
 	dev-libs/libappindicator:3
 	gnome-base/dconf
@@ -34,16 +33,28 @@ RDEPEND="${COMMON_DEPEND}
 		>=unity-base/unity-7.0[${PYTHON_SINGLE_USEDEP}]
 	')
 "
-DEPEND="${COMMON_DEPEND}
+BDEPEND="
+	dev-util/intltool
+
 	$(python_gen_cond_dep '
 		dev-python/python-distutils-extra[${PYTHON_USEDEP}]
 	')
 "
-BDEPEND="dev-util/intltool"
 
 src_prepare() {
 	# Fix schemas path #
 	sed -i "s:/usr/share:share:" setup.py || die
+
+	# Use DistUtilsExtra build commands explicitly, setuptools doesn't #
+	# honour entry points overriding built-in commands anymore #
+	sed -i \
+		-e "/^import  _meta/a from DistUtilsExtra.command import build_extra, build_i18n" \
+		-e "/^setup($/a \    cmdclass = {'build': build_extra.build_extra, 'build_i18n': build_i18n.build_i18n}," \
+		setup.py || die
+	sed -i \
+		-e "s/^po-dir/po_dir/" \
+		-e "s/^merge-po/merge_po/" \
+		setup.cfg || die
 
 	distutils-r1_src_prepare
 }

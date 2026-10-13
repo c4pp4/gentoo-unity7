@@ -14,36 +14,29 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
-RESTRICT="test"
+KEYWORDS="amd64"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.43.92:2
 	>=dev-libs/libgee-0.8.3:0.8
+	dev-libs/libxml2:2=
 	>=media-libs/libpulse-4.0[glib]
-	>=sys-apps/accountsservice-0.6.8:=
-	>=unity-base/gsettings-ubuntu-touch-schemas-0.0.1
+	>=sys-apps/accountsservice-0.6.8:=[introspection]
 	>=x11-libs/libnotify-0.7.0
 "
 RDEPEND="${COMMON_DEPEND}
+	acct-group/polkitd
 	dev-libs/libindicator:3
 	gnome-base/dconf
-	>=sys-libs/glibc-2.34
+	>=unity-base/gsettings-ubuntu-touch-schemas-0.0.1
 "
-DEPEND="${COMMON_DEPEND}
-	dev-libs/gobject-introspection
-	dev-libs/libxml2:2
+DEPEND="${COMMON_DEPEND}"
+BDEPEND="
+	acct-group/polkitd
 	>=dev-build/cmake-extras-0.10
-	gnome-base/gnome-common
-	sys-apps/dbus
-	sys-apps/systemd
-	unity-base/unity-api
-
+	virtual/pkgconfig
 	$(vala_depend)
 "
-BDEPEND="dev-util/intltool"
-
-MAKEOPTS="${MAKEOPTS} -j1"
 
 PATCHES=( "${FILESDIR}"/fix-notification-icon.patch )
 
@@ -64,6 +57,9 @@ src_prepare() {
 	#  due to being provided by Ubuntu's language-pack packages #
 	cmake_comment_add_subdirectory po
 
+	# Test helper library only, tests are disabled upstream #
+	cmake_comment_add_subdirectory -f src gmenuharness
+
 	ubuntu-versionator_src_prepare
 }
 
@@ -81,5 +77,5 @@ src_configure() {
 src_install() {
 	cmake_src_install
 
-	find "${ED}" -name "*.pkla" -exec chown root:polkitd {} \;
+	fowners root:polkitd /var/lib/polkit-1/localauthority/10-vendor.d/50-com.canonical.indicator.sound.AccountsService.pkla
 }

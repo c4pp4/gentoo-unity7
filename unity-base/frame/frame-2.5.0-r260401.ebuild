@@ -12,6 +12,7 @@ inherit ubuntu-versionator
 DESCRIPTION="Touch Frame Library"
 HOMEPAGE="https://launchpad.net/frame"
 SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+S="${WORKDIR}"
 
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"
@@ -23,25 +24,22 @@ COMMON_DEPEND="
 	>=x11-libs/libX11-1.2.99.901
 	>=x11-libs/libXi-1.5.99.2
 "
-RDEPEND="${COMMON_DEPEND}
-	>=sys-devel/gcc-5
-	>=sys-libs/glibc-2.15
-"
+RDEPEND="${COMMON_DEPEND}"
 DEPEND="${COMMON_DEPEND}
-	app-text/asciidoc
-	app-text/docbook-xsl-stylesheets
-	dev-libs/libxslt
+	x11-base/xorg-proto
 	x11-base/xorg-server
+	x11-libs/libXext
 
 	test? ( dev-cpp/gtest )
 "
 BDEPEND="
+	app-text/asciidoc
+	app-text/docbook-xsl-stylesheets
+	dev-libs/libxslt
 	virtual/pkgconfig
 
-	doc? ( app-doc/doxygen )
+	doc? ( app-text/doxygen )
 "
-
-S="${WORKDIR}"
 
 src_prepare() {
 	if ! use doc; then

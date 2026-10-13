@@ -1,6 +1,6 @@
 - Installing the media-fonts/ubuntu-font-family package instead of media-fonts/fonts-ubuntu,
-  and vice versa, may cause unreadable menus before session re-login.
-    * Preferably install these packages outside of the GUI.
+  and vice versa, may cause unreadable menus until you log in again.
+    * Preferably install these packages outside of the graphical session.
 
 - The tray icon is not shown when using packages based on the Electron framework, such as Joplin or Discord.
   https://github.com/electron/electron/issues/38979

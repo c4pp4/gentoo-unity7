@@ -1,0 +1,45 @@
+Fix tests with libnotify >= 0.8, which sends the notification icon
+as the "image-path" hint (or "image_path" for older notification spec
+versions) instead of the app_icon parameter.
+
+--- a/tests/test-notification.cpp
++++ b/tests/test-notification.cpp
+@@ -177,9 +177,13 @@
+         ASSERT_STREQ(APP_NAME, app_name);
+ 
+         // test that Notify was called with the type-appropriate icon
++        // (libnotify >= 0.8 passes it as the "image-path" or "image_path" hint)
+         const gchar* icon_name {nullptr};
+-        g_variant_get_child(notify_calls[0].params, 2, "&s", &icon_name);
++        auto hints = g_variant_get_child_value(notify_calls[0].params, 6);
++        ASSERT_TRUE(g_variant_lookup(hints, "image-path", "&s", &icon_name) ||
++                    g_variant_lookup(hints, "image_path", "&s", &icon_name));
+         ASSERT_STREQ(test_appt.icon_name, icon_name);
++        g_variant_unref(hints);
+ 
+         // test that the Notification title has the correct prefix
+         const gchar* title {nullptr};
+--- a/tests/test-sound.cpp
++++ b/tests/test-sound.cpp
+@@ -89,14 +89,17 @@
+   g_variant_get_child (params, 0, "&s", &str);
+   ASSERT_STREQ(APP_NAME, str);
+ 
+-  // confirm that the icon passed to Notify was "alarm-clock"
+-  g_variant_get_child (params, 2, "&s", &str);
+-  ASSERT_STREQ("calendar-app", str);
+-
+   // confirm that the hints passed to Notify included a timeout matching duration_minutes
+   int32_t i32;
+   bool b;
+   auto hints = g_variant_get_child_value (params, 6);
++
++  // confirm that the icon passed to Notify was "calendar-app"
++  // (libnotify >= 0.8 passes it as the "image-path" or "image_path" hint)
++  b = g_variant_lookup (hints, "image-path", "&s", &str) ||
++      g_variant_lookup (hints, "image_path", "&s", &str);
++  EXPECT_TRUE(b);
++  ASSERT_STREQ("calendar-app", str);
+   b = g_variant_lookup (hints, HINT_TIMEOUT, "i", &i32);
+   EXPECT_TRUE(b);
+   const auto duration = std::chrono::minutes(duration_minutes);

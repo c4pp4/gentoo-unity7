@@ -18,19 +18,12 @@ KEYWORDS="amd64"
 IUSE="doc pch"
 RESTRICT="test"
 
-COMMON_DEPEND="
-	>=sys-devel/gcc-7
-	>=dev-libs/glib-2.39.4:2
-"
-RDEPEND="${COMMON_DEPEND}
-	>=sys-libs/glibc-2.33
-"
-DEPEND="${COMMON_DEPEND}"
+RDEPEND=">=dev-libs/glib-2.39.4:2"
+DEPEND="${RDEPEND}"
 BDEPEND="
-	sys-apps/lsb-release
 	virtual/pkgconfig
 
-	doc? ( app-doc/doxygen[dot] )
+	doc? ( app-text/doxygen[dot] )
 "
 
 src_unpack() {
@@ -40,7 +33,7 @@ src_unpack() {
 src_prepare() {
 	if use doc; then
 		# Fix docdir #
-		sed -i "/DESTINATION/{s:doc:doc/${PF}:}" CMakeLists.txt || die
+		sed -i "/share\/doc/{s:share/doc[^)]*:share/doc/${PF}/html:}" CMakeLists.txt || die
 	else
 		sed -i "/Doxygen/,+15 d" CMakeLists.txt || die
 	fi
@@ -65,4 +58,13 @@ src_configure() {
 		-Duse_pch=$(usex pch ON OFF)
 	)
 	cmake_src_configure
+}
+
+src_install() {
+	cmake_src_install
+
+	# Drop doxygen graph checksums #
+	if use doc; then
+		find "${ED}"/usr/share/doc/"${PF}"/html -name '*.md5' -delete || die
+	fi
 }

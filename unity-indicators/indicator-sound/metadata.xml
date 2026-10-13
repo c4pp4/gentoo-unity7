@@ -4,7 +4,4 @@
 	<maintainer type="project">
 		<name>gentoo-unity7</name>
 	</maintainer>
-	<use>
-		<flag name="coverage">Include coverage reports (gcov, lcov)</flag>
-	</use>
 </pkgmetadata>

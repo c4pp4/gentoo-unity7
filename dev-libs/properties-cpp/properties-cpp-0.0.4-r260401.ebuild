@@ -20,53 +20,42 @@ IUSE="coverage doc test"
 REQUIRED_USE="coverage? ( test )"
 RESTRICT="!test? ( test )"
 
-DEPEND="
+DEPEND="test? ( dev-cpp/gtest )"
+BDEPEND="
 	>=dev-build/cmake-extras-1.5
+	virtual/pkgconfig
 
+	doc? ( app-text/doxygen[dot] )
 	test? (
-		dev-cpp/gtest
-
 		coverage? (
 			dev-util/gcovr
 			dev-util/lcov
 		)
 	)
 "
-BDEPEND="
-	virtual/pkgconfig
-
-	doc? (
-		app-misc/rdfind
-		app-misc/symlinks
-		app-doc/doxygen[dot]
-	)
-"
 
 MAKEOPTS="${MAKEOPTS} -j1"
 
-src_configure() {
+src_prepare() {
 	# Fix libdir #
-	sed -i "s:/lib:/$(get_libdir):" data/properties-cpp.pc.in || die
+	sed -i "s:/lib$:/$(get_libdir):" data/properties-cpp.pc.in || die
 
+	ubuntu-versionator_src_prepare
+}
+
+src_configure() {
 	local mycmakeargs=(
 		-DBUILD_TESTING=$(usex test ON OFF)
 		-DCMAKE_INSTALL_DOCDIR="/usr/share/doc/${PF}"
 		-DPROPERTIES_CPP_ENABLE_DOC_GENERATION=$(usex doc ON OFF)
 		-Wno-dev
 	)
-	cmake_src_configure
+	CMAKE_BUILD_TYPE=$(usex coverage coverage Gentoo) cmake_src_configure
 }
 
 src_install() {
 	cmake_src_install
 
-	if use doc; then
-		# Taken from 'rules' #
-		pushd "${ED}"/usr/share/doc/"${PF}"/html >/dev/null || die
-			rdfind -makesymlinks true .
-			symlinks -c .
-			rm *.md5
-			rm results.txt
-		popd >/dev/null || die
-	fi
+	# Drop doxygen graph checksums #
+	use doc && { rm -f "${ED}"/usr/share/doc/"${PF}"/html/*.md5 || die; }
 }

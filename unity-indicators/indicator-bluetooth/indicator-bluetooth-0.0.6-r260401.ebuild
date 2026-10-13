@@ -12,6 +12,7 @@ inherit gnome2 ubuntu-versionator vala
 DESCRIPTION="System bluetooth indicator used by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/indicator-bluetooth"
 SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+S="${WORKDIR}"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -24,23 +25,23 @@ RDEPEND="
 	gnome-base/dconf
 	>=net-wireless/bluez-5
 	net-wireless/gnome-bluetooth:3
-	>=sys-libs/glibc-2.4
-	unity-base/unity-control-center
+	unity-base/unity-control-center[bluetooth]
 "
 DEPEND="
 	dev-libs/glib:2
-	gnome-base/gnome-common
 	sys-apps/systemd
+"
+BDEPEND="
+	gnome-base/gnome-common
+	virtual/pkgconfig
 
 	$(vala_depend)
 "
 
-S="${WORKDIR}"
-
 src_prepare() {
 	# Disable all language files as they can be incomplete #
-        #  due to being provided by Ubuntu's language-pack packages #
-        > po/LINGUAS
+	#  due to being provided by Ubuntu's language-pack packages #
+	> po/LINGUAS || die
 
 	ubuntu-versionator_src_prepare
 }

@@ -15,25 +15,17 @@ SRC_URI="${UURL}.orig.tar.bz2
 
 LICENSE="CC-BY-3.0 GPL-2+ GPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="demo doc test"
 RESTRICT="!test? ( test )"
 
-RDEPEND="
-	>=dev-libs/glib-2.39.91:2
-	>=sys-libs/glibc-2.4
-"
+RDEPEND=">=dev-libs/glib-2.39.91:2"
 DEPEND="${RDEPEND}"
-
 BDEPEND="
 	dev-util/intltool
 	virtual/pkgconfig
 
-	doc? (
-		>=dev-util/gtk-doc-1.21
-		app-misc/rdfind
-		app-misc/symlinks
-	)
+	doc? ( >=dev-util/gtk-doc-1.21 )
 "
 
 src_configure() {
@@ -52,13 +44,8 @@ src_test() {
 src_install() {
 	cmake_src_install
 
+	# Drop gtk-doc checksums #
 	if use doc; then
-		# Taken from 'rules' #
-		pushd "${ED}"/usr/share/gtk-doc/html/"${PN}" >/dev/null || die
-			find -name *.md5 -delete
-			rdfind -makesymlinks true .
-			symlinks -rc .
-			rm results.txt
-		popd >/dev/null || die
+		find "${ED}"/usr/share/gtk-doc/html/"${PN}" -name '*.md5' -delete || die
 	fi
 }

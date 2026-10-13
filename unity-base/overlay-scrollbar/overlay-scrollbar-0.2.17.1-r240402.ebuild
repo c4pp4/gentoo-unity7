@@ -9,8 +9,9 @@ UREV=0ubuntu5
 
 inherit gnome2 ubuntu-versionator
 
-DESCRIPTION="Ayatana Scrollbars use an overlay to ensure scrollbars take up no active screen real-estate"
+DESCRIPTION="Ayatana overlay scrollbars that take up no active screen real-estate"
 HOMEPAGE="https://launchpad.net/overlay-scrollbar"
+S="${S}${UVER}"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
@@ -21,15 +22,13 @@ COMMON_DEPEND="
 	>=dev-libs/glib-2.37.3:2
 	>=x11-libs/cairo-1.10.0
 	>=x11-libs/gtk+-2.24.26:2
+	x11-libs/libX11
 "
 RDEPEND="${COMMON_DEPEND}
 	gnome-base/dconf
-	>=sys-libs/glibc-2.4
-	x11-libs/libX11
 "
 DEPEND="${COMMON_DEPEND}"
-
-S="${S}${UVER}"
+BDEPEND="virtual/pkgconfig"
 
 src_prepare() {
 	# Fix gcc 14 build #
@@ -54,6 +53,6 @@ src_configure() {
 src_install() {
 	default
 
-	chmod +x "${ED}"/etc/X11/xinit/xinitrc.d/81overlay-scrollbar
+	fperms +x /etc/X11/xinit/xinitrc.d/81overlay-scrollbar
 	find "${ED}" -name '*.la' -delete || die
 }

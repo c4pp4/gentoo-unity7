@@ -10,6 +10,7 @@ inherit java-pkg-2 meson
 DESCRIPTION="Global menu for Java applications"
 HOMEPAGE="https://gitlab.com/vala-panel-project/vala-panel-appmenu/tree/master/subprojects/jayatana"
 SRC_URI="https://gitlab.com/vala-panel-project/vala-panel-appmenu/uploads/${COMMIT}/${P}.tar.xz"
+S="${WORKDIR}/${PN}-24.02"
 
 LICENSE="MIT"
 SLOT="21"
@@ -22,8 +23,6 @@ RDEPEND="
 	>=dev-libs/libdbusmenu-16.04.0
 	virtual/jdk:${SLOT}
 	>=x11-libs/libxkbcommon-0.5.0
-"
-DEPEND="${RDEPEND}
 
 	system-wide? (
 		!dev-java/jayatana:8[system-wide]
@@ -32,8 +31,7 @@ DEPEND="${RDEPEND}
 		!dev-java/jayatana:25[system-wide]
 	)
 "
-
-S="${WORKDIR}/${PN}-24.02"
+DEPEND="${RDEPEND}"
 
 src_prepare() {
 	java-pkg-2_src_prepare
@@ -58,8 +56,6 @@ src_prepare() {
 }
 
 src_install() {
-	epreparedocs
-
 	meson_src_install
 
 	java-pkg_regjar "${ED}"/usr/share/"${PN}-${SLOT}"/lib/*.jar
@@ -84,7 +80,10 @@ pkg_postinst() {
 		elog "   2.2. Netbeans"
 		elog "        Edit netbeans.conf, and add -J-javaagent:${JAVA_PKG_JARDEST}/${PN}ag.jar to the end of it."
 		elog "3. Enable agent via desktop file (for any single application)"
-		elog "   Add -javaagent:${JAVA_PKG_JARDEST}/${PN}ag.jar after Exec or TryExec line of application's desktop file (if application executes JAR directly). If application executes JAR via wrapper, and this option to the end of JVM options for running actual JAR."
+		elog "   Add -javaagent:${JAVA_PKG_JARDEST}/${PN}ag.jar after Exec or TryExec line"
+		elog "   of application's desktop file (if application executes JAR directly)."
+		elog "   If application executes JAR via wrapper, add this option to the end"
+		elog "   of JVM options for running actual JAR."
 		echo
 	fi
 }

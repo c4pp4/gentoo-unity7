@@ -9,9 +9,10 @@ UREV=0ubuntu2
 
 inherit font gnome2-utils ubuntu-versionator
 
-DESCRIPTION="The Ubuntu variable font with adjustable weight and width axes."
+DESCRIPTION="The Ubuntu variable font with adjustable weight and width axes"
 HOMEPAGE="https://design.ubuntu.com/font/"
 SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
+S="${S}${UVER}"
 
 LICENSE="UbuntuFontLicense-1.0"
 SLOT="0"
@@ -21,20 +22,18 @@ RESTRICT="binchecks strip test"
 
 RDEPEND="!media-fonts/ubuntu-font-family"
 
-S="${S}${UVER}"
-
 FONT_SUFFIX="ttf"
 FONT_CONF=( "${WORKDIR}"/debian/71-ubuntulegacy.conf )
 
 src_install() {
 	# Fix FONTDIR #
-	sed -i "s:/truetype::g" "${FONT_CONF}"
+	sed -i "s:/truetype::g" "${FONT_CONF}" || die
 
 	# Add ubuntu legacy names #
 	local line
 	while read -r line; do
 		[[ ${line} == "usr/share/fonts"* ]] \
-			&& ln -s ${line//usr\/share\/fonts\/truetype\/ubuntu\/}
+			&& { ln -s ${line//usr\/share\/fonts\/truetype\/ubuntu\/} || die; }
 	done < "${WORKDIR}"/debian/fonts-ubuntu.links
 
 	font_src_install
@@ -62,10 +61,10 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
-        gnome2_schemas_update
+	gnome2_schemas_update
 	ubuntu-versionator_pkg_postinst
 }
 
 pkg_postrm() {
-        gnome2_schemas_update
+	gnome2_schemas_update
 }

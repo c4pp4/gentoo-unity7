@@ -10,6 +10,7 @@ inherit cmake ubuntu-versionator
 
 DESCRIPTION="Qt binding and QML plugin for Dee for the Unity7 user interface"
 HOMEPAGE="https://wiki.ubuntu.com/Unity"
+S="${S}${UVER}"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -18,20 +19,17 @@ IUSE="test"
 RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
-	>=dev-libs/dee-1.0.0:0=
-	dev-qt/qtbase:6
+	>=dev-libs/dee-1.2.7:0=
+	>=dev-libs/glib-2.24.0:2
+	dev-qt/qtbase:6[dbus]
 	dev-qt/qtdeclarative:6
 "
-RDEPEND="${COMMON_DEPEND}
-	>=dev-libs/glib-2.24.0:2
-	>=sys-devel/gcc-4.9
-	>=sys-libs/glibc-2.14
-"
-DEPEND="${COMMON_DEPEND}
+RDEPEND="${COMMON_DEPEND}"
+DEPEND="${COMMON_DEPEND}"
+BDEPEND="
+	virtual/pkgconfig
 	test? ( dev-util/dbus-test-runner )
 "
-
-S="${S}${UVER}"
 
 PATCHES=( "${FILESDIR}"/Qt6-migration.patch )
 

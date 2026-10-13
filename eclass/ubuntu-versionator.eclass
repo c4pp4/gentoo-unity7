@@ -23,8 +23,9 @@ UBUNTU_EAUTORECONF=${UBUNTU_EAUTORECONF:-""}
 
 [[ ${UBUNTU_EAUTORECONF} == "yes" ]] && inherit autotools
 
-# Set the default Vala API version for packages requiring Vala.
-# Override these values in the ebuild if a different version is needed.
+# Pin the Vala API version for packages requiring Vala, so that a change of
+# the vala.eclass default can't break overlay packages unexpectedly.
+# To use a different version, set these variables in the ebuild after inherit.
 VALA_MIN_API_VERSION=0.56
 VALA_MAX_API_VERSION=0.56
 
@@ -89,7 +90,8 @@ epreparedocs() {
 # @FUNCTION: ubuntu-versionator_pkg_setup
 # @DESCRIPTION:
 # Verify that the selected profile belongs to gentoo-unity7.
-# Call font_pkg_setup and python-single-r1_pkg_setup if defined.
+# Call font_pkg_setup, python-single-r1_pkg_setup and python-any-r1_pkg_setup
+# if defined.
 ubuntu-versionator_pkg_setup() {
 	debug-print-function ${FUNCNAME} "$@"
 
@@ -101,6 +103,7 @@ ubuntu-versionator_pkg_setup() {
 
 	declare -F font_pkg_setup 1>/dev/null && font_pkg_setup
 	declare -F python-single-r1_pkg_setup 1>/dev/null && python-single-r1_pkg_setup
+	declare -F python-any-r1_pkg_setup 1>/dev/null && python-any-r1_pkg_setup
 }
 
 # @FUNCTION: ubuntu-versionator_src_unpack
@@ -124,18 +127,14 @@ ubuntu-versionator_src_unpack() {
 ubuntu-versionator_src_prepare() {
 	debug-print-function ${FUNCNAME} "$@"
 
-	local \
-		color_bold=$(tput bold) \
-		color_norm=$(tput sgr0) \
-		x
+	local x
 
 	# Apply the Ubuntu diff file if present.
 	local diff_file="${PN}_${PV}${UVER}-${UREV}.diff"
 	[[ -f ${WORKDIR}/${diff_file} ]] && diff_file="${WORKDIR}/${diff_file}"
 	if [[ -f ${diff_file} ]]; then
-		echo "${color_bold}>>> Applying the Ubuntu diff file...${color_norm}"
+		einfo "Processing the Ubuntu diff file:"
 		eapply "${diff_file}"
-		echo "${color_bold}>>> Done.${color_norm}"
 	fi
 
 	# Apply the Ubuntu patchset if present.
@@ -148,9 +147,9 @@ ubuntu-versionator_src_prepare() {
 		done
 	fi
 	if [[ -n ${upatches[@]} ]]; then
-		echo "${color_bold}>>> Applying the Ubuntu patchset...${color_norm}"
+		einfo "Processing the Ubuntu patchset (${#upatches[@]} patch$( (( ${#upatches[@]} > 1 )) && echo es)):"
 		eapply "${upatches[@]}"
-		echo "${color_bold}>>> Done.${color_norm}"
+		einfo "Finished processing the Ubuntu patchset."
 	fi
 
 	if declare -F vala_setup 1>/dev/null; then

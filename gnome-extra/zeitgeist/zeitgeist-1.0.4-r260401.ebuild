@@ -14,6 +14,7 @@ DESCRIPTION="Service to log activities and present to other apps"
 HOMEPAGE="https://launchpad.net/zeitgeist/"
 SRC_URI="${UURL}.orig.tar.bz2
 	${UURL}-${UREV}.debian.tar.xz"
+S="${WORKDIR}/${PN}-v${PV}"
 
 LICENSE="GPL-2 LGPL-2.1"
 SLOT="0"
@@ -25,29 +26,28 @@ RESTRICT="!test? ( test )"
 COMMON_DEPEND="
 	>=dev-db/sqlite-3.7.11:3
 	>=dev-libs/glib-2.43.92:2
-	>=dev-libs/json-glib-1.5.2
 
-	datahub? ( >=x11-libs/gtk+-3.0.0:3 )
+	datahub? (
+		>=dev-libs/json-glib-1.5.2
+		>=x11-libs/gtk+-3.0.0:3
+	)
 	fts? ( >=dev-libs/xapian-1.4.17:0=[inmemory(+)] )
-	icu? ( >=dev-libs/dee-1.0.2:0=[icu,${PYTHON_SINGLE_USEDEP}] )
+	icu? ( >=dev-libs/dee-1.0.2:0=[${PYTHON_SINGLE_USEDEP}] )
 	introspection? ( >=dev-libs/gobject-introspection-1.30.0 )
 	telepathy? ( >=net-libs/telepathy-glib-0.18.0 )
 
 	${PYTHON_DEPS}
-	$(python_gen_cond_dep 'dev-python/pygobject:3[${PYTHON_USEDEP}]')
 "
 RDEPEND="${COMMON_DEPEND}
-	>=sys-devel/gcc-5.2
-	>=sys-libs/glibc-2.14
-
-	doc? ( dev-util/devhelp )
-
 	$(python_gen_cond_dep '
 		dev-python/dbus-python[${PYTHON_USEDEP}]
-		dev-python/pyxdg[${PYTHON_USEDEP}]
+		dev-python/pygobject:3[${PYTHON_USEDEP}]
 	')
 "
-DEPEND="${COMMON_DEPEND}
+DEPEND="${COMMON_DEPEND}"
+BDEPEND="
+	sys-devel/gettext
+	virtual/pkgconfig
 
 	doc? (
 		dev-lang/vala[valadoc]
@@ -55,12 +55,11 @@ DEPEND="${COMMON_DEPEND}
 		media-libs/raptor:2
 	)
 
+	${PYTHON_DEPS}
 	$(python_gen_cond_dep 'dev-python/rdflib[${PYTHON_USEDEP}]')
 
 	$(vala_depend)
 "
-
-S="${WORKDIR}/${PN}-v${PV}"
 
 src_prepare() {
 	use doc && local VALA_USE_DEPEND="valadoc"
@@ -114,7 +113,12 @@ src_install() {
 	doexe "${WORKDIR}"/debian/zeitgeist-maybe-vacuum
 
 	# valadoc generated documentation #
-	use doc && dodoc -r doc/libzeitgeist/docs_c doc/libzeitgeist/docs_vala
+	if use doc; then
+		docinto html/c
+		dodoc -r doc/libzeitgeist/docs_c/html/.
+		docinto html/vala
+		dodoc -r doc/libzeitgeist/docs_vala/.
+	fi
 
 	find "${ED}" -name '*.la' -delete || die
 }
