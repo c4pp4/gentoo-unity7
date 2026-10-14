@@ -42,6 +42,13 @@ BDEPEND="
 
 MAKEOPTS="${MAKEOPTS} -j1"
 
+src_prepare() {
+	# gtk-doc.make is normally copied by gtkdocize (dev-util/gtk-doc)
+	echo "EXTRA_DIST =" > gtk-doc.make || die
+
+	ubuntu-versionator_src_prepare
+}
+
 multilib_src_configure() {
 	local myeconfargs=(
 		$(use_enable test tests)
