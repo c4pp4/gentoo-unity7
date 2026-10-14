@@ -55,6 +55,11 @@ src_prepare() {
 	# GNOME_COMMON_INIT: command not found #
 	sed -i "/GNOME_COMMON_INIT/d" configure.ac || die
 
+	# gtk-doc.make is normally copied by gtkdocize (dev-util/gtk-doc)
+	if ! use doc; then
+		echo "EXTRA_DIST =" > gtk-doc.make || die
+	fi
+
 	ubuntu-versionator_src_prepare
 }
 

@@ -48,6 +48,11 @@ src_prepare() {
 	# Don't try to find test dep #
 	sed -i "/DBUSTEST/d" configure.ac || die
 
+	# gtk-doc.make is normally copied by gtkdocize (dev-util/gtk-doc)
+	if ! use doc; then
+		echo "EXTRA_DIST =" > gtk-doc.make || die
+	fi
+
 	ubuntu-versionator_src_prepare
 }
 
