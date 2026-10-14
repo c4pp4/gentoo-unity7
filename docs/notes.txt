@@ -59,7 +59,6 @@ media-fonts/urw-fonts                   # Create fontconfig configuration symlin
 media-gfx/eog:1                         # Add traditional menu bar (https://bugzilla.gnome.org/749976, https://bugs.debian.org/793445), add menu translations
 media-gfx/shotwell                      # Configure with unity_support
 media-libs/fontconfig:1.0               # Adjust fonts configuration according to Ubuntu
-media-libs/libcanberra-gtk3             # Configure with gtk2 as well
 media-plugins/audacious-plugins         # Add Unity Shortcuts Plugin (former GNOME Shortcuts Plugin)
 media-sound/audacious                   # First run in GTK mode
 media-sound/audacity                    # Fix Exec command to use Unity menu bar properly
