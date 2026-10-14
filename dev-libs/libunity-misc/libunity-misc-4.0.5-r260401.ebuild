@@ -35,6 +35,15 @@ BDEPEND="
 	doc? ( dev-util/gtk-doc )
 "
 
+src_prepare() {
+	# gtk-doc.make is normally copied by gtkdocize (dev-util/gtk-doc)
+	if ! use doc; then
+		echo "EXTRA_DIST =" > gtk-doc.make || die
+	fi
+
+	ubuntu-versionator_src_prepare
+}
+
 src_configure() {
 	local myeconfargs=(
 		$(use_enable doc gtk-doc)

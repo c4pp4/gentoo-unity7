@@ -8,8 +8,6 @@
    <br/>
    `emaint sync -r gentoo-unity7`
 
-   NOTE: The package [dev-vcs/git⬀][git] is required.
-
 3. **Set** the `gentoo-unity7:amd64/23.0/desktop/unity/systemd (stable)` [profile⬀][ep] (listed by `eselect profile list`).
 
 4. **Add** the `EHOOKS_ACCEPT="yes"` **variable** into the `/etc/portage/make.conf` configuration file.
@@ -50,7 +48,6 @@ NOTES:
 [ehooks]: ehooks.md
 [ep]: https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Base#Choosing_the_right_profile
 [erepo]: https://wiki.gentoo.org/wiki/Eselect/Repository
-[git]: https://wiki.gentoo.org/wiki/Git
 [ldm]: https://wiki.gentoo.org/wiki/LightDM#systemd
 [nm]: https://wiki.gentoo.org/wiki/NetworkManager#systemd
 [pw]: https://wiki.gentoo.org/wiki/PipeWire#systemd
