@@ -166,7 +166,7 @@ x11-themes/adwaita-icon-theme-legacy    # Inherit Adwaita icons before hicolor
                         - Wants {unity-settings-daemon,unity-panel-service,bamfdaemon}.service units
 
 ========================================================================
-* OpenRC session launch (USE="-systemd", experimental)
+* OpenRC session launch (experimental)
 ========================================================================
 * Unity session is launched as follows:
         - Display manager (e.g. LightDM) sources '/etc/X11/xinit/xinitrc.d/*' and executes /usr/share/xsessions/unity.desktop:

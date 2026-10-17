@@ -2,9 +2,9 @@
 
 Follow the [Gentoo AMD64 Handbook⬀][handbook] for the base installation and complete the steps below along the way. Note that OpenRC support already works, but it is still considered experimental.
 
-1. **Select** the `stage3-amd64-desktop-systemd` or `stage3-amd64-desktop-openrc` tarball when [choosing a stage file⬀][stagefile].
+1. Select the `stage3-amd64-desktop-systemd` or `stage3-amd64-desktop-openrc` tarball when [choosing a stage file⬀][stagefile].
 
-2. **Add the overlay** using the [eselect-repository⬀][erepo] module and synchronize it:
+2. Add the overlay using the [eselect-repository⬀][erepo] module and synchronize it:
 
    `eselect repository enable gentoo-unity7`
    <br/>
@@ -16,23 +16,19 @@ Follow the [Gentoo AMD64 Handbook⬀][handbook] for the base installation and co
    <br/>
    `gentoo-unity7:amd64/23.0/desktop/unity/systemd (stable)`
 
-4. **Add** the `EHOOKS_ACCEPT="yes"` **variable** into the `/etc/portage/make.conf` configuration file.
+4. Add the `EHOOKS_ACCEPT="yes"` variable into the `/etc/portage/make.conf` configuration file.
 
    WARNING: Some overlay patches will be applied to packages from the Gentoo repository via the ehooks patching system. For more details, see [ehooks - Chapter I.][ehooks] Set the variable to confirm you agree with it.
 
-5. **Set up** the Gentoo Unity⁷ Desktop **build environment**:
+5. Set up the Gentoo Unity⁷ Desktop build environment:
 
    `emerge gentoo-unity-env`
 
-6. **Update** the whole system and **rebuild** packages affected by ehooks:
+6. Update the whole system and rebuild packages affected by ehooks:
 
    `emerge -avuDU --with-bdeps=y @world @ehooks-rebuild`
 
-   NOTE: A circular dependency error may appear between *'media-libs/freetype'* and *'media-libs/harfbuzz'*. Before the update, try:
-   <br/>
-   `USE="-harfbuzz" emerge --oneshot media-libs/freetype`
-
-7. **Install Unity7**:
+7. Install Unity7:
 
    `emerge -av unity-meta`
 
@@ -40,19 +36,13 @@ Follow the [Gentoo AMD64 Handbook⬀][handbook] for the base installation and co
 
 NOTES:
 
-- Don't forget to enable services, such as:
-  <br/>
-  [LightDM⬀][ldm], [NetworkManager⬀][nm], [CUPS⬀][cups], and [Bluetooth⬀][bt].
+- Don't forget to enable services:
 
-- Services on systemd:
-  <br/>
-  [PipeWire⬀][pw] and [WirePlumber⬀][wp].
+  - systemd or OpenRC: [LightDM⬀][ldm], [NetworkManager⬀][nm], [CUPS⬀][cups], and [Bluetooth⬀][bt].
 
-- Services on OpenRC:
-  <br/>
-  [elogind⬀][elogind] and [D-Bus⬀][dbus].
-  <br/>
-  PipeWire and WirePlumber are started by default via the *gentoo-pipewire-launcher* autostart file.
+  - systemd: [PipeWire⬀][pw] and [WirePlumber⬀][wp].
+
+  - OpenRC: [elogind⬀][elogind] and [D-Bus⬀][dbus] (PipeWire and WirePlumber are started by default).
 
 - In case of starting Unity7 with the `startx` command, use [our .xinitrc file][xirc] to ensure all needed services are started.
 
