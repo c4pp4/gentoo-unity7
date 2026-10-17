@@ -63,15 +63,15 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 		source <(declare -f die | sed -e "/${bugapnd}/a ${bugehk}" -e "/${bugapnd}/a ${bugmsg}" -e "/${bugapnd}/a ${buglog}")
 		## End of modifications to the 'die' function.
 
-		x="$(grep -rhE --color=never -- '^[[:space:]]*(export[[:space:]]+)?EHOOKS_ACCEPT=' "${PORTAGE_CONFIGROOT%/}"/etc/portage/make.conf 2>/dev/null)"
+		x="$(grep -rhE --color=never -- '^[[:space:]]*(export[[:space:]]+)?ACCEPT_EHOOKS=' "${PORTAGE_CONFIGROOT%/}"/etc/portage/make.conf 2>/dev/null)"
 		[[ -n ${x} ]] && eval "$x" ## Needed when installing a binary package.
-		if [[ ${EHOOKS_ACCEPT} != "yes" ]]; then
+		if [[ ${ACCEPT_EHOOKS} != "yes" ]]; then
 			eerror
 			eerror "Warning:"
 			eerror
 			eerror "The ehooks patching system from the gentoo-unity7 overlay will apply patches to ${CATEGORY}/${PN} and other packages from the Gentoo tree."
 			eerror "For more details, see Chapter I of '${REPO_ROOT}/docs/ehooks.md'."
-			eerror "Set EHOOKS_ACCEPT=\"yes\" in make.conf to accept the use of the ehooks patching system."
+			eerror "Set ACCEPT_EHOOKS=\"yes\" in make.conf to accept the use of the ehooks patching system."
 			eerror
 			echo "Acceptance of ehooks patches is required." > "${log}"
 			die "$(<${log})"

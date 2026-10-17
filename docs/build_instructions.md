@@ -16,7 +16,7 @@ Follow the [Gentoo AMD64 Handbook⬀][handbook] for the base installation and co
    <br/>
    `gentoo-unity7:amd64/23.0/desktop/unity/openrc (exp)`
 
-4. Add the `EHOOKS_ACCEPT="yes"` variable into the `/etc/portage/make.conf` configuration file.
+4. Add the `ACCEPT_EHOOKS="yes"` variable into the `/etc/portage/make.conf` configuration file.
 
    WARNING: Some overlay patches will be applied to packages from the Gentoo repository via the ehooks patching system. For more details, see [ehooks - Chapter I.][ehooks] Set the variable to confirm you agree with it.
 

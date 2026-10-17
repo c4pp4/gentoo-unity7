@@ -12,7 +12,7 @@
 
 - Some [special ehooks][env] download a Debian archive to apply the Ubuntu patchset. Downloads are permitted via [network-sandbox-proxy][cenv]. The downloaded archive is verified with b2sum against its 512-bit BLAKE2 checksum.
 
-- Set **EHOOKS_ACCEPT="yes"** in make.conf to accept the use of this patching system.
+- Set **ACCEPT_EHOOKS="yes"** in make.conf to accept the use of this patching system.
 
 ---
 
