@@ -33,6 +33,8 @@ BDEPEND="
 	virtual/pkgconfig
 "
 
+PATCHES=( "${FILESDIR}"/Fix-translations.patch )
+
 src_install() {
 	default
 	find "${ED}" -name '*.la' -delete || die

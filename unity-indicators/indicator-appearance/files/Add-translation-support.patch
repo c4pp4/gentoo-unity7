@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sat, 17 Oct 2026 12:00:00 +0200
+Subject: [PATCH 1/1] Add translation support
+
+Set the gettext domain so that translations can be found and mark
+the 'Switch accent color' string as translatable.
+
+Signed-off-by: c4pp4
+---
+ unity-indicator-appearance | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/unity-indicator-appearance b/unity-indicator-appearance
+--- a/unity-indicator-appearance
++++ b/unity-indicator-appearance
+@@ -12,6 +12,7 @@
+ import json
+ import subprocess
+ 
++gettext.textdomain('indicator-appearance')
+ _ = gettext.gettext
+ 
+ from gi.repository import Gtk as gtk
+@@ -54,7 +55,7 @@
+     menu.append(item_switch_theme)
+ 
+     # accent color submenu
+-    item_switch_accent_color = gtk.MenuItem(label='Switch accent color')
++    item_switch_accent_color = gtk.MenuItem(label=_('Switch accent color'))
+     accent_color_submenu = gtk.Menu()
+     item_switch_accent_color.set_submenu(accent_color_submenu)
+     menu.append(item_switch_accent_color)
+-- 
+2.52.0
+

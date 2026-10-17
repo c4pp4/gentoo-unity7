@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sat, 17 Oct 2026 12:00:00 +0200
+Subject: [PATCH 1/1] Update status on icon theme change
+
+The indicator is shown only when both GTK and icon themes are Yaru,
+so update its status also when the icon theme changes.
+
+Signed-off-by: c4pp4
+---
+ unity-indicator-appearance | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/unity-indicator-appearance b/unity-indicator-appearance
+--- a/unity-indicator-appearance
++++ b/unity-indicator-appearance
+@@ -30,6 +30,7 @@
+     indicator.set_menu(build_menu())
+     update_menu_status(appearance_settings, None)
+     appearance_settings.connect('changed::gtk-theme', update_menu_status)
++    appearance_settings.connect('changed::icon-theme', update_menu_status)
+     notify.init(APPINDICATOR_ID)
+     gtk.main()
+ 
+-- 
+2.52.0
+

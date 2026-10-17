@@ -6,13 +6,14 @@ PYTHON_COMPAT=( python3_{12..15} )
 
 UVER=build1
 UREV=
+MY_PN="unity-${PN}"
 
 inherit python-single-r1 xdg ubuntu-versionator
 
-DESCRIPTION="Default settings for Ubuntu Unity"
+DESCRIPTION="Appearance indicator for the Unity desktop"
 HOMEPAGE="https://unity.ubuntuunity.org"
-SRC_URI="${UURL}.tar.xz"
-S="${WORKDIR}/${P}${UVER}"
+SRC_URI="${UURL/${PN}/${MY_PN}}.tar.xz"
+S="${WORKDIR}/${MY_PN}-${PV}${UVER}"
 
 LICENSE="GPL-2+"
 SLOT="0"
@@ -24,25 +25,33 @@ RDEPEND="
 	dev-libs/libappindicator:3
 	gnome-base/gsettings-desktop-schemas
 	x11-libs/gtk+:3[introspection]
-	x11-libs/libnotify[introspection]
 	x11-themes/yaru-theme[unity]
 
 	${PYTHON_DEPS}
 	$(python_gen_cond_dep 'dev-python/pygobject:3[${PYTHON_USEDEP}]')
 "
 
-PATCHES=( "${FILESDIR}"/Add-more-accent-colors.patch )
+PATCHES=(
+	"${FILESDIR}"/Add-more-accent-colors.patch
+	"${FILESDIR}"/Add-translation-support.patch
+	"${FILESDIR}"/Update-status-on-icon-theme-change.patch
+	"${FILESDIR}"/Remove-unused-libnotify.patch
+)
 
 src_install() {
 	default
 
-	python_doscript "${PN}"
+	python_doscript "${MY_PN}"
+
+	# If a .desktop file does not have inline #
+	# translations, fall back to calling gettext #
+	sed -i -e "\$a X-GNOME-Gettext-Domain=${PN}" autostart/"${MY_PN}".desktop || die
 
 	insinto /etc/xdg/autostart
-	doins autostart/"${PN}".desktop
+	doins autostart/"${MY_PN}".desktop
 
 	insinto /usr/share/icons/hicolor/scalable/apps
-	doins icons/"${PN}".svg
+	doins icons/"${MY_PN}".svg
 
 	insinto /usr/share
 	doins -r "${FILESDIR}"/icons

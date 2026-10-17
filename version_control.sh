@@ -34,6 +34,7 @@ declare -A upstream_names=(
 	["gnome-extra/nemo-engrampa"]="nemo-fileroller"
 	["unity-extra/indicator-classicmenu"]="classicmenu-indicator"
 	["unity-extra/indicator-psensor"]="psensor"
+	["unity-indicators/indicator-appearance"]="unity-indicator-appearance"
 )
 
 ## Temporarily accept keywords from testing branch.

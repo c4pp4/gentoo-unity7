@@ -1,0 +1,52 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sat, 17 Oct 2026 12:00:00 +0200
+Subject: [PATCH 1/1] Fix translations
+
+Use the indicator gettext domain for the plural string, as the indicator
+is loaded into the panel service process with a different default domain,
+and make the notification details a single translatable string, so that
+translators can change the word order.
+
+Signed-off-by: c4pp4
+---
+ src/indicator-notifications.c |  2 +-
+ src/notification-menuitem.c   | 10 ++++++++--
+ 2 files changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/src/indicator-notifications.c b/src/indicator-notifications.c
+--- a/src/indicator-notifications.c
++++ b/src/indicator-notifications.c
+@@ -514,7 +514,7 @@
+   guint hidden_length = g_list_length(self->priv->hidden_items);
+   guint total_length = visible_length + hidden_length;
+ 
+-  gchar *markup = g_strdup_printf(ngettext(
++  gchar *markup = g_strdup_printf(g_dngettext(GETTEXT_PACKAGE,
+         "Clear <small>(%d Notification)</small>",
+         "Clear <small>(%d Notifications)</small>",
+         total_length),
+diff --git a/src/notification-menuitem.c b/src/notification-menuitem.c
+--- a/src/notification-menuitem.c
++++ b/src/notification-menuitem.c
+@@ -126,9 +126,15 @@
+   gchar *body = notification_menuitem_markup_body(notification_get_body(note));
+   gchar *timestamp_string = g_markup_escape_text(unescaped_timestamp_string, -1);
+ 
+-  gchar *markup = g_strdup_printf("<b>%s</b>\n%s\n<small><i>%s %s <b>%s</b></i></small>",
+-      summary, body, timestamp_string, _("from"), app_name);
++  gchar *bold_app_name = g_strdup_printf("<b>%s</b>", app_name);
++  /* Translators: the first %s is the time of the notification, the second %s is the application name */
++  gchar *details = g_strdup_printf(_("%s from %s"), timestamp_string, bold_app_name);
+ 
++  gchar *markup = g_strdup_printf("<b>%s</b>\n%s\n<small><i>%s</i></small>",
++      summary, body, details);
++
++  g_free(details);
++  g_free(bold_app_name);
+   g_free(app_name);
+   g_free(summary);
+   g_free(body);
+-- 
+2.52.0
+

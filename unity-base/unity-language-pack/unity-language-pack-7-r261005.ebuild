@@ -409,12 +409,6 @@ src_install() {
 		"Configure multiple and native language support on your system"
 	)
 
-	# Unity help desktop launcher msgids
-	local -a is_msgids=(
-		"Unity Help"
-		"Get help with Unity"
-	)
-
 	local \
 		pofile msgid x \
 		u_po="unity.po" \
@@ -424,7 +418,7 @@ src_install() {
 		gccl_po="gnome-control-center-2.0.legacy" \
 		ls_po="language-selector.po" \
 		is_po="indicator-session.po" \
-		ylp_po="yelp.po" \
+		uhl_po="unity-help.legacy" \
 		newline=$'\n'
 
 	# Remove all translations except those we need
@@ -434,7 +428,6 @@ src_install() {
 		! -name 'libdbusmenu.po' \
 		! -name 'ubuntu-help.po' \
 		! -name 'unity*' \
-		! -name ${ylp_po} \
 		! -name changelog \
 		! -name copyright \
 			-delete || die
@@ -489,6 +482,9 @@ src_install() {
 	unpack_translations "unity-control-center-translations-kinetic" "${uccl_po}"
 	unpack_translations "gnome-control-center-2.0-translations-jammy" "${gccl_po}"
 	unpack_translations "cinnamon-session-translations-151017" "unity-session-properties.po"
+	unpack_translations "indicator-appearance-translations-261017" "indicator-appearance.po"
+	unpack_translations "indicator-notifications-translations-261017" "indicator-notifications.po"
+	unpack_translations "unity-help-translations-261017" "${uhl_po}"
 
 	_progress_counter=0
 	_progress_indicator() {
@@ -508,7 +504,6 @@ src_install() {
 		find "${S}" -type f \
 			-name "*.po" \
 			! -name "${ls_po}" \
-			! -name "${ylp_po}" \
 	); do
 		if [[ ${pofile##*/} == ${ucc_po} ]]; then
 			# Merge legacy translations
@@ -526,10 +521,8 @@ src_install() {
 		fi
 
 		# Add translations for Unity help desktop launcher
-		x=${pofile/${is_po}/${ylp_po}}
-		if [[ ${pofile##*/} == ${is_po} ]] && [[ -e ${x} ]]; then
-			sed -i -e "s/GNOME/Unity/g" "${x}" || die
-			process_msgids "${x}" "${pofile}" "${is_msgids[@]}"
+		if [[ ${pofile##*/} == ${is_po} ]]; then
+			merge_translations "${pofile/${is_po}/${uhl_po}}" "${pofile}"
 		fi
 
 		# Process translations for Unity

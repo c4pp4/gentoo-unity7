@@ -23,7 +23,7 @@ RDEPEND="
 	unity-indicators/indicator-appmenu
 	unity-indicators/indicator-datetime
 
-	appearance? ( unity-indicators/unity-indicator-appearance )
+	appearance? ( unity-indicators/indicator-appearance )
 	battery? ( unity-indicators/indicator-power )
 	bluetooth? ( unity-indicators/indicator-bluetooth )
 	cups? ( unity-indicators/indicator-printers )

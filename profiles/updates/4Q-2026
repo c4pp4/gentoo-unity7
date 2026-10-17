@@ -1,2 +1,3 @@
 move dev-python/python-zombie-imp dev-python/zombie-imp
 move unity-extra/unity-greeter unity-base/unity-greeter
+move unity-indicators/unity-indicator-appearance unity-indicators/indicator-appearance
