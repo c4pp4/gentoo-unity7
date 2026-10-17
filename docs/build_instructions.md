@@ -12,9 +12,9 @@ Follow the [Gentoo AMD64 Handbook⬀][handbook] for the base installation and co
 
 3. Set the [profile⬀][ep] matching your init system, listed by `eselect profile list`:
 
-   `gentoo-unity7:amd64/23.0/desktop/unity/openrc (exp)`
-   <br/>
    `gentoo-unity7:amd64/23.0/desktop/unity/systemd (stable)`
+   <br/>
+   `gentoo-unity7:amd64/23.0/desktop/unity/openrc (exp)`
 
 4. Add the `EHOOKS_ACCEPT="yes"` variable into the `/etc/portage/make.conf` configuration file.
 
