@@ -18,7 +18,7 @@ A Gentoo overlay for building and running the Unity7 desktop environment on syst
 
 ---
 
-<sub>The overlay currently supports amd64 and uses the Gentoo stable branch by default. You can build `www-client/firefox` from either the Gentoo stable or testing branch, since global menu support is available for both. The same applies to `mail-client/thunderbird`. Some Unity integration patches are applied to packages from the main Gentoo repository through the ehooks patching system.</sub>
+<sub>The overlay currently supports `amd64` and uses the Gentoo `stable branch` by default. You can build `www-client/firefox` from either the Gentoo stable or testing branch, since global menu support is available for both. The same applies to `mail-client/thunderbird`. Some Unity integration patches are applied to packages from the main Gentoo repository through the ehooks patching system.</sub>
 
 [//]: # (LINKS)
 [addp]: docs/additional_packages.md
