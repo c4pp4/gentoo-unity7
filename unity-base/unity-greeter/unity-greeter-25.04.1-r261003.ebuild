@@ -111,7 +111,8 @@ src_install() {
 
 	insinto /usr/share/${PN}
 	newins "${FILESDIR}/branding/gentoo_logo.png" logo.png
-	newins "${FILESDIR}/branding/gentoo_cof.png" cof.png # Gentoo logo for multi monitor usage
+	# Hide centered logo on secondary monitors (transparent 1x1 px image) #
+	newins "${FILESDIR}/branding/empty_cof.png" cof.png
 
 	if use ready-sound; then
 		sed -i \

@@ -287,11 +287,11 @@ src_install() {
 		# Gentoo Unity⁷ Dash home button #
 		insinto /usr/share/unity/icons
 		doins "${FILESDIR}/branding/launcher_bfb.svg"
-
-		# Gentoo logo on lock-screen on multi head system #
-		insinto /usr/share/unity/icons
-		doins "${FILESDIR}/branding/lockscreen_cof.png"
 	fi
+
+	# Hide centered logo on lock-screen of secondary monitors (transparent 1x1 px image) #
+	insinto /usr/share/unity/icons
+	newins "${FILESDIR}/branding/empty_cof.png" lockscreen_cof.png
 
 	# Dash and Hud border #
 	doins "${FILESDIR}/resources/dash_bottom_border_tile.png"
