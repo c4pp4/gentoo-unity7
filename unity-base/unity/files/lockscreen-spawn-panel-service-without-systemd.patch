@@ -1,0 +1,221 @@
+From 33f44742758da7306fd6755a0d2dd68f3a1fcb7e Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sat, 17 Oct 2026 00:55:07 +0200
+Subject: [PATCH 1/1] Launch lockscreen panel service without systemd
+
+Without the 'systemd --user' process (e.g. on OpenRC), the
+unity-screen-locked.target unit can not be started via
+org.freedesktop.systemd1, so the lockscreen panel ends up without
+indicators. Launch unity-panel-service in lockscreen mode directly
+in that case and terminate it when the screen is unlocked.
+
+If the screen is locked again while the previous instance is still
+terminating, start a new instance once it exits. Restart the service
+if it fails while the screen is locked (as Restart=on-failure), with
+systemd's default start limit of 5 restarts within 10 seconds. Reap
+the child process even if the wrapper is destroyed while it is running.
+---
+ unity-shared/SystemdWrapper.cpp | 154 ++++++++++++++++++++++++++++++++
+ 1 file changed, 154 insertions(+)
+
+diff --git a/unity-shared/SystemdWrapper.cpp b/unity-shared/SystemdWrapper.cpp
+index 5917ddc..732a8bc 100644
+--- a/unity-shared/SystemdWrapper.cpp
++++ b/unity-shared/SystemdWrapper.cpp
+@@ -19,10 +19,26 @@
+ 
+ #include "SystemdWrapper.h"
+ 
++#include <signal.h>
++#include <glib.h>
++#include <NuxCore/Logger.h>
+ #include <UnityCore/GLibDBusProxy.h>
++#include <UnityCore/GLibWrapper.h>
++
++#include "config.h"
+ 
+ namespace unity
+ {
++DECLARE_LOGGER(logger, "unity.systemd.wrapper");
++
++namespace
++{
++const std::string SYSTEMD_LOCK_TARGET = "unity-screen-locked.target";
++
++// Restart limit of a failed lockscreen panel service (systemd defaults)
++const unsigned RESTART_LIMIT_BURST = 5;
++const gint64 RESTART_LIMIT_INTERVAL = 10 * G_USEC_PER_SEC;
++}
+ 
+ //
+ // Start private implementation
+@@ -32,19 +48,142 @@ class SystemdWrapper::Impl
+ {
+ public:
+   Impl(bool test);
++  ~Impl();
+ 
+   void Start(std::string const& name);
+   void Stop(std::string const& name);
+   void CallMethod(std::string const& method, std::string const& unit);
+ 
+ private:
++  bool IsSystemdUserSession() const;
++  void StartLockscreenPanelService();
++  void StopLockscreenPanelService();
++  bool CanRestartLockscreenPanelService();
++  static void OnLockscreenPanelServiceExited(GPid pid, gint status, gpointer data);
++
+   bool test_mode_;
++  GPid lockscreen_panel_pid_;
++  guint lockscreen_panel_watch_;
++  bool lockscreen_panel_stopping_;
++  bool lockscreen_panel_restart_;
++  gint64 lockscreen_panel_restart_window_;
++  unsigned lockscreen_panel_restart_count_;
+ };
+ 
+ SystemdWrapper::Impl::Impl(bool test)
+   : test_mode_(test)
++  , lockscreen_panel_pid_(0)
++  , lockscreen_panel_watch_(0)
++  , lockscreen_panel_stopping_(false)
++  , lockscreen_panel_restart_(false)
++  , lockscreen_panel_restart_window_(0)
++  , lockscreen_panel_restart_count_(0)
+ {}
+ 
++SystemdWrapper::Impl::~Impl()
++{
++  if (lockscreen_panel_watch_)
++    g_source_remove(lockscreen_panel_watch_);
++
++  if (lockscreen_panel_pid_ > 0)
++  {
++    kill(lockscreen_panel_pid_, SIGTERM);
++    // Reap the child later, as this object is going away
++    g_child_watch_add(lockscreen_panel_pid_, [] (GPid pid, gint, gpointer) { g_spawn_close_pid(pid); }, nullptr);
++  }
++}
++
++bool SystemdWrapper::Impl::IsSystemdUserSession() const
++{
++  if (test_mode_)
++    return true;
++
++  // The 'systemd --user' process creates this directory when it is running
++  glib::String systemd_dir(g_build_filename(g_get_user_runtime_dir(), "systemd", nullptr));
++  return g_file_test(systemd_dir, G_FILE_TEST_IS_DIR);
++}
++
++bool SystemdWrapper::Impl::CanRestartLockscreenPanelService()
++{
++  gint64 now = g_get_monotonic_time();
++
++  if (now - lockscreen_panel_restart_window_ > RESTART_LIMIT_INTERVAL)
++  {
++    lockscreen_panel_restart_window_ = now;
++    lockscreen_panel_restart_count_ = 0;
++  }
++
++  return ++lockscreen_panel_restart_count_ <= RESTART_LIMIT_BURST;
++}
++
++void SystemdWrapper::Impl::OnLockscreenPanelServiceExited(GPid pid, gint status, gpointer data)
++{
++  auto self = static_cast<SystemdWrapper::Impl*>(data);
++  bool stopping = self->lockscreen_panel_stopping_;
++
++  g_spawn_close_pid(pid);
++  self->lockscreen_panel_pid_ = 0;
++  self->lockscreen_panel_watch_ = 0;
++  self->lockscreen_panel_stopping_ = false;
++
++  // The screen was locked again while the previous instance was terminating
++  if (self->lockscreen_panel_restart_)
++  {
++    self->lockscreen_panel_restart_ = false;
++    self->StartLockscreenPanelService();
++    return;
++  }
++
++  // Restart the service if it failed while the screen is locked (as Restart=on-failure)
++  if (!stopping && !g_spawn_check_wait_status(status, nullptr))
++  {
++    if (self->CanRestartLockscreenPanelService())
++    {
++      LOG_WARN(logger) << "unity-panel-service in lockscreen mode failed, restarting it";
++      self->StartLockscreenPanelService();
++    }
++    else
++    {
++      LOG_ERROR(logger) << "unity-panel-service in lockscreen mode failed too often, not restarting it";
++    }
++  }
++}
++
++void SystemdWrapper::Impl::StartLockscreenPanelService()
++{
++  if (lockscreen_panel_pid_ > 0)
++  {
++    // The previous instance is terminating, start a new one once it exits
++    if (lockscreen_panel_stopping_)
++      lockscreen_panel_restart_ = true;
++    return;
++  }
++
++  glib::Error error;
++  gchar const* argv[] = { UNITY_LIBDIR "/unity-panel-service", "--lockscreen-mode", nullptr };
++
++  if (!g_spawn_async(nullptr, const_cast<gchar**>(argv), nullptr, G_SPAWN_DO_NOT_REAP_CHILD,
++                     nullptr, nullptr, &lockscreen_panel_pid_, &error))
++  {
++    LOG_ERROR(logger) << "Unable to launch unity-panel-service in lockscreen mode: " << error.Message();
++    lockscreen_panel_pid_ = 0;
++    return;
++  }
++
++  lockscreen_panel_watch_ = g_child_watch_add(lockscreen_panel_pid_, &Impl::OnLockscreenPanelServiceExited, this);
++}
++
++void SystemdWrapper::Impl::StopLockscreenPanelService()
++{
++  lockscreen_panel_restart_ = false;
++
++  if (lockscreen_panel_pid_ > 0 && !lockscreen_panel_stopping_)
++  {
++    kill(lockscreen_panel_pid_, SIGTERM);
++    lockscreen_panel_stopping_ = true;
++  }
++}
++
+ void SystemdWrapper::Impl::CallMethod(std::string const& method, std::string const& unit)
+ {
+   auto const& busname = test_mode_ ? "com.canonical.Unity.Test.Systemd" : "org.freedesktop.systemd1";
+@@ -59,11 +198,26 @@ void SystemdWrapper::Impl::CallMethod(std::string const& method, std::string con
+ 
+ void SystemdWrapper::Impl::Start(std::string const& name)
+ {
++  // Without systemd, launch the lockscreen panel service directly
++  if (name == SYSTEMD_LOCK_TARGET && !IsSystemdUserSession())
++  {
++    StartLockscreenPanelService();
++    return;
++  }
++
+   CallMethod("StartUnit", name);
+ }
+ 
+ void SystemdWrapper::Impl::Stop(std::string const& name)
+ {
++  // Also stop a directly launched instance if the session state changed meanwhile
++  if (name == SYSTEMD_LOCK_TARGET &&
++      (lockscreen_panel_pid_ > 0 || lockscreen_panel_restart_ || !IsSystemdUserSession()))
++  {
++    StopLockscreenPanelService();
++    return;
++  }
++
+   CallMethod("StopUnit", name);
+ }
+ 

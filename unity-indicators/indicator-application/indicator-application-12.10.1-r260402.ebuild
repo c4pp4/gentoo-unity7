@@ -7,7 +7,7 @@ UBUNTU_EAUTORECONF="yes"
 UVER=+19.04.20190308.1
 UREV=0ubuntu6
 
-inherit ubuntu-versionator
+inherit systemd ubuntu-versionator
 
 DESCRIPTION="Application indicators used by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/indicator-application"
@@ -31,7 +31,6 @@ COMMON_DEPEND="
 RDEPEND="${COMMON_DEPEND}"
 DEPEND="${COMMON_DEPEND}
 	dev-libs/json-glib
-	sys-apps/systemd
 "
 BDEPEND="
 	dev-util/intltool
@@ -45,6 +44,11 @@ src_prepare() {
 		data/upstart/Makefile.am || die
 
 	ubuntu-versionator_src_prepare
+
+	# Install the systemd user unit even without sys-apps/systemd #
+	sed -i \
+		-e "s:^SYSTEMD_USERDIR=.*:SYSTEMD_USERDIR=$(systemd_get_userunitdir):" \
+		configure || die
 }
 
 src_install() {

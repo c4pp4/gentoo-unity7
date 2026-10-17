@@ -66,7 +66,6 @@ RDEPEND="${COMMON_DEPEND}
 	x11-wm/metacity
 "
 DEPEND="${COMMON_DEPEND}
-	>=sys-apps/systemd-183
 	x11-misc/xkeyboard-config
 
 	input_devices_wacom? ( x11-drivers/xf86-input-wacom )

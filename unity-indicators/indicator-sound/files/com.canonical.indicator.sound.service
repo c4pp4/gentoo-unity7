@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=com.canonical.indicator.sound
+Exec=/usr/libexec/indicator-sound/indicator-sound-service
+SystemdService=indicator-sound.service

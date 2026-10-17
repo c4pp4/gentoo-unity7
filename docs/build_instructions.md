@@ -1,6 +1,8 @@
 # Build instructions
 
-1. **Use** the [stage3-amd64-systemd⬀][s3] tarball for a new installation, or **switch to** the [systemd⬀][sysd] init system on an existing installation.
+Follow the [Gentoo AMD64 Handbook⬀][handbook] for the base installation and complete the steps below along the way. Note that OpenRC support already works, but it is still considered experimental.
+
+1. **Select** the `stage3-amd64-desktop-systemd` or `stage3-amd64-desktop-openrc` tarball when [choosing a stage file⬀][stagefile].
 
 2. **Add the overlay** using the [eselect-repository⬀][erepo] module and synchronize it:
 
@@ -8,7 +10,11 @@
    <br/>
    `emaint sync -r gentoo-unity7`
 
-3. **Set** the `gentoo-unity7:amd64/23.0/desktop/unity/systemd (stable)` [profile⬀][ep] (listed by `eselect profile list`).
+3. Set the [profile⬀][ep] matching your init system, listed by `eselect profile list`:
+
+   `gentoo-unity7:amd64/23.0/desktop/unity/openrc (exp)`
+   <br/>
+   `gentoo-unity7:amd64/23.0/desktop/unity/systemd (stable)`
 
 4. **Add** the `EHOOKS_ACCEPT="yes"` **variable** into the `/etc/portage/make.conf` configuration file.
 
@@ -34,24 +40,36 @@
 
 NOTES:
 
-- Don't forget to enable systemd services, such as:
+- Don't forget to enable services, such as:
   <br/>
-  [LightDM⬀][ldm], [PipeWire⬀][pw], [WirePlumber⬀][wp], [NetworkManager⬀][nm], [CUPS⬀][cups], and [Bluetooth⬀][bt].
+  [LightDM⬀][ldm], [NetworkManager⬀][nm], [CUPS⬀][cups], and [Bluetooth⬀][bt].
+
+- Services on systemd:
+  <br/>
+  [PipeWire⬀][pw] and [WirePlumber⬀][wp].
+
+- Services on OpenRC:
+  <br/>
+  [elogind⬀][elogind] and [D-Bus⬀][dbus].
+  <br/>
+  PipeWire and WirePlumber are started by default via the *gentoo-pipewire-launcher* autostart file.
 
 - In case of starting Unity7 with the `startx` command, use [our .xinitrc file][xirc] to ensure all needed services are started.
 
 - If you switch the default Python target, you **must** update `sys-apps/portage` before any other packages.
 
 [//]: # (LINKS)
-[bt]: https://wiki.gentoo.org/wiki/Bluetooth#systemd
-[cups]: https://wiki.gentoo.org/wiki/Printing#systemd
+[bt]: https://wiki.gentoo.org/wiki/Bluetooth#Services
+[cups]: https://wiki.gentoo.org/wiki/Printing#Service
+[dbus]: https://wiki.gentoo.org/wiki/D-Bus#OpenRC
 [ehooks]: ehooks.md
+[elogind]: https://wiki.gentoo.org/wiki/Elogind#Service
 [ep]: https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Base#Choosing_the_right_profile
 [erepo]: https://wiki.gentoo.org/wiki/Eselect/Repository
-[ldm]: https://wiki.gentoo.org/wiki/LightDM#systemd
-[nm]: https://wiki.gentoo.org/wiki/NetworkManager#systemd
+[handbook]: https://wiki.gentoo.org/wiki/Handbook:AMD64
+[ldm]: https://wiki.gentoo.org/wiki/LightDM#Boot_service
+[nm]: https://wiki.gentoo.org/wiki/NetworkManager#Service
 [pw]: https://wiki.gentoo.org/wiki/PipeWire#systemd
-[s3]: https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Stage#Downloading_the_stage_file
-[sysd]: https://wiki.gentoo.org/wiki/Systemd
+[stagefile]: https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Stage#Choosing_a_stage_file
 [wp]: https://wiki.gentoo.org/wiki/WirePlumber#systemd
 [xirc]: /unity-base/unity/files/xinitrc

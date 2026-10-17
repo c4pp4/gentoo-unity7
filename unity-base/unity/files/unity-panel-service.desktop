@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Backing Service for the Unity Panel
+Exec=@UNITY_LIBDIR@/unity-panel-service
+OnlyShowIn=Unity;
+NoDisplay=true
+# Started in the default Application phase (after the WindowManager phase),
+# as unity-panel-service doesn't register with the session manager and
+# cinnamon-session would wait 30 seconds for it in earlier phases.
+X-GNOME-AutoRestart=true

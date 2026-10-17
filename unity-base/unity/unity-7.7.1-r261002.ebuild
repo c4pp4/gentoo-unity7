@@ -21,7 +21,7 @@ S="${WORKDIR}/${PN}"
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="bfb2013 bfb2023 classic-dash classic-panel debug gles2 +hud pch systray +uwidgets"
+IUSE="bfb2013 bfb2023 classic-dash classic-panel debug gles2 +hud pch systemd systray +uwidgets"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="test"
 
@@ -29,7 +29,7 @@ COMMON_DEPEND="
 	>=app-accessibility/at-spi2-core-2.46.0:2
 	>=dev-libs/appstream-glib-0.5.1
 	>=dev-libs/dee-1.2.6:0=[${PYTHON_SINGLE_USEDEP}]
-	>=dev-libs/glib-2.41.1:2
+	>=dev-libs/glib-2.70:2
 	>=dev-libs/ido-13.10.0:0=
 	>=dev-libs/json-glib-1.5.2
 	>=dev-libs/libdbusmenu-0.4.2[gtk3]
@@ -60,12 +60,12 @@ COMMON_DEPEND="
 RDEPEND="${COMMON_DEPEND}
 	gnome-base/dconf
 	gnome-extra/nemo
-	sys-apps/dbus[systemd,X]
+	sys-apps/dbus[systemd?,X]
 	sys-auth/polkit-pkla-compat
 	unity-base/session-shortcuts
 	unity-base/unity-control-center
 	unity-base/unity-language-pack
-	unity-extra/unity-greeter
+	unity-base/unity-greeter
 	unity-indicators/unity-indicators-meta
 	unity-lens/unity-lens-meta
 	>=x11-libs/gdk-pixbuf-2.22.0:2
@@ -108,6 +108,7 @@ PATCHES=(
 	"${FILESDIR}"/add-nemo-support.patch
 	"${FILESDIR}"/add-unity-version-xml.patch
 	"${FILESDIR}"/fix-recently-used-tracking-for-DBusActivatable-apps.patch
+	"${FILESDIR}"/lockscreen-spawn-panel-service-without-systemd.patch
 	"${FILESDIR}"/prevent-compiz-segfault-by-guarding-pthread_join.patch
 	"${FILESDIR}"/prevent-duplicate-reboot-shutdown-dialog.patch
 	"${FILESDIR}"/remove-all-code-related-to-online-search.patch
@@ -310,6 +311,21 @@ src_install() {
 	exeinto /etc/X11/xinit/xinitrc.d/
 	doexe "${FILESDIR}/70im-config"			# Configure input method (xim/ibus)
 	doexe "${FILESDIR}/99unity-session_systemd"	# Unity session environment setup and 'startx' launcher
+
+	if ! use systemd; then
+		# Launch Unity shell and panel service via cinnamon-session (XDG autostart) #
+		exeinto /usr/libexec
+		doexe "${FILESDIR}"/unity7-compiz-launcher
+
+		insinto /etc/xdg/autostart
+		doins "${FILESDIR}"/unity7-compiz.desktop
+		doins "${FILESDIR}"/unity-panel-service.desktop
+
+		sed -i \
+			-e "s:@UNITY_LIBDIR@:/usr/$(get_libdir)/unity:g" \
+			"${ED}"/usr/libexec/unity7-compiz-launcher \
+			"${ED}"/etc/xdg/autostart/unity-panel-service.desktop || die
+	fi
 
 	# Create /etc/pam.d/unity #
 	pamd_mimic system-local-login ${PN} auth account session

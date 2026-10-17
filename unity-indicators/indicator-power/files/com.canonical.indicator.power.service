@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=com.canonical.indicator.power
+Exec=/usr/libexec/indicator-power/indicator-power-service
+SystemdService=indicator-power.service

@@ -8,7 +8,7 @@ GNOME2_LA_PUNT="yes"
 UVER=+18.10.20180918
 UREV=0ubuntu8
 
-inherit gnome2 ubuntu-versionator vala
+inherit gnome2 systemd ubuntu-versionator vala
 
 DESCRIPTION="Indicator collecting messages that need a response for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/indicator-messages"
@@ -29,9 +29,7 @@ RDEPEND="${COMMON_DEPEND}
 	dev-libs/libindicator:3
 	gnome-base/dconf
 "
-DEPEND="${COMMON_DEPEND}
-	sys-apps/systemd
-"
+DEPEND="${COMMON_DEPEND}"
 BDEPEND="
 	dev-build/gtk-doc-am
 	>=dev-libs/gobject-introspection-0.9.12
@@ -54,6 +52,11 @@ src_prepare() {
 	fi
 
 	ubuntu-versionator_src_prepare
+
+	# Install the systemd user unit even without sys-apps/systemd #
+	sed -i \
+		-e "s:^SYSTEMD_USERDIR=.*:SYSTEMD_USERDIR=$(systemd_get_userunitdir):" \
+		configure || die
 }
 
 src_configure() {

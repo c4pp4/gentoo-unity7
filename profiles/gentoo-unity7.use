@@ -10,7 +10,7 @@ dev-libs/boost                          python                                  
 dev-libs/libdbusmenu                    gtk3                                    # Required by dev-libs/libappindicator:3, dev-libs/libindicate, unity-indicators/indicator-appmenu
 dev-libs/xapian-bindings                python                                  # REQUIRED_USE flag
 gnome-base/gvfs                         fuse                                    # Required by app-backup/deja-dup
-gnome-extra/nm-applet                   appindicator                            # Required by unity-base/unity-meta, unity-extra/unity-greeter
+gnome-extra/nm-applet                   appindicator                            # Required by unity-base/unity-meta, unity-base/unity-greeter
 media-libs/freetype                     harfbuzz                                # Required by x11-libs/pango
 media-libs/libmediaart                  vala                                    # Required by unity-base/unity-control-center (net-misc/rygel)
 media-libs/libvpx                       postproc                                # Required by mail-client/thunderbird, www-client/firefox
@@ -29,7 +29,7 @@ virtual/notification-daemon                                     -gnome          
 x11-base/xorg-server                    xvfb                                    # Required by x11-misc/xvfb-run
 x11-misc/appmenu-gtk-module             gtk2                                    # Required by unity-indicators/indicator-appmenu
 x11-misc/colord                         vala                                    # Required by unity-base/unity-control-center
-x11-misc/lightdm                        vala                    -gtk            # Required by unity-extra/unity-greeter, unity-indicators/indicator-keyboard; don't install x11-misc/lightdm-gtk-greeter
+x11-misc/lightdm                        vala                    -gtk            # Required by unity-base/unity-greeter, unity-indicators/indicator-keyboard; don't install x11-misc/lightdm-gtk-greeter
 x11-misc/zim                            ubuntu-mono                             # Install ubuntu-mono-{dark,light} icons
 x11-themes/ubuntu-wallpapers                                    -gnome          # Don't install x11-themes/gnome-backgrounds
 x11-themes/yaru-theme                                           -gnome-shell    # Don't install gnome-base/gnome-shell component

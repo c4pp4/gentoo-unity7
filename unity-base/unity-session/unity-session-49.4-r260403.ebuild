@@ -16,17 +16,20 @@ S="${WORKDIR}/${PN}"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="amd64"
+IUSE="systemd"
 RESTRICT="binchecks strip test"
 
 RDEPEND="
 	gnome-base/dconf
-	gnome-extra/cinnamon-session[systemd]
-	gnome-extra/cinnamon-settings-daemon[systemd]
+	gnome-extra/cinnamon-session[systemd=]
+	gnome-extra/cinnamon-settings-daemon[systemd=]
 	sys-apps/dbus
-	sys-apps/systemd
-	unity-base/unity
+	unity-base/unity[systemd=]
 	unity-base/unity-settings-daemon
 	x11-misc/xdg-user-dirs-gtk
+
+	systemd? ( sys-apps/systemd )
+	!systemd? ( sys-auth/elogind )
 "
 
 src_install() {
@@ -44,13 +47,23 @@ src_install() {
 	insinto /etc/xdg/autostart
 	newins nemo-unity-autostart.desktop unity-nemo-desktop.desktop
 
-	sed -i "/xdg/d" "${S}"/"${PN}".target || die # xdg .desktop autostart is managed via cinnamon-session #
-	systemd_douserunit "${PN}".target
-	systemd_douserunit "${PN}".service
-
 	exeinto /usr/bin
-	doexe "${PN}"
 	doexe "${FILESDIR}"/"${PN}"-quit
+
+	if use systemd; then
+		sed -i "/xdg/d" "${S}"/"${PN}".target || die # xdg .desktop autostart is managed via cinnamon-session #
+		systemd_douserunit "${PN}".target
+		systemd_douserunit "${PN}".service
+
+		doexe "${PN}"
+
+		# Start cinnamon-session using systemd #
+		exeinto /usr/libexec
+		doexe run-systemd-session
+	else
+		# Start cinnamon-session directly #
+		newexe "${FILESDIR}"/"${PN}"-openrc "${PN}"
+	fi
 
 	sed -i "/DesktopName/{s/:ubuntu//}" "${S}"/unity.session || die
 	insinto /usr/share/cinnamon-session/sessions
@@ -59,10 +72,6 @@ src_install() {
 	sed -i "/DesktopNames/{s/ubuntu;//}" "${S}"/unity.desktop || die
 	insinto /usr/share/xsessions
 	doins unity.desktop
-
-	# Start gnome-session using systemd #
-	exeinto /usr/libexec
-	doexe run-systemd-session
 
 	# From gnome-extra/cinnamon-6.6.7 package #
 	insinto /usr/share/glib-2.0/schemas

@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=com.canonical.indicator.bluetooth
+Exec=/usr/libexec/indicator-bluetooth/indicator-bluetooth-service
+SystemdService=indicator-bluetooth.service

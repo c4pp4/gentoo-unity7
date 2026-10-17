@@ -29,7 +29,7 @@ COMMON_DEPEND="
 	>=gnome-base/dconf-0.14.0
 	gnome-base/gsettings-desktop-schemas
 	>=media-libs/libcanberra-0.2
-	>=sys-apps/systemd-183
+	virtual/libudev:=
 	>=x11-libs/gtk+-3.9.10:3[introspection]
 	>=x11-libs/libxkbfile-1.1.0
 	x11-libs/libXtst

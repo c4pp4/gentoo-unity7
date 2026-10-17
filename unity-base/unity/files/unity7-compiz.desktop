@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Unity Shell v7
+Exec=/usr/libexec/unity7-compiz-launcher
+OnlyShowIn=Unity;
+NoDisplay=true
+X-GNOME-Autostart-Phase=WindowManager
+X-GNOME-Autostart-Notify=true
+X-GNOME-AutoRestart=true

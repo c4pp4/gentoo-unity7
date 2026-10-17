@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Window Stack Bridge
+Exec=/usr/libexec/hud/window-stack-bridge
+OnlyShowIn=Unity;
+NoDisplay=true
+X-GNOME-AutoRestart=true

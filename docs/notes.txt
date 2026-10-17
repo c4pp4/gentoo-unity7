@@ -148,8 +148,7 @@ x11-themes/adwaita-icon-theme-legacy    # Inherit Adwaita icons before hicolor
                         OR
         - Started from console with 'XSESSION=unity startx':
                 - '/etc/X11/xinit/xinitrc.d/99unity-session_systemd' sets XDG_CURRENT_DESKTOP="Unity:Unity7",
-                  passes the environment to the 'systemd --user' process and executes
-                  '/usr/libexec/run-systemd-session unity-session.target'
+                  passes the environment to the 'systemd --user' process and executes '/usr/bin/unity-session'
 
                 - '/usr/libexec/run-systemd-session unity-session.target' runs 'systemctl --user start --wait unity-session.target'
                 - '/usr/lib/systemd/user/unity-session.target' starts:
@@ -165,6 +164,36 @@ x11-themes/adwaita-icon-theme-legacy    # Inherit Adwaita icons before hicolor
                           to 'UNITY_DEFAULT_PROFILE=unity' (or 'unity-lowgfx') via '/usr/lib64/unity/compiz-profile-selector'
                         - Performs 'ExecStart=/usr/bin/compiz'
                         - Wants {unity-settings-daemon,unity-panel-service,bamfdaemon}.service units
+
+========================================================================
+* OpenRC session launch (USE="-systemd", experimental)
+========================================================================
+* Unity session is launched as follows:
+        - Display manager (e.g. LightDM) sources '/etc/X11/xinit/xinitrc.d/*' and executes /usr/share/xsessions/unity.desktop:
+                - '/etc/X11/xinit/xinitrc.d/80-dbus' launches the session bus via 'dbus-launch'
+                  (the ehooks condition skips it only when systemd is running)
+                - '/etc/X11/xinit/xinitrc.d/99unity-session_systemd' passes the environment to D-Bus activated services
+                - '/usr/share/xsessions/unity.desktop' executes '/usr/bin/unity-session'
+                        OR
+        - Started from console with 'XSESSION=unity startx':
+                - '/etc/X11/xinit/xinitrc.d/99unity-session_systemd' sets XDG_CURRENT_DESKTOP="Unity:Unity7"
+                  and executes '/usr/bin/unity-session'
+
+                - '/usr/bin/unity-session' executes 'cinnamon-session --session=unity'
+                  (wrapped in 'dbus-run-session' if no session bus is available)
+                - cinnamon-session starts the required component and the XDG autostart files (OnlyShowIn=Unity):
+                        - 'unity-settings-daemon.desktop' (phase Initialization)
+                        - 'unity7-compiz.desktop' (phase WindowManager) executes '/usr/libexec/unity7-compiz-launcher',
+                          which sources '/usr/lib64/unity/compiz-profile-selector' and executes 'compiz'
+                        - 'unity-panel-service.desktop' (phase Application, as it doesn't register with the session manager)
+                          executes '/usr/lib64/unity/unity-panel-service'
+                        - 'window-stack-bridge.desktop', 'indicator-application.desktop', 'indicator-messages.desktop'
+                          and 'indicator-printers.desktop'
+                - Other indicator services are started via D-Bus activation ('/usr/share/dbus-1/services/com.canonical.indicator.*.service')
+                  when unity-panel-service (or unity-greeter) loads the indicators
+                - On screen lock, Unity launches '/usr/lib64/unity/unity-panel-service --lockscreen-mode' directly
+                  instead of starting 'unity-screen-locked.target'
+                - indicator-datetime reads the system timezone from org.freedesktop.timedate1 provided by app-admin/openrc-settingsd
 
 ========================================================================
 * Compiz performance settings for 'ccsm'

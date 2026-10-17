@@ -7,7 +7,7 @@ GNOME2_EAUTORECONF="yes"
 UVER=+19.10.20240924
 UREV=0ubuntu4
 
-inherit gnome2 ubuntu-versionator vala
+inherit gnome2 systemd ubuntu-versionator vala
 
 DESCRIPTION="Keyboard indicator used by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/indicator-keyboard"
@@ -38,9 +38,7 @@ RDEPEND="${COMMON_DEPEND}
 
 	charmap? ( gnome-extra/gucharmap:2.90 )
 "
-DEPEND="${COMMON_DEPEND}
-	sys-apps/systemd
-"
+DEPEND="${COMMON_DEPEND}"
 BDEPEND="
 	dev-libs/gobject-introspection
 	virtual/pkgconfig
@@ -64,6 +62,11 @@ src_prepare() {
 	sed -i "s/ tests//" Makefile.am || die
 
 	ubuntu-versionator_src_prepare
+
+	# Install the systemd user unit even without sys-apps/systemd #
+	sed -i \
+		-e "s:^SYSTEMD_USERDIR=.*:SYSTEMD_USERDIR=$(systemd_get_userunitdir):" \
+		configure || die
 }
 
 src_configure() {
@@ -76,4 +79,8 @@ src_configure() {
 src_install() {
 	default
 	find "${ED}" -name '*.la' -delete || die
+
+	# Indicator service D-Bus activation (delegated to systemd if running) #
+	insinto /usr/share/dbus-1/services
+	doins "${FILESDIR}"/com.canonical.indicator.keyboard.service
 }

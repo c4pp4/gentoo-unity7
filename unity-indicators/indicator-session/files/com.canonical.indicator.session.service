@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=com.canonical.indicator.session
+Exec=/usr/libexec/indicator-session/indicator-session-service
+SystemdService=indicator-session.service

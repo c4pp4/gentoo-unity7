@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=com.canonical.indicator.datetime
+Exec=/usr/libexec/indicator-datetime/indicator-datetime-service
+SystemdService=indicator-datetime.service

@@ -17,7 +17,7 @@ S="${S}${UVER}"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="+eds test"
+IUSE="+eds systemd test"
 RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
@@ -25,7 +25,6 @@ COMMON_DEPEND="
 	>=dev-libs/libical-3.0.0:=
 	>=media-libs/gstreamer-1.0.0:1.0
 	>=net-libs/libaccounts-glib-1.0:=
-	sys-apps/systemd
 	>=sys-apps/util-linux-2.16
 	>=unity-base/gsettings-ubuntu-touch-schemas-0.0.7
 	>=unity-indicators/indicator-messages-12.10.6
@@ -37,6 +36,9 @@ COMMON_DEPEND="
 RDEPEND="${COMMON_DEPEND}
 	dev-libs/libindicator:3
 	gnome-base/dconf
+
+	systemd? ( sys-apps/systemd )
+	!systemd? ( app-admin/openrc-settingsd )
 "
 DEPEND="${COMMON_DEPEND}
 	dev-libs/properties-cpp
@@ -103,4 +105,12 @@ src_configure() {
 		-Wno-dev
 	)
 	cmake_src_configure
+}
+
+src_install() {
+	cmake_src_install
+
+	# Indicator service D-Bus activation (delegated to systemd if running) #
+	insinto /usr/share/dbus-1/services
+	doins "${FILESDIR}"/com.canonical.indicator.datetime.service
 }

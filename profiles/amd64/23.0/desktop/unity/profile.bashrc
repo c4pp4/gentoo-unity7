@@ -57,9 +57,10 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 		local \
 			bugapnd="eerror \"S: '\${S}'\"" \
 			bugmsg="eerror \"${color_bold}Please report ehooks bugs at ${color_norm}'https://github.com/c4pp4/gentoo-unity7/issues'.\"" \
-			buglog="eerror \"${color_bold}The ehooks log is located at ${color_norm}'${log}'.\""
+			buglog="eerror \"${color_bold}The ehooks log is located at ${color_norm}'${log}'.\"" \
+			bugehk="[[ -n \${ehk} ]] && eerror \"${color_bold}ehooks file: ${color_norm}'\${ehk}'\" && echo \"ehooks file: '\${ehk}'\" >> \"${log}\""
 
-		source <(declare -f die | sed -e "/${bugapnd}/a ${bugmsg}" -e "/${bugapnd}/a ${buglog}")
+		source <(declare -f die | sed -e "/${bugapnd}/a ${bugehk}" -e "/${bugapnd}/a ${bugmsg}" -e "/${bugapnd}/a ${buglog}")
 		## End of modifications to the 'die' function.
 
 		x="$(grep -rhE --color=never -- '^[[:space:]]*(export[[:space:]]+)?EHOOKS_ACCEPT=' "${PORTAGE_CONFIGROOT%/}"/etc/portage/make.conf 2>/dev/null)"
@@ -103,7 +104,18 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 
 		einfo "Processing ${ehk} ..."
 
-		local EHOOKS_FILESDIR=${ehk%/*}/files
+		## Use a copy of ehooks files in the install phase (see EHOOKS_FILESDIR in docs/ehooks.md).
+		local EHOOKS_FILESDIR="${ehk%/*}/files"
+		if [[ ${EBUILD_PHASE} == install && -d ${EHOOKS_FILESDIR} ]]; then
+			if [[ ${EHOOKS_FILESDIR_COPIED} != "$$:${EHOOKS_FILESDIR}" ]]; then
+				if ! rm -rf "${T}/ehooks-files" 2>"${log}" \
+					|| ! cp -R "${EHOOKS_FILESDIR}" "${T}/ehooks-files" 2>"${log}"; then
+					die "$(<${log})"
+				fi
+				EHOOKS_FILESDIR_COPIED="$$:${EHOOKS_FILESDIR}"
+			fi
+			EHOOKS_FILESDIR="${T}/ehooks-files"
+		fi
 
 		## Load eautoreconf and its helpers if needed.
 		local eautoreconf_loaded=""

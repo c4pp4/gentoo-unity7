@@ -2,7 +2,7 @@
 
 # Gentoo Unity⁷ Desktop
 
-A Gentoo overlay for building and running the Unity7 desktop environment.
+A Gentoo overlay for building and running the Unity7 desktop environment on systemd or, experimentally, OpenRC with elogind.
 
 - [Build instructions][build]
 - [USE flag tips][tips]
@@ -18,7 +18,7 @@ A Gentoo overlay for building and running the Unity7 desktop environment.
 
 ---
 
-<sub>The overlay currently supports amd64, uses the Gentoo stable branch by default, and requires systemd. Some Unity integration patches are applied to packages from the main Gentoo repository through the ehooks patching system. You can build `www-client/firefox` from either the Gentoo stable or testing branch, since *unity-menubar.patch* is available for both slots: `esr` and `rapid`. The same applies to `mail-client/thunderbird` (slots `0/esr` and `0/stable`).</sub>
+<sub>The overlay currently supports amd64 and uses the Gentoo stable branch by default. You can build `www-client/firefox` from either the Gentoo stable or testing branch, since global menu support is available for both. The same applies to `mail-client/thunderbird`. Some Unity integration patches are applied to packages from the main Gentoo repository through the ehooks patching system.</sub>
 
 [//]: # (LINKS)
 [addp]: docs/additional_packages.md

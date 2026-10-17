@@ -8,7 +8,7 @@ GNOME2_LA_PUNT="yes"
 UVER=+17.10.20171101
 UREV=0ubuntu8
 
-inherit gnome2 ubuntu-versionator
+inherit gnome2 systemd ubuntu-versionator
 
 DESCRIPTION="Indicator showing active print jobs used by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/indicator-printers"
@@ -18,6 +18,7 @@ S="${S}${UVER}"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="amd64"
+IUSE="systemd"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.43.2:2
@@ -33,9 +34,7 @@ RDEPEND="${COMMON_DEPEND}
 	app-admin/system-config-printer
 	net-print/cups-meta
 "
-DEPEND="${COMMON_DEPEND}
-	sys-apps/systemd
-"
+DEPEND="${COMMON_DEPEND}"
 BDEPEND="
 	dev-util/intltool
 	sys-devel/gettext
@@ -46,6 +45,11 @@ src_prepare() {
 	sed -i 's/SESSION=ubuntu/SESSION=unity/' data/indicator-printers.conf.in || die
 
 	ubuntu-versionator_src_prepare
+
+	# Install the systemd user unit even without sys-apps/systemd #
+	sed -i \
+		-e "s:^SYSTEMD_USERDIR=.*:SYSTEMD_USERDIR=$(systemd_get_userunitdir):" \
+		configure || die
 }
 
 src_install() {
@@ -53,6 +57,12 @@ src_install() {
 
 	insinto /usr/share/icons
 	doins -r debian/local/ubuntu-mono-{dark,light}
+
+	# Start indicator service via cinnamon-session without systemd #
+	if ! use systemd; then
+		insinto /etc/xdg/autostart
+		doins "${FILESDIR}"/indicator-printers.desktop
+	fi
 }
 
 pkg_postinst() {

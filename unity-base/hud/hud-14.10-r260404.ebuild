@@ -10,7 +10,7 @@ PYTHON_COMPAT=( python3_{12..15} )
 UVER=+17.10.20170619
 UREV=0ubuntu6
 
-inherit distutils-r1 cmake gnome2 ubuntu-versionator vala
+inherit distutils-r1 cmake gnome2 systemd ubuntu-versionator vala
 
 DESCRIPTION="Backend for the Unity HUD"
 HOMEPAGE="https://launchpad.net/hud"
@@ -20,7 +20,7 @@ S="${S}${UVER}"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="doc test"
+IUSE="doc systemd test"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="!test? ( test )"
 
@@ -47,7 +47,6 @@ RDEPEND="${COMMON_DEPEND}
 "
 DEPEND="${COMMON_DEPEND}
 	>=dev-libs/libdbusmenu-0.5.90[gtk3,test?]
-	sys-apps/systemd
 
 	test? (
 		>=dev-cpp/gtest-1.6.0
@@ -113,6 +112,11 @@ src_prepare() {
 
 	ubuntu-versionator_src_prepare
 
+	# Install systemd user units even without sys-apps/systemd #
+	sed -i \
+		-e "s:pkg_get_variable(SYSTEMD_USER_DIR systemd systemduserunitdir):set(SYSTEMD_USER_DIR $(systemd_get_userunitdir)):" \
+		data/CMakeLists.txt || die
+
 	# Don't try to find test deps #
 	if ! use test; then
 		sed -i \
@@ -148,4 +152,10 @@ src_install() {
 
 	wrap_distutils ${FUNCNAME}
 	python_optimize
+
+	# Start window-stack-bridge via cinnamon-session without systemd #
+	if ! use systemd; then
+		insinto /etc/xdg/autostart
+		doins "${FILESDIR}"/window-stack-bridge.desktop
+	fi
 }

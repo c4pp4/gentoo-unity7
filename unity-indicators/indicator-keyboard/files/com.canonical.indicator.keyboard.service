@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=com.canonical.indicator.keyboard
+Exec=/usr/libexec/indicator-keyboard/indicator-keyboard-service --use-gtk
+SystemdService=indicator-keyboard.service

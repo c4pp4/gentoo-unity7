@@ -17,7 +17,7 @@ S="${WORKDIR}/${PN}-24.10.1"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="nls +ready-sound"
+IUSE="nls +ready-sound systemd"
 RESTRICT="test"
 
 COMMON_DEPEND="
@@ -38,7 +38,6 @@ RDEPEND="${COMMON_DEPEND}
 		media-fonts/fonts-ubuntu
 		media-fonts/ubuntu-font-family
 	)
-	sys-apps/systemd
 	sys-auth/polkit
 	unity-indicators/indicator-application
 	unity-indicators/indicator-datetime
@@ -57,6 +56,7 @@ RDEPEND="${COMMON_DEPEND}
 	x11-themes/humanity-icon-theme
 
 	ready-sound? ( x11-themes/ubuntu-sounds )
+	systemd? ( sys-apps/systemd )
 "
 DEPEND="${COMMON_DEPEND}
 	media-libs/freetype:2
@@ -71,7 +71,7 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}"/environment-variables.patch # Import DISPLAY and XDG_SESSION_CLASS1, set XDG_CURRENT_DESKTOP
+	"${FILESDIR}"/environment-variables-and-indicators.patch # Fix environment variables, start indicators without systemd
 	"${FILESDIR}"/quit-unity-greeter-immediately-on-active-session-login.patch
 	"${FILESDIR}"/rename-ubuntu-session-to-unity.diff
 	"${FILESDIR}"/start-notify-osd.patch

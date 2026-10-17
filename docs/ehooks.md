@@ -116,8 +116,9 @@
 
 - **${EHOOKS_FILESDIR}**
 
-  - Points to `${pkgdir}/files`.
   - Used for patches and miscellaneous files.
+  - Points to `${pkgdir}/files`, except in the install phase (**pre_src_install** and **post_src_install**), where it points to `${T}/ehooks-files`, a copy of `${pkgdir}/files`.
+  - Why the install phase uses a copy: **doins** (also used by **domenu**) copies files with Portage's **copyfile()**, which tries reflink, **copy_file_range()** and **sendfile()** before falling back to a plain copy. On some filesystems (e.g. a VirtualBox shared folder), **sendfile()** fails. The fallback copy succeeds, but Portage writes a warning with a traceback to stderr. Any ehooks stderr output is treated as an error, so this harmless warning would abort the build. **doins** and **domenu** can only be used in the install phase, so the other phases use the files directly from the repository. The copy is made only once per install phase run, as **pre_src_install** and **post_src_install** ehooks run in the same process. A new run of the install phase makes a fresh copy.
 
 - **Patch file format:**
 

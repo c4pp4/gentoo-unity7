@@ -25,7 +25,7 @@ RDEPEND="
 	media-fonts/dejavu
 	unity-base/overlay-scrollbar
 	unity-base/unity-session
-	unity-extra/unity-greeter
+	unity-base/unity-greeter
 	x11-misc/gtk-nocsd
 
 	accessibility? (

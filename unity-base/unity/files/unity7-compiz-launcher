@@ -1,0 +1,11 @@
+#!/bin/bash
+# Launch the Unity shell without the 'systemd --user' process #
+#  Replacement for ExecStartPre and ExecStart of the unity7.service systemd user unit #
+
+# Set the compizconfig and Unity settings profiles #
+#  Sourced to export COMPIZ_CONFIG_PROFILE, UNITY_HAS_3D_SUPPORT and UNITY_DEFAULT_PROFILE #
+#  Errors are not fatal so the window manager is always started #
+. @UNITY_LIBDIR@/compiz-profile-selector || true
+set +e
+
+exec compiz "$@"

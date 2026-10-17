@@ -1,0 +1,11 @@
+# The init system is selected by the profile, not per package #
+# see also ../systemd/package.use.force #
+gnome-extra/cinnamon-session systemd
+gnome-extra/cinnamon-settings-daemon systemd
+unity-base/hud systemd
+unity-base/unity systemd
+unity-base/unity-session systemd
+unity-base/unity-greeter systemd
+unity-indicators/indicator-datetime systemd
+unity-indicators/indicator-printers systemd
+unity-indicators/indicator-session systemd

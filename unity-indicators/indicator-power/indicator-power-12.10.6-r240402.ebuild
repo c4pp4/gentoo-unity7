@@ -32,7 +32,6 @@ RDEPEND="${COMMON_DEPEND}
 "
 DEPEND="${COMMON_DEPEND}
 	dev-libs/libgudev:=
-	sys-apps/systemd
 "
 BDEPEND="
 	>=dev-build/cmake-extras-0.10
@@ -80,4 +79,12 @@ src_configure() {
 		-Wno-dev
 	)
 	cmake_src_configure
+}
+
+src_install() {
+	cmake_src_install
+
+	# Indicator service D-Bus activation (delegated to systemd if running) #
+	insinto /usr/share/dbus-1/services
+	doins "${FILESDIR}"/com.canonical.indicator.power.service
 }

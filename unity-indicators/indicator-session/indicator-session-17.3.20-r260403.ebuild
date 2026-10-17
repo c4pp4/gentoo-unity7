@@ -15,12 +15,14 @@ SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="+help"
+IUSE="+help systemd"
 RESTRICT="test"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.43.2:2
-	sys-apps/systemd[pam]
+
+	systemd? ( sys-apps/systemd[pam] )
+	!systemd? ( sys-auth/elogind[pam] )
 "
 RDEPEND="${COMMON_DEPEND}
 	dev-libs/libindicator:3
@@ -83,4 +85,8 @@ src_install() {
 	cmake_src_install
 
 	use help && domenu "${FILESDIR}/unity-yelp.desktop"
+
+	# Indicator service D-Bus activation (delegated to systemd if running) #
+	insinto /usr/share/dbus-1/services
+	doins "${FILESDIR}"/com.canonical.indicator.session.service
 }

@@ -78,4 +78,8 @@ src_install() {
 	cmake_src_install
 
 	fowners root:polkitd /var/lib/polkit-1/localauthority/10-vendor.d/50-com.canonical.indicator.sound.AccountsService.pkla
+
+	# Indicator service D-Bus activation (delegated to systemd if running) #
+	insinto /usr/share/dbus-1/services
+	doins "${FILESDIR}"/com.canonical.indicator.sound.service
 }
