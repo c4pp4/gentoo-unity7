@@ -1,35 +1,36 @@
-*/*                                     pulseaudio X            -nautilus       # Add support via media-libs/libpulse; add support for X11; don't install gnome-base/nautilus extensions
+*/*                                 pulseaudio X                -nautilus       # Add support via media-libs/libpulse; add support for X11; don't install gnome-base/nautilus extensions
 
-app-accessibility/brltty                python                                  # Required by app-accessibility/orca[braille]
+app-accessibility/brltty            python                                      # Required by app-accessibility/orca[braille]
 app-accessibility/onboard                                       -gnome-shell    # Don't install gnome-base/gnome-shell extension
-app-dicts/myspell-en                    l10n_en-US                              # REQUIRED_USE flag
-app-i18n/ibus                           appindicator vala                       # Required by unity-indicators/indicator-keyboard
-app-misc/tinysparql                     vala                                    # Required by unity-base/unity-control-center (net-misc/rygel)
-app-office/libreoffice                  gtk3                    -gtk4           # Prefer gtk3
-dev-libs/boost                          python                                  # Required by dev-libs/libcolumbus
-dev-libs/libdbusmenu                    gtk3                                    # Required by dev-libs/libappindicator:3, dev-libs/libindicate, unity-indicators/indicator-appmenu
-dev-libs/xapian-bindings                python                                  # REQUIRED_USE flag
-gnome-base/gvfs                         fuse                                    # Required by app-backup/deja-dup
-gnome-extra/nm-applet                   appindicator                            # Required by unity-base/unity-meta, unity-base/unity-greeter
-media-libs/freetype                     harfbuzz                                # Required by x11-libs/pango
-media-libs/libmediaart                  vala                                    # Required by unity-base/unity-control-center (net-misc/rygel)
-media-libs/libvpx                       postproc                                # Required by mail-client/thunderbird, www-client/firefox
-media-plugins/audacious-plugins         mpris                                   # Enable control media player using unity-indicators/indicator-sound
-media-video/ffmpeg                      opus                                    # Required by net-im/telegram-desktop
-net-libs/gnome-online-accounts          vala                    -gnome          # Don't install gnome-base/gnome-control-center
-net-libs/gssdp                          vala                                    # Required by unity-base/unity-control-center (net-misc/rygel)
-net-libs/gupnp                          vala                                    # Required by unity-base/unity-control-center (net-misc/rygel)
-net-libs/gupnp-av                       vala                                    # Required by unity-base/unity-control-center (net-misc/rygel)
-net-libs/libnma                         vala                                    # Required by unity-base/unity-control-center
-net-misc/modemmanager                   vala                                    # Required by unity-base/unity-control-center
-net-misc/networkmanager                 vala                                    # Required by unity-base/unity-control-center
+app-dicts/myspell-en                l10n_en-US                                  # REQUIRED_USE flag
+app-i18n/ibus                       appindicator vala                           # Required by unity-indicators/indicator-keyboard
+app-misc/tinysparql                 vala                                        # Required by unity-base/unity-control-center (net-misc/rygel)
+app-office/libreoffice              gtk3                        -gtk4           # Prefer gtk3
+dev-libs/boost                      python                                      # Required by dev-libs/libcolumbus
+dev-libs/libdbusmenu                gtk3                                        # Required by dev-libs/libappindicator:3, dev-libs/libindicate, unity-indicators/indicator-appmenu
+dev-libs/xapian-bindings            python                                      # REQUIRED_USE flag
+gnome-base/gvfs                     fuse                                        # Required by app-backup/deja-dup
+gnome-extra/nm-applet               appindicator                                # Required by unity-base/unity-meta, unity-base/unity-greeter
+media-libs/freetype                 harfbuzz                                    # Required by x11-libs/pango
+media-libs/libmediaart              vala                                        # Required by unity-base/unity-control-center (net-misc/rygel)
+media-libs/libvpx                   postproc                                    # Required by mail-client/thunderbird, www-client/firefox
+media-plugins/audacious-plugins     mpris                                       # Enable control media player using unity-indicators/indicator-sound
+media-video/ffmpeg                  opus                                        # Required by net-im/telegram-desktop
+net-libs/gnome-online-accounts      vala                        -gnome          # Don't install gnome-base/gnome-control-center
+net-libs/gssdp                      vala                                        # Required by unity-base/unity-control-center (net-misc/rygel)
+net-libs/gupnp                      vala                                        # Required by unity-base/unity-control-center (net-misc/rygel)
+net-libs/gupnp-av                   vala                                        # Required by unity-base/unity-control-center (net-misc/rygel)
+net-libs/libnma                     vala                                        # Required by unity-base/unity-control-center
+net-misc/modemmanager               vala                                        # Required by unity-base/unity-control-center
+net-misc/networkmanager             vala                                        # Required by unity-base/unity-control-center
 net-p2p/transmission                                            -gtk            # Prefer qt for Unity global menu (https://github.com/transmission/transmission/issues/5332)
-sys-libs/zlib                           minizip                                 # Required by net-im/telegram-desktop
+sys-libs/zlib                       minizip                                     # Required by net-im/telegram-desktop
 virtual/notification-daemon                                     -gnome          # Prefer x11-misc/notify-osd
-x11-base/xorg-server                    xvfb                                    # Required by x11-misc/xvfb-run
-x11-misc/appmenu-gtk-module             gtk2                                    # Required by unity-indicators/indicator-appmenu
-x11-misc/colord                         vala                                    # Required by unity-base/unity-control-center
-x11-misc/lightdm                        vala                    -gtk            # Required by unity-base/unity-greeter, unity-indicators/indicator-keyboard; don't install x11-misc/lightdm-gtk-greeter
-x11-misc/zim                            ubuntu-mono                             # Install ubuntu-mono-{dark,light} icons
+www-servers/apache                  apache2_modules_auth_digest                 # Required by unity-base/unity-control-center (gnome-extra/gnome-user-share) (OpenRC profile)
+x11-base/xorg-server                xvfb                                        # Required by x11-misc/xvfb-run
+x11-misc/appmenu-gtk-module         gtk2                                        # Required by unity-indicators/indicator-appmenu
+x11-misc/colord                     vala                                        # Required by unity-base/unity-control-center
+x11-misc/lightdm                    vala                        -gtk            # Required by unity-base/unity-greeter, unity-indicators/indicator-keyboard; don't install x11-misc/lightdm-gtk-greeter
+x11-misc/zim                        ubuntu-mono                                 # Install ubuntu-mono-{dark,light} icons
 x11-themes/ubuntu-wallpapers                                    -gnome          # Don't install x11-themes/gnome-backgrounds
 x11-themes/yaru-theme                                           -gnome-shell    # Don't install gnome-base/gnome-shell component
