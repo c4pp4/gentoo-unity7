@@ -2,7 +2,7 @@
 
 ## Ubuntu releases to compare with.
 stable_release="stonking"
-dev_release=""
+dev_release="tenacious"
 releases=( ${stable_release} ${dev_release} )
 
 ## Ubuntu archive components to look for source packages in.
