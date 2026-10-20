@@ -40,7 +40,7 @@ NOTES:
 
   - systemd or OpenRC: [LightDM⬀][ldm], [NetworkManager⬀][nm], [CUPS⬀][cups], and [Bluetooth⬀][bt].
 
-  - systemd: [PipeWire⬀][pw] and [WirePlumber⬀][wp].
+  - systemd: [PipeWire⬀][pw] (as root, use `systemctl --global enable` rather than `systemd --user enable --now` so the units are enabled for every user, including the LightDM greeter).
 
   - OpenRC: [elogind⬀][elogind] and [D-Bus⬀][dbus] (PipeWire and WirePlumber are started by default).
 
@@ -61,5 +61,4 @@ NOTES:
 [nm]: https://wiki.gentoo.org/wiki/NetworkManager#Service
 [pw]: https://wiki.gentoo.org/wiki/PipeWire#systemd
 [stagefile]: https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Stage#Choosing_a_stage_file
-[wp]: https://wiki.gentoo.org/wiki/WirePlumber#systemd
 [xirc]: /unity-base/unity/files/xinitrc
