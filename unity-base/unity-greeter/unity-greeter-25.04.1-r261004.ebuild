@@ -71,7 +71,7 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}"/environment-variables-and-indicators.patch # Fix environment variables, start indicators without systemd
+	"${FILESDIR}"/envvars-pipewire-indicators.patch
 	"${FILESDIR}"/quit-unity-greeter-immediately-on-active-session-login.patch
 	"${FILESDIR}"/rename-ubuntu-session-to-unity.diff
 	"${FILESDIR}"/start-notify-osd.patch

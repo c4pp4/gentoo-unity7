@@ -1,7 +1,8 @@
 From 0141206db69176cd7e26632df6968eadc17eacb3 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Sat, 17 Oct 2026 01:18:28 +0200
-Subject: [PATCH 1/1] Fix environment variables and start indicators without systemd
+Date: Tue, 20 Oct 2026 11:51:56 +0200
+Subject: [PATCH 1/1] Fix environment variables, start indicators and PipeWire
+ without systemd
 
 Set the XDG_CURRENT_DESKTOP environment variable for gsettings overrides
 per session. Import the DISPLAY environment variable into the systemd
@@ -15,13 +16,17 @@ services can not be started via systemctl, so launch them directly.
 Skip importing environment variables into the systemd manager
 environment block in that case.
 
+Without systemd, PipeWire is not started for the greeter (the XDG
+autostart entry is processed only by the session manager), so start
+it via gentoo-pipewire-launcher to enable sound in the greeter.
+
 Signed-off-by: c4pp4
 ---
- src/unity-greeter.vala | 70 ++++++++++++++++++++++++++++++++++--------
- 1 file changed, 58 insertions(+), 12 deletions(-)
+ src/unity-greeter.vala | 83 ++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 71 insertions(+), 12 deletions(-)
 
 diff --git a/src/unity-greeter.vala b/src/unity-greeter.vala
-index 929fa2c..1bbb98f 100644
+index 929fa2c..a1ebe70 100644
 --- a/src/unity-greeter.vala
 +++ b/src/unity-greeter.vala
 @@ -538,8 +538,27 @@ public class UnityGreeter
@@ -52,7 +57,7 @@ index 929fa2c..1bbb98f 100644
  
          /* Disable the stupid global menubar */
          Environment.unset_variable ("UBUNTU_MENUPROXY");
-@@ -638,21 +657,48 @@ public class UnityGreeter
+@@ -638,21 +657,61 @@ public class UnityGreeter
              });
  
              /* Start the indicator services */
@@ -89,6 +94,19 @@ index 929fa2c..1bbb98f 100644
 +            else
              {
 -                warning ("Error starting indicators: %s", e.message);
++                /* Without systemd, start PipeWire via Gentoo's launcher script (the XDG autostart entry is not processed by the greeter) */
++                if (FileUtils.test ("/usr/bin/gentoo-pipewire-launcher", FileTest.IS_EXECUTABLE))
++                {
++                    try
++                    {
++                        Process.spawn_command_line_async ("/usr/bin/gentoo-pipewire-launcher restart");
++                    }
++                    catch (Error e)
++                    {
++                        warning ("Error starting PipeWire: %s", e.message);
++                    }
++                }
++
 +                /* Without systemd, launch the indicator services directly */
 +                string[] services = {
 +                    "/usr/libexec/indicator-application/indicator-application-service",

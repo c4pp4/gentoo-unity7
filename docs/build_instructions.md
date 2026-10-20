@@ -42,7 +42,7 @@ NOTES:
 
   - systemd: [PipeWire⬀][pw] (as root, use `systemctl --global enable` rather than `systemd --user enable --now` so the units are enabled for every user, including the LightDM greeter).
 
-  - OpenRC: [elogind⬀][elogind] and [D-Bus⬀][dbus] (PipeWire and WirePlumber are started by default).
+  - OpenRC: [elogind⬀][elogind] and [D-Bus⬀][dbus] (PipeWire and WirePlumber are started by default, including the LightDM greeter).
 
 - In case of starting Unity7 with the `startx` command, use [our .xinitrc file][xirc] to ensure all needed services are started.
 
