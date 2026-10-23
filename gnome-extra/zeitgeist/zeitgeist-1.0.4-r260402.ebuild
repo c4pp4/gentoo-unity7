@@ -64,6 +64,7 @@ BDEPEND="
 PATCHES=(
 	"${FILESDIR}"/do-not-start-datahub-in-unity.patch
 	"${FILESDIR}"/handle-termination-signals-in-main-loop.patch
+	"${FILESDIR}"/fix-build-with-xapian-2.patch
 )
 
 src_prepare() {
