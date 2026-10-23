@@ -63,8 +63,8 @@ if [[ ${EBUILD_PHASE} == "setup" ]]; then
 		source <(declare -f die | sed -e "/${bugapnd}/a ${bugehk}" -e "/${bugapnd}/a ${bugmsg}" -e "/${bugapnd}/a ${buglog}")
 		## End of modifications to the 'die' function.
 
-		x="$(grep -rhE --color=never -- '^[[:space:]]*(export[[:space:]]+)?ACCEPT_EHOOKS=' "${PORTAGE_CONFIGROOT%/}"/etc/portage/make.conf 2>/dev/null)"
-		[[ -n ${x} ]] && eval "$x" ## Needed when installing a binary package.
+		x="$(grep -RhE --color=never -- '^[[:space:]]*(export[[:space:]]+)?ACCEPT_EHOOKS=' "${PORTAGE_CONFIGROOT%/}"/etc/portage/make.conf 2>/dev/null)" ## make.conf can be a directory (symlinks are followed).
+		[[ -n ${x} ]] && eval "${x//$'\r'/}" ## Needed when installing a binary package (strip CR line endings).
 		if [[ ${ACCEPT_EHOOKS} != "yes" ]]; then
 			eerror
 			eerror "Warning:"
