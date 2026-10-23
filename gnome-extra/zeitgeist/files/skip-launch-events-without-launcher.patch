@@ -1,0 +1,42 @@
+From 0a2509281df6055b0bf45c75b14abe4f0d7822fe Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Fri, 23 Oct 2026 23:15:19 +0200
+Subject: [PATCH 1/1] Skip launch events without a known launcher
+
+The actor of a launch event is determined from the desktop file or
+the program name of the launcher. Applications started by a program
+without a matching desktop file (e.g. autostart applications started
+by cinnamon-session) are logged without an actor. The engine rejects
+such events ("Incomplete event: interpretation, manifestation and
+actor are required") together with all events inserted in the same
+batch, including recently used files logged at the start.
+
+Do not log launch events whose launcher is not known.
+
+Signed-off-by: c4pp4
+---
+ datahub/desktop-launch-listener.vala | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/datahub/desktop-launch-listener.vala b/datahub/desktop-launch-listener.vala
+index 791b029..5457c65 100644
+--- a/datahub/desktop-launch-listener.vala
++++ b/datahub/desktop-launch-listener.vala
+@@ -133,6 +133,14 @@ public class DesktopLaunchListener : DataProvider
+       }
+     }
+ 
++    // The engine rejects events without an actor (together with all events
++    // inserted in the same batch)
++    if (launcher_uri == null)
++    {
++      debug ("Unable to find the launcher of '%s'", desktop_file);
++      return;
++    }
++
+     if (!dai.should_show ())
+     {
+       // FIXME: do something else? Log with WORLD_EVENT?
+-- 
+2.55.0
+

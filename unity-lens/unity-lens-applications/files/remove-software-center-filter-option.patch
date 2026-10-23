@@ -1,6 +1,6 @@
-From 96fa0fba20173a7677b0a93c7edbc1287805d727 Mon Sep 17 00:00:00 2001
+From 25eef743922170af1e0581d02a7901d2123ac238 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Fri, 23 Oct 2026 00:38:43 +0200
+Date: Fri, 23 Oct 2026 23:07:22 +0200
 Subject: [PATCH 1/1] Remove Software center filter option
 
 Remove the Sources filter with the Software center option and the
@@ -8,16 +8,35 @@ suggestions of the applications available in the software center, which
 is not available. Without the Sources filter, the local applications
 are always active.
 
+Do not load the Software center index, which does not exist (errors
+at every start), and do not look up the package info of applications
+in it (previews, uninstall action). The previews of the installed
+applications use the information from their .desktop files.
+
 Signed-off-by: c4pp4
 ---
- src/daemon.vala | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ src/daemon.vala | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
 diff --git a/src/daemon.vala b/src/daemon.vala
-index 5630f2b..1f632df 100644
+index 5630f2b..52f85fd 100644
 --- a/src/daemon.vala
 +++ b/src/daemon.vala
-@@ -264,6 +264,7 @@ namespace Unity.ApplicationsLens {
+@@ -138,11 +138,13 @@ namespace Unity.ApplicationsLens {
+       this.gp_settings.bind(DISPLAY_RECENT_APPS_KEY, this, "display_recent_apps", SettingsBindFlags.GET);
+       this.gp_settings.bind(DISPLAY_AVAILABLE_APPS_KEY, this, "display_available_apps", SettingsBindFlags.GET);
+ 
++      /*
+       pkgsearcher = new Unity.Package.Searcher ();
+       if (pkgsearcher == null)
+       {
+         critical ("Failed to load Software Center index. 'Apps Available for Download' will not be listed");
+       }
++      */
+ 
+       /* Image file extensions in order of popularity */
+       image_extensions = new Gee.ArrayList<string> ();
+@@ -264,6 +266,7 @@ namespace Unity.ApplicationsLens {
        }
  
        /* Sources */
@@ -25,7 +44,7 @@ index 5630f2b..1f632df 100644
        {
          var filter = new CheckOptionFilter ("unity-sources", _("Sources"));
          filter.sort_type = Unity.OptionsFilter.SortType.DISPLAY_NAME;
-@@ -280,6 +281,7 @@ namespace Unity.ApplicationsLens {
+@@ -280,6 +283,7 @@ namespace Unity.ApplicationsLens {
  
          filters.add (filter);
        }
@@ -33,7 +52,39 @@ index 5630f2b..1f632df 100644
  
        return filters;
      }
-@@ -843,15 +845,18 @@ namespace Unity.ApplicationsLens {
+@@ -518,6 +522,7 @@ namespace Unity.ApplicationsLens {
+ 
+     private Unity.ActivationResponse app_preview_uninstall (string uri)
+     {
++      /*
+       if (uri.has_prefix ("application://"))
+       {
+         string desktopfile = uri.substring (14); // trim "application://"
+@@ -565,6 +570,7 @@ namespace Unity.ApplicationsLens {
+           warning (@"Cannot find package info for $uri");
+         }
+       }
++      */
+       warning (@"Can't handle '%s' in app_preview_uninstall handler", uri);
+       return new Unity.ActivationResponse(Unity.HandledType.NOT_HANDLED);
+     }
+@@ -767,6 +773,7 @@ namespace Unity.ApplicationsLens {
+     {
+       version = null;
+       screenshot = null;
++      /*
+       // de-mangle desktop file names back to what S-C expects
+       string mangled_id;
+       if (sc_mangler.contains (app_id))
+@@ -793,6 +800,7 @@ namespace Unity.ApplicationsLens {
+           return true;
+         }
+       }
++      */
+       return false;
+     }
+   }
+@@ -843,15 +851,18 @@ namespace Unity.ApplicationsLens {
  
      private bool local_apps_active ()
      {
@@ -52,7 +103,7 @@ index 5630f2b..1f632df 100644
      private bool usc_apps_active ()
      {
        var filter = search_context.filter_state.get_filter_by_id ("unity-sources") as Unity.OptionsFilter;
-@@ -862,6 +867,7 @@ namespace Unity.ApplicationsLens {
+@@ -862,6 +873,7 @@ namespace Unity.ApplicationsLens {
        }
        return true;
      }
@@ -60,7 +111,7 @@ index 5630f2b..1f632df 100644
  
      /* Returns TRUE if application is NOT installed */
      public bool filter_cb (Unity.Package.PackageInfo pkginfo)
-@@ -962,6 +968,7 @@ namespace Unity.ApplicationsLens {
+@@ -962,6 +974,7 @@ namespace Unity.ApplicationsLens {
        scope.purchase_info = new PurchaseInfoHelper ();
  
        /* If we don't have a search we display 6 random apps */
@@ -68,7 +119,7 @@ index 5630f2b..1f632df 100644
        if (usc_apps_active () && scope.display_available_apps && scope.pkgsearcher != null)
        {
          if (has_search)
-@@ -977,7 +984,7 @@ namespace Unity.ApplicationsLens {
+@@ -977,7 +990,7 @@ namespace Unity.ApplicationsLens {
            debug ("Entry search listed %i Available apps in %fms for query: %s",
                   pkgresults.num_hits, timer.elapsed ()*1000, pkg_search_string);
          }
@@ -77,7 +128,7 @@ index 5630f2b..1f632df 100644
          {
            timer.start ();
            string? filter_query = XapianUtils.prepare_pkg_search_string (search_string, type_filter);
-@@ -1023,6 +1030,7 @@ namespace Unity.ApplicationsLens {
+@@ -1023,6 +1036,7 @@ namespace Unity.ApplicationsLens {
                   hits, timer.elapsed ()*1000);
          }
        }
@@ -85,6 +136,21 @@ index 5630f2b..1f632df 100644
  
        /* XXX:
        if (model.get_n_rows () == 0)
+@@ -1496,12 +1510,14 @@ namespace Unity.ApplicationsLens {
+           desktopfile = scope.sc_mangler.get (desktopfile);
+         }
+ 
++        /*
+         var pkginfo = scope.pkgsearcher.get_by_desktop_file (desktopfile);
+         if (pkginfo != null)
+         {
+           appname = pkginfo.application_name;
+           pkgname = pkginfo.package_name;
+         }
++        */
+       }
+       else // unity-install
+       {
 -- 
 2.55.0
 
