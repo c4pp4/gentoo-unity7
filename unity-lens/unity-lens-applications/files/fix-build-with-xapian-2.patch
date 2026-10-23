@@ -1,0 +1,102 @@
+From 0f40e6c8c57b4b04d6869bd3f593b2306d07fc1d Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Fri, 23 Oct 2026 14:00:00 +0200
+Subject: [PATCH 1/1] Fix build with Xapian 2
+
+Xapian 2 requires C++17 and removed Xapian::InMemory::open() and
+WritableDatabase::flush(). Build with C++17, use the replacements
+available since Xapian 1.4: the DB_BACKEND_INMEMORY flag and commit().
+Remove the dynamic exception specification, which is not allowed in
+C++17.
+
+Signed-off-by: c4pp4
+---
+ src/Makefile.am             |  2 +-
+ src/unity-package-search.cc | 14 +++++++-------
+ tests/unit/Makefile.am      |  2 +-
+ 3 files changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/src/Makefile.am b/src/Makefile.am
+index f21fca1..9c0aca3 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -24,7 +24,7 @@ if !ENABLE_C_WARNINGS
+   AM_CPPFLAGS += -w
+ endif
+ 
+-AM_CXXFLAGS = --std=c++11
++AM_CXXFLAGS = --std=c++17
+ 
+ # Note that we require glib 2.26 because libzeitgeist
+ # expects us to use g_ptr_array_unref instead of g_ptr_array_free.
+diff --git a/src/unity-package-search.cc b/src/unity-package-search.cc
+index 4efc3ec..98492b7 100644
+--- a/src/unity-package-search.cc
++++ b/src/unity-package-search.cc
+@@ -371,9 +371,9 @@ unity_package_searcher_new_for_menu (GMenuTree *menu)
+   Xapian::WritableDatabase *db;
+ 
+   searcher = new UnityPackageSearcher;
+-  db = new Xapian::WritableDatabase ();
++  db = new Xapian::WritableDatabase (std::string (),
++                                     Xapian::DB_BACKEND_INMEMORY);
+   searcher->db = db;
+-  searcher->db->add_database (Xapian::InMemory::open ());
+ 
+   init_searcher (searcher);
+ 
+@@ -382,7 +382,7 @@ unity_package_searcher_new_for_menu (GMenuTree *menu)
+   Xapian::TermGenerator *indexer = new Xapian::TermGenerator ();
+   index_menu_item (db, indexer, gmenu_tree_get_root_directory (menu));
+   delete indexer;
+-  db->flush ();
++  db->commit ();
+ 
+   searcher->matcher = new Columbus::Matcher();
+   buildMatcher(searcher);
+@@ -449,9 +449,9 @@ unity_package_searcher_new_for_scopes (UnityProtocolScopeRegistry *scope_registr
+   Xapian::WritableDatabase *db;
+ 
+   searcher = new UnityPackageSearcher;
+-  db = new Xapian::WritableDatabase ();
++  db = new Xapian::WritableDatabase (std::string (),
++                                     Xapian::DB_BACKEND_INMEMORY);
+   searcher->db = db;
+-  searcher->db->add_database (Xapian::InMemory::open ());
+ 
+   init_searcher (searcher);
+ 
+@@ -473,7 +473,7 @@ unity_package_searcher_new_for_scopes (UnityProtocolScopeRegistry *scope_registr
+     }
+   }
+   delete indexer;
+-  db->flush ();
++  db->commit ();
+ 
+   searcher->matcher = new Columbus::Matcher();
+   buildMatcher(searcher);
+@@ -539,7 +539,7 @@ unity_package_searcher_free (UnityPackageSearcher *searcher)
+ }
+ 
+ static UnityPackageInfo*
+-_pkginfo_from_document (Xapian::Document     doc) throw (Xapian::Error)
++_pkginfo_from_document (Xapian::Document     doc)
+ 
+ {
+   UnityPackageInfo *pkginfo = g_slice_new0 (UnityPackageInfo);
+diff --git a/tests/unit/Makefile.am b/tests/unit/Makefile.am
+index d98e50a..bca3cd1 100644
+--- a/tests/unit/Makefile.am
++++ b/tests/unit/Makefile.am
+@@ -108,7 +108,7 @@ test_software_center_details_VALASOURCES = \
+ nodist_test_software_center_details_SOURCES = $(test_software_center_details_VALASOURCES:.vala=.c)
+ 
+ unity-package-search.o : $(top_srcdir)/src/unity-package-search.cc $(top_srcdir)/src/unity-package-search.h
+-	$(AM_V_GEN)$(CXX) --std=c++11 -g $(COVERAGE_CFLAGS) $(UNITY_PACKAGE_SEARCH_LIBS) -DGMENU_I_KNOW_THIS_IS_UNSTABLE `pkg-config --cflags --libs glib-2.0 libgnome-menu-3.0 unity gee-0.8 libcolumbus` -c $(top_srcdir)/src/unity-package-search.cc
++	$(AM_V_GEN)$(CXX) --std=c++17 -g $(COVERAGE_CFLAGS) $(UNITY_PACKAGE_SEARCH_LIBS) -DGMENU_I_KNOW_THIS_IS_UNSTABLE `pkg-config --cflags --libs glib-2.0 libgnome-menu-3.0 unity gee-0.8 libcolumbus` -c $(top_srcdir)/src/unity-package-search.cc
+ unity-ratings-db.o : $(top_srcdir)/src/unity-ratings-db.c $(top_srcdir)/src/unity-ratings-db.h
+ 	$(AM_V_CC)$(CC) -g $(COVERAGE_CFLAGS) $(unity_ratings_db_libs) `pkg-config --cflags --libs glib-2.0` -c $(top_srcdir)/src/unity-ratings-db.c
+ 
+-- 
+2.55.0
+

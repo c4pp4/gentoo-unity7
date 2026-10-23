@@ -40,7 +40,10 @@ BDEPEND="
 	$(vala_depend)
 "
 
-PATCHES=( "${FILESDIR}"/remove-software-center-filter-option.patch )
+PATCHES=(
+	"${FILESDIR}"/remove-software-center-filter-option.patch
+	"${FILESDIR}"/fix-build-with-xapian-2.patch
+)
 
 src_prepare() {
 	# Remove failed test #
