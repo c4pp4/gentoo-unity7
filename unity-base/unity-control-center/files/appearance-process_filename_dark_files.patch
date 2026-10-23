@@ -1,7 +1,10 @@
 From 0f6d5277ac7e3aa141282cecb6383f122c964bde Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Tue, 14 Apr 2026 10:46:41 +0200
+Date: Mon, 27 Apr 2026 08:15:38 +0200
 Subject: [PATCH 1/1] Appearance: process 'filename-dark' files
+
+Add the dark variants of the wallpapers (filename-dark element of the
+background XML files) as separate items named "<name> Dark".
 
 Signed-off-by: c4pp4
 ---

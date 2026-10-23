@@ -1,0 +1,11 @@
+if [ "x$DESKTOP_SESSION" = "xunity" ]; then
+	export XDG_CURRENT_DESKTOP="Unity:Unity7"	# Needs to be manually set for 'startx' to work
+	export XDG_CONFIG_DIRS="/usr/share/upstart/systemd-session:$XDG_CONFIG_DIRS"
+	if [ -d "${XDG_RUNTIME_DIR}/systemd" ]; then	# Only if the 'systemd --user' process is running
+		systemctl --user unset-environment SESSION_MANAGER	# Unset previous network socket
+	fi
+	dbus-update-activation-environment --systemd --all	# Pass all current environment variables to D-Bus activated services and the 'systemd --user' process (if running)
+	gdbus call --session --dest org.a11y.Bus --object-path /org/a11y/bus --method org.a11y.Bus.GetAddress >/dev/null 2>&1	# Start the accessibility bus now to replace a stale AT_SPI_BUS X root window property left by the greeter
+	[[ "$XSESSION" = "unity" ]] && exec /usr/bin/unity-session	# Using 'startx' to launch
+	## If $XSESSION is not set, then we need not do anything as the Display Manager will start the session via '/usr/share/xsessions/unity.desktop' ##
+fi

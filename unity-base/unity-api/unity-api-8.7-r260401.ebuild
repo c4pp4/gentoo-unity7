@@ -45,6 +45,7 @@ src_prepare() {
 	sed -i \
 		-e 's:lib/${CMAKE_LIBRARY_ARCHITECTURE}:${CMAKE_INSTALL_LIBDIR}:' \
 		CMakeLists.txt || die
+	! grep -Fq 'lib/${CMAKE_LIBRARY_ARCHITECTURE}' CMakeLists.txt || die
 
 	# Preprocessor fixes #
 	sed -i '/#include <vector>/a #include <cstdint>' include/unity/util/FileIO.h || die

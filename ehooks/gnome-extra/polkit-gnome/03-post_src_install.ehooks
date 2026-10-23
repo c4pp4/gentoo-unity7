@@ -1,8 +1,9 @@
 ehooks() {
-	local file=debian/polkit-gnome-authentication-agent-1.desktop
+	local file="${S}"/debian/polkit-gnome-authentication-agent-1.desktop
 
 	# Fix path #
 	sed -i "s:lib/policykit-1-gnome:libexec:" "${file}" || die
+	grep -q "^Exec=/usr/libexec/polkit-gnome-authentication-agent-1$" "${file}" || die
 
 	insinto /etc/xdg/autostart
 	doins "${file}"

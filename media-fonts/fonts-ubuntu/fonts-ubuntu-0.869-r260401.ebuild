@@ -28,6 +28,7 @@ FONT_CONF=( "${WORKDIR}"/debian/71-ubuntulegacy.conf )
 src_install() {
 	# Fix FONTDIR #
 	sed -i "s:/truetype::g" "${FONT_CONF}" || die
+	grep -Fq "<glob>/usr/share/fonts/${FONT_PN}/Ubuntu-R.ttf</glob>" "${FONT_CONF}" || die
 
 	# Add ubuntu legacy names #
 	local line

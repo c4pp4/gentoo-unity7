@@ -1,5 +1,8 @@
 ehooks() {
-	rm "${WORKDIR}"/debian/patches/{de,it}_po.diff
+	# Remove Debian patches also included in Ubuntu patchset applied later #
+	rm "${WORKDIR}"/debian/patches/{de,it}_po.diff || die
 
-	cp src/pidgin-libnotify.c src/pidgin-libnotify.c.bak
+	# Back up the original source file to apply Ubuntu patchset #
+	#  instead of Debian and Gentoo patches conflicting with it #
+	cp src/pidgin-libnotify.c src/pidgin-libnotify.c.bak || die
 }

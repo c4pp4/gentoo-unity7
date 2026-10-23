@@ -47,6 +47,7 @@ src_prepare() {
 	sed -i \
 		"/record_button = new Switch();/a record_button.valign = Gtk.Align.CENTER;" \
 		src/unified-privacy.vala || die
+	grep -Fq "record_button.valign = Gtk.Align.CENTER;" src/unified-privacy.vala || die
 
 	ubuntu-versionator_src_prepare
 }
@@ -60,6 +61,7 @@ src_configure() {
 
 	# Fix LOCALE_DIR prefix #
 	sed -i 's:"//:"/usr/share/:g' config.h || die
+	grep -Fq '#define LOCALE_DIR "/usr/share/locale"' config.h || die
 }
 
 src_install() {

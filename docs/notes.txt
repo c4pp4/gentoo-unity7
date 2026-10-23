@@ -12,7 +12,6 @@ x11-themes/ubuntu-wallpapers::gentoo    # Version in the Gentoo tree doesn't con
 ========================================================================
 * Reasons for maintaining ehooks:
 ========================================================================
-app-accessibility/at-spi2-core:2        # Start 'accessibility bus' by default (https://wiki.debian.org/accessibility-devel)
 app-admin/system-config-printer         # Fix Unity Control Center icon and About dialog icon
 app-backup/deja-dup                     # Make Deja Dup appear in unity-control-center
 app-i18n/ibus                           # Patched for indicator-keyboard support
@@ -21,7 +20,6 @@ app-office/libreoffice-bin              # Create fontconfig configuration (30-op
 app-text/evince                         # Add traditional menu bar (https://bugzilla.gnome.org/show_bug.cgi?id=736419), add menu translations
 dev-cpp/gtest                           # Install /usr/src/{gmock,gtest}/* source files lacking from main tree ebuild
 dev-libs/glib:2                         # Patched to call gettext if .desktop file does not have inline translations
-gnome-base/gnome-desktop:3              # Adjust background color detection for Unity (04_compute_average_color.patch, tweak_color_computation.patch)
 gnome-base/gnome-menus:3                # Needed for some menu patches
                                         #  Ubuntu patchset:
                                         #  04_fix-other.patch
@@ -32,12 +30,12 @@ gnome-base/gnome-menus:3                # Needed for some menu patches
                                         #  80_file_monitor_delayed.patch
                                         #  ubuntu_gcc_translations.patch
 gnome-base/gsettings-desktop-schemas    # Add a new preference to lock the screen when the system suspends
-gnome-extra/cinnamon-session            # Add SessionIsActive property and fix session handling, enable-nm-applet-autostart, add unity-session-properties application, use the default mechanism to check XDG_CURRENT_DESKTOP
-gnome-extra/evolution-data-server       # Use libnotify when available (evolution-alarm-notify)
+gnome-extra/cinnamon-session            # Add SessionIsActive property and fix session handling, enable-nm-applet-autostart, add unity-session-properties application, use the default mechanism to check XDG_CURRENT_DESKTOP, support X-GNOME-HiddenUnderSystemd
+gnome-extra/evolution-data-server       # Use libnotify in Unity (evolution-alarm-notify), notify-osd shows notifications with actions as dialogs
 gnome-extra/gnome-calendar              # Use unity-control-center as the fallback
-gnome-extra/gnome-contacts              # Use unity-control-center as the fallback
+gnome-extra/gnome-contacts              # Use gnome-online-accounts-gtk as the fallback
 gnome-extra/nemo                        # Add Unity Launcher support, enable StartupNotify
-gnome-extra/nm-applet                   # Show nm-applet in indicator panel (Have-the-appindicator-enabled-by-default.patch), show notifications via libnotify when in Unity
+gnome-extra/nm-applet                   # Show nm-applet in indicator panel (Have-the-appindicator-enabled-by-default.patch), show notifications via libnotify when in Unity, do not autostart in Cinnamon
 gnome-extra/polkit-gnome                # Patched to have polkit-gnome-authentication-agent-1 xdg-autostart on Unity login
                                         #  Ubuntu patchset:
                                         #  0001-Select-the-current-user-to-authenticate-with-by-defa.patch
@@ -69,19 +67,19 @@ media-sound/rhythmbox                   # Patched for indicator-sound support, a
                                         #  08_stop_quit.patch
 media-video/totem                       # Add traditional menu bar (https://bugzilla.gnome.org/show_bug.cgi?id=749695)
 net-im/pidgin                           # Add chat section into messaging menu (Available, Away, Busy, Invisible, Offline)
-net-im/telegram-desktop                 # Add ubuntu-mono-dark and Yaru-dark tray icons
-net-im/telegram-desktop-bin             # Add ubuntu-mono-dark and Yaru-dark tray icons
+net-im/telegram-desktop                 # Add ubuntu-mono-dark tray icons
+net-im/telegram-desktop-bin             # Add ubuntu-mono-dark tray icons
 sys-apps/accountsservice                # Requires patching for SetInputSources as needed by unity-indicators/indicator-keyboard and u-c-c text entry settings
                                         #  Ubuntu patchset:
                                         #  0001-formats-locale-property.patch
                                         #  0011-add-background-file-support.patch
                                         #  0012-add-keyboard-layout-support.patch
                                         #  0016-add-input-sources-support.patch
-sys-apps/dbus                           # Don't run dbus-launch when DESKTOP_SESSION is unity (fix systemd startx problem)
+sys-apps/dbus                           # Don't run dbus-launch when DESKTOP_SESSION is unity on systemd (second session bus in sessions without pam_systemd bus address, e.g. xrdp)
 www-client/firefox:rapid                # Latest version, add Unity menu bar and desktop launcher with quicklist and translations
 www-client/firefox[-NNN]:esr            # ESR version, add Unity menu bar and desktop launcher with quicklist and translations
 www-client/firefox-bin                  # Add desktop launcher with quicklist and translations
-x11-libs/gtk+:2                         # Support for dynamically loading overlay scrollbars, hide local menu bars under Unity in favour of the global menu
+x11-libs/gtk+:2                         # Support for dynamically loading overlay scrollbars, hide local menu bars under Unity in favour of the global menu, load accessibility modules (90atk-adaptor from Ubuntu)
 x11-libs/gtk+:3                         # Needed for global appmenu, fix firefox/thunderbird global submenus to be initially populated
                                         #  Ubuntu patchset:
                                         #  bzg_gtkcellrenderer_grabbing_modifier.patch
@@ -91,9 +89,9 @@ x11-libs/gtk+:3                         # Needed for global appmenu, fix firefox
                                         #  0001-gtkwindow-set-transparent-background-color.patch
                                         #  unity-border-radius.patch
                                         #  unity-headerbar-maximized-mode.patch
-x11-libs/vte:2.91                       # Add the style context provider with FALLBACK priority; see x11-terms/mate-terminal
+x11-libs/vte:2.91                       # Add the style context provider with FALLBACK priority to allow themes to set terminal colors; see x11-terms/mate-terminal
 x11-misc/lightdm                        # Custom fixes for Xsession profile sourcing and multi-monitor display
-x11-misc/zim                            # Add Yaru-dark tray icons
+x11-misc/zim                            # Add Yaru and Yaru-dark tray icons
 x11-plugins/pidgin-libnotify            # Fix Unity messaging menu support
                                         #  Ubuntu patchset:
                                         #  de_po.diff
@@ -104,7 +102,7 @@ x11-plugins/pidgin-libnotify            # Fix Unity messaging menu support
                                         #  replace-pidgin-action-requests.diff
                                         #  ubuntu_notify_support.patch
                                         #  messaging_menu.patch
-x11-terms/mate-terminal                 # Set as default terminal under Unity, add style classes and CSS names to some of our widgets, use theme transparency, draw proper background under the scrollbar (https://bugzilla.gnome.org/show_bug.cgi?id=754796, LP #1493964)
+x11-terms/mate-terminal                 # Set as default terminal under Unity, add Unity quicklist, add the terminal-screen style class to apply theme colors (Ambiance, Radiance; together with x11-libs/vte:2.91), use theme transparency (background darkness from Ambiance and Radiance), draw proper background under the scrollbar (https://bugzilla.gnome.org/show_bug.cgi?id=754796, LP #1493964)
 x11-themes/adwaita-icon-theme-legacy    # Inherit Adwaita icons before hicolor
 
 ========================================================================
@@ -147,7 +145,7 @@ x11-themes/adwaita-icon-theme-legacy    # Inherit Adwaita icons before hicolor
                 - '/usr/bin/unity-session' executes '/usr/libexec/run-systemd-session unity-session.target'
                         OR
         - Started from console with 'XSESSION=unity startx':
-                - '/etc/X11/xinit/xinitrc.d/99unity-session_systemd' sets XDG_CURRENT_DESKTOP="Unity:Unity7",
+                - '/etc/X11/xinit/xinitrc.d/99unity-session' sets XDG_CURRENT_DESKTOP="Unity:Unity7",
                   passes the environment to the 'systemd --user' process and executes '/usr/bin/unity-session'
 
                 - '/usr/libexec/run-systemd-session unity-session.target' runs 'systemctl --user start --wait unity-session.target'
@@ -156,6 +154,9 @@ x11-themes/adwaita-icon-theme-legacy    # Inherit Adwaita icons before hicolor
                         - 'unity7.service' due to existence of '/usr/lib/systemd/user/unity-session.target.requires/unity7.service' symlink
                         - 'unity-settings-daemon.service' and 'window-stack-bridge.service' due to existence of symlinks
                           in '/usr/lib/systemd/user/unity-session.target.wants/'
+                - cinnamon-session runs as a systemd user service, so it skips the XDG autostart files marked
+                  'X-GNOME-HiddenUnderSystemd=true' ('unity-settings-daemon.desktop', 'indicator-application.desktop',
+                  'indicator-messages.desktop' and 'indicator-printers.desktop'), which are started by their systemd user units instead
                 - All other Unity systemd service units are then started as being 'PartOf=graphical-session.target'
                 - Most importantly, unity7.service unit does the following:
                         - Executes '/usr/lib64/unity/systemd-prestart-check' to check if Compiz is not already started
@@ -172,11 +173,11 @@ x11-themes/adwaita-icon-theme-legacy    # Inherit Adwaita icons before hicolor
         - Display manager (e.g. LightDM) sources '/etc/X11/xinit/xinitrc.d/*' and executes /usr/share/xsessions/unity.desktop:
                 - '/etc/X11/xinit/xinitrc.d/80-dbus' launches the session bus via 'dbus-launch'
                   (the ehooks condition skips it only when systemd is running)
-                - '/etc/X11/xinit/xinitrc.d/99unity-session_systemd' passes the environment to D-Bus activated services
+                - '/etc/X11/xinit/xinitrc.d/99unity-session' passes the environment to D-Bus activated services
                 - '/usr/share/xsessions/unity.desktop' executes '/usr/bin/unity-session'
                         OR
         - Started from console with 'XSESSION=unity startx':
-                - '/etc/X11/xinit/xinitrc.d/99unity-session_systemd' sets XDG_CURRENT_DESKTOP="Unity:Unity7"
+                - '/etc/X11/xinit/xinitrc.d/99unity-session' sets XDG_CURRENT_DESKTOP="Unity:Unity7"
                   and executes '/usr/bin/unity-session'
 
                 - '/usr/bin/unity-session' executes 'cinnamon-session --session=unity'

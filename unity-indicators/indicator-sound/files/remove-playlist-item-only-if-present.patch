@@ -1,0 +1,33 @@
+From 182301d1794a3b159ca09f6ad81b08c62bb89231 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Thu, 22 Oct 2026 23:38:57 +0200
+Subject: [PATCH 1/1] Remove the playlist item only if the player section has one
+
+When a player stops while another one is running, the playback controls
+of the stopped player are removed together with the playlist item.
+update_playlists() has already removed the playlist item of a player that is not
+running and many players do not export playlists at all, so the section usually
+has only two items and removing the third one fails with a g_menu_remove() assertion.
+
+Signed-off-by: c4pp4
+---
+ src/sound-menu.vala | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/sound-menu.vala b/src/sound-menu.vala
+index d5420b4..7228ef4 100644
+--- a/src/sound-menu.vala
++++ b/src/sound-menu.vala
+@@ -406,7 +406,8 @@ public class SoundMenu: Object
+ 		} else {
+ 			if (play_control_index != -1 && number_of_running_players >= 1) {
+ 				// remove both, playlist and play controls
+-				player_section.remove (PlayerSectionPosition.PLAYLIST);
++				if (player_section.get_n_items () == 3)
++					player_section.remove (PlayerSectionPosition.PLAYLIST);
+ 				player_section.remove (PlayerSectionPosition.PLAYER_CONTROLS);	
+ 			}
+ 		}	
+-- 
+2.55.0
+

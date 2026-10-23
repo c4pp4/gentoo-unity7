@@ -1,6 +1,6 @@
-From 71b2ef5380b5e3c06fefb4de6e1e789eb7f5e9b5 Mon Sep 17 00:00:00 2001
+From 2bb696f5c0f0c96d95e28dbfb6bdd75242653b66 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Wed, 19 Aug 2026 14:25:10 +0200
+Date: Thu, 22 Oct 2026 04:17:14 +0200
 Subject: [PATCH 1/1] Custom Unity menubar
 
 Original patch taken from firefox bionic (113.0.2+build1-0ubuntu0.18.04.1).
@@ -14,7 +14,7 @@ Signed-off-by: c4pp4
  modules/libpref/init/all.js                   |   3 +
  toolkit/content/xul.css                       |   7 +
  widget/gtk/DBusMenu.h                         |   2 +
- widget/gtk/NativeMenuSupport.cpp              |  10 +
+ widget/gtk/NativeMenuSupport.cpp              |  15 +
  widget/gtk/NativeMenuSupport.h                |  31 +
  widget/gtk/components.conf                    |   8 +
  widget/gtk/moz.build                          |   9 +
@@ -39,10 +39,9 @@ Signed-off-by: c4pp4
  widget/moz.build                              |   5 +
  widget/nsINativeMenuService.h                 |  36 +
  widget/nsWidgetsCID.h                         |   8 +
- xpcom/base/nsCOMPtr.h                         |   8 +-
  xpcom/ds/NativeMenuAtoms.py                   |   9 +
  xpcom/ds/StaticAtoms.py                       |   3 +-
- 35 files changed, 4844 insertions(+), 5 deletions(-)
+ 34 files changed, 4845 insertions(+), 1 deletion(-)
  create mode 100644 widget/gtk/NativeMenuSupport.h
  create mode 100644 widget/gtk/nsMenu.cpp
  create mode 100644 widget/gtk/nsMenu.h
@@ -64,7 +63,7 @@ Signed-off-by: c4pp4
  create mode 100644 xpcom/ds/NativeMenuAtoms.py
 
 diff --git a/browser/components/places/content/places.xhtml b/browser/components/places/content/places.xhtml
-index 11028b5f66..19772b6d29 100644
+index c74fd241a3..ad21e0e72d 100644
 --- a/browser/components/places/content/places.xhtml
 +++ b/browser/components/places/content/places.xhtml
 @@ -173,6 +173,7 @@
@@ -132,10 +131,10 @@ index bf04989c24..869db473a7 100644
  XPCOM_MANIFESTS += [
      "components.conf",
 diff --git a/modules/libpref/init/all.js b/modules/libpref/init/all.js
-index b3f11dd9c8..6d33f3220d 100644
+index c31bb3da8a..b307628f3d 100644
 --- a/modules/libpref/init/all.js
 +++ b/modules/libpref/init/all.js
-@@ -164,6 +164,9 @@ pref("editor.htmleditor.inputevent.hack.no_dispatch_after_compositionend.addl",
+@@ -172,6 +172,9 @@ pref("editor.htmleditor.inputevent.hack.no_dispatch_after_compositionend.addl",
  // Fastback caching - if this pref is negative, then we calculate the number
  // of content viewers to cache based on the amount of available memory.
  pref("browser.sessionhistory.max_total_viewers", -1);
@@ -146,7 +145,7 @@ index b3f11dd9c8..6d33f3220d 100644
  // See http://whatwg.org/specs/web-apps/current-work/#ping
  pref("browser.send_pings", false);
 diff --git a/toolkit/content/xul.css b/toolkit/content/xul.css
-index 3d515f6d09..af2ec42376 100644
+index 689ba62d84..5e79365a14 100644
 --- a/toolkit/content/xul.css
 +++ b/toolkit/content/xul.css
 @@ -310,6 +310,13 @@ toolbox {
@@ -177,7 +176,7 @@ index 1e260bae5a..d124b02a31 100644
  
  namespace dom {
 diff --git a/widget/gtk/NativeMenuSupport.cpp b/widget/gtk/NativeMenuSupport.cpp
-index 4a660e550b..fe1bb49775 100644
+index 4a660e550b..99745240b3 100644
 --- a/widget/gtk/NativeMenuSupport.cpp
 +++ b/widget/gtk/NativeMenuSupport.cpp
 @@ -9,6 +9,8 @@
@@ -189,10 +188,15 @@ index 4a660e550b..fe1bb49775 100644
  
  namespace mozilla::widget {
  
-@@ -25,6 +27,14 @@ void NativeMenuSupport::CreateNativeMenuBar(nsIWidget* aParent,
+@@ -25,6 +27,19 @@ void NativeMenuSupport::CreateNativeMenuBar(nsIWidget* aParent,
      }
    }
  #endif
++
++  // The integrated DBus menubar is used when enabled
++  if (StaticPrefs::widget_gtk_global_menu_enabled()) {
++    return;
++  }
 +
 +  nsCOMPtr<nsINativeMenuService> nms =
 +      do_GetService("@mozilla.org/widget/nativemenuservice;1");
@@ -242,12 +246,12 @@ index 0000000000..0843d45185
 +
 +#endif  // mozilla_widget_NativeMenuSupport_h
 diff --git a/widget/gtk/components.conf b/widget/gtk/components.conf
-index d2b82c5f48..19452ec1d7 100644
+index b9fc44db01..3906e42bcf 100644
 --- a/widget/gtk/components.conf
 +++ b/widget/gtk/components.conf
-@@ -113,6 +113,14 @@ Classes = [
-         'headers': ['/widget/gtk/nsUserIdleServiceGTK.h'],
-         'constructor': 'nsUserIdleServiceGTK::GetInstance',
+@@ -142,4 +142,12 @@ Classes = [
+         'headers': ['/widget/nsPrinterListCUPS.h'],
+         'processes': ProcessSelector.MAIN_PROCESS_ONLY,
      },
 +    {
 +        'cid': '{0b3fe5aa-bc72-4303-85ae-76365df1251d}',
@@ -258,13 +262,11 @@ index d2b82c5f48..19452ec1d7 100644
 +        'headers': ['/widget/gtk/nsNativeMenuService.h'],
 +    },
  ]
- 
- if defined('NS_PRINTING'):
 diff --git a/widget/gtk/moz.build b/widget/gtk/moz.build
-index e40a75b0dd..c90afb7565 100644
+index f7c714598e..ad10a82406 100644
 --- a/widget/gtk/moz.build
 +++ b/widget/gtk/moz.build
-@@ -112,6 +112,14 @@ UNIFIED_SOURCES += [
+@@ -111,6 +111,14 @@ UNIFIED_SOURCES += [
  
  SOURCES += [
      "MediaKeysEventSourceFactory.cpp",
@@ -279,7 +281,7 @@ index e40a75b0dd..c90afb7565 100644
      "nsNativeThemeGTK.cpp",  # conflicts with X11 headers
      "nsWindow.cpp",  # conflicts with X11 headers
  ]
-@@ -171,6 +179,7 @@ LOCAL_INCLUDES += [
+@@ -164,6 +172,7 @@ LOCAL_INCLUDES += [
      "/layout/base",
      "/layout/forms",
      "/layout/generic",
@@ -1220,7 +1222,7 @@ index 0000000000..3755f9c1c9
 +#endif /* __nsMenu_h__ */
 diff --git a/widget/gtk/nsMenuBar.cpp b/widget/gtk/nsMenuBar.cpp
 new file mode 100644
-index 0000000000..a16723549c
+index 0000000000..7d22ad11dd
 --- /dev/null
 +++ b/widget/gtk/nsMenuBar.cpp
 @@ -0,0 +1,549 @@
@@ -1417,7 +1419,7 @@ index 0000000000..a16723549c
 +
 +    mEventListener = new DocEventListener(this);
 +
-+    mDocument = do_QueryInterface(ContentNode()->OwnerDoc());
++    mDocument = ContentNode()->OwnerDoc();
 +
 +    mAccessKey = Preferences::GetInt("ui.key.menuAccessKey");
 +    if (mAccessKey == dom::KeyboardEvent_Binding::DOM_VK_SHIFT) {
@@ -5065,10 +5067,10 @@ index 0000000000..2e0d429edd
 +
 +#endif /* __nsNativeMenuService_h__ */
 diff --git a/widget/gtk/nsWindow.cpp b/widget/gtk/nsWindow.cpp
-index f746ea316a..eeea24faa1 100644
+index 42d7d8a885..43e267b62c 100644
 --- a/widget/gtk/nsWindow.cpp
 +++ b/widget/gtk/nsWindow.cpp
-@@ -5417,6 +5417,10 @@ void nsWindow::HideWindowChrome(bool aShouldHide) {
+@@ -5403,6 +5403,10 @@ void nsWindow::HideWindowChrome(bool aShouldHide) {
    SetWindowDecoration(aShouldHide ? BorderStyle::None : mBorderStyle);
  }
  
@@ -5080,10 +5082,10 @@ index f746ea316a..eeea24faa1 100644
                                bool aAlwaysRollup) {
    LOG("nsWindow::CheckForRollup() aAlwaysRollup %d", aAlwaysRollup);
 diff --git a/widget/gtk/nsWindow.h b/widget/gtk/nsWindow.h
-index 4af4ee292d..b5091fe6f5 100644
+index 8613fdfd19..75bfef348c 100644
 --- a/widget/gtk/nsWindow.h
 +++ b/widget/gtk/nsWindow.h
-@@ -27,6 +27,8 @@
+@@ -28,6 +28,8 @@
  #include "nsIWidget.h"
  #include "nsRefPtrHashtable.h"
  
@@ -5092,7 +5094,7 @@ index 4af4ee292d..b5091fe6f5 100644
  #ifdef ACCESSIBILITY
  #  include "mozilla/a11y/LocalAccessible.h"
  #endif
-@@ -274,6 +276,8 @@ class nsWindow : public nsIWidget {
+@@ -272,6 +274,8 @@ class nsWindow : public nsIWidget {
    nsresult MakeFullScreen(bool aFullScreen) override;
    void HideWindowChrome(bool aShouldHide) override;
  
@@ -5101,7 +5103,7 @@ index 4af4ee292d..b5091fe6f5 100644
    /**
     * GetLastUserInputTime returns a timestamp for the most recent user input
     * event.  This is intended for pointer grab requests (including drags).
-@@ -856,6 +860,8 @@ class nsWindow : public nsIWidget {
+@@ -866,6 +870,8 @@ class nsWindow : public nsIWidget {
  
    static bool sTransparentMainWindow;
  
@@ -5111,10 +5113,10 @@ index 4af4ee292d..b5091fe6f5 100644
    RefPtr<mozilla::a11y::LocalAccessible> mRootAccessible;
  
 diff --git a/widget/moz.build b/widget/moz.build
-index d01f7790b5..a3e7440b35 100644
+index 67a8082de9..c191ec836c 100644
 --- a/widget/moz.build
 +++ b/widget/moz.build
-@@ -174,6 +174,11 @@ EXPORTS += [
+@@ -171,6 +171,11 @@ EXPORTS += [
      "PuppetWidget.h",
  ]
  
@@ -5169,7 +5171,7 @@ index 0000000000..5a3d489c32
 +
 +#endif  // nsINativeMenuService_h_
 diff --git a/widget/nsWidgetsCID.h b/widget/nsWidgetsCID.h
-index 55b0529804..4f16952b57 100644
+index d2c8707d8d..b5ab7acce9 100644
 --- a/widget/nsWidgetsCID.h
 +++ b/widget/nsWidgetsCID.h
 @@ -40,6 +40,14 @@
@@ -5187,25 +5189,6 @@ index 55b0529804..4f16952b57 100644
  // {F6CD4F21-53AF-11d2-8DC4-00609703C14E}
  #define NS_POPUPMENU_CID \
    {0xf6cd4f21, 0x53af, 0x11d2, {0x8d, 0xc4, 0x0, 0x60, 0x97, 0x3, 0xc1, 0x4e}}
-diff --git a/xpcom/base/nsCOMPtr.h b/xpcom/base/nsCOMPtr.h
-index caf6238084..1c1f26488a 100644
---- a/xpcom/base/nsCOMPtr.h
-+++ b/xpcom/base/nsCOMPtr.h
-@@ -814,10 +814,10 @@ void nsCOMPtr<T>::assign_from_qi(const nsQueryInterface<U> aQI,
-                                  const nsIID& aIID) {
-   // Allow QIing to nsISupports from nsISupports as a special-case, since
-   // SameCOMIdentity uses it.
--  static_assert(
--      std::is_same_v<T, nsISupports> ||
--          !(std::is_same_v<T, U> || std::is_base_of_v<T, U>),
--      "don't use do_QueryInterface for compile-time-determinable casts");
-+  // static_assert(
-+  //     std::is_same_v<T, nsISupports> ||
-+  //         !(std::is_same_v<T, U> || std::is_base_of_v<T, U>),
-+  //     "don't use do_QueryInterface for compile-time-determinable casts");
-   void* newRawPtr;
-   if (NS_FAILED(aQI(aIID, &newRawPtr))) {
-     newRawPtr = nullptr;
 diff --git a/xpcom/ds/NativeMenuAtoms.py b/xpcom/ds/NativeMenuAtoms.py
 new file mode 100644
 index 0000000000..488c8f49c0
@@ -5222,7 +5205,7 @@ index 0000000000..488c8f49c0
 +    Atom("shellshowingmenubar", "shellshowingmenubar"),
 +]
 diff --git a/xpcom/ds/StaticAtoms.py b/xpcom/ds/StaticAtoms.py
-index 5e9c266363..4bb0cecbd2 100644
+index 58e292aadf..6260c90b33 100644
 --- a/xpcom/ds/StaticAtoms.py
 +++ b/xpcom/ds/StaticAtoms.py
 @@ -8,6 +8,7 @@ import sys
@@ -5233,7 +5216,7 @@ index 5e9c266363..4bb0cecbd2 100644
  
  # Static atom definitions, used to generate various files below.
  #
-@@ -2661,7 +2662,7 @@ STATIC_ATOMS = [
+@@ -2667,7 +2668,7 @@ STATIC_ATOMS = [
      Atom("PseudoStyle_MozSvgText", ":-moz-svg-text"),
      Atom("PseudoStyle_WebkitScrollbar", ":-webkit-scrollbar"),
      # END ATOMS
@@ -5243,5 +5226,5 @@ index 5e9c266363..4bb0cecbd2 100644
  
  
 -- 
-2.54.0
+2.55.0
 

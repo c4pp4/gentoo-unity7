@@ -1,5 +1,5 @@
 ehooks() {
-	## Use full libpurple include paths (bug #934814).
+	# Use full libpurple include paths (bug #934814) #
 	sed -i -E 's:#include <(debug|privacy|request|util|version)\.h>:#include <libpurple/\1.h>:' \
 		src/{common,pidgin-libnotify,request}.c || die
 

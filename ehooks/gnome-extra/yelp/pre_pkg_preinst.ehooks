@@ -1,5 +1,8 @@
 ehooks() {
+	local desktop="${ED}"/usr/share/applications/org.gnome.Yelp.desktop
+
 	sed -i \
-		-e "s/Unity;//" \
-		"${ED}"/usr/share/applications/org.gnome.Yelp.desktop || die
+		-e "/^OnlyShowIn=/{s/Unity;//}" \
+		"${desktop}" || die
+	grep -q "^OnlyShowIn=GNOME;$" "${desktop}" || die
 }

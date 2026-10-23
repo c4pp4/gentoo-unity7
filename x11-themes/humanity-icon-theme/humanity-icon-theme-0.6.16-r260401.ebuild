@@ -35,6 +35,7 @@ BDEPEND="
 src_prepare() {
 	# Add AdwaitaLegacy icons support #
 	sed -i "s/Inherits=/Inherits=AdwaitaLegacy,/" Humanity/index.theme || die
+	grep -q "^Inherits=AdwaitaLegacy," Humanity/index.theme || die
 
 	ubuntu-versionator_src_prepare
 }

@@ -1,7 +1,10 @@
 ehooks() {
+	local desktop=data/org.gnome.Rhythmbox3.desktop.in
+
 	sed -i \
-		-e "s/_Name/Name/" \
 		-e "s/Play\/Pause/Toggle play\/pause mode/" \
 		-e "s/Stop & Quit/Quit Rhythmbox/" \
-		data/org.gnome.Rhythmbox3.desktop.in || die
+		"${desktop}" || die
+	grep -q "^Name=Toggle play/pause mode$" "${desktop}" || die
+	grep -q "^Name=Quit Rhythmbox$" "${desktop}" || die
 }

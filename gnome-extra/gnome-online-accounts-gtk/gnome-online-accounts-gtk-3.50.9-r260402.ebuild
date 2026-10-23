@@ -35,11 +35,14 @@ src_prepare() {
 		-e "/Categories/{s/Settings;/GNOME;GTK;Settings;DesktopSettings;X-Unity-Settings-Panel;X-GNOME-PersonalSettings;\nX-Unity-Settings-Panel=online-accounts/}" \
 		-e "/Icon/{s/${PN}/unity-online-accounts/}" \
 		data/"${PN}".desktop.in.in || die
+	grep -q "^X-Unity-Settings-Panel=online-accounts$" data/"${PN}".desktop.in.in || die
+	grep -q "^Icon=unity-online-accounts$" data/"${PN}".desktop.in.in || die
 
 	# Translate window title #
 	sed -i \
 		-e 's/title">/title" translatable="yes">/' \
 		src/online-accounts.ui || die
+	grep -Fq 'title" translatable="yes">' src/online-accounts.ui || die
 
 	ubuntu-versionator_src_prepare
 }

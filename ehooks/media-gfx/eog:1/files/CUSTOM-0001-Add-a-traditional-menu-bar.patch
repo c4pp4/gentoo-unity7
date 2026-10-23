@@ -2,12 +2,12 @@ Subject: [PATCH 1/2] Add a traditional menu bar (v3.28.2)
 Bug: https://bugzilla.gnome.org/749976
 Bug-Debian: https://bugs.debian.org/793445
 ---
- data/eog-menubar.ui   | 213 ++++++++++++++++++++++++++++++++++++++++++
+ data/eog-menubar.ui   | 213 ++++++++++++++++++++++++++++++++++++++++++++++++++
  data/meson.build      |   1 +
  po/POTFILES.in        |   1 +
- src/eog-application.c |  35 +++++++
+ src/eog-application.c |  32 ++++++++
  src/eog.gresource.xml |   1 +
- 5 files changed, 251 insertions(+), 0 deletions(-)
+ 5 files changed, 248 insertions(+)
  create mode 100644 data/eog-menubar.ui
 
 diff --git a/data/eog-menubar.ui b/data/eog-menubar.ui
@@ -230,7 +230,7 @@ index 0000000..5241c75
 +  </menu>
 +</interface>
 diff --git a/data/meson.build b/data/meson.build
-index 17c9140..7adcb40 100644
+index ef6a04c..db52c71 100644
 --- a/data/meson.build
 +++ b/data/meson.build
 @@ -2,6 +2,7 @@ subdir('icons')
@@ -242,11 +242,11 @@ index 17c9140..7adcb40 100644
    'eog-gear-menu.ui',
    'eog-multiple-save-as-dialog.ui',
 diff --git a/po/POTFILES.in b/po/POTFILES.in
-index 31cf8f1..8bc89b4 100644
+index 65f4525..029e5da 100644
 --- a/po/POTFILES.in
 +++ b/po/POTFILES.in
-@@ -3,6 +3,7 @@
- data/eog.appdata.xml.in
+@@ -2,6 +2,7 @@
+ # Please keep this file sorted alphabetically.
  data/eog-gear-menu.ui
  data/eog-details-dialog.ui
 +data/eog-menubar.ui
@@ -254,10 +254,10 @@ index 31cf8f1..8bc89b4 100644
  data/eog-preferences-dialog.ui
  data/eog-remote-presenter.ui
 diff --git a/src/eog-application.c b/src/eog-application.c
-index 69a5c06..ed2a82d 100644
+index 2afe108..af9e843 100644
 --- a/src/eog-application.c
 +++ b/src/eog-application.c
-@@ -266,6 +266,29 @@ on_extension_removed (PeasExtensionSet *set,
+@@ -293,6 +293,26 @@ on_extension_removed (PeasExtensionSet *set,
  	eog_application_activatable_deactivate (EOG_APPLICATION_ACTIVATABLE (exten));
  }
  
@@ -275,10 +275,7 @@ index 69a5c06..ed2a82d 100644
 +
 +	names = g_strsplit (desktop_name_list, ":", -1);
 +	for (i = 0; names[i] && !in_list; i++)
-+		if (strcmp (names[i], name) == 0) {
-+			in_list = TRUE;
-+			break;
-+		}
++		in_list = g_strcmp0 (names[i], name) == 0;
 +	g_strfreev (names);
 +
 +	return in_list;
@@ -287,12 +284,12 @@ index 69a5c06..ed2a82d 100644
  static void
  eog_application_startup (GApplication *application)
  {
-@@ -327,6 +350,18 @@ eog_application_startup (GApplication *application)
+@@ -355,6 +375,18 @@ eog_application_startup (GApplication *application)
  			  G_CALLBACK (on_extension_removed), app);
  
  	peas_extension_set_call (app->priv->extensions, "activate");
 +
-+	if (!in_desktop("GNOME"))
++	if (!in_desktop ("GNOME"))
 +	{
 +		GtkBuilder *builder;
 +		builder = gtk_builder_new_from_resource ("/org/gnome/eog/gtk/menu/menus-traditional.ui");
@@ -307,10 +304,10 @@ index 69a5c06..ed2a82d 100644
  
  static void
 diff --git a/src/eog.gresource.xml b/src/eog.gresource.xml
-index 472408a..0305a13 100644
+index d57ee45..bd23722 100644
 --- a/src/eog.gresource.xml
 +++ b/src/eog.gresource.xml
-@@ -13,6 +13,7 @@
+@@ -14,6 +14,7 @@
      <file compressed="true" preprocess="xml-stripblanks">popup-menus.ui</file>
    </gresource>
    <gresource prefix="/org/gnome/eog/gtk">
@@ -320,4 +317,3 @@ index 472408a..0305a13 100644
  </gresources>
 -- 
 2.26.2
-

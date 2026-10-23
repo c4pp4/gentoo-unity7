@@ -1,6 +1,9 @@
 ehooks() {
 	## Don't launch a second session bus for Unity on systemd (the user bus is used).
+	##  Sessions without DBUS_SESSION_BUS_ADDRESS set by pam_systemd (e.g. xrdp) would get
+	##  a second bus and the services started by systemd would fail to register their names.
 	sed -i \
 		-e 's#\(\[ -n "$dbuslaunch" ]\)#{ [ "$DESKTOP_SESSION" != "unity" ] || [ ! -d /run/systemd/system ]; } \&\& \1#' \
 		"${ED}"/etc/X11/xinit/xinitrc.d/80-dbus || die
+	grep -q '\[ "$DESKTOP_SESSION" != "unity" \]' "${ED}"/etc/X11/xinit/xinitrc.d/80-dbus || die
 }

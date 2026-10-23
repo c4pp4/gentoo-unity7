@@ -4,4 +4,7 @@
 	<maintainer type="project">
 		<name>gentoo-unity7</name>
 	</maintainer>
+	<use>
+		<flag name="rtkit">Pull in <pkg>sys-auth/rtkit</pkg> to allow realtime scheduling priority for the sound server (PipeWire or PulseAudio)</flag>
+	</use>
 </pkgmetadata>

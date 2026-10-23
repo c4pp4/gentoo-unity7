@@ -1,7 +1,11 @@
 From e5ff320cfb3f387166d63674499c4e8f06256575 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Mon, 4 Aug 2025 04:15:02 +0200
+Date: Wed, 21 Oct 2026 04:37:35 +0200
 Subject: [PATCH 1/1] Show notifications via libnotify when in Unity
+
+GNotification notifications are not shown by notify-osd. Send the
+notifications via libnotify instead when running in Unity or unity-
+greeter.
 
 Signed-off-by: c4pp4
 ---
@@ -41,7 +45,7 @@ index 24019e7..217e5e2 100644
  	return item;
  }
  
-+gboolean
++static gboolean
 +in_desktop_unity (void)
 +{
 +	const gchar *desktop_name_list;
@@ -97,13 +101,13 @@ index 24019e7..217e5e2 100644
 +		}
 +
 +		g_free (escaped);
-+ 
++
 +		notify_notification_set_hint (notify, "transient", g_variant_new_boolean (TRUE));
 +		notify_notification_set_hint (notify, "desktop-entry", g_variant_new_string ("nm-applet"));
 +
 +		notify_notification_set_urgency (notify, NOTIFY_URGENCY_LOW);
 +		notify_notification_set_timeout (notify, NOTIFY_EXPIRES_DEFAULT);
-+ 
++
 +		if (!notify_notification_show (notify, &error)) {
 +			g_warning ("Failed to show notification: %s",
 +				error && error->message ? error->message : "(unknown)");

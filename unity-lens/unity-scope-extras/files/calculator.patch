@@ -1,0 +1,14 @@
+diff -Nur a/src/unity_calculator_daemon.py b/src/unity_calculator_daemon.py
+--- a/src/unity_calculator_daemon.py	2026-10-22 23:25:06.811414939 +0200
++++ b/src/unity_calculator_daemon.py	2026-10-22 23:25:06.817215928 +0200
+@@ -71,8 +71,8 @@
+     search = search.replace(';','')
+     search = search.replace('&','')
+     hint = search
+-    hint = hint.replace('\(','(')
+-    hint = hint.replace('\)',')')
++    hint = hint.replace(r'\(','(')
++    hint = hint.replace(r'\)',')')
+     hint = hint.replace('sqrt','√')
+     print ("Operation: %s" % hint)
+     try:

@@ -1,7 +1,10 @@
 From ab61f159e8b0ec3430e3022e122359ef9bf3d5cb Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Sat, 2 Aug 2025 09:21:30 +0200
+Date: Sat, 2 Aug 2025 11:36:15 +0200
 Subject: [PATCH 1/1] Prevent segfault by obtaining style context associated to widget
+
+Use the style context of a GtkMenuItem instead of a standalone
+GtkStyleContext with a custom widget path, which leads to a segfault.
 
 Signed-off-by: c4pp4
 ---

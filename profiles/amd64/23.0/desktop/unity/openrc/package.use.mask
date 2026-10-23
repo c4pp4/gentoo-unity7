@@ -5,5 +5,4 @@ unity-base/unity systemd
 unity-base/unity-session systemd
 unity-base/unity-greeter systemd
 unity-indicators/indicator-datetime systemd
-unity-indicators/indicator-printers systemd
 unity-indicators/indicator-session systemd

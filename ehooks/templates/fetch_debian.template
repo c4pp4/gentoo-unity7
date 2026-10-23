@@ -17,8 +17,7 @@ fetch_debian() {
 			ebegin "Downloading ${color_bold}${archive}${color_norm}"
 				wget -t 3 -T 60 -U "Portage (Gentoo, https://www.gentoo.org) distfile-fetch" -O "${archive}" -o ${wlog} "https://launchpad.net/ubuntu/+archive/primary/+files/${archive}"
 			eend $?
-			grep -iqs "failed\|error" ${wlog} && cat ${wlog} >> ${log}
-			[[ -s ${archive} ]] || die "ehooks: archive not fetched"
+			[[ -s ${archive} ]] || { cat "${wlog}" >&2; die "ehooks: archive not fetched"; }
 			ebegin "Checking BLAKE2 checksum"
 				b2sum --status -c <(echo "${blake}  ${archive}") || die "ehooks: archive checksum did not match"
 			eend $?

@@ -129,6 +129,7 @@ src_prepare() {
 		sed -i \
 			-e "s/\[have_networkmanager=yes\]/[have_networkmanager=no]/" \
 			configure.ac || die
+		grep -Fq "[have_networkmanager=no], have_networkmanager=no)" configure.ac || die
 	fi
 
 	# Install only online-accounts icons #
@@ -136,6 +137,7 @@ src_prepare() {
 		sed -i \
 			-e "s:online-accounts:online-accounts/icons:" \
 			panels/Makefile.am || die
+		grep -Fqx "SUBDIRS += online-accounts/icons" panels/Makefile.am || die
 	fi
 
 	# Branding #
@@ -147,9 +149,14 @@ src_prepare() {
 		-e "/gtk_widget_hide (WID (\"version_label\")/d" \
 		-e "s:gnome/gnome:unity/unity:" \
 		panels/info/cc-info-panel.c || die
+	grep -Fq 'g_str_equal (element_name, "release")' panels/info/cc-info-panel.c || die
+	grep -Fq '"%s.%s.%s (%s)", data->major, data->minor, data->micro, data->distributor' panels/info/cc-info-panel.c || die
+	grep -Fq 'DATADIR "/unity/unity-version.xml"' panels/info/cc-info-panel.c || die
+	! grep -Fq 'gtk_widget_hide (WID ("version_label"))' panels/info/cc-info-panel.c || die
 	sed -i \
 		-e "s/UnityLogo.png/GnomeLogoVerticalMedium.svg/" \
 		panels/info/info.ui || die
+	grep -Fq ">GnomeLogoVerticalMedium.svg<" panels/info/info.ui || die
 
 	# Fix hostname transliteration #
 	sed -i \
@@ -162,21 +169,26 @@ src_prepare() {
 	sed -i \
 		-e "s/_Add Profile…/Add profile/" \
 		panels/network/network-ethernet.ui || die
+	grep -Fq 'translatable="yes">Add profile<' panels/network/network-ethernet.ui || die
 
 	# Fix typo (Sha ring) #
 	sed -i \
 		-e "/Name=/{s/Sha­ring/Sharing/}" \
 		panels/sharing/unity-sharing-panel.desktop.in.in || die
+	grep -qx "_Name=Sharing" panels/sharing/unity-sharing-panel.desktop.in.in || die
 
 	# Fix metadata path #
 	sed -i \
 		-e "/appdatadir/{s/\/appdata/\/metainfo/}" \
 		shell/appdata/Makefile.am || die
+	grep -Fqx 'appdatadir = $(datadir)/metainfo' shell/appdata/Makefile.am || die
 
 	# Rename cc-remote-login-helper as is provided by gnome-base/gnome-control-center #
 	sed -i \
 		-e "s/cc-remote-login-helper/ucc-remote-login-helper/g" \
 		panels/sharing/{cc-remote-login.c,com.canonical.controlcenter.remote-login-helper.policy.in.in,Makefile.am} || die
+	grep -Fq "ucc-remote-login-helper" panels/sharing/cc-remote-login.c || die
+	grep -Fq "ucc-remote-login-helper" panels/sharing/com.canonical.controlcenter.remote-login-helper.policy.in.in || die
 	sed -i \
 		-e "s/cc_remote_login_helper/ucc_remote_login_helper/g" \
 		panels/sharing/Makefile.am || die
@@ -186,9 +198,11 @@ src_prepare() {
 	sed -i \
 		-e "s/faces/ucc-faces/" \
 		panels/user-accounts/data/faces/Makefile.am || die
+	grep -Fqx 'imagedir = $(datadir)/pixmaps/ucc-faces' panels/user-accounts/data/faces/Makefile.am || die
 	sed -i \
 		-e 's/"faces"/"ucc-faces"/' \
 		panels/user-accounts/um-photo-dialog.c || die
+	grep -Fq '"pixmaps", "ucc-faces"' panels/user-accounts/um-photo-dialog.c || die
 
 	# Add more themes and accent colors #
 	sed -i \
@@ -198,6 +212,14 @@ src_prepare() {
 		-e 's/\(colors_name\[] = {\)/\1 "Adwaita", "Ambiance", "Radiance", "High Contrast",/' \
 		-e '/colors_id/{s/"Yaru-viridian-dark"/"Yaru-viridian-dark", "Yaru-wartybrown", "Yaru-wartybrown-dark", "Yaru-yellow", "Yaru-yellow-dark"/}' \
 		-e '/colors_name/{s/"Viridian (Yaru-dark)"/"Viridian (Yaru-dark)", "Warty Brown (Yaru)", "Warty Brown (Yaru-dark)", "Yellow (Yaru)", "Yellow (Yaru-dark)"/}' \
+		panels/appearance/cc-appearance-panel.c || die
+	grep -Eq 'themes_id\[\] = \{ "Adwaita", "Ambiance", "Radiance", "HighContrast", "Yaru"' \
+		panels/appearance/cc-appearance-panel.c || die
+	grep -Eq 'themes_name\[\] = \{ "Adwaita", "Ambiance", "Radiance", "High Contrast", "Yaru"' \
+		panels/appearance/cc-appearance-panel.c || die
+	grep -Eq 'colors_id\[\] = \{ "Adwaita", "ubuntu-mono-dark", .*"Yaru-yellow-dark" \}' \
+		panels/appearance/cc-appearance-panel.c || die
+	grep -Eq 'colors_name\[\] = \{ "Adwaita", "Ambiance", .*"Yellow \(Yaru-dark\)" \}' \
 		panels/appearance/cc-appearance-panel.c || die
 
 	# Disable all language files as they can be incomplete #

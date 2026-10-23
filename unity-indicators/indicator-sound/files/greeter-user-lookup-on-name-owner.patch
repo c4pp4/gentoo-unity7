@@ -1,0 +1,91 @@
+From 0b17ffcb0d7702919310c42fbf61fb98e34a23e3 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Wed, 21 Oct 2026 03:16:44 +0200
+Subject: [PATCH 1/1] Look up the greeter user once the greeter owns its name
+
+unity-greeter starts the indicator services before it owns the
+com.canonical.UnityGreeter name, so the initial active entry lookup fails
+and the selected user's volume, mute and last running player are not
+used until another user is selected. Repeat the lookup when the name
+owner appears.
+
+Signed-off-by: c4pp4
+---
+ src/accounts-service-access.vala   |  8 ++++++-
+ src/media-player-list-greeter.vala | 34 ++++++++++++++++++++----------
+ 2 files changed, 30 insertions(+), 12 deletions(-)
+
+diff --git a/src/accounts-service-access.vala b/src/accounts-service-access.vala
+index 24c00f8..ae6b2dd 100644
+--- a/src/accounts-service-access.vala
++++ b/src/accounts-service-access.vala
+@@ -184,7 +184,13 @@ public class AccountsServiceAccess : Object
+ 				return;
+ 			}
+ 			_greeter_proxy.entry_selected.connect (greeter_user_changed);
+-			yield setup_user_proxy ();
++			/* The greeter may not own its name yet, look up its user again once it does */
++			_greeter_proxy.notify["g-name-owner"].connect ((obj, pspec) => {
++				if (((DBusProxy) _greeter_proxy).g_name_owner != null)
++					setup_user_proxy.begin ();
++			});
++			if (((DBusProxy) _greeter_proxy).g_name_owner != null)
++				yield setup_user_proxy ();
+ 		} else {
+ 			// We are in a user session.  We just need our own proxy
+ 			unowned string username = Environment.get_variable ("USER");
+diff --git a/src/media-player-list-greeter.vala b/src/media-player-list-greeter.vala
+index 5ad096a..cb5e65a 100644
+--- a/src/media-player-list-greeter.vala
++++ b/src/media-player-list-greeter.vala
+@@ -43,24 +43,36 @@ public class MediaPlayerListGreeter : MediaPlayerList {
+ 			this.proxy = Bus.get_proxy.end(res);
+ 
+ 			this.proxy.entry_selected.connect(active_user_changed);
+-			this.proxy.get_active_entry.begin ((obj, res) => {
+-				try {
+-					var list = (obj as UnityGreeterList);
+-
+-					if (list != null) {
+-						var value = list.get_active_entry.end(res);
+-						active_user_changed(value);
+-					}
+-				} catch (Error e) {
+-					warning("Unable to get active entry: %s", e.message);
+-				}
++			/* The greeter may not own its name yet, ask again once it does */
++			this.proxy.notify["g-name-owner"].connect((obj, pspec) => {
++				update_active_entry();
+ 			});
++			update_active_entry();
+ 		} catch (Error e) {
+ 			this.proxy = null;
+ 			warning("Unable to create proxy to the greeter: %s", e.message);
+ 		}
+ 	}
+ 
++	void update_active_entry () {
++		if (((DBusProxy) this.proxy).g_name_owner == null) {
++			return;
++		}
++
++		this.proxy.get_active_entry.begin ((obj, res) => {
++			try {
++				var list = (obj as UnityGreeterList);
++
++				if (list != null) {
++					var value = list.get_active_entry.end(res);
++					active_user_changed(value);
++				}
++			} catch (Error e) {
++				warning("Unable to get active entry: %s", e.message);
++			}
++		});
++	}
++
+ 	void active_user_changed (string active_user) {
+ 		/* No change, move along */
+ 		if (selected_user == active_user) {
+-- 
+2.55.0
+

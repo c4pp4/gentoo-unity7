@@ -1,0 +1,54 @@
+From 8e14947b5922027d8047dafda4071156e25cb5fc Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Wed, 21 Oct 2026 20:44:00 +0200
+Subject: [PATCH 1/1] media-keys: Do not close OSD notifications on stop
+
+notify_notification_close () is a synchronous D-Bus call. When the
+notification daemon has already exited, the call activates it again.
+During logout the newly started notify-osd waits for gvfs, whose start
+is queued behind stopping unity-settings-daemon, so the stop hangs
+until the D-Bus call times out after 25 seconds.
+
+The OSD notifications are transient, just release them.
+
+Signed-off-by: c4pp4
+---
+ plugins/media-keys/gsd-media-keys-manager.c | 22 +++++----------------
+ 1 file changed, 5 insertions(+), 17 deletions(-)
+
+diff --git a/plugins/media-keys/gsd-media-keys-manager.c b/plugins/media-keys/gsd-media-keys-manager.c
+index 580d656..9aa4f02 100644
+--- a/plugins/media-keys/gsd-media-keys-manager.c
++++ b/plugins/media-keys/gsd-media-keys-manager.c
+@@ -3320,23 +3320,11 @@ gsd_media_keys_manager_stop (GsdMediaKeysManager *manager)
+         g_clear_pointer (&priv->introspection_data, g_dbus_node_info_unref);
+         g_clear_object (&priv->connection);
+ 
+-        if (priv->volume_notification != NULL) {
+-                notify_notification_close (priv->volume_notification, NULL);
+-                g_object_unref (priv->volume_notification);
+-                priv->volume_notification = NULL;
+-        }
+-
+-        if (priv->brightness_notification != NULL) {
+-                notify_notification_close (priv->brightness_notification, NULL);
+-                g_object_unref (priv->brightness_notification);
+-                priv->brightness_notification = NULL;
+-        }
+-
+-        if (priv->kb_backlight_notification != NULL) {
+-                notify_notification_close (priv->kb_backlight_notification, NULL);
+-                g_object_unref (priv->kb_backlight_notification);
+-                priv->kb_backlight_notification = NULL;
+-        }
++        /* Do not close the OSD notifications, the synchronous D-Bus call
++         * would activate the notification daemon again if it has exited */
++        g_clear_object (&priv->volume_notification);
++        g_clear_object (&priv->brightness_notification);
++        g_clear_object (&priv->kb_backlight_notification);
+ 
+         if (priv->keys != NULL) {
+                 if (manager->priv->have_legacy_keygrabber)
+-- 
+2.55.0
+

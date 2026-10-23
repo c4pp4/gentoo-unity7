@@ -1,7 +1,9 @@
 From 3c28e38323e321d5a0da53db0fce9c9c893219a6 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Fri, 15 Jul 2022 18:43:35 +0200
+Date: Thu, 22 Oct 2026 02:27:42 +0200
 Subject: [PATCH 1/1] Add quicklist option when in Unity
+
+Add a Unity launcher quicklist action to open a new window.
 
 Signed-off-by: c4pp4
 ---
@@ -14,7 +16,7 @@ index cd6ba31..cd6d52d 100644
 +++ b/mate-terminal.desktop.in.in
 @@ -15,4 +15,10 @@ X-MATE-Bugzilla-Version=@VERSION@
  # Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
- Categories=System;GTK;Utility;TerminalEmulator;
+ Categories=GTK;System;TerminalEmulator;
  StartupNotify=true
 +Actions=new-window;
 +X-GNOME-Gettext-Domain=mate-terminal

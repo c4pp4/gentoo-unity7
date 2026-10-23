@@ -44,6 +44,7 @@ BDEPEND="
 src_prepare() {
 	# Fix schemas path #
 	sed -i "s:/usr/share:share:" setup.py || die
+	! grep -Fq "/usr/share" setup.py || die
 
 	# Use DistUtilsExtra build commands explicitly, setuptools doesn't #
 	# honour entry points overriding built-in commands anymore #
@@ -51,6 +52,8 @@ src_prepare() {
 		-e "/^import  _meta/a from DistUtilsExtra.command import build_extra, build_i18n" \
 		-e "/^setup($/a \    cmdclass = {'build': build_extra.build_extra, 'build_i18n': build_i18n.build_i18n}," \
 		setup.py || die
+	grep -Fqx "from DistUtilsExtra.command import build_extra, build_i18n" setup.py || die
+	grep -Fq "cmdclass = {'build': build_extra.build_extra, 'build_i18n': build_i18n.build_i18n}," setup.py || die
 	sed -i \
 		-e "s/^po-dir/po_dir/" \
 		-e "s/^merge-po/merge_po/" \

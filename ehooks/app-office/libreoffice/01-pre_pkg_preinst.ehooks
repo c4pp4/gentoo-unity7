@@ -1,11 +1,15 @@
 ehooks() {
-	local dir="${ED}"/usr/"$(get_libdir)"/libreoffice/share/fonts/truetype
+	local dir
 
-	if [[ -e ${dir}/fc_local.conf ]] && [[ -e ${dir}/opens___.ttf ]]; then
-		insinto /etc/fonts/conf.avail
-		newins "${dir}"/fc_local.conf 30-opensymbol.conf
+	for dir in "${ED}"/usr/"$(get_libdir)"/libreoffice "${ED}"/opt/libreoffice*; do
+		dir+=/share/fonts/truetype
+		[[ -e ${dir}/fc_local.conf ]] && [[ -e ${dir}/opens___.ttf ]] && break
+		dir=
+	done
+	[[ -n ${dir} ]] || die "OpenSymbol font not found"
 
-		insinto /usr/share/fonts/libreoffice
-		doins "${dir}"/opens___.ttf
-	fi
+	insinto /etc/fonts/conf.avail
+	newins "${dir}"/fc_local.conf 30-opensymbol.conf
+
+	dosym -r "${dir#"${ED}"}"/opens___.ttf /usr/share/fonts/libreoffice/opens___.ttf
 }

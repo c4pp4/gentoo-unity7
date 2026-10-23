@@ -69,6 +69,8 @@ src_prepare() {
 			-e 's|^\(\s*g_menu_item_set_attribute (item, "x-canonical-type", "s", "com.canonical.indicator.basic");\)|//\1|' \
 			-e 's|^\(\s*{ "activate-statistics", on_statistics_activated, "s" }\)|//\1|' \
 			src/service.c || die
+		grep -Eq '^//[[:space:]]*g_menu_item_set_attribute \(item, "x-canonical-type"' src/service.c || die
+		grep -Eq '^//[[:space:]]*\{ "activate-statistics", on_statistics_activated, "s" \}' src/service.c || die
 	fi
 }
 

@@ -1,6 +1,6 @@
 From c6b9e6131e604db32e11df5f4402361e341868e8 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Mon, 20 Jul 2026 13:08:13 +0200
+Date: Mon, 20 Jul 2026 21:01:02 +0200
 Subject: [PATCH 1/1] Network: fix hotspot button state
 
 NetworkManager permissions are loaded asynchronously. When the network

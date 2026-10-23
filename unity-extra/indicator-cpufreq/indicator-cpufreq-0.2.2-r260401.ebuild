@@ -41,6 +41,7 @@ src_prepare() {
 	sed -i \
 		-e 's:auth_admin_keep:yes:' \
 		indicator_cpufreq/com.ubuntu.indicatorcpufreq.policy.in || die
+	grep -Fq "<allow_active>yes</allow_active>" indicator_cpufreq/com.ubuntu.indicatorcpufreq.policy.in || die
 
 	ubuntu-versionator_src_prepare
 }

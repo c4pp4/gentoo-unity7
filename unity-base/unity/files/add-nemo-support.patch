@@ -1,6 +1,6 @@
 From a34b172fbdc926919ffc8c36ddf415b2da913ffa Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Tue, 21 Apr 2026 02:28:35 +0200
+Date: Wed, 22 Apr 2026 13:22:13 +0200
 Subject: [PATCH 1/1] Add Nemo support and XUbuntuOpenLocationsXids
 
 Based on Impish changes related to OpenWindowsWithLocations

@@ -1,0 +1,6 @@
+ehooks() {
+	# Taken from Ubuntu's at-spi2-core package (libatk-adaptor), loads the gail and atk-bridge #
+	#  accessibility modules into GTK 2 applications (GTK 3 has them built in and ignores them) #
+	exeinto /etc/X11/xinit/xinitrc.d
+	newexe "${EHOOKS_FILESDIR}"/90atk-adaptor 90atk-adaptor-gtk2
+}

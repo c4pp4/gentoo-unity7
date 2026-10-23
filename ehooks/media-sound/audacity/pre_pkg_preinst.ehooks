@@ -1,5 +1,8 @@
 ehooks() {
+	local desktop="${ED}"/usr/share/applications/audacity.desktop
+
 	sed -i \
 		-e "/^Exec=/{s/UBUNTU_MENUPROXY=0/UBUNTU_MENUPROXY=1/}" \
-		"${ED}/usr/share/applications/audacity.desktop" || die
+		"${desktop}" || die
+	grep -q "^Exec=.*UBUNTU_MENUPROXY=1" "${desktop}" || die
 }

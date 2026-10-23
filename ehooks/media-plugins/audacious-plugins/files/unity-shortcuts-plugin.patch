@@ -1,39 +1,41 @@
-From b2fce996dcb4703295fc958603c6259e2718557b Mon Sep 17 00:00:00 2001
+From e537acdf7a5efcd465951c70ccde9ecbe29a927b Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Mon, 14 Sep 2026 15:01:02 +0200
+Date: Wed, 21 Oct 2026 20:55:24 +0200
 Subject: [PATCH 1/1] Unity shortcuts plugin
+
+Control the player with the multimedia keys in Unity. Based on the GNOME
+Shortcuts plugin removed upstream in audacious-plugins 3.10 (commit
+3dc8222f59, "GNOME 3.26 broke compatibility with this plugin").
+
+unity-settings-daemon has no MPRIS support for media keys, it forwards
+them only to applications registered via GrabMediaPlayerKeys on
+org.gnome.SettingsDaemon.MediaKeys by the MediaPlayerKeyPressed signal.
+
+Handled keys: Play/Pause, Stop, Previous, Next, Rewind and FastForward
+(seek by the "step_size" setting). Volume and mute keys are handled by
+unity-settings-daemon itself and never forwarded. Repeat and Shuffle
+are not handled, their keycodes are above 255 and not reachable in X11.
 
 Signed-off-by: c4pp4
 ---
- meson.build                          |   5 +
+ meson.build                          |   1 +
  meson_options.txt                    |   2 +
  src/meson.build                      |   4 +
- src/unityshortcuts/meson.build       |   7 +
- src/unityshortcuts/unityshortcuts.cc | 295 +++++++++++++++++++++++++++
- 5 files changed, 313 insertions(+)
+ src/unityshortcuts/meson.build       |  10 ++
+ src/unityshortcuts/unityshortcuts.cc | 229 +++++++++++++++++++++++++++
+ 5 files changed, 246 insertions(+)
  create mode 100644 src/unityshortcuts/meson.build
  create mode 100644 src/unityshortcuts/unityshortcuts.cc
 
 diff --git a/meson.build b/meson.build
-index 8260aef..eea01b3 100644
+index 8260aef..5ef903d 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -55,6 +55,10 @@ audgui_dep = declare_dependency(link_args: [
- glib_req = '>= 2.36'
- glib_dep = dependency('glib-2.0', version: glib_req, required: true)
- gio_dep = dependency('gio-2.0', version: glib_req, required: true)
-+dbus_req = '>= 0.60'
-+dbus_dep = dependency('dbus-1', version: dbus_req, required: true)
-+dbus_glib_req = '>= 0.60'
-+dbus_glib_dep = dependency('dbus-glib-1', version: dbus_glib_req, required: true)
- gmodule_dep = dependency('gmodule-2.0', version: glib_req, required: true)
- zlib_dep = dependency('zlib', required: true)
- 
-@@ -316,6 +320,7 @@ summary({
+@@ -316,6 +316,7 @@ summary({
    'MPRIS 2 Server': get_variable('have_mpris2', false),
    'Scrobbler 2.0': get_variable('have_scrobbler2', false),
    'Song Change': get_option('songchange'),
-+  'Unity Shortcuts': get_variable('have_unityshortcuts', true),
++  'Unity Shortcuts': get_option('unityshortcuts'),
  }, section: 'General')
  
  if conf.has('USE_QT')
@@ -67,10 +69,13 @@ index 34b48ce..8fdd12f 100644
  if get_option('aac')
 diff --git a/src/unityshortcuts/meson.build b/src/unityshortcuts/meson.build
 new file mode 100644
-index 0000000..a700ac1
+index 0000000..5ec61ee
 --- /dev/null
 +++ b/src/unityshortcuts/meson.build
-@@ -0,0 +1,7 @@
+@@ -0,0 +1,10 @@
++dbus_dep = dependency('dbus-1', version: '>= 0.60', required: true)
++dbus_glib_dep = dependency('dbus-glib-1', version: '>= 0.60', required: true)
++
 +shared_module('unityshortcuts',
 +  'unityshortcuts.cc',
 +  dependencies: [audacious_dep, gtk_dep, dbus_dep, dbus_glib_dep],
@@ -80,10 +85,10 @@ index 0000000..a700ac1
 +)
 diff --git a/src/unityshortcuts/unityshortcuts.cc b/src/unityshortcuts/unityshortcuts.cc
 new file mode 100644
-index 0000000..dc359f0
+index 0000000..958caca
 --- /dev/null
 +++ b/src/unityshortcuts/unityshortcuts.cc
-@@ -0,0 +1,295 @@
+@@ -0,0 +1,229 @@
 +/*
 + *  This file is part of audacious-unity-shortcut plugin for audacious
 + *
@@ -114,6 +119,7 @@ index 0000000..dc359f0
 +#include <libaudcore/drct.h>
 +#include <libaudcore/plugin.h>
 +#include <libaudcore/i18n.h>
++#include <libaudcore/runtime.h>
 +
 +class UnityShortcuts : public GeneralPlugin
 +{
@@ -179,87 +185,6 @@ index 0000000..dc359f0
 +on_media_player_key_pressed (DBusGProxy *proxy, const char *application, const char *key)
 +{
 +    if (strcmp ("Audacious", application) == 0) {
-+        int current_volume /* , old_volume */ ;
-+        static int volume_static = 0;
-+        bool mute;
-+
-+        /* get current volume */
-+        current_volume = aud_drct_get_volume_main ();
-+        /* old_volume = current_volume; */
-+        if (current_volume)
-+        {
-+            /* volume is not mute */
-+            mute = false;
-+        } else {
-+            /* volume is mute */
-+            mute = true;
-+        }
-+
-+        /* mute the playback */
-+        if (strcmp ("Mute", key) == 0)
-+        {
-+            if (!mute)
-+            {
-+                volume_static = current_volume;
-+                aud_drct_set_volume_main (0);
-+                mute = true;
-+            } else {
-+                aud_drct_set_volume_main (volume_static);
-+                mute = false;
-+            }
-+            return;
-+        }
-+
-+        /* decreace volume */
-+/*      if ((keycode == plugin_cfg.vol_down) && (state == plugin_cfg.vol_down_mask))
-+        {
-+            if (mute)
-+            {
-+                current_volume = old_volume;
-+                old_volume = 0;
-+                mute = false;
-+            }
-+
-+            if ((current_volume -= plugin_cfg.vol_decrement) < 0)
-+            {
-+                current_volume = 0;
-+            }
-+
-+            if (current_volume != old_volume)
-+            {
-+                xmms_remote_set_main_volume (audacioushotkey.xmms_session,
-+                 current_volume);
-+            }
-+
-+            old_volume = current_volume;
-+            return true;
-+        }*/
-+
-+        /* increase volume */
-+/*      if ((keycode == plugin_cfg.vol_up) && (state == plugin_cfg.vol_up_mask))
-+        {
-+            if (mute)
-+            {
-+                current_volume = old_volume;
-+                old_volume = 0;
-+                mute = false;
-+            }
-+
-+            if ((current_volume += plugin_cfg.vol_increment) > 100)
-+            {
-+                current_volume = 100;
-+            }
-+
-+            if (current_volume != old_volume)
-+            {
-+                xmms_remote_set_main_volume (audacioushotkey.xmms_session,
-+                 current_volume);
-+            }
-+
-+            old_volume = current_volume;
-+            return true;
-+        }*/
-+
 +        /* play or pause */
 +        if (strcmp ("Play", key) == 0 || strcmp ("Pause", key) == 0)
 +        {
@@ -285,6 +210,20 @@ index 0000000..dc359f0
 +        if (strcmp ("Next", key) == 0)
 +        {
 +            aud_drct_pl_next ();
++            return;
++        }
++
++        /* rewind */
++        if (strcmp ("Rewind", key) == 0)
++        {
++            aud_drct_seek (aud_drct_get_time () - aud_get_int ("step_size") * 1000);
++            return;
++        }
++
++        /* fast forward */
++        if (strcmp ("FastForward", key) == 0)
++        {
++            aud_drct_seek (aud_drct_get_time () + aud_get_int ("step_size") * 1000);
 +            return;
 +        }
 +    }

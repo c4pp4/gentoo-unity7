@@ -45,4 +45,5 @@ src_prepare() {
 
 	# Add mate-system-monitor #
 	sed -i "/g_spawn_command_line_async/{s/gnome/mate/}" src/main.c || die
+	grep -Fq 'g_spawn_command_line_async ("mate-system-monitor"' src/main.c || die
 }

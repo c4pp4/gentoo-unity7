@@ -1,7 +1,11 @@
 From 0d38aa3e4a019c62a315d984f83884ca888a57cd Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Mon, 9 Feb 2026 01:23:51 +0100
+Date: Tue, 10 Feb 2026 03:09:28 +0100
 Subject: [PATCH 1/1] Transparent panel fixes
+
+Enable the background blur of the panel whenever the panel is
+transparent, not only while the Dash or HUD is open, and don't draw the
+panel background under the Dash and HUD.
 
 Signed-off-by: c4pp4
 ---

@@ -1,27 +1,27 @@
-From f2615ccd124c96f48167fd2b85ed2e239b7df8a2 Mon Sep 17 00:00:00 2001
+From abaf1f58ffe5c06872a612f88c3750822259fe59 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Wed, 6 May 2026 09:49:57 +0200
+Date: Thu, 22 Oct 2026 04:30:58 +0200
 Subject: [PATCH 1/1] Prevent compiz segfault by guarding pthread_join
+
+The ThumbnailGenerator destructor calls pthread_join() even when no
+thumbnail thread has been created (thread id 0), which crashes compiz.
+Join the thread only if it has been created.
 
 Signed-off-by: c4pp4
 ---
- unity-shared/ThumbnailGenerator.cpp | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ unity-shared/ThumbnailGenerator.cpp | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/unity-shared/ThumbnailGenerator.cpp b/unity-shared/ThumbnailGenerator.cpp
-index c3f596a..c356585 100644
+index c3f596a..f3f585d 100644
 --- a/unity-shared/ThumbnailGenerator.cpp
 +++ b/unity-shared/ThumbnailGenerator.cpp
-@@ -91,7 +91,14 @@ public:
+@@ -91,7 +91,10 @@ public:
  
    ~ThumbnailGeneratorImpl()
    {
 -    pthread_join(thumbnail_thread_, NULL);
-+    pthread_mutex_lock(&thumbnails_mutex_);
-+    bool should_join = (thumbnail_thread_ != 0 && thumbnail_thread_is_running_);
-+    pthread_mutex_unlock(&thumbnails_mutex_);
-+
-+    if (should_join)
++    if (thumbnail_thread_ != 0)
 +      pthread_join(thumbnail_thread_, NULL);
 +
 +    pthread_mutex_destroy(&thumbnails_mutex_);
@@ -29,5 +29,5 @@ index c3f596a..c356585 100644
  
    ThumbnailNotifier::Ptr GetThumbnail(std::string const& uri, int size);
 -- 
-2.53.0
+2.55.0
 

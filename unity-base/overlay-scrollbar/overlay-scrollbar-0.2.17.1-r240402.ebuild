@@ -38,6 +38,7 @@ src_prepare() {
 
 	# Install Xsession file into correct Gentoo path #
 	sed -i 's:/X11/Xsession.d:/X11/xinit/xinitrc.d:g' data/Makefile.am || die
+	grep -Fq "/X11/xinit/xinitrc.d" data/Makefile.am || die
 
 	ubuntu-versionator_src_prepare
 }

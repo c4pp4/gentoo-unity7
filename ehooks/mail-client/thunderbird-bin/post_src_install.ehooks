@@ -7,4 +7,10 @@ ehooks() {
 
 	# Add desktop launcher with quicklist and translations #
 	domenu "${EHOOKS_FILESDIR}/${PN}.desktop"
+
+	# ESR window class #
+	if [[ -n ${MOZ_ESR} ]]; then
+		sed -i "s/^StartupWMClass=thunderbird$/StartupWMClass=thunderbird-esr/" "${ED}"/usr/share/applications/${PN}.desktop || die
+		grep -q "^StartupWMClass=thunderbird-esr$" "${ED}"/usr/share/applications/${PN}.desktop || die
+	fi
 }

@@ -32,6 +32,7 @@ src_install() {
 	sed -i \
 		-e "s:/usr/lib/qt:/usr/$(get_libdir)/qt:" \
 		"${ED}"/usr/share/cmake/QmlPlugins/QmlPluginsConfig.cmake || die
+	grep -Fq "/usr/$(get_libdir)/qt" "${ED}"/usr/share/cmake/QmlPlugins/QmlPluginsConfig.cmake || die
 
 	use examples && dodoc -r examples
 }

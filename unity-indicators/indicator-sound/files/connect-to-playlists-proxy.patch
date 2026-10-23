@@ -1,0 +1,33 @@
+From 860067df30a1b083415eb7d7b53f433ceb64a730 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Thu, 22 Oct 2026 23:38:57 +0200
+Subject: [PATCH 1/1] Connect to the playlists proxy for playlist property changes
+
+got_playlists_proxy() connects the PlaylistCount change handler to the player
+proxy instead of the playlists proxy. Both proxies are created asynchronously
+at the same time, so if the playlists proxy is ready first, the player proxy
+is still null and connecting the handler fails with a g_signal_connect_object()
+assertion. Otherwise the handler is connected to the wrong interface
+and playlist count changes are never seen.
+
+Signed-off-by: c4pp4
+---
+ src/media-player-mpris.vala | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/media-player-mpris.vala b/src/media-player-mpris.vala
+index b3a15a2..d2bef66 100644
+--- a/src/media-player-mpris.vala
++++ b/src/media-player-mpris.vala
+@@ -261,7 +261,7 @@ public class MediaPlayerMpris: MediaPlayer {
+ 		try {
+ 			this.playlists_proxy = Bus.get_proxy.end (res);
+ 
+-			var gproxy = this.proxy as DBusProxy;
++			var gproxy = this.playlists_proxy as DBusProxy;
+ 			gproxy.g_properties_changed.connect (this.playlists_proxy_properties_changed);
+ 		}
+ 		catch (Error e) {
+-- 
+2.55.0
+

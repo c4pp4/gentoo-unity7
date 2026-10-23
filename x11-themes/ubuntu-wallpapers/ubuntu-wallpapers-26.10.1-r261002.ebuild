@@ -52,6 +52,7 @@ src_install() {
 			sed -i \
 				-e "s:backgrounds/resolute.xml:backgrounds/contest/resolute.xml:" \
 				gnome-background-properties/resolute-wallpapers.xml || die
+			grep -Fq "backgrounds/contest/resolute.xml" gnome-background-properties/resolute-wallpapers.xml || die
 		fi
 
 		insinto /usr/share

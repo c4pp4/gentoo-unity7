@@ -1,7 +1,10 @@
 From c197fbd05c88e2267d1cef4ea990cac86eac549e Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Sat, 11 Jul 2026 01:32:33 +0200
+Date: Mon, 20 Jul 2026 05:09:19 +0200
 Subject: [PATCH 1/1] Qt6 migration
+
+Build against Qt 6 only and install the library as dee-qt6, require
+CMake 3.16 and C++17.
 
 Signed-off-by: c4pp4
 ---

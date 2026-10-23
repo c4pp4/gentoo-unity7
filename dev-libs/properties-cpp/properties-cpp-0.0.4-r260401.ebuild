@@ -39,6 +39,7 @@ MAKEOPTS="${MAKEOPTS} -j1"
 src_prepare() {
 	# Fix libdir #
 	sed -i "s:/lib$:/$(get_libdir):" data/properties-cpp.pc.in || die
+	grep -Fqx 'libdir=${exec_prefix}/'"$(get_libdir)" data/properties-cpp.pc.in || die
 
 	ubuntu-versionator_src_prepare
 }

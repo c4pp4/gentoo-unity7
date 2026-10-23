@@ -5,3 +5,4 @@ Exec=/usr/libexec/indicator-printers/indicator-printers-service
 OnlyShowIn=Unity;
 NoDisplay=true
 X-GNOME-AutoRestart=true
+X-GNOME-HiddenUnderSystemd=true

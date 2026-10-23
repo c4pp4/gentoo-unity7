@@ -1,10 +1,10 @@
 ehooks() {
-	# If a .desktop file does not have inline
-	# translations, fall back to calling gettext
-	local file newfile
+	# Build .directory files with inline translations as in debian/rules
+	local file
 	for file in "${S}"/debian/desktop-files/*.directory.desktop.in; do
-		newfile="${file##*/}"; newfile="${ED}/usr/share/desktop-directories/${newfile%.desktop.in}"
-		cp "${file}" "${newfile}"
-		echo "X-GNOME-Gettext-Domain=${PN}" >> "${newfile}"
+		msgfmt --desktop --template "${file}" -d "${S}"/debian/po-up -o "${file%.desktop.in}" || die
 	done
+
+	insinto /usr/share/desktop-directories
+	doins "${S}"/debian/desktop-files/*.directory
 }

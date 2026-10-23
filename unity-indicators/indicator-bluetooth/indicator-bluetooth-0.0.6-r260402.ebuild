@@ -46,6 +46,7 @@ src_prepare() {
 	sed -i \
 		-e "s:^SYSTEMD_USERDIR=.*:SYSTEMD_USERDIR=$(systemd_get_userunitdir):" \
 		configure || die
+	grep -qx "SYSTEMD_USERDIR=$(systemd_get_userunitdir)" configure || die
 }
 
 src_install() {

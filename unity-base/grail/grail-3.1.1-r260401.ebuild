@@ -37,7 +37,7 @@ src_configure() {
 	local myeconfargs=(
 		--enable-static=no
 		--enable-integration-tests=no
-		$(use_with test gtest-source-path)
+		$(use_with test gtest-source-path /usr/src/gtest)
 	)
 	econf "${myeconfargs[@]}"
 }

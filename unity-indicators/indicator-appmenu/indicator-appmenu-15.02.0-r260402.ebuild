@@ -54,6 +54,7 @@ src_prepare() {
 
 	# have_dbusmenu-jsonloader=no: command not found #
 	sed -i "s/have_dbusmenu-jsonloader/have_dbusmenu_jsonloader/" configure.ac || die
+	! grep -Fq "have_dbusmenu-jsonloader" configure.ac || die
 
 	ubuntu-versionator_src_prepare
 }

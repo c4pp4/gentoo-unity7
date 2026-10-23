@@ -100,12 +100,15 @@ src_prepare() {
 		-e 's/^import po$/from hudkeywords import po/' \
 		-e 's/action="count", help/action="count", default=0, help/' \
 		tools/hudkeywords/hudkeywords/cli.py || die
+	grep -Fqx "from hudkeywords import po" tools/hudkeywords/hudkeywords/cli.py || die
+	grep -Fq 'action="count", default=0, help' tools/hudkeywords/hudkeywords/cli.py || die
 
 	# Remove unsupported setuptools option #
 	sed -i '/test_suite/d' tools/hudkeywords/setup.py || die
 
 	# Remove invalid attribute #
 	sed -i 's/ visible="0"//' tools-vala/hud-gtk.ui || die
+	! grep -Fq ' visible="0"' tools-vala/hud-gtk.ui || die
 
 	python_fix_shebang tools/hudkeywords
 	wrap_distutils ${FUNCNAME}
@@ -116,6 +119,7 @@ src_prepare() {
 	sed -i \
 		-e "s:pkg_get_variable(SYSTEMD_USER_DIR systemd systemduserunitdir):set(SYSTEMD_USER_DIR $(systemd_get_userunitdir)):" \
 		data/CMakeLists.txt || die
+	grep -Fq "set(SYSTEMD_USER_DIR $(systemd_get_userunitdir))" data/CMakeLists.txt || die
 
 	# Don't try to find test deps #
 	if ! use test; then

@@ -1,6 +1,6 @@
-From 12155e2caa5e5d05a616265692e61e4882e84b2b Mon Sep 17 00:00:00 2001
+From 24474773bdd631318da2a69f2cbb0d5276e29738 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Tue, 5 May 2026 09:00:25 +0200
+Date: Thu, 22 Oct 2026 04:49:20 +0200
 Subject: [PATCH 1/1] Fix recently-used tracking for DBusActivatable apps
 
 For DBusActivatable apps GLib uses D-Bus activation internally and
@@ -10,14 +10,14 @@ does not appear in recently-used. Send the signal manually.
 
 Signed-off-by: c4pp4
 ---
- dash/ApplicationStarterImp.cpp | 31 +++++++++++++++++++++++++++++++
- 1 file changed, 31 insertions(+)
+ dash/ApplicationStarterImp.cpp | 33 +++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
 
 diff --git a/dash/ApplicationStarterImp.cpp b/dash/ApplicationStarterImp.cpp
-index 0216491..cb50929 100644
+index 0216491..7ca134c 100644
 --- a/dash/ApplicationStarterImp.cpp
 +++ b/dash/ApplicationStarterImp.cpp
-@@ -53,7 +53,38 @@ bool ApplicationStarterImp::Launch(std::string const& application_name, Time tim
+@@ -53,7 +53,40 @@ bool ApplicationStarterImp::Launch(std::string const& application_name, Time tim
        if (error)
          LOG_WARNING(logger) << "Unable to launch " << id << ":" << error;
        else
@@ -43,12 +43,14 @@ index 0216491..cb50929 100644
 +              g_variant_new("(@aysxasa{sv})",
 +                            g_variant_new_bytestring(desktop_file ? desktop_file : ""),
 +                            "",
-+                            (gint64) timestamp,
++                            (gint64) 0,
 +                            &uri_builder,
 +                            &extras_builder),
 +              &emit_error);
 +            if (emit_error)
++            {
 +              LOG_WARNING(logger) << "Failed to emit Launched signal: " << emit_error;
++            }
 +          }
 +        }
          return true;
@@ -57,5 +59,5 @@ index 0216491..cb50929 100644
        break;
      }
 -- 
-2.53.0
+2.55.0
 

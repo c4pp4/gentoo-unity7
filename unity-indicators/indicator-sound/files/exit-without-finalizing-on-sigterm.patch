@@ -1,0 +1,60 @@
+From 0c2286a872b16b699e68e717bb967d3af7c08726 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Thu, 22 Oct 2026 18:15:46 +0200
+Subject: [PATCH 1/1] Exit without finalizing the service on SIGTERM
+
+Disposing a notification makes libnotify create its D-Bus proxy if it
+does not exist yet, which auto-starts the notification daemon and then
+synchronously calls GetServerInformation. Closing a shown notification
+is a synchronous call as well. At logout, notify-osd is already gone, so
+these calls re-activate it while the session is being torn down and can
+block for the D-Bus timeout (25 s) each, until systemd kills the
+service.
+
+Exit without finalizing the service and only clear the player data
+shown on the greeter in AccountsService, as the service destructor
+would do.
+
+Signed-off-by: c4pp4
+---
+ src/main.c       | 10 ++++++----
+ src/service.vala |  2 +-
+ 2 files changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/src/main.c b/src/main.c
+index a324dd6..b3f6e16 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -105,10 +105,12 @@ main (int argc, char ** argv)
+ 
+     g_main_loop_run(loop);
+ 
+-    g_clear_object(&service);
+-    g_clear_pointer(&pgloop, pa_glib_mainloop_free);
+-
+-    notify_uninit();
++    /* Exit without finalizing the service: disposing the notifications
++     * makes synchronous D-Bus calls that re-activate notify-osd at logout
++     * and can block until systemd kills the service. Only clear the player
++     * data shown on the greeter, as the service destructor would do. */
++    if (service != NULL)
++        indicator_sound_service_clear_acts_player(service);
+ 
+     return 0;
+ }
+diff --git a/src/service.vala b/src/service.vala
+index da7b421..6b86081 100644
+--- a/src/service.vala
++++ b/src/service.vala
+@@ -177,7 +177,7 @@ public class IndicatorSound.Service: Object {
+ 		return export_to_accounts_service;
+ 	}
+ 
+-	void clear_acts_player () {
++	public void clear_acts_player () {
+ 		/* NOTE: This is a bit of a hack to ensure that accounts service doesn't
+ 		   continue to export the player by keeping a ref in the timer */
+ 		if (this.accounts_service != null)
+-- 
+2.55.0
+

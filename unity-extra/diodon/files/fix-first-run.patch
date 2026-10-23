@@ -1,7 +1,11 @@
 From 66c23e9980c799af74cec1f42ccebde35bf292e4 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Sat, 13 Jan 2024 01:14:16 +0100
+Date: Sat, 13 Jan 2024 04:28:24 +0100
 Subject: [PATCH 1/1] Fix the first run functionality (LP #1435033)
+
+Set ZEITGEIST_LOG_DIRECT_READ=0 whenever a persistent database is used,
+not only when the Zeitgeist database file does not exist yet, to avoid
+the race with the database creation on the first run (LP #1435033).
 
 Signed-off-by: c4pp4
 ---

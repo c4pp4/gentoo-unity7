@@ -1,0 +1,53 @@
+From: c4pp4
+Subject: [PATCH 1/1] compizconfig: fix spurious error messages
+
+openBackend() reports dlerror() even after a successful dlopen(). A library
+loaded together with the backend may leave an error behind (e.g. libsystemd
+looking up removexattrat(), which glibc does not provide), which is then
+logged as "compizconfig - Error: dlopen: ..." although the backend has been
+loaded. Report the error only when loading the backend fails.
+
+ccsGSettingsIntegratedSettingWriteValue() calls g_variant_get_type() before
+checking the value for NULL and logs "NULL encountered while reading
+GSettings value" when the integrated GNOME key does not exist. Keys such as
+org.gnome.settings-daemon.plugins.media-keys screenshot, window-screenshot,
+terminal and org.gnome.desktop.wm.keybindings toggle-shaded were removed
+from newer GNOME schemas. Check for NULL first and skip a missing key
+silently, as ccsGSettingsIntegratedSettingReadValue() already does.
+
+Signed-off-by: c4pp4
+---
+--- a/compizconfig/libcompizconfig/src/ccs_backend_loader.c
++++ b/compizconfig/libcompizconfig/src/ccs_backend_loader.c
+@@ -86,7 +86,7 @@
+ 
+     free (dlname);
+ 
+-    if (err)
++    if (!dlhand && err)
+     {
+ 	ccsError ("dlopen: %s", err);
+     }
+--- a/compizconfig/integration/gnome/gsettings/src/ccs_gnome_integration_gsettings_integrated_setting.c
++++ b/compizconfig/integration/gnome/gsettings/src/ccs_gnome_integration_gsettings_integrated_setting.c
+@@ -164,16 +164,18 @@
+     char			     *gsettingsTranslatedName = ccsGSettingsIntegratedSettingsTranslateOldGNOMEKeyForGSettings (gnomeKeyName);
+ 
+     GVariant           *variant = ccsGSettingsWrapperGetValue (priv->wrapper, gsettingsTranslatedName);
+-    const GVariantType *variantType = g_variant_get_type (variant);
++    const GVariantType *variantType;
+     GVariant           *newVariant = NULL;
+ 
++    /* The key may not exist (e.g. removed from a newer GNOME schema), as in ccsGSettingsIntegratedSettingReadValue () */
+     if (!variant)
+     {
+-	ccsError ("NULL encountered while reading GSettings value");
+ 	free (gsettingsTranslatedName);
+ 	return;
+     }
+ 
++    variantType = g_variant_get_type (variant);
++
+     switch (type)
+     {
+ 	case TypeInt:

@@ -40,6 +40,8 @@ src_prepare() {
 			-e "/UnityDecoration-title-indent/{s/0px/10px/}" \
 			-e "/UnityDecoration-title-alignment/d" \
 			gtk/src/default/gtk-3.0/apps/_unity7.scss || die
+		grep -q "UnityDecoration-title-indent: *10px" gtk/src/default/gtk-3.0/apps/_unity7.scss || die
+		! grep -Fq "UnityDecoration-title-alignment" gtk/src/default/gtk-3.0/apps/_unity7.scss || die
 
 		## Tweak mate-terminal ##
 		cat "${FILESDIR}"/mate-terminal.css >> \
@@ -53,11 +55,13 @@ src_prepare() {
 		sed -i \
 			-e "/value: \[/a 'bark',\n'viridian'," \
 			meson_options.txt || die
+		grep -qx "'viridian'," meson_options.txt || die
 
 		## Add Humanity to Inherits (index.theme) ##
 		sed -i \
 			-e "s/hicolor'/hicolor', 'Humanity'/" \
 			icons/src/generate-index-theme.py || die
+		grep -Fq "hicolor', 'Humanity'" icons/src/generate-index-theme.py || die
 	fi
 
 	ubuntu-versionator_src_prepare

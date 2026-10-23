@@ -66,6 +66,8 @@ src_prepare() {
 		-e "s:/usr/lib/${PN}:/usr/$(get_libdir)/${PN}:" \
 		-e "s/+AM_CXXFLAGS-/+AM_CXXFLAGS=/" \
 		"${PN}_${PV}${UVER}-${UREV}".diff || die
+	grep -Fq '"x$DESKTOP_SESSION" = "xunity"' "${PN}_${PV}${UVER}-${UREV}".diff || die
+	grep -Fq "/usr/$(get_libdir)/${PN}/unity_support_test" "${PN}_${PV}${UVER}-${UREV}".diff || die
 
 	ubuntu-versionator_src_prepare
 }

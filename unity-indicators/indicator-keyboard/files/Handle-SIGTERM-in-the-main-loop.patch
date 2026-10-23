@@ -1,0 +1,25 @@
+From: c4pp4
+Subject: [PATCH 1/1] Handle SIGTERM in the main loop
+
+The SIGTERM handler installed with Posix.signal() calls MainLoop.quit()
+from an asynchronous signal handler. MainLoop.quit() is not
+async-signal-safe: it locks the main context, so a SIGTERM arriving while
+the main loop holds the lock deadlocks the process, which then has to be
+killed by systemd after the stop timeout. Use GLib.Unix.signal_add() to
+handle SIGTERM safely from the main loop.
+
+Signed-off-by: c4pp4
+---
+--- a/lib/main.vala
++++ b/lib/main.vala
+@@ -1336,8 +1336,9 @@
+ 	public static int main (string[] args) {
+ 		Service.service = new Service (ref args);
+ 
+-		Posix.signal (Posix.SIGTERM, (code) => {
++		Unix.signal_add (Posix.SIGTERM, () => {
+ 			Service.service.down ();
++			return GLib.Source.REMOVE;
+ 		});
+ 
+ 		Service.service.up ();

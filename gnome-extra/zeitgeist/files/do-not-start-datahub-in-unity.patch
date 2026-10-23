@@ -1,0 +1,63 @@
+From 7c3102fbf0e83d3d41b69f713da43419eddf10c3 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Fri, 23 Oct 2026 02:12:21 +0200
+Subject: [PATCH 1/1] Start zeitgeist-datahub from XDG autostart only in Unity
+
+zeitgeist-datahub is started both from its XDG autostart file and by the
+daemon, so the second instance fails to acquire its bus name. Limit the
+autostart file to Unity (OnlyShowIn=Unity), where it also activates the
+daemon at login, and skip starting the datahub from the daemon when
+XDG_CURRENT_DESKTOP lists Unity. Other desktops keep relying on the daemon.
+
+Signed-off-by: c4pp4
+---
+ data/zeitgeist-datahub.desktop.in |  1 +
+ src/zeitgeist-daemon.vala         | 18 +++++++++++++++++-
+ 2 files changed, 18 insertions(+), 1 deletion(-)
+
+diff --git a/data/zeitgeist-datahub.desktop.in b/data/zeitgeist-datahub.desktop.in
+index cf25411..8690679 100644
+--- a/data/zeitgeist-datahub.desktop.in
++++ b/data/zeitgeist-datahub.desktop.in
+@@ -5,3 +5,4 @@ Exec=zeitgeist-datahub
+ Terminal=false
+ Type=Application
+ NoDisplay=true
++OnlyShowIn=Unity;
+diff --git a/src/zeitgeist-daemon.vala b/src/zeitgeist-daemon.vala
+index ddf4796..987c07e 100644
+--- a/src/zeitgeist-daemon.vala
++++ b/src/zeitgeist-daemon.vala
+@@ -317,12 +317,28 @@ namespace Zeitgeist
+             return false;
+         }
+ 
++        // In Unity, zeitgeist-datahub is started from its XDG autostart file
++        private static bool in_unity_session ()
++        {
++            string? desktops = Environment.get_variable ("XDG_CURRENT_DESKTOP");
++            if (desktops == null)
++                return false;
++
++            foreach (string desktop in desktops.split (":"))
++            {
++                if (desktop == "Unity")
++                    return true;
++            }
++
++            return false;
++        }
++
+         private static void name_acquired_callback (DBusConnection conn)
+         {
+             name_acquired = true;
+ 
+             // only run datahub when we acquire bus name
+-            if (!no_datahub)
++            if (!no_datahub && !in_unity_session ())
+             {
+                 try
+                 {
+-- 
+2.55.0
+

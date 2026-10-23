@@ -30,6 +30,7 @@ src_prepare() {
 
 	# Fix libdir #
 	sed -i "s:/lib:/$(get_libdir):" lib/xpathselect.pc.in || die
+	grep -Fq 'libdir=${prefix}/'"$(get_libdir)/" lib/xpathselect.pc.in || die
 
 	if use test; then
 		# Use system gtest instead of building it from /usr/src/gtest #

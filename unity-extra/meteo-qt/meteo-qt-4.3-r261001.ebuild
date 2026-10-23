@@ -42,6 +42,9 @@ src_prepare() {
 		-e "s:/usr/share/doc/meteo-qt:share/doc/${PF}:" \
 		-e "/include_package_data/{s/True/False/}" \
 		setup.py || die
+	grep -Fq "/usr/$(get_libdir)/qt6/bin/lrelease" setup.py || die
+	! grep -Fq "'/usr/share" setup.py || die
+	grep -Fq "include_package_data=False" setup.py || die
 
 	ubuntu-versionator_src_prepare
 }

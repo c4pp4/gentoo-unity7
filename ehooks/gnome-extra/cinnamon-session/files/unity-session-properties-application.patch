@@ -1,6 +1,6 @@
 From f7600e738f81f11e4818433a498173b96e550274 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Sun, 24 May 2026 15:50:30 +0200
+Date: Tue, 20 Oct 2026 22:04:53 +0200
 Subject: [PATCH 1/1] unity-session-properties application
 
 The unity-session-properties application enables the users to configure
@@ -29,8 +29,8 @@ Signed-off-by: c4pp4
  doc/man/cinnamon-session.1               |    4 +-
  doc/man/meson.build                      |    1 +
  doc/man/unity-session-properties.1       |   24 +
- meson.build                              |   13 +-
- 21 files changed, 4337 insertions(+), 5 deletions(-)
+ meson.build                              |   11 +-
+ 21 files changed, 4335 insertions(+), 5 deletions(-)
  create mode 100644 capplet/csm-app-dialog.c
  create mode 100644 capplet/csm-app-dialog.h
  create mode 100644 capplet/csm-properties-dialog.c
@@ -4026,7 +4026,7 @@ index 073755d..b0e1bfe 100644
    install_dir: get_option('libexecdir'),
  )
 diff --git a/data/meson.build b/data/meson.build
-index b158e66..9ef4dd7 100644
+index 8a6c35b..260078c 100644
 --- a/data/meson.build
 +++ b/data/meson.build
 @@ -7,10 +7,17 @@ foreach size: [ '16x16', '22x22', '24x24', '32x32', '48x48', 'scalable', ]
@@ -4539,23 +4539,21 @@ index 0000000..611ef42
 +.BR cinnamon-session(1)
 +.BR cinnamon-session-quit(1)
 diff --git a/meson.build b/meson.build
-index 8412943..415b691 100644
+index cbf3094..0d068d9 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -77,6 +77,12 @@ conf.set10('HAVE_EXECINFO_H', cc.has_header('execinfo.h'))
+@@ -94,6 +94,10 @@ conf.set10('HAVE_EXECINFO_H', cc.has_header('execinfo.h'))
  backtrace = cc.find_library('backtrace',  required: false)
  execinfo  = cc.find_library('execinfo',   required: false)
  
 +session_deps = [
 +  gio,
 +  glib,
-+  cinnamon_desktop,
-+  dependency('json-glib-1.0', version: '>= 0.10')
 +]
  
  # Check for X transport interface - allows to disable ICE Transports
  # See also https://bugzilla.gnome.org/show_bug.cgi?id=725100
-@@ -124,10 +130,12 @@ conf.set('ENABLE_IPV6', have_ipv6)
+@@ -141,10 +145,12 @@ conf.set('ENABLE_IPV6', have_ipv6)
  rootInclude = include_directories('.')
  
  pkg_datadir = join_paths(get_option('prefix'), get_option('datadir'), meson.project_name())
@@ -4569,7 +4567,7 @@ index 8412943..415b691 100644
  
  conf.set_quoted('PACKAGE', meson.project_name())
  conf.set_quoted('VERSION', meson.project_version())
-@@ -147,8 +155,11 @@ add_project_arguments(project_cflags,
+@@ -164,8 +170,11 @@ add_project_arguments(project_cflags,
    language: 'c',
  )
  

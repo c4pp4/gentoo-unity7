@@ -53,6 +53,7 @@ src_prepare() {
 	sed -i \
 		-e '/^import argparse$/i import gi\ngi.require_version("Gtk", "3.0")' \
 		tools/geisview/geisview || die
+	grep -Fqx 'gi.require_version("Gtk", "3.0")' tools/geisview/geisview || die
 
 	ubuntu-versionator_src_prepare
 }

@@ -1,0 +1,89 @@
+From 4691913f4bce1ca42c4800e9a04d699ab5a374da Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Wed, 21 Oct 2026 05:46:54 +0200
+Subject: [PATCH] Fix prompt box not being resized (hidden password entry)
+
+PromptBox reports a height of a single grid cell when it is outside
+of the dash box (position <= -1 or >= 1). Setting the position did not
+invalidate the GTK size request cache, so after the selected entry
+jumped into the dash box on realize, GreeterList could allocate it
+the stale single-cell height. The password entry added afterwards was
+then placed outside of the allocation and clipped, while it still had
+the keyboard focus (password could be typed blind). Whether it happens
+depends on the timing of the PAM prompt and the first window layout,
+e.g. after "Switch Account". Queue a resize when the position crosses
+the dash box boundary.
+
+Additionally, PromptBox uses resize mode QUEUE, so its resize requests
+do not reach GreeterList and when it grows (e.g. messages and a prompt
+are added after a failed authentication), it keeps its old allocation.
+Relayout the list when the selected entry's preferred height differs
+from its allocation.
+
+Signed-off-by: c4pp4
+---
+ src/greeter-list.vala | 17 +++++++++++++++++
+ src/prompt-box.vala   | 15 ++++++++++++++-
+ 2 files changed, 31 insertions(+), 1 deletion(-)
+
+diff --git a/src/greeter-list.vala b/src/greeter-list.vala
+index 160d1e9..69f0206 100644
+--- a/src/greeter-list.vala
++++ b/src/greeter-list.vala
+@@ -398,6 +398,7 @@ public abstract class GreeterList : FadableBox
+         insert_entry (entry);
+ 
+         entry.name_clicked.connect (entry_clicked_cb);
++        entry.size_allocate.connect (entry_size_allocate_cb);
+ 
+         if (selected_entry == null)
+             select_entry (entry, 1.0);
+@@ -544,6 +545,22 @@ public abstract class GreeterList : FadableBox
+         entry.size_allocate (child_allocation);
+     }
+ 
++    private void entry_size_allocate_cb (Gtk.Widget widget, Gtk.Allocation allocation)
++    {
++        /* PromptBox handles its own resizes (resize mode QUEUE), so when it
++         * grows (e.g. messages and a prompt were added), it keeps its old
++         * allocation and the new widgets are clipped. Relayout the list then.
++         * Note: PromptBox.size_allocate () modifies the passed allocation, so
++         * read the real one from the widget. */
++        if (widget != selected_entry)
++            return;
++
++        int height;
++        widget.get_preferred_height_for_width (widget.get_allocated_width (), null, out height);
++        if (height != widget.get_allocated_height ())
++            queue_resize ();
++    }
++
+     public void greeter_box_size_allocate_cb (Gtk.Allocation allocation)
+     {
+         /* If the greeter box allocation changes while not moving fix the entries position */
+diff --git a/src/prompt-box.vala b/src/prompt-box.vala
+index f94bd25..730e7b0 100644
+--- a/src/prompt-box.vala
++++ b/src/prompt-box.vala
+@@ -38,7 +38,20 @@ public class PromptBox : FadableBox
+         }
+     }
+ 
+-    public double position { get; set; default = 0; }
++    private double _position = 0;
++    public double position
++    {
++        get { return _position; }
++        set
++        {
++            /* Our preferred height depends on whether we are inside the dash
++             * box or not, so make GTK drop its cached size when that changes */
++            var was_inside = _position > -1 && _position < 1;
++            _position = value;
++            if (was_inside != (_position > -1 && _position < 1))
++                queue_resize ();
++        }
++    }
+ 
+     private Gtk.Fixed fixed;
+     private Gtk.Widget zone; /* when overlapping zone we are fully expanded */

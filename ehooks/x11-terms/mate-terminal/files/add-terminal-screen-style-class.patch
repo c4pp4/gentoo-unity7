@@ -1,0 +1,45 @@
+From bb523b0e2d19cd5f43c541aeeeb7dda6e1a37fef Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Thu, 22 Oct 2026 02:28:02 +0200
+Subject: [PATCH 1/1] Add terminal-screen style class
+
+Allow themes to set terminal colors via the vte-terminal.terminal-screen
+selector (e.g. Ambiance and Radiance) when using theme colors. Requires
+x11-libs/vte:2.91 patch adding the style context provider with FALLBACK
+priority, otherwise VTE's own colors take precedence over the theme.
+
+Signed-off-by: c4pp4
+---
+ src/terminal-screen.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/src/terminal-screen.c b/src/terminal-screen.c
+index 9ead8be..5732b29 100644
+--- a/src/terminal-screen.c
++++ b/src/terminal-screen.c
+@@ -109,6 +109,8 @@ enum
+     TARGET_TAB
+ };
+ 
++#define TERMINAL_SCREEN_STYLE_CLASS "terminal-screen"
++
+ static void terminal_screen_dispose     (GObject             *object);
+ static void terminal_screen_finalize    (GObject             *object);
+ static void terminal_screen_drag_data_received (GtkWidget        *widget,
+@@ -348,9 +350,13 @@ terminal_screen_init (TerminalScreen *screen)
+ 	GtkTargetList *target_list;
+ 	GtkTargetEntry *targets;
+ 	int n_targets;
++	GtkStyleContext *context;
+ 
+ 	priv = screen->priv = terminal_screen_get_instance_private (screen);
+ 
++	context = gtk_widget_get_style_context (GTK_WIDGET (screen));
++	gtk_style_context_add_class (context, TERMINAL_SCREEN_STYLE_CLASS);
++
+ 	vte_terminal_set_mouse_autohide (VTE_TERMINAL (screen), TRUE);
+ #if VTE_CHECK_VERSION (0, 52, 0)
+ 	vte_terminal_set_bold_is_bright (VTE_TERMINAL (screen), TRUE);
+-- 
+2.35.1
+

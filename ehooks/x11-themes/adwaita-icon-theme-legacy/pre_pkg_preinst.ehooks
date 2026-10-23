@@ -3,4 +3,5 @@ ehooks() {
 	sed -i \
 		-e "s/Inherits=/Inherits=Adwaita,/" \
 		"${ED}"/usr/share/icons/AdwaitaLegacy/index.theme || die
+	grep -q "^Inherits=Adwaita," "${ED}"/usr/share/icons/AdwaitaLegacy/index.theme || die
 }

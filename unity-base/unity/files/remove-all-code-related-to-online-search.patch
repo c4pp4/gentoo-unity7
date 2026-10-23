@@ -1,7 +1,10 @@
 From 56c48ee90b99becbe91727d6ef1c96424830da83 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Wed, 4 Mar 2026 21:05:28 +0100
+Date: Thu, 5 Mar 2026 21:38:20 +0100
 Subject: [PATCH 1/1] Remove all code related to online search
+
+Remove the handling of the remote-content-search setting, the online
+search has been removed from the Dash.
 
 Signed-off-by: c4pp4
 ---

@@ -1,5 +1,3 @@
 ehooks() {
-	pushd "${WORKDIR}"/"${P}-build" >/dev/null || die
-		meson configure -Dunity_support=true
-	popd >/dev/null || die
+	meson configure "${BUILD_DIR}" -Dunity_support=true || die
 }

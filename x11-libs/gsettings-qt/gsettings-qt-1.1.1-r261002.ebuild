@@ -34,6 +34,7 @@ BDEPEND="
 src_prepare() {
 	# Support new multilib layout #
 	sed -i "s:/usr/lib/:/usr/$(get_libdir)/:" GSettings/CMakeLists.txt || die
+	grep -Fq "PATHS /usr/$(get_libdir)/qt" GSettings/CMakeLists.txt || die
 
 	ubuntu-versionator_src_prepare
 }

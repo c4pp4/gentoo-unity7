@@ -40,19 +40,25 @@ src_prepare() {
 	sed -i \
 		-e "/java_install_path =/{s:'java':'${PN}-${SLOT}/lib':}" \
 		java/meson.build || die
+	grep -Fq "java_install_path = join_paths(get_option('datadir'), '${PN}-${SLOT}/lib')" java/meson.build || die
 
 	sed -i \
 		-e "s:/jayatana/:/jayatana-${SLOT}/:" \
 		java/com/jarego/jayatana/{Agent.java.in,basic/NativeLibraries.java.in} || die
+	grep -Fq "/jayatana-${SLOT}/" java/com/jarego/jayatana/Agent.java.in || die
+	grep -Fq "/jayatana-${SLOT}/" java/com/jarego/jayatana/basic/NativeLibraries.java.in || die
 
 	sed -i \
 		-e "/LIBDIR/{s/jayatana/jayatana-${SLOT}/}" \
 		-e "/@CMAKE_INSTALL_FULL_DATAROOTDIR@/{s:java:${PN}-${SLOT}/lib:}" \
 		lib/config.h.in || die
+	grep -Fq "@CMAKE_INSTALL_FULL_LIBDIR@/jayatana-${SLOT}\"" lib/config.h.in || die
+	grep -Fq "@CMAKE_INSTALL_FULL_DATAROOTDIR@/${PN}-${SLOT}/lib\"" lib/config.h.in || die
 
 	sed -i \
 		-e "/libdir/{s/jayatana/jayatana-${SLOT}/}" \
 		lib/meson.build || die
+	grep -Fq "'jayatana-${SLOT}'" lib/meson.build || die
 
 	# Ajust JDK 9+ options #
 	sed -i \
@@ -61,6 +67,7 @@ src_prepare() {
 		-e "/command/{s/'-u', '-m',//}" \
 		-e "/command/{s/, '-v'//}" \
 		java/meson.build || die
+	grep -Eq "\\['jar', 'uvfm', agent_java.full_path\\(\\), +manifest\\]" java/meson.build || die
 }
 
 src_install() {

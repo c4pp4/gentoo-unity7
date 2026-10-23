@@ -1,21 +1,22 @@
-From 493a364eb788d015d6f44a9a92aa86ef36ab72a9 Mon Sep 17 00:00:00 2001
+From 40530c88ccc1f2d007978080aee6b68e238db4f3 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Wed, 23 Jul 2025 00:12:00 +0200
+Date: Wed, 21 Oct 2026 13:20:27 +0200
 Subject: [PATCH 1/1] Use unity-control-center as the fallback
 
 Try to use unity-control-center as the fallback when gnome-control-center
-is not available.
+is not available. Launch gnome-online-accounts-gtk directly for the
+online-accounts panel.
 
 Signed-off-by: c4pp4
 ---
- src/utils/gcal-utils.c | 59 ++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 57 insertions(+), 2 deletions(-)
+ src/utils/gcal-utils.c | 77 +++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 69 insertions(+), 8 deletions(-)
 
 diff --git a/src/utils/gcal-utils.c b/src/utils/gcal-utils.c
-index 6056c8f..335b0ca 100644
+index 066f703..f10d0f3 100644
 --- a/src/utils/gcal-utils.c
 +++ b/src/utils/gcal-utils.c
-@@ -1022,6 +1022,48 @@ create_dbus_proxy (GDBusConnection *connection,
+@@ -945,15 +945,63 @@ create_dbus_proxy (GDBusConnection *connection,
                                  NULL);
  }
  
@@ -33,10 +34,7 @@ index 6056c8f..335b0ca 100644
 +
 +  names = g_strsplit (desktop_name_list, ":", -1);
 +  for (i = 0; names[i] && !in_list; i++)
-+    if (strcmp (names[i], name) == 0) {
-+      in_list = TRUE;
-+      break;
-+    }
++    in_list = g_strcmp0 (names[i], name) == 0;
 +  g_strfreev (names);
 +
 +  return in_list;
@@ -46,25 +44,35 @@ index 6056c8f..335b0ca 100644
 +spawn_ucc_with_args (const gchar *panel_id,
 +                     const gchar *action)
 +{
-+  const gchar* const command[] = { "unity-control-center",
-+                                   panel_id, action, NULL };
++  const gchar* const ucc_command[] = { "unity-control-center",
++                                       panel_id, action, NULL };
++  const gchar* const goa_command[] = { "gnome-online-accounts-gtk", NULL };
++  const gchar* const *command = ucc_command;
 +  GError *error = NULL;
++
++  /* unity-control-center would only launch gnome-online-accounts-gtk */
++  if (g_strcmp0 (panel_id, "online-accounts") == 0)
++    command = goa_command;
 +
 +  g_spawn_async (NULL, (gchar**) command,
 +                 NULL,
 +                 G_SPAWN_SEARCH_PATH | G_SPAWN_STDOUT_TO_DEV_NULL,
 +                 NULL, NULL, NULL, &error);
 +
-+  if (error) {
-+    g_warning ("Couldn't open Unity Control Center: %s", error->message);
-+    g_error_free (error);
-+  }
++  if (error)
++    {
++      g_warning ("Couldn't open %s: %s", command[0], error->message);
++      g_error_free (error);
++    }
 +}
 +
  void
  gcal_utils_launch_gnome_settings (GDBusConnection *connection,
                                    const gchar     *panel_id,
-@@ -1031,6 +1073,7 @@ gcal_utils_launch_gnome_settings (GDBusConnection *connection,
+                                   const gchar     *action)
+ {
+   g_autoptr (GDBusProxy) proxy = NULL;
++  g_autoptr (GVariant) result = NULL;
    GVariantBuilder builder;
    GVariant *params[3];
    GVariant *array[1];
@@ -72,12 +80,12 @@ index 6056c8f..335b0ca 100644
  
    g_variant_builder_init (&builder, G_VARIANT_TYPE ("av"));
  
-@@ -1059,7 +1102,11 @@ gcal_utils_launch_gnome_settings (GDBusConnection *connection,
+@@ -982,17 +1030,30 @@ gcal_utils_launch_gnome_settings (GDBusConnection *connection,
  
    if (!proxy)
      {
 -      g_warning ("Couldn't open panel '%s'", panel_id);
-+      if (in_desktop("Unity"))
++      if (in_desktop ("Unity"))
 +        spawn_ucc_with_args (panel_id, action);
 +      else
 +        g_warning ("Couldn't open panel '%s'", panel_id);
@@ -85,23 +93,32 @@ index 6056c8f..335b0ca 100644
        return;
      }
  
-@@ -1069,7 +1116,15 @@ gcal_utils_launch_gnome_settings (GDBusConnection *connection,
-                           G_DBUS_CALL_FLAGS_NONE,
-                           -1,
-                           NULL,
+-  g_dbus_proxy_call_sync (proxy,
+-                          "Activate",
+-                          g_variant_new_tuple (params, 3),
+-                          G_DBUS_CALL_FLAGS_NONE,
+-                          -1,
+-                          NULL,
 -                          NULL);
-+                          &error);
-+  if (error) {
-+    if (in_desktop("Unity"))
-+      spawn_ucc_with_args (panel_id, action);
-+    else
-+      g_warning ("Couldn't open panel '%s': %s", panel_id, error->message);
++  result = g_dbus_proxy_call_sync (proxy,
++                                   "Activate",
++                                   g_variant_new_tuple (params, 3),
++                                   G_DBUS_CALL_FLAGS_NONE,
++                                   -1,
++                                   NULL,
++                                   &error);
++  if (error)
++    {
++      if (in_desktop ("Unity"))
++        spawn_ucc_with_args (panel_id, action);
++      else
++        g_warning ("Couldn't open panel '%s': %s", panel_id, error->message);
 +
-+    g_error_free (error);
-+  }
++      g_error_free (error);
++    }
  }
  
  gchar*
 -- 
-2.49.1
+2.55.0
 

@@ -1,0 +1,29 @@
+diff -urN unity-tweak-tool/UnityTweakTool/section/spaghetti/theme.py unity-tweak-tool-patched/UnityTweakTool/section/spaghetti/theme.py
+--- unity-tweak-tool/UnityTweakTool/section/spaghetti/theme.py	2026-10-22 01:53:01.947495533 +0200
++++ unity-tweak-tool-patched/UnityTweakTool/section/spaghetti/theme.py	2026-10-22 01:53:18.434945285 +0200
+@@ -154,7 +154,7 @@
+             cursorthemesel.unselect_all()
+ 
+         # Cursor size
+-        self.ui['check_cursor_size'].set_active(True if gsettings.interface.get_int('cursor-size') == 48 else False)
++        self.ui['check_cursor_size'].set_active(True if gsettings.unity('Interface').get_double('cursor-scale-factor') == 2.0 else False)
+ 
+         # ===== Fonts ===== #
+ 
+@@ -258,13 +258,16 @@
+     # Cursor Size
+     def on_check_cursor_size_toggled(self, widget, udata = None):
+         if self.ui['check_cursor_size'].get_active() == True :
++            gsettings.unity('Interface').set_double('cursor-scale-factor', 2.0)
+             gsettings.interface.set_int('cursor-size', 48)
+         else:
++            gsettings.unity('Interface').set_double('cursor-scale-factor', 1.0)
+             gsettings.interface.set_int('cursor-size', 24)
+ 
+     def on_b_theme_cursor_reset_clicked(self, widget):
+         gsettings.interface.reset('cursor-theme')
+         gsettings.interface.reset('cursor-size')
++        gsettings.unity('Interface').reset('cursor-scale-factor')
+         self.refresh()
+ 
+ #----- End: Cursor settings------

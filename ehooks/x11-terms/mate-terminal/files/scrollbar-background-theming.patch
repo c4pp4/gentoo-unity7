@@ -1,6 +1,6 @@
 From a48172989887141b66cbc91a69d62c443bd1b08c Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Thu, 14 Jul 2022 07:41:04 +0200
+Date: Thu, 22 Oct 2026 02:27:48 +0200
 Subject: draw proper background under the scrollbar
 
 Taken from gnome-terminal scrollbar-background-theming.patch.
@@ -16,7 +16,7 @@ diff --git a/src/terminal-screen-container.c b/src/terminal-screen-container.c
 index 8e7418a..4351703 100644
 --- a/src/terminal-screen-container.c
 +++ b/src/terminal-screen-container.c
-@@ -125,12 +125,28 @@ terminal_screen_container_init (TerminalScreenContainer *container)
+@@ -126,12 +126,28 @@ terminal_screen_container_init (TerminalScreenContainer *container)
  	gtk_orientable_set_orientation (GTK_ORIENTABLE (container), GTK_ORIENTATION_VERTICAL);
  }
  
@@ -45,7 +45,7 @@ index 8e7418a..4351703 100644
  	TerminalScreenContainer *container;
  	TerminalScreenContainerPrivate *priv;
  
-@@ -162,8 +178,12 @@ terminal_screen_container_constructor (GType type,
+@@ -163,8 +179,12 @@ terminal_screen_container_constructor (GType type,
  #else
  
  	priv->hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
@@ -59,7 +59,7 @@ index 8e7418a..4351703 100644
  
  	gtk_box_pack_start (GTK_BOX (priv->hbox), GTK_WIDGET (priv->screen), TRUE, TRUE, 0);
  	gtk_box_pack_start (GTK_BOX (priv->hbox), priv->vscrollbar, FALSE, FALSE, 0);
-@@ -174,6 +194,11 @@ terminal_screen_container_constructor (GType type,
+@@ -175,6 +195,11 @@ terminal_screen_container_constructor (GType type,
  
  	_terminal_screen_update_scrollbar (priv->screen);
  
@@ -75,7 +75,7 @@ diff --git a/src/terminal-screen.c b/src/terminal-screen.c
 index 9ead8be..0f5622c 100644
 --- a/src/terminal-screen.c
 +++ b/src/terminal-screen.c
-@@ -76,6 +76,8 @@ struct _TerminalScreenPrivate
+@@ -77,6 +77,8 @@ struct _TerminalScreenPrivate
  	guint launch_child_source_id;
  	gulong bg_image_callback_id;
  	GdkPixbuf *bg_image;
@@ -84,7 +84,7 @@ index 9ead8be..0f5622c 100644
  };
  
  enum
-@@ -95,7 +97,9 @@ enum
+@@ -96,7 +98,9 @@ enum
      PROP_ICON_TITLE_SET,
      PROP_OVERRIDE_COMMAND,
      PROP_TITLE,
@@ -95,7 +95,7 @@ index 9ead8be..0f5622c 100644
  };
  
  enum
-@@ -425,6 +429,12 @@ terminal_screen_get_property (GObject *object,
+@@ -438,6 +442,12 @@ terminal_screen_get_property (GObject *object,
  	case PROP_TITLE:
  		g_value_set_string (value, terminal_screen_get_title (screen));
  		break;
@@ -103,12 +103,12 @@ index 9ead8be..0f5622c 100644
 +		g_value_set_boxed (value, terminal_screen_get_bg_color (screen));
 +		break;
 +	case PROP_FG_COLOR:
-+		g_value_set_boxed (value, terminal_screen_get_bg_color (screen));
++		g_value_set_boxed (value, terminal_screen_get_fg_color (screen));
 +		break;
  	default:
  		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
  		break;
-@@ -459,6 +469,8 @@ terminal_screen_set_property (GObject *object,
+@@ -472,6 +482,8 @@ terminal_screen_set_property (GObject *object,
  	case PROP_ICON_TITLE:
  	case PROP_ICON_TITLE_SET:
  	case PROP_TITLE:
@@ -117,7 +117,7 @@ index 9ead8be..0f5622c 100644
  		/* not writable */
  	default:
  		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-@@ -571,6 +583,20 @@ terminal_screen_class_init (TerminalScreenClass *klass)
+@@ -585,6 +597,20 @@ terminal_screen_class_init (TerminalScreenClass *klass)
  	                     G_TYPE_STRV,
  	                     G_PARAM_READWRITE | G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB));
  
@@ -138,7 +138,7 @@ index 9ead8be..0f5622c 100644
  	/* Precompile the regexes */
  	n_url_regexes = G_N_ELEMENTS (url_regex_patterns);
  	url_regexes = g_new0 (VteRegex*, n_url_regexes);
-@@ -922,6 +948,22 @@ terminal_screen_cook_icon_title (TerminalScreen *screen)
+@@ -936,6 +962,22 @@ terminal_screen_cook_icon_title (TerminalScreen *screen)
  		g_object_notify (G_OBJECT (screen), "icon-title");
  }
  
@@ -161,7 +161,7 @@ index 9ead8be..0f5622c 100644
  static void
  terminal_screen_profile_notify_cb (TerminalProfile *profile,
                                     GParamSpec *pspec,
-@@ -1189,6 +1189,18 @@ update_color_scheme (TerminalScreen *screen)
+@@ -1195,6 +1237,18 @@ update_color_scheme (TerminalScreen *screen)
  		                             bold_rgba);
  
  	update_toplevel_transparency (screen);
@@ -184,7 +184,7 @@ diff --git a/src/terminal-screen.h b/src/terminal-screen.h
 index b74372b..31f4faa 100644
 --- a/src/terminal-screen.h
 +++ b/src/terminal-screen.h
-@@ -98,6 +98,8 @@ const char* terminal_screen_get_raw_title      (TerminalScreen *screen);
+@@ -99,6 +99,8 @@ const char* terminal_screen_get_raw_title      (TerminalScreen *screen);
  const char* terminal_screen_get_title          (TerminalScreen *screen);
  const char* terminal_screen_get_icon_title     (TerminalScreen *screen);
  gboolean    terminal_screen_get_icon_title_set (TerminalScreen *screen);

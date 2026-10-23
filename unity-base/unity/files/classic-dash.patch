@@ -1,7 +1,11 @@
-From 21e8ea703fce7a1f158f9a056d1986c050837fa9 Mon Sep 17 00:00:00 2001
+From 1f1ceb8174472ad562d3cc0c91b8cd62fa767442 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Mon, 9 Feb 2026 01:15:16 +0100
+Date: Thu, 22 Oct 2026 04:30:58 +0200
 Subject: [PATCH 1/1] Classic horizontal Dash with bottom scope bar
+
+Restore the classic Dash layout: the Dash width depends on the screen
+width, the scope bar is at the bottom, the search bar uses the previous
+font and background and the category headers have no extra margin.
 
 Signed-off-by: c4pp4
 ---
@@ -10,9 +14,9 @@ Signed-off-by: c4pp4
  dash/ScopeBar.cpp          |  2 +-
  unity-shared/DashStyle.cpp |  5 ---
  unity-shared/DashStyle.h   |  2 --
- unity-shared/SearchBar.cpp | 66 ++++++++++++++++++++++++++++++++++++--
+ unity-shared/SearchBar.cpp | 65 ++++++++++++++++++++++++++++++++++++--
  unity-shared/SearchBar.h   |  1 +
- 7 files changed, 87 insertions(+), 18 deletions(-)
+ 7 files changed, 86 insertions(+), 18 deletions(-)
 
 diff --git a/dash/DashView.cpp b/dash/DashView.cpp
 index 0fd0597..407d4fe 100644
@@ -145,7 +149,7 @@ index dd127c4..f080297 100755
    BaseTexturePtr GetDashCornerMask(double scale) const;
    BaseTexturePtr GetDashLeftCorner(double scale) const;
 diff --git a/unity-shared/SearchBar.cpp b/unity-shared/SearchBar.cpp
-index 8e90c58..9c3741f 100644
+index 8e90c58..4075e00 100644
 --- a/unity-shared/SearchBar.cpp
 +++ b/unity-shared/SearchBar.cpp
 @@ -74,11 +74,11 @@ const RawPixel FILTER_HORIZONTAL_MARGIN = 8_em;
@@ -172,7 +176,7 @@ index 8e90c58..9c3741f 100644
    graphics_engine.PushClippingRectangle(base);
  
    if (RedirectedAncestor())
-@@ -511,6 +513,64 @@ void SearchBar::SetSearchFinished()
+@@ -511,6 +513,63 @@ void SearchBar::SetSearchFinished()
    spinner_->SetState(is_empty ? STATE_READY : STATE_CLEAR);
  }
  
@@ -189,8 +193,7 @@ index 8e90c58..9c3741f 100644
 +  << layered_layout_->GetGeometry().height << " - "
 +  << pango_entry_->GetGeometry().height;
 +
-+  if (!bg_layer_ &&
-+      geo.width == last_width_
++  if (geo.width == last_width_
 +      && geo.height == last_height_
 +      && force == false)
 +    return;
@@ -250,5 +253,5 @@ index fa28332..c9af1db 100644
    void OnClearClicked(int x, int y, unsigned long button_flags, unsigned long key_flags);
    void OnEntryActivated();
 -- 
-2.52.0
+2.55.0
 

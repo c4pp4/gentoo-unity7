@@ -33,15 +33,16 @@ ehooks() {
 	for f in "${files[@]}"; do
 		[[ -L ${EROOT%/}${symlink_dir}/${f} ]] \
 			&& f_remove+=( ${f} )
-		[[ -L ${ED}/etc/fonts/conf.d/${f} ]] \
-			&& rm "${ED}"/etc/fonts/conf.d/"${f}"
+		if [[ -L ${ED}/etc/fonts/conf.d/${f} ]]; then
+			rm "${ED}"/etc/fonts/conf.d/"${f}" || die
+		fi
 	done
 
 	if [[ -n ${f_remove[@]} ]]; then
 		ewarn "Cleaning redundant symlinks in ${EROOT%/}${symlink_dir} ..."
 		for f in "${f_remove[@]}"; do
 			echo " * ${f}"
-			rm "${EROOT%/}${symlink_dir}/${f}"
+			rm "${EROOT%/}${symlink_dir}/${f}" || die
 		done
 	fi
 }

@@ -13,7 +13,7 @@ diff --git a/shell/ev-window.c b/shell/ev-window.c
 index d8cdb2aa7..616161a3d 100644
 --- a/shell/ev-window.c
 +++ b/shell/ev-window.c
-@@ -7886,6 +7886,18 @@
+@@ -7989,6 +7989,18 @@
  #endif
  }
  
@@ -22,7 +22,7 @@ index d8cdb2aa7..616161a3d 100644
 +{
 +	EvWindowPrivate *priv;
 +
-+	g_return_val_if_fail (EV_WINDOW (ev_window), NULL);
++	g_return_val_if_fail (EV_IS_WINDOW (ev_window), NULL);
 +
 +	priv = GET_PRIVATE (ev_window);
 +

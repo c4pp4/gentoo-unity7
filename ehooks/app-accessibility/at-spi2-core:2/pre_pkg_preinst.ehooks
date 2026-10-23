@@ -1,5 +1,0 @@
-ehooks() {
-	## Enable Qt accessibility by default.
-	exeinto /etc/X11/xinit/xinitrc.d
-	doexe "${EHOOKS_FILESDIR}"/90qt-a11y
-}

@@ -1,4 +1,5 @@
 ehooks() {
 	## First run in GTK mode ##
 	sed -i "/use_qt/{s/TRUE/FALSE/}" src/libaudcore/config.cc || die
+	grep -Fq '"use_qt", "FALSE"' src/libaudcore/config.cc || die
 }

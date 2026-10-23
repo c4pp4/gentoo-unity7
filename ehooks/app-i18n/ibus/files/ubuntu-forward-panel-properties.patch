@@ -16,9 +16,9 @@ diff --git a/src/ibuspanelservice.c b/src/ibuspanelservice.c
 index 984cc89..a8e9298 100644
 --- a/src/ibuspanelservice.c
 +++ b/src/ibuspanelservice.c
-@@ -160,8 +160,24 @@ static void      ibus_panel_service_panel_extension_received
- 
- G_DEFINE_TYPE (IBusPanelService, ibus_panel_service, IBUS_TYPE_SERVICE)
+@@ -170,8 +170,24 @@ static void      ibus_panel_service_panel_extension_received
+                             ibus_panel_service,
+                             IBUS_TYPE_SERVICE)
  
 +/* Ubuntu-specific */
 +#define UNITY_INTERFACE_PANEL "com.canonical.IBus.Panel.Private"
@@ -41,7 +41,7 @@ index 984cc89..a8e9298 100644
      "  <interface name='org.freedesktop.IBus.Panel'>"
      /* Methods */
      "    <method name='UpdatePreeditText'>"
-@@ -1101,6 +1117,20 @@ ibus_panel_service_service_method_call (IBusService           *service,
+@@ -1238,6 +1254,20 @@ ibus_panel_service_service_method_call (IBusService           *service,
  {
      IBusPanelService *panel = IBUS_PANEL_SERVICE (service);
  
@@ -62,7 +62,7 @@ index 984cc89..a8e9298 100644
      if (g_strcmp0 (interface_name, IBUS_INTERFACE_PANEL) != 0) {
          IBUS_SERVICE_CLASS (ibus_panel_service_parent_class)->
                  service_method_call (service,
-@@ -1192,6 +1222,14 @@ ibus_panel_service_service_method_call (IBusService           *service,
+@@ -1333,6 +1363,14 @@ ibus_panel_service_service_method_call (IBusService           *service,
          g_signal_emit (panel, panel_signals[REGISTER_PROPERTIES], 0, prop_list);
          _g_object_unref_if_floating (prop_list);
          g_dbus_method_invocation_return_value (invocation, NULL);
@@ -77,7 +77,7 @@ index 984cc89..a8e9298 100644
          return;
      }
  
-@@ -1203,6 +1241,14 @@ ibus_panel_service_service_method_call (IBusService           *service,
+@@ -1344,6 +1382,14 @@ ibus_panel_service_service_method_call (IBusService           *service,
          g_signal_emit (panel, panel_signals[UPDATE_PROPERTY], 0, property);
          _g_object_unref_if_floating (property);
          g_dbus_method_invocation_return_value (invocation, NULL);

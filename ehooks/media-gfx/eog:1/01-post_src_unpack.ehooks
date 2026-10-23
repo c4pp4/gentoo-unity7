@@ -7,12 +7,10 @@ ehooks() {
 	local -a po_files=( po/* )
 
 	for po_ext in "${po_files[@]}"; do
-	        po_orig=${po_ext/po/${P%%_*}\/po}
+		po_orig=${S}/${po_ext}
 
 		if [[ -f ${po_orig} ]]; then
-			sed -i '/msgid \"\"/,/^$/d' "${po_ext}" || die
-			cat "${po_ext}" >> "${po_orig}"
-			msguniq --use-first -o "${po_orig}" "${po_orig}" 2>&1	# ignore warning messages
+			msgcat --use-first -o "${po_orig}" "${po_orig}" "${po_ext}" 2>&1 || die	# ignore warning messages
 		fi
 	done
 }

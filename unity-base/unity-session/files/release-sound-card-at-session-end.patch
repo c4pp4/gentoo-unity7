@@ -1,0 +1,37 @@
+From c70223b1c9b0e23523b2e30db5839cc2d0f4b3ce Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Thu, 22 Oct 2026 20:58:29 +0200
+Subject: [PATCH 1/1] Release the sound card at the end of the session
+
+PipeWire keeps the sound card open for a few seconds (the WirePlumber
+node suspend timeout) after the playback stops. When logging out while
+playing music, the greeter starts in the meantime and its PipeWire
+cannot open the card, so the greeter's sound is not played.
+
+Suspend all sinks once all graphical units have stopped. The suspend
+only closes the card, the next playback opens it again.
+
+Signed-off-by: c4pp4
+---
+ run-systemd-session | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/run-systemd-session b/run-systemd-session
+index 86d1ed4..409b60b 100755
+--- a/run-systemd-session
++++ b/run-systemd-session
+@@ -35,3 +35,11 @@ dbus-update-activation-environment --systemd GNOME_DESKTOP_SESSION_ID=
+ 
+ # Delay killing the X server until all graphical units stopped
+ systemctl --user stop graphical-session-pre.target
++
++# Release the sound card right away, so that the greeter can play its sound
++# (PipeWire keeps it open for a few seconds after the playback stops)
++if command -v pactl >/dev/null; then
++    pactl list short sinks | cut -f2 | while read -r sink; do
++        pactl suspend-sink "$sink" 1
++    done || true
++fi
+-- 
+2.55.0
+

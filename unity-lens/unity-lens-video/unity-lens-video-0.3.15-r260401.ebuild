@@ -44,6 +44,7 @@ PATCHES=( "${FILESDIR}"/Remove-remote-video-support.patch )
 src_prepare() {
 	# Wait for updatedb #
 	sed -i "/updatedb_bin/{s/async/sync/}" src/locate.vala || die
+	grep -Fq 'GLib.Process.spawn_command_line_sync (@"$updatedb_bin' src/locate.vala || die
 
 	ubuntu-versionator_src_prepare
 }

@@ -1,0 +1,12 @@
+ehooks() {
+	elog
+	elog "Guest session is disabled by default."
+	elog "To enable it, edit '/etc/${PN}/${PN}.conf'"
+	elog "and set 'allow-guest=true'."
+	elog
+	elog "Guest session GSettings defaults can be"
+	elog "found in /etc/guest-session/gsettings."
+	elog "You can place your own settings there."
+	elog "Higher-numbered files have higher priority."
+	elog
+}

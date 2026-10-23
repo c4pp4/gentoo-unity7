@@ -1,12 +1,17 @@
-From f6d9318d88fafad96c66b2ac288f9328a541277a Mon Sep 17 00:00:00 2001
+From e614730587b053823453f65cd53cad168dd4952a Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Mon, 5 May 2025 19:45:26 +0200
+Date: Thu, 22 Oct 2026 04:30:58 +0200
 Subject: [PATCH 1/1] Classic non-transparent panel with shadow
+
+Make the top panel non-transparent and draw the panel shadow below or
+over the windows as in the classic Unity.
 
 Signed-off-by: c4pp4
 ---
+ panel/PanelController.cpp             |  2 +-
+ panel/PanelView.cpp                   |  2 +-
  plugins/unityshell/src/unityshell.cpp | 64 +++++++++++++++++++++++++++
- 1 file changed, 64 insertions(+)
+ 3 files changed, 66 insertions(+), 2 deletions(-)
 
 diff --git a/panel/PanelController.cpp b/panel/PanelController.cpp
 index c6496b7..f24eb46 100644
@@ -22,7 +27,7 @@ index c6496b7..f24eb46 100644
  {
    UScreen* screen = UScreen::GetDefault();
 diff --git a/panel/PanelView.cpp b/panel/PanelView.cpp
-index 1a54ab1..fd492b6 100644
+index 1a54ab1..89fc9ed 100644
 --- a/panel/PanelView.cpp
 +++ b/panel/PanelView.cpp
 @@ -58,7 +58,7 @@ PanelView::PanelView(MockableBaseWindow* parent, menu::Manager::Ptr const& menus
@@ -113,5 +118,5 @@ index 38f433a..ff739f6 100644
  }
  
 -- 
-2.49.0
+2.55.0
 

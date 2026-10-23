@@ -1,0 +1,56 @@
+From 24e7c149ea680b0d191bf66e9c143aaeb008b862 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Thu, 22 Oct 2026 14:15:59 +0200
+Subject: [PATCH 1/1] Relayout desktop icons when _GTK_WORKAREAS_D* changes
+
+GTK prefers the per-monitor _GTK_WORKAREAS_D* root window property over
+_NET_WORKAREA when the window manager supports it. Compiz updates
+_NET_WORKAREA first and _GTK_WORKAREAS_D* right after it, so the margins
+read on the _NET_WORKAREA PropertyNotify event can be stale. If the
+Unity Launcher strut is set while nemo-desktop is starting, the desktop
+icons are then laid out under the Launcher until the next workarea
+change.
+
+Update the margins on _GTK_WORKAREAS_D* changes too.
+
+Signed-off-by: c4pp4
+---
+ src/nemo-desktop-icon-grid-view.c | 5 ++++-
+ src/nemo-desktop-icon-view.c      | 5 ++++-
+ 2 files changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/src/nemo-desktop-icon-grid-view.c b/src/nemo-desktop-icon-grid-view.c
+index 4ef0060..13848dd 100644
+--- a/src/nemo-desktop-icon-grid-view.c
++++ b/src/nemo-desktop-icon-grid-view.c
+@@ -163,7 +163,10 @@ gdk_filter_func (GdkXEvent *gdk_xevent,
+ 
+     switch (xevent->type) {
+         case PropertyNotify:
+-            if (xevent->xproperty.atom == gdk_x11_get_xatom_by_name ("_NET_WORKAREA")) {
++            /* GTK prefers _GTK_WORKAREAS_D* over _NET_WORKAREA, which the WM
++             * may update after _NET_WORKAREA, so watch for both */
++            if (xevent->xproperty.atom == gdk_x11_get_xatom_by_name ("_NET_WORKAREA") ||
++                g_str_has_prefix (gdk_x11_get_xatom_name (xevent->xproperty.atom), "_GTK_WORKAREAS_D")) {
+                 update_margins (icon_view);
+             }
+             break;
+diff --git a/src/nemo-desktop-icon-view.c b/src/nemo-desktop-icon-view.c
+index e781bc0..b1ff6a0 100644
+--- a/src/nemo-desktop-icon-view.c
++++ b/src/nemo-desktop-icon-view.c
+@@ -132,7 +132,10 @@ gdk_filter_func (GdkXEvent *gdk_xevent,
+ 
+     switch (xevent->type) {
+         case PropertyNotify:
+-            if (xevent->xproperty.atom == gdk_x11_get_xatom_by_name ("_NET_WORKAREA")) {
++            /* GTK prefers _GTK_WORKAREAS_D* over _NET_WORKAREA, which the WM
++             * may update after _NET_WORKAREA, so watch for both */
++            if (xevent->xproperty.atom == gdk_x11_get_xatom_by_name ("_NET_WORKAREA") ||
++                g_str_has_prefix (gdk_x11_get_xatom_name (xevent->xproperty.atom), "_GTK_WORKAREAS_D")) {
+                 update_margins (icon_view);
+             }
+             break;
+-- 
+2.55.0
+

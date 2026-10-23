@@ -1,6 +1,6 @@
 From 558df1cece1ea9794b68ea8c7746424f374644ca Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Tue, 21 Apr 2026 02:50:34 +0200
+Date: Wed, 22 Apr 2026 13:22:13 +0200
 Subject: [PATCH 1/1] Integrate 'Language Support' panel
 
 Allow set up Language and Formats for Unity and Login Screen (it's

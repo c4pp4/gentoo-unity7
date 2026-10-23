@@ -1,0 +1,98 @@
+From bf364fd66aa3937ccc386e227f5641f46858d8ea Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Wed, 21 Oct 2026 03:46:56 +0200
+Subject: [PATCH 1/1] Support X-GNOME-HiddenUnderSystemd
+
+Do not start autostart applications marked with
+X-GNOME-HiddenUnderSystemd=true when cinnamon-session runs inside
+a systemd user service, as gnome-session does. Such applications are
+started by their own systemd user units instead.
+
+The desktop file is kept, so a required component is still found
+and the same session definition works with and without systemd.
+
+Signed-off-by: c4pp4
+---
+ cinnamon-session/csm-autostart-app.c | 39 ++++++++++++++++++++++++++++
+ cinnamon-session/csm-autostart-app.h |  1 +
+ 2 files changed, 40 insertions(+)
+
+diff --git a/cinnamon-session/csm-autostart-app.c b/cinnamon-session/csm-autostart-app.c
+index 0208c6c..cdee84f 100644
+--- a/cinnamon-session/csm-autostart-app.c
++++ b/cinnamon-session/csm-autostart-app.c
+@@ -30,6 +30,11 @@
+ #include <gio/gio.h>
+ #include <gio/gdesktopappinfo.h>
+ 
++#ifdef HAVE_LOGIND
++#include <stdlib.h>
++#include <systemd/sd-login.h>
++#endif
++
+ #include "csm-autostart-app.h"
+ #include "csm-util.h"
+ 
+@@ -106,6 +111,31 @@ csm_autostart_app_init (CsmAutostartApp *app)
+         app->priv->working_dir = NULL;
+ }
+ 
++/* The session is managed by systemd when cinnamon-session runs as
++ * a systemd user service (e.g. unity-session.service) */
++static gboolean
++is_systemd_managed (void)
++{
++        static gsize initialized = 0;
++        static gboolean systemd_managed = FALSE;
++
++        if (g_once_init_enter (&initialized)) {
++#ifdef HAVE_LOGIND
++                char *unit = NULL;
++
++                if (sd_pid_get_user_unit (0, &unit) >= 0 &&
++                    g_str_has_suffix (unit, ".service")) {
++                        g_debug ("Running as systemd user service %s", unit);
++                        systemd_managed = TRUE;
++                }
++                free (unit);
++#endif
++                g_once_init_leave (&initialized, 1);
++        }
++
++        return systemd_managed;
++}
++
+ static gboolean
+ is_disabled (CsmApp *app)
+ {
+@@ -130,6 +160,15 @@ is_disabled (CsmApp *app)
+                 return TRUE;
+         }
+ 
++        /* Started by its systemd user unit instead */
++        if (g_desktop_app_info_get_boolean (priv->app_info,
++                                            CSM_AUTOSTART_APP_HIDDEN_UNDER_SYSTEMD_KEY) &&
++            is_systemd_managed ()) {
++                g_debug ("app %s is disabled by " CSM_AUTOSTART_APP_HIDDEN_UNDER_SYSTEMD_KEY,
++                         csm_app_peek_id (app));
++                return TRUE;
++        }
++
+         /* Hidden key, used by autostart spec */
+         if (g_desktop_app_info_get_is_hidden (priv->app_info)) {
+                 g_debug ("app %s is disabled by Hidden",
+diff --git a/cinnamon-session/csm-autostart-app.h b/cinnamon-session/csm-autostart-app.h
+index f10f92d..e331874 100644
+--- a/cinnamon-session/csm-autostart-app.h
++++ b/cinnamon-session/csm-autostart-app.h
+@@ -72,6 +72,7 @@ void    csm_autostart_app_add_provides       (CsmAutostartApp *aapp,
+ #define CSM_AUTOSTART_APP_DBUS_ARGS_KEY   "X-GNOME-DBus-Start-Arguments"
+ #define CSM_AUTOSTART_APP_DISCARD_KEY     "X-GNOME-Autostart-discard-exec"
+ #define CSM_AUTOSTART_APP_DELAY_KEY       "X-GNOME-Autostart-Delay"
++#define CSM_AUTOSTART_APP_HIDDEN_UNDER_SYSTEMD_KEY "X-GNOME-HiddenUnderSystemd"
+ 
+ G_END_DECLS
+ 
+-- 
+2.55.0
+

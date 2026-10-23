@@ -1,3 +1,4 @@
 ehooks() {
-	mv src/pidgin-libnotify.c.bak src/pidgin-libnotify.c
+	# Restore the original source file #
+	mv src/pidgin-libnotify.c.bak src/pidgin-libnotify.c || die
 }

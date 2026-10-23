@@ -1,7 +1,11 @@
 From 19fa2fa8848b7da923b3b978f2e2d3f2aa6f2b62 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Sun, 29 May 2022 03:00:40 +0200
+Date: Wed, 21 Oct 2026 21:52:10 +0200
 Subject: [PATCH 1/1] Add a traditional menubar
+
+Add gtk/menus-traditional.ui, which GTK uses as the menu bar when the
+desktop requests it through the gtk-shell-shows-menubar setting (e.g.
+the Unity global menu).
 
 Signed-off-by: c4pp4
 ---
@@ -233,7 +237,7 @@ diff --git a/src/plugins/open-directory/totem-open-directory.c b/src/plugins/ope
 index 1c0883d..eb03ffd 100644
 --- a/src/plugins/open-directory/totem-open-directory.c
 +++ b/src/plugins/open-directory/totem-open-directory.c
-@@ -184,6 +184,7 @@ impl_activate (PeasActivatable *plugin)
+@@ -165,6 +165,7 @@ impl_activate (PeasActivatable *plugin)
  	menu = totem_object_get_menu_section (pi->totem, "opendirectory-placeholder");
  	item = g_menu_item_new (_("Open Containing Folder"), "app.open-dir");
  	g_menu_append_item (G_MENU (menu), item);
@@ -280,7 +284,7 @@ diff --git a/src/plugins/rotation/totem-rotation.c b/src/plugins/rotation/totem-
 index 743c903..082959f 100644
 --- a/src/plugins/rotation/totem-rotation.c
 +++ b/src/plugins/rotation/totem-rotation.c
-@@ -233,6 +233,7 @@ impl_activate (PeasActivatable *plugin)
+@@ -237,6 +237,7 @@ impl_activate (PeasActivatable *plugin)
  
  	/* add UI */
  	menu = totem_object_get_menu_section (pi->totem, "rotation-placeholder");
@@ -288,7 +292,7 @@ index 743c903..082959f 100644
  
  	pi->rotate_left_action = g_simple_action_new ("rotate-left", NULL);
  	g_signal_connect (G_OBJECT (pi->rotate_left_action), "activate",
-@@ -255,10 +256,12 @@ impl_activate (PeasActivatable *plugin)
+@@ -259,10 +260,12 @@ impl_activate (PeasActivatable *plugin)
  	item = g_menu_item_new (_("_Rotate ↷"), "app.rotate-right");
  	g_menu_item_set_attribute (item, "accel", "s", "<Primary>R");
  	g_menu_append_item (G_MENU (menu), item);
@@ -317,7 +321,7 @@ diff --git a/src/plugins/screenshot/totem-screenshot-plugin.c b/src/plugins/scre
 index a63860e..160f16a 100644
 --- a/src/plugins/screenshot/totem-screenshot-plugin.c
 +++ b/src/plugins/screenshot/totem-screenshot-plugin.c
-@@ -318,16 +318,19 @@ impl_activate (PeasActivatable *plugin)
+@@ -271,16 +271,19 @@ impl_activate (PeasActivatable *plugin)
  
  	/* Install the menu */
  	menu = totem_object_get_menu_section (pi->totem, "screenshot-placeholder");
@@ -441,7 +445,7 @@ diff --git a/src/totem-object.c b/src/totem-object.c
 index 45f2b97..a927068 100644
 --- a/src/totem-object.c
 +++ b/src/totem-object.c
-@@ -669,17 +669,10 @@ totem_object_get_menu_section (TotemObject *totem,
+@@ -672,17 +672,10 @@ totem_object_get_menu_section (TotemObject *totem,
   * related actions. Note that menu items with specific target
   * will not have the associated action removed.
   **/
@@ -462,7 +466,7 @@ index 45f2b97..a927068 100644
  	while (g_menu_model_get_n_items (G_MENU_MODEL (menu)) > 0) {
  		const char *action;
  		g_menu_model_get_item_attribute (G_MENU_MODEL (menu), 0, G_MENU_ATTRIBUTE_ACTION, "s", &action);
-@@ -698,6 +691,23 @@ totem_object_empty_menu_section (TotemObject *totem,
+@@ -701,6 +694,23 @@ totem_object_empty_menu_section (TotemObject *totem,
  	}
  }
  

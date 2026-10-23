@@ -15,6 +15,7 @@ media-libs/freetype                 harfbuzz                                    
 media-libs/libmediaart              vala                                        # Required by unity-base/unity-control-center (net-misc/rygel)
 media-libs/libvpx                   postproc                                    # Required by mail-client/thunderbird, www-client/firefox
 media-plugins/audacious-plugins     mpris                                       # Enable control media player using unity-indicators/indicator-sound
+media-plugins/gst-plugins-meta      ffmpeg                                      # Enable ffmpeg codec support mainly for media-video/totem
 media-video/ffmpeg                  opus                                        # Required by net-im/telegram-desktop
 net-libs/gnome-online-accounts      vala                        -gnome          # Don't install gnome-base/gnome-control-center
 net-libs/gssdp                      vala                                        # Required by unity-base/unity-control-center (net-misc/rygel)
@@ -30,7 +31,7 @@ www-servers/apache                  apache2_modules_auth_digest                 
 x11-base/xorg-server                xvfb                                        # Required by x11-misc/xvfb-run
 x11-misc/appmenu-gtk-module         gtk2                                        # Required by unity-indicators/indicator-appmenu
 x11-misc/colord                     vala                                        # Required by unity-base/unity-control-center
-x11-misc/lightdm                    vala                        -gtk            # Required by unity-base/unity-greeter, unity-indicators/indicator-keyboard; don't install x11-misc/lightdm-gtk-greeter
+x11-misc/lightdm                    non-root vala               -gtk            # Required by unity-base/unity-greeter, unity-indicators/indicator-keyboard; run the greeter as the lightdm user; don't install x11-misc/lightdm-gtk-greeter
 x11-misc/zim                        ubuntu-mono                                 # Install ubuntu-mono-{dark,light} icons
 x11-themes/ubuntu-wallpapers                                    -gnome          # Don't install x11-themes/gnome-backgrounds
 x11-themes/yaru-theme                                           -gnome-shell    # Don't install gnome-base/gnome-shell component

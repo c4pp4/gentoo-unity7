@@ -1,1 +1,15 @@
-../libreoffice/01-pre_pkg_preinst.ehooks
+ehooks() {
+	local dir
+
+	for dir in "${ED}"/usr/"$(get_libdir)"/libreoffice "${ED}"/opt/libreoffice*; do
+		dir+=/share/fonts/truetype
+		[[ -e ${dir}/fc_local.conf ]] && [[ -e ${dir}/opens___.ttf ]] && break
+		dir=
+	done
+	[[ -n ${dir} ]] || die "OpenSymbol font not found"
+
+	insinto /etc/fonts/conf.avail
+	newins "${dir}"/fc_local.conf 30-opensymbol.conf
+
+	dosym -r "${dir#"${ED}"}"/opens___.ttf /usr/share/fonts/libreoffice/opens___.ttf
+}

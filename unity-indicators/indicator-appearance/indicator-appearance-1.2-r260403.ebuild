@@ -46,6 +46,7 @@ src_install() {
 	# If a .desktop file does not have inline #
 	# translations, fall back to calling gettext #
 	sed -i -e "\$a X-GNOME-Gettext-Domain=${PN}" autostart/"${MY_PN}".desktop || die
+	grep -qx "X-GNOME-Gettext-Domain=${PN}" autostart/"${MY_PN}".desktop || die
 
 	insinto /etc/xdg/autostart
 	doins autostart/"${MY_PN}".desktop

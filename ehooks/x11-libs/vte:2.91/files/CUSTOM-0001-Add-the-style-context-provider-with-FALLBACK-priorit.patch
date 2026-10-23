@@ -18,15 +18,15 @@ diff --git a/src/vtegtk.cc b/src/vtegtk.cc
 index 4544d9a..86ced97 100644
 --- a/src/vtegtk.cc
 +++ b/src/vtegtk.cc
-@@ -84,6 +84,7 @@ constexpr bool check_enum_value(T value) noexcept;
+@@ -135,6 +135,7 @@ constexpr bool check_enum_value(T value) noexcept;
  
  struct _VteTerminalClassPrivate {
          GtkStyleProvider *style_provider;
 +        GtkStyleProvider *style_provider_padding;
  };
  
- #if VTE_GTK == 4
-@@ -853,6 +854,9 @@ try
+ template<>
+@@ -962,6 +963,9 @@ try
          context = gtk_widget_get_style_context(&terminal->widget);
          gtk_style_context_add_provider (context,
                                          VTE_TERMINAL_GET_CLASS (terminal)->priv->style_provider,
@@ -36,7 +36,7 @@ index 4544d9a..86ced97 100644
                                          VTE_TERMINAL_CSS_PRIORITY);
  
  #if VTE_GTK == 3
-@@ -2451,6 +2455,7 @@ vte_terminal_class_init(VteTerminalClass *klass)
+@@ -2799,6 +2803,7 @@ vte_terminal_class_init(VteTerminalClass *klass)
  
          klass->priv->style_provider = GTK_STYLE_PROVIDER (gtk_css_provider_new ());
  #if VTE_GTK == 3
@@ -44,7 +44,7 @@ index 4544d9a..86ced97 100644
          auto err = vte::glib::Error{};
  #elif VTE_GTK == 4
          g_signal_connect(klass->priv->style_provider, "parsing-error",
-@@ -2474,6 +2479,11 @@ vte_terminal_class_init(VteTerminalClass *klass)
+@@ -2820,6 +2825,11 @@ vte_terminal_class_init(VteTerminalClass *klass)
  #endif
                                           );
  #if VTE_GTK == 3

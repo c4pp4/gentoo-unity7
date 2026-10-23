@@ -35,6 +35,7 @@ src_install() {
 			-e "s/^_//" \
 			-e "s/gnome-session-quit/unity-session-quit/" \
 			"${x}" || die
+		! grep -q "^_\|gnome-session-quit" "${x}" || die
 
 		mv "${x}" "${x/%.in}" || die
 	done

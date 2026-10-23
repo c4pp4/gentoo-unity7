@@ -1,6 +1,6 @@
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From 40962351392324b655fdd540f47fa5aececa668e Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Sat, 17 Oct 2026 12:00:00 +0200
+Date: Sat, 17 Oct 2026 22:30:09 +0200
 Subject: [PATCH 1/1] Fix translations
 
 Use the indicator gettext domain for the plural string, as the indicator

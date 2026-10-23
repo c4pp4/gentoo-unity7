@@ -57,6 +57,7 @@ src_prepare() {
 	sed -i \
 		-e "s/shotwell\.desktop/org.gnome.Shotwell.desktop/" \
 		src/unity_shotwell_daemon.py || die
+	grep -Fq "org.gnome.Shotwell.desktop" src/unity_shotwell_daemon.py || die
 
 	# Don't install the scope daemon as a top-level Python module #
 	sed -i \

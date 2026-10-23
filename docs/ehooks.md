@@ -39,6 +39,8 @@
 
   - An **empty matching directory** prevents package-specific ehooks from being applied to that version.
 
+  - To **remove all ehooks** of a package, delete its ehooks files but keep the directory with an empty `.keep_gentoo-unity7` file. Changes are detected via the modification time of existing ehooks directories, so a removed directory would not be reported and affected packages would not be rebuilt. The `.keep_gentoo-unity7` file is needed because Git does not track empty directories.
+
 - **Filename format:**
 
   - `{pre,post}_${EBUILD_PHASE_FUNC}.ehooks`

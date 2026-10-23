@@ -45,6 +45,7 @@ BDEPEND="
 src_prepare() {
 	# Remove python2 deprecated attribute #
 	sed -i "/bind_textdomain_codeset/d" classicmenu_indicator/cmindicator.py || die
+	! grep -Fq "bind_textdomain_codeset" classicmenu_indicator/cmindicator.py || die
 
 	# Fix data dir and cmdclass #
 	sed -i \
@@ -53,6 +54,9 @@ src_prepare() {
 		-e "/build_/{s/# //}" \
 		-e 's/"build_icons" :  build_icons.build_icons//' \
 		setup.py || die
+	grep -Fq "('share/man/man1'," setup.py || die
+	grep -Eq '^ +cmdclass = \{ "build" : build_extra.build_extra,' setup.py || die
+	! grep -Fq "build_icons.build_icons" setup.py || die
 
 	# Fix "command 'build_i18n' has no such option 'po-dir'" with newer setuptools #
 	sed -i \

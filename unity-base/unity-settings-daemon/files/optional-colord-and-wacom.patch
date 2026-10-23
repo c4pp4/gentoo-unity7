@@ -1,7 +1,7 @@
 diff -Nur a/configure.ac b/configure.ac
 --- a/configure.ac	2017-04-18 13:57:55.000000000 +0200
 +++ b/configure.ac	2017-07-31 18:13:32.259554623 +0200
-@@ -278,30 +278,61 @@
+@@ -296,30 +296,62 @@
  dnl - color
  dnl ---------------------------------------------------------------------------
  
@@ -61,6 +61,7 @@ diff -Nur a/configure.ac b/configure.ac
 +                        gudev-1.0
 +                        gnome-desktop-3.0 >= $GNOME_DESKTOP_REQUIRED_VERSION
 +                        xorg-wacom
++                        librsvg-2.0 >= $LIBRSVG_REQUIRED_VERSION
 +                    ], [
 +                        AC_DEFINE([HAVE_WACOM], [1], [
 +                            Apply display rotation to device]) dnl ecb0e2d
@@ -82,14 +83,14 @@ diff -Nur a/configure.ac b/configure.ac
  
  dnl ==============================================
  dnl PackageKit section
-@@ -543,6 +574,7 @@
+@@ -597,6 +629,7 @@
          PackageKit support:       ${have_packagekit}
          Smartcard support:        ${have_smartcard_support}
          Cups support:             ${enable_cups}
 +        Color support:            ${enable_color}
          Wacom support:            ${have_wacom}
+         RFKill support:           ${enable_rfkill}
  ${NSS_DATABASE:+\
-         System nssdb:             ${NSS_DATABASE}
 diff -Nur a/plugins/Makefile.am b/plugins/Makefile.am
 --- a/plugins/Makefile.am	2017-04-18 13:57:55.000000000 +0200
 +++ b/plugins/Makefile.am	2017-07-31 18:05:12.674637786 +0200
@@ -101,7 +102,7 @@ diff -Nur a/plugins/Makefile.am b/plugins/Makefile.am
  	cursor		\
  	dummy		\
  	power		\
-@@ -23,6 +22,12 @@
+@@ -24,6 +23,12 @@
  
  disabled_plugins = $(NULL)
  

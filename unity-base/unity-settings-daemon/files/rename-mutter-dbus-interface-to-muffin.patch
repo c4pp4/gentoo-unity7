@@ -1,6 +1,6 @@
 From 94e017f7a9ff0ede9f574fb9d4e37cff0513d47f Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Thu, 21 May 2026 16:07:12 +0200
+Date: Tue, 2 Jun 2026 01:17:40 +0200
 Subject: [PATCH 1/1] Rename Mutter D-Bus interface to Muffin
 
 Update the idle monitor D-Bus namespace from

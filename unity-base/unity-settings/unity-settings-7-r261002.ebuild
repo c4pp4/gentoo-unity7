@@ -54,18 +54,21 @@ src_install() {
 
 	if use classic-theme; then
 		sed -i "s/Yaru/DMZ-White/" "${ED}${index_dir}"/index.theme || die
+		grep -Fq "DMZ-White" "${ED}${index_dir}"/index.theme || die
 	fi
 
 	if ! use accessibility; then
 		sed -i \
 			-e "/toolkit-accessibility/d" \
 			"${ED}${gschema_dir}/${gschema}" || die
+		! grep -Fq "toolkit-accessibility" "${ED}${gschema_dir}/${gschema}" || die
 	fi
 
 	if ! use ubuntu-sounds; then
 		sed -i \
 			-e "/org.gnome.desktop.sound/,+2 d" \
 			"${ED}${gschema_dir}/${gschema}" || die
+		! grep -Fq "org.gnome.desktop.sound" "${ED}${gschema_dir}/${gschema}" || die
 	fi
 
 	if use lowgfx; then

@@ -1,7 +1,11 @@
 From 1cb80a7090cc0500300d46a538febc7743f0a641 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Tue, 24 Feb 2026 02:29:02 +0100
+Date: Thu, 26 Feb 2026 06:54:12 +0100
 Subject: [PATCH 1/1] Remove light edges in menu corners
+
+Keep the padding and rounding of the menu bar submenus and remove the
+outer border shadow of the menus, which is visible as light edges in the
+menu corners.
 
 Signed-off-by: c4pp4
 ---

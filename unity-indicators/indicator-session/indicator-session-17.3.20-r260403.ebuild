@@ -58,13 +58,16 @@ src_prepare() {
 		sed -i \
 			-e 's:distro_name = g_strdup(value):distro_name = g_strdup(\"Unity\"):g' \
 			src/service.c || die
+		grep -Fq 'distro_name = g_strdup("Unity")' src/service.c || die
 		sed -i \
 			-e 's:yelp:yelp help\:ubuntu-help:g' \
 			src/backend-dbus/actions.c || die
+		grep -Fq "yelp help:ubuntu-help" src/backend-dbus/actions.c || die
 	else
 		sed -i \
 			-e '/"indicator.help");$/{s|^|//|}' \
 			src/service.c || die
+		grep -q '^//.*"indicator.help");$' src/service.c || die
 	fi
 
 	# Fix build attempting to violate sandbox #

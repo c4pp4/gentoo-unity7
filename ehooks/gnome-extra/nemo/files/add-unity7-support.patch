@@ -1,6 +1,6 @@
-From d08c3edd159aed19a63ac08323137db0a27a3662 Mon Sep 17 00:00:00 2001
+From aa34c8e43066dafb6dee075205f4db8bb0add083 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Tue, 21 Apr 2026 01:29:58 +0200
+Date: Thu, 22 Oct 2026 03:03:04 +0200
 Subject: [PATCH 1/1] Add Unity7 support
 
 Add *WithTimestamp dbus methods for file operations.
@@ -31,7 +31,7 @@ Signed-off-by: c4pp4
  libnemo-private/nemo-file-operations.h |   9 +
  libnemo-private/nemo-progress-info.c   |  46 +++++
  libnemo-private/nemo-progress-info.h   |   4 +
- meson.build                            |   9 +
+ meson.build                            |   8 +
  meson_options.txt                      |   2 +
  po/POTFILES.in                         |   1 +
  src/meson.build                        |   8 +
@@ -39,15 +39,15 @@ Signed-off-by: c4pp4
  src/nemo-desktop-application.c         |   5 -
  src/nemo-freedesktop-dbus.c            |  21 +++
  src/nemo-freedesktop-dbus.h            |   1 +
- src/nemo-main-application.c            | 198 +++++++++++++++++++-
+ src/nemo-main-application.c            | 205 ++++++++++++++++++++-
  src/nemo-progress-ui-handler.c         | 244 +++++++++++++++++++++++++
- src/nemo-window-manage-views.c         |   6 +-
+ src/nemo-window-manage-views.c         |   7 +-
  src/nemo-window-pane.c                 |  11 +-
  src/unity-bookmarks-handler.c          | 158 ++++++++++++++++
  src/unity-bookmarks-handler.h          |  32 ++++
- src/unity-quicklist-handler.c          | 164 +++++++++++++++++
+ src/unity-quicklist-handler.c          | 163 +++++++++++++++++
  src/unity-quicklist-handler.h          |  76 ++++++++
- 25 files changed, 1134 insertions(+), 37 deletions(-)
+ 25 files changed, 1139 insertions(+), 38 deletions(-)
  create mode 100644 src/unity-bookmarks-handler.c
  create mode 100644 src/unity-bookmarks-handler.h
  create mode 100644 src/unity-quicklist-handler.c
@@ -67,7 +67,7 @@ index 8b49bbd..f7f7a13 100644
  #mesondefine HAVE_EXIF
  // Define if libselinux is available
 diff --git a/data/dbus-interfaces.xml b/data/dbus-interfaces.xml
-index bd8388f..a4ed3e1 100644
+index bd8388f..213e920 100644
 --- a/data/dbus-interfaces.xml
 +++ b/data/dbus-interfaces.xml
 @@ -29,12 +29,20 @@
@@ -87,7 +87,7 @@ index bd8388f..a4ed3e1 100644
      </method>"
 +    <method name='EmptyTrashWithTimestamp'>
 +      <arg type='u' name='EventTimestamp' direction='in'/>
-+    </method>"
++    </method>
      <method name='CopyFile'>
        <arg type='s' name='SourceFileURI' direction='in'/>
        <arg type='s' name='SourceDisplayName' direction='in'/>
@@ -273,10 +273,10 @@ index 8a5617e..64f1246 100644
  
  #endif /* __NEMO_DBUS_MANAGER_H__ */
 diff --git a/libnemo-private/nemo-file-operations.c b/libnemo-private/nemo-file-operations.c
-index 051c47d..0551261 100644
+index 9c33094..98f930d 100644
 --- a/libnemo-private/nemo-file-operations.c
 +++ b/libnemo-private/nemo-file-operations.c
-@@ -92,6 +92,7 @@ typedef struct {
+@@ -91,6 +91,7 @@ typedef struct {
  	GtkWindow *parent_window;
      int monitor_num;
  	int inhibit_cookie;
@@ -284,7 +284,7 @@ index 051c47d..0551261 100644
  	NemoProgressInfo *progress;
  	GCancellable *cancellable;
  	GHashTable *skip_files;
-@@ -1275,6 +1276,7 @@ typedef struct {
+@@ -1272,6 +1273,7 @@ typedef struct {
  	const char *details_text;
  	const char **button_titles;
  	gboolean show_all;
@@ -292,7 +292,7 @@ index 051c47d..0551261 100644
  
  	int result;
  } RunSimpleDialogData;
-@@ -1324,6 +1326,7 @@ do_run_simple_dialog (gpointer _data)
+@@ -1321,6 +1323,7 @@ do_run_simple_dialog (gpointer _data)
  	}
  
  	/* Run it. */
@@ -300,7 +300,7 @@ index 051c47d..0551261 100644
          result = gtk_dialog_run (GTK_DIALOG (dialog));
  
  	while ((result == GTK_RESPONSE_NONE || result == GTK_RESPONSE_DELETE_EVENT) && data->ignore_close_box) {
-@@ -1365,6 +1368,7 @@ run_simple_dialog_va (CommonJob *job,
+@@ -1362,6 +1365,7 @@ run_simple_dialog_va (CommonJob *job,
  	data->secondary_text = secondary_text;
  	data->details_text = details_text;
  	data->show_all = show_all;
@@ -308,7 +308,7 @@ index 051c47d..0551261 100644
  
  	ptr_array = g_ptr_array_new ();
  	while ((button_title = va_arg (varargs, const char *)) != NULL) {
-@@ -5039,6 +5043,24 @@ nemo_file_operations_copy (GList *files,
+@@ -5058,6 +5062,24 @@ nemo_file_operations_copy (GList *files,
  			       GtkWindow *parent_window,
  			       NemoCopyCallback  done_callback,
  			       gpointer done_callback_data)
@@ -333,7 +333,7 @@ index 051c47d..0551261 100644
  {
  	CopyMoveJob *job;
  
-@@ -5048,6 +5070,7 @@ nemo_file_operations_copy (GList *files,
+@@ -5067,6 +5089,7 @@ nemo_file_operations_copy (GList *files,
  	job->done_callback_data = done_callback_data;
  	job->files = eel_g_object_list_copy (files);
  	job->destination = g_object_ref (target_dir);
@@ -341,7 +341,7 @@ index 051c47d..0551261 100644
  	if (relative_item_points != NULL &&
  	    relative_item_points->len > 0) {
  		job->icon_positions =
-@@ -6852,6 +6875,13 @@ empty_trash_job (GIOSchedulerJob *io_job,
+@@ -6875,6 +6898,13 @@ empty_trash_job (GIOSchedulerJob *io_job,
  
  void
  nemo_file_operations_empty_trash (GtkWidget *parent_view)
@@ -355,7 +355,7 @@ index 051c47d..0551261 100644
  {
  	EmptyTrashJob *job;
  	GtkWindow *parent_window;
-@@ -6865,6 +6895,7 @@ nemo_file_operations_empty_trash (GtkWidget *parent_view)
+@@ -6888,6 +6918,7 @@ nemo_file_operations_empty_trash (GtkWidget *parent_view)
  	job->trash_dirs = g_list_prepend (job->trash_dirs,
  					  g_file_new_for_uri ("trash:"));
  	job->should_confirm = TRUE;
@@ -391,10 +391,10 @@ index 04924bd..64aef63 100644
  					 GArray               *relative_item_points,
  					 GFile                *target_dir,
 diff --git a/libnemo-private/nemo-progress-info.c b/libnemo-private/nemo-progress-info.c
-index f0e97e7..d105080 100644
+index e3a5f70..28cde91 100644
 --- a/libnemo-private/nemo-progress-info.c
 +++ b/libnemo-private/nemo-progress-info.c
-@@ -53,6 +53,10 @@ struct _NemoProgressInfo
+@@ -56,6 +56,10 @@ struct _NemoProgressInfo
  	char *details;
      char *initial_details;
  	double progress;
@@ -405,7 +405,7 @@ index f0e97e7..d105080 100644
  	gboolean activity_mode;
  	gboolean started;
  	gboolean finished;
-@@ -264,6 +268,44 @@ nemo_progress_info_get_progress (NemoProgressInfo *info)
+@@ -269,6 +273,44 @@ nemo_progress_info_get_progress (NemoProgressInfo *info)
  	return res;
  }
  
@@ -450,7 +450,7 @@ index f0e97e7..d105080 100644
  void
  nemo_progress_info_cancel (NemoProgressInfo *info)
  {
-@@ -640,6 +682,10 @@ nemo_progress_info_set_progress (NemoProgressInfo *info,
+@@ -661,6 +703,10 @@ nemo_progress_info_set_progress (NemoProgressInfo *info,
  	    ) {
  		info->activity_mode = FALSE;
  		info->progress = current_percent;
@@ -462,7 +462,7 @@ index f0e97e7..d105080 100644
  		queue_idle (info, FALSE);
  	}
 diff --git a/libnemo-private/nemo-progress-info.h b/libnemo-private/nemo-progress-info.h
-index 235e58c..45c922e 100644
+index 9032600..b4be1ca 100644
 --- a/libnemo-private/nemo-progress-info.h
 +++ b/libnemo-private/nemo-progress-info.h
 @@ -63,6 +63,10 @@ void          nemo_progress_info_cancel          (NemoProgressInfo *info);
@@ -477,10 +477,10 @@ index 235e58c..45c922e 100644
  void          nemo_progress_info_queue           (NemoProgressInfo *info);
  void          nemo_progress_info_start           (NemoProgressInfo *info);
 diff --git a/meson.build b/meson.build
-index 5eee1ed..34feda1 100644
+index d08d689..bdd2f37 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -143,6 +143,14 @@ else
+@@ -143,6 +143,13 @@ else
    message('................using pango @0@ instead'.format(new_pango.version()))
  endif
  
@@ -491,11 +491,10 @@ index 5eee1ed..34feda1 100644
 +endif
 +conf.set('HAVE_UNITY', unity_enabled)
 +
-+
  enableEmptyView = get_option('empty_view')
  conf.set10('ENABLE_EMPTY_VIEW', enableEmptyView)
  
-@@ -197,6 +205,7 @@ message('\n'.join(['',
+@@ -197,6 +204,7 @@ message('\n'.join(['',
  '    prefix:                 @0@'.format(prefix),
  '    source code location:   @0@'.format(meson.project_source_root()),
  '    compiler:               @0@'.format(cc.get_id()),
@@ -504,14 +503,14 @@ index 5eee1ed..34feda1 100644
  '    exempi  support:        @0@'.format(exempi_enabled),
  '    Tracker support:        @0@'.format(tracker_enabled),
 diff --git a/meson_options.txt b/meson_options.txt
-index 68814d6..ba541de 100644
+index 68814d6..ee5fdb5 100644
 --- a/meson_options.txt
 +++ b/meson_options.txt
 @@ -4,6 +4,8 @@ option('exif', type : 'boolean', value : true,
         description: 'EXIF parsing support (requires libexif)')
  option('xmp', type : 'boolean', value : true,
         description: 'XMP support (requires Exempi)')
-+option ('unity-launcher', type : 'boolean', value : true,
++option('unity-launcher', type : 'boolean', value : true,
 +       description: 'Add Unity Launcher support')
  option('gtk_doc', type : 'boolean', value : false,
         description: 'Generate API reference (requires GTK-Doc)')
@@ -526,7 +525,7 @@ index 2f1eec6..0e83dab 100644
  src/nemo-x-content-bar.c
 +src/unity-quicklist-handler.h
 diff --git a/src/meson.build b/src/meson.build
-index 6f6cd55..12e9290 100644
+index 07a5695..449c6df 100644
 --- a/src/meson.build
 +++ b/src/meson.build
 @@ -113,6 +113,14 @@ if libexif_enabled
@@ -545,7 +544,7 @@ index 6f6cd55..12e9290 100644
    nemoCommon_sources + nemoWindow_sources,
    include_directories: [ rootInclude ],
 diff --git a/src/nemo-application.c b/src/nemo-application.c
-index 060cb76..ddce997 100644
+index 5366afb..b498aa0 100644
 --- a/src/nemo-application.c
 +++ b/src/nemo-application.c
 @@ -86,6 +86,7 @@ G_DEFINE_TYPE (NemoApplication, nemo_application, GTK_TYPE_APPLICATION);
@@ -556,7 +555,7 @@ index 060cb76..ddce997 100644
  
      gboolean cache_problem;
      gboolean ignore_cache_problem;
-@@ -593,6 +594,42 @@ nemo_application_startup (GApplication *app)
+@@ -594,6 +595,42 @@ nemo_application_startup (GApplication *app)
      }
  }
  
@@ -599,7 +598,7 @@ index 060cb76..ddce997 100644
  static void
  nemo_application_quit_mainloop (GApplication *app)
  {
-@@ -636,6 +673,8 @@ nemo_application_class_init (NemoApplicationClass *class)
+@@ -637,6 +674,8 @@ nemo_application_class_init (NemoApplicationClass *class)
  
      application_class = G_APPLICATION_CLASS (class);
      application_class->startup = nemo_application_startup;
@@ -683,7 +682,7 @@ index 4f3ae84..ae825b8 100644
  
  #endif /* __NEMO_FREEDESKTOP_DBUS_H__ */
 diff --git a/src/nemo-main-application.c b/src/nemo-main-application.c
-index b0f4258..507ce81 100644
+index b0f4258..6a94b92 100644
 --- a/src/nemo-main-application.c
 +++ b/src/nemo-main-application.c
 @@ -78,6 +78,10 @@
@@ -738,7 +737,7 @@ index b0f4258..507ce81 100644
  }
  
  static void
-@@ -948,11 +957,190 @@ nemo_main_application_quit_mainloop (GApplication *app)
+@@ -948,11 +957,197 @@ nemo_main_application_quit_mainloop (GApplication *app)
      G_APPLICATION_CLASS (nemo_main_application_parent_class)->quit_mainloop (app);
  }
  
@@ -818,7 +817,8 @@ index b0f4258..507ce81 100644
 +			}
 +		}
 +
-+		if (gtk_widget_get_realized (GTK_WIDGET (win))) {
++		if (gtk_widget_get_realized (GTK_WIDGET (win)) &&
++		    GDK_IS_X11_WINDOW (gtk_widget_get_window (GTK_WIDGET (win)))) {
 +			GdkWindow *gdk_win;
 +			Window xid;
 +
@@ -850,7 +850,7 @@ index b0f4258..507ce81 100644
 +static void
 +on_slot_location_changed (NemoWindowSlot  *slot,
 +			  const char      *from,
-+ 			  const char      *to,
++			  const char      *to,
 +			  NemoApplication *application)
 +{
 +	update_dbus_opened_locations (application);
@@ -881,7 +881,12 @@ index b0f4258..507ce81 100644
 +		 NemoWindowSlot  *slot,
 +		 NemoApplication *application)
 +{
-+	update_dbus_opened_locations (application);
++	/* The slots are removed one by one while the window is being destroyed and
++	 * the active slot of the pane may already be freed, update the locations
++	 * when the window is removed from the application instead */
++	if (!gtk_widget_in_destruction (GTK_WIDGET (window))) {
++		update_dbus_opened_locations (application);
++	}
 +
 +	g_signal_handlers_disconnect_by_func (slot, on_slot_location_changed, application);
 +	g_signal_handlers_disconnect_by_func (slot, on_slot_active_changed, application);
@@ -917,6 +922,7 @@ index b0f4258..507ce81 100644
 +		g_signal_handlers_disconnect_by_func (window, on_realize, app);
 +		g_signal_handlers_disconnect_by_func (window, on_slot_added, app);
 +		g_signal_handlers_disconnect_by_func (window, on_slot_removed, app);
++		update_dbus_opened_locations (NEMO_APPLICATION (app));
 +	}
 +}
 +
@@ -929,7 +935,7 @@ index b0f4258..507ce81 100644
      NemoApplicationClass *nemo_app_class;
  
      object_class = G_OBJECT_CLASS (class);
-@@ -963,6 +1151,10 @@ nemo_main_application_class_init (NemoMainApplicationClass *class)
+@@ -963,6 +1158,10 @@ nemo_main_application_class_init (NemoMainApplicationClass *class)
      application_class->local_command_line = nemo_main_application_local_command_line;
      application_class->quit_mainloop = nemo_main_application_quit_mainloop;
  
@@ -941,7 +947,7 @@ index b0f4258..507ce81 100644
      nemo_app_class->open_location = nemo_main_application_open_location;
      nemo_app_class->create_window = nemo_main_application_create_window;
 diff --git a/src/nemo-progress-ui-handler.c b/src/nemo-progress-ui-handler.c
-index 0787a68..6ae3811 100644
+index 05d21a2..8613764 100644
 --- a/src/nemo-progress-ui-handler.c
 +++ b/src/nemo-progress-ui-handler.c
 @@ -42,6 +42,11 @@
@@ -1209,7 +1215,7 @@ index 0787a68..6ae3811 100644
  }
  
  static void
-@@ -372,6 +609,10 @@ handle_new_progress_info (NemoProgressUIHandler *self,
+@@ -378,6 +615,10 @@ handle_new_progress_info (NemoProgressUIHandler *self,
              gtk_window_present (GTK_WINDOW (self->priv->progress_window));
          }
  	}
@@ -1220,7 +1226,7 @@ index 0787a68..6ae3811 100644
  }
  
  typedef struct {
-@@ -468,6 +709,9 @@ nemo_progress_ui_handler_dispose (GObject *obj)
+@@ -474,6 +715,9 @@ nemo_progress_ui_handler_dispose (GObject *obj)
  	NemoProgressUIHandler *self = NEMO_PROGRESS_UI_HANDLER (obj);
  
  	g_clear_object (&self->priv->manager);
@@ -1231,7 +1237,7 @@ index 0787a68..6ae3811 100644
  	G_OBJECT_CLASS (nemo_progress_ui_handler_parent_class)->dispose (obj);
  }
 diff --git a/src/nemo-window-manage-views.c b/src/nemo-window-manage-views.c
-index c1bc864..1c47e20 100644
+index 96c2e57..42e1676 100644
 --- a/src/nemo-window-manage-views.c
 +++ b/src/nemo-window-manage-views.c
 @@ -1470,6 +1470,7 @@ update_for_new_location (NemoWindowSlot *slot)
@@ -1242,12 +1248,12 @@ index c1bc864..1c47e20 100644
          NemoFile *file;
  	NemoDirectory *directory;
  	gboolean location_really_changed;
-@@ -1487,11 +1488,12 @@ update_for_new_location (NemoWindowSlot *slot)
+@@ -1487,11 +1488,11 @@ update_for_new_location (NemoWindowSlot *slot)
  		slot->location == NULL ||
  		!g_file_equal (slot->location, new_location);
  
 -	nemo_window_slot_emit_location_change (slot, slot->location, new_location);
- 
+-
          /* Set the new location. */
 -	g_clear_object (&slot->location);
 +	old_location = slot->location;
@@ -1258,7 +1264,7 @@ index c1bc864..1c47e20 100644
          /* Create a NemoFile for this location, so we can catch it
           * if it goes away.
 diff --git a/src/nemo-window-pane.c b/src/nemo-window-pane.c
-index 5b4d8de..c446b61 100644
+index a7841b0..a64bc51 100644
 --- a/src/nemo-window-pane.c
 +++ b/src/nemo-window-pane.c
 @@ -1333,15 +1333,19 @@ nemo_window_pane_remove_slot_unsafe (NemoWindowPane *pane,
@@ -1505,10 +1511,10 @@ index 0000000..bd2a49c
 +#endif /* __UNITY_BOOKMARKS_HANDLER_H__*/
 diff --git a/src/unity-quicklist-handler.c b/src/unity-quicklist-handler.c
 new file mode 100644
-index 0000000..ba8f039
+index 0000000..2d3439c
 --- /dev/null
 +++ b/src/unity-quicklist-handler.c
-@@ -0,0 +1,164 @@
+@@ -0,0 +1,163 @@
 +/*unity-quicklist-handler.c: handle Unity quicklists
 + *
 + * Copyright (C) 2012 Canonical
@@ -1672,7 +1678,6 @@ index 0000000..ba8f039
 +
 +    return self;
 +}
-+
 diff --git a/src/unity-quicklist-handler.h b/src/unity-quicklist-handler.h
 new file mode 100644
 index 0000000..b8005ff
@@ -1756,5 +1761,5 @@ index 0000000..b8005ff
 +
 +#endif /* __UNITY_QUICKLIST_HANDLER_H__ */
 -- 
-2.53.0
+2.55.0
 

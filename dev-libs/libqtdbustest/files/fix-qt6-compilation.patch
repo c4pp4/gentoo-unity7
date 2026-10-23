@@ -1,6 +1,6 @@
 From 86b6d507806319da6fddac4237bb322ed3eaab95 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Sun, 5 Apr 2026 21:48:01 +0200
+Date: Tue, 13 Oct 2026 14:18:09 +0200
 Subject: [PATCH 1/1] Fix qt6 compilation
 
 Qt 6 defines Q_DECL_EXPORT as protected visibility, which breaks

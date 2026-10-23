@@ -6,8 +6,10 @@ ehooks() {
 	sed -i \
 		-e "s:\(NotShowIn=KDE;GNOME;Cinnamon;\):\1Unity;:" \
 		"${ED}"/etc/xdg/autostart/Gentoo-print-applet.desktop || die
+	grep -q "^NotShowIn=KDE;GNOME;Cinnamon;Unity;$" "${ED}"/etc/xdg/autostart/Gentoo-print-applet.desktop || die
 
 	sed -i \
 		-e "s:\(self.AboutDialog.set_\)\(icon_name('printer\):\1logo_\2s:" \
 		"${ED}"/usr/share/"${PN}"/"${PN}".py || die
+	grep -q "self.AboutDialog.set_logo_icon_name('printers')" "${ED}"/usr/share/"${PN}"/"${PN}".py || die
 }
