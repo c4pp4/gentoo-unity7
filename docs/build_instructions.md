@@ -26,7 +26,9 @@ Follow the [Gentoo AMD64 Handbook⬀][handbook] for the base installation and co
 
 6. Update the whole system and rebuild packages affected by ehooks:
 
-   `emerge -avuDU --with-bdeps=y @world @ehooks-rebuild`
+   `emerge -avuDU --with-bdeps=y @world`
+   <br/>
+   `emerge -av @ehooks-rebuild`
 
 7. Install Unity7:
 
