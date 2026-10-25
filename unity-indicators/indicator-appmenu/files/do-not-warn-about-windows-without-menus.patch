@@ -1,0 +1,33 @@
+From 53113591e419f59f252b6a114eafbb9272ab2200 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sun, 25 Oct 2026 15:17:24 +0100
+Subject: [PATCH 1/1] Do not warn about windows without menus
+
+Every closed window is unregistered, including the windows without
+registered menus. menus_destroyed() warned about each of them with
+a failed assertion. Return without the warning instead.
+
+Signed-off-by: c4pp4
+---
+ src/indicator-appmenu.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/src/indicator-appmenu.c b/src/indicator-appmenu.c
+index 4c12701..b776343 100644
+--- a/src/indicator-appmenu.c
++++ b/src/indicator-appmenu.c
+@@ -1138,6 +1138,11 @@ menus_destroyed (IndicatorAppmenu * iapp, guint windowid)
+ {
+ 	gboolean reload_menus = FALSE;
+ 	WindowMenu * wm = g_hash_table_lookup(iapp->apps, GUINT_TO_POINTER(windowid));
++
++	/* Windows without registered menus are closed too */
++	if (wm == NULL)
++		return;
++
+ 	g_return_if_fail (IS_WINDOW_MENU(wm));
+ 
+ 	g_hash_table_steal(iapp->apps, GUINT_TO_POINTER(windowid));
+-- 
+2.55.0
+

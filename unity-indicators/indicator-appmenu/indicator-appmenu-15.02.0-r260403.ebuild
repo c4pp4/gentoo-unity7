@@ -45,6 +45,8 @@ BDEPEND="
 	virtual/pkgconfig
 "
 
+PATCHES=( "${FILESDIR}"/do-not-warn-about-windows-without-menus.patch )
+
 src_prepare() {
 	# ,: command not found #
 	sed -i "/BUILD_CLI/{s/,$//}" configure.ac || die
