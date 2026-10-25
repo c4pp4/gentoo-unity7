@@ -17,6 +17,8 @@ LICENSE="metapackage"
 SLOT="0"
 KEYWORDS="amd64"
 IUSE="+files +music +photos +plugins +video"
+# Video lens uses the preview player of the music lens #
+REQUIRED_USE="video? ( music )"
 RESTRICT="binchecks strip test"
 
 RDEPEND="

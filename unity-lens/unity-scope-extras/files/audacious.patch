@@ -1,0 +1,418 @@
+From d297842a522f49ff7af03c534bd8d8c1d46c53c0 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sun, 25 Oct 2026 04:40:09 +0100
+Subject: [PATCH 1/1] Fix playlist parsing, album art, filters, actions and
+ translations
+
+Playlists:
+- skip the playlist title line instead of the fixed length of
+  "title=Library"
+- skip streams (e.g. internet radios), which were added as tracks
+  without a file, and tracks already found in another playlist
+- reset the track fields for each track, a track without a tag got the
+  value of the previous track
+- use the file name as title of a track without the title tag and skip
+  tracks without an album in the Albums category
+
+Album art:
+- read the embedded album art with mutagen from ID3 (MP3), FLAC, MP4
+  and Ogg (Vorbis, Opus) files, the file name was cut by 7 characters
+  and the ID3 picture was looked up by a wrong key
+- look up the album art once per album and only for the shown results
+- use the icon name in the preview when the album art is missing
+  (file://media-audio failed in the Dash)
+
+Search:
+- return at most 100 songs and 100 albums without a search string, 20
+  in the global search and 50 in the lens search as the Rhythmbox
+  scope, all tracks of the library (thousands) were returned when the
+  lens was opened
+- look up the already added results in sets, the list lookups took
+  seconds with a large library
+
+Filters:
+- add the Decade and Genre filters of the music lens, the filter state
+  is passed only for the scope's own filters, so the search failed
+  ("Unable to find filter with id") when a filter was used
+- filter by the year and by the genre mapped to the filter options as
+  in the Rhythmbox scope, "Old" means before 1960
+
+Actions:
+- show the track (the first track of an album) in the file manager via
+  UnityExtras.show_in_folder(), the album action failed on a wrong
+  variable and xdg-open was run via shell
+- run Audacious without a shell, file names with an apostrophe broke
+  the command line
+- match album tracks by the exact album and artist name
+
+Translations:
+- the scope has no translations, use the same strings of the music
+  lens (Play, Show in Folder, Songs, Albums)
+
+Signed-off-by: c4pp4
+---
+ src/unity_audacious_daemon.py | 221 +++++++++++++++++++++++++++-------
+ 1 file changed, 177 insertions(+), 44 deletions(-)
+
+diff --git a/src/unity_audacious_daemon.py b/src/unity_audacious_daemon.py
+index 6ff2d31..bc66c23 100644
+--- a/src/unity_audacious_daemon.py
++++ b/src/unity_audacious_daemon.py
+@@ -14,8 +14,12 @@
+ # You should have received a copy of the GNU General Public License along
+ # with this program.  If not, see <http://www.gnu.org/licenses/>.
+ 
++import gi
++gi.require_version('Unity', '7.0')
++gi.require_version('UnityExtras', '7.0')
+ from gi.repository import GLib, Gio
+ from gi.repository import Unity
++from gi.repository import UnityExtras
+ import gettext
+ import urllib.parse
+ import dbus
+@@ -27,7 +31,15 @@ APP_NAME = 'unity-scope-audacious'
+ LOCAL_PATH = '/usr/share/locale/'
+ gettext.bindtextdomain(APP_NAME, LOCAL_PATH)
+ gettext.textdomain(APP_NAME)
+-_ = gettext.gettext
++
++def _(message):
++    # The scope has no translations, use the same strings of the music lens
++    if not message:
++        return message
++    translation = gettext.dgettext(APP_NAME, message)
++    if translation == message:
++        translation = gettext.dgettext('unity-lens-music', message)
++    return translation
+ 
+ GROUP_NAME = 'com.canonical.Unity.Scope.Music.Audacious'
+ UNIQUE_PATH = '/com/canonical/unity/scope/music/audacious'
+@@ -78,6 +90,36 @@ m6 = {'id': 'track_number',
+       'field': Unity.SchemaFieldType.OPTIONAL}
+ EXTRA_METADATA = [m1, m2, m3, m4, m5, m6]
+ 
++# The filters of the music lens (music.scope) as in the Rhythmbox scope
++DECADES = [('0', _('Old')), ('1960', _('60s')), ('1970', _('70s')),
++           ('1980', _('80s')), ('1990', _('90s')), ('2000', _('00s')),
++           ('2010', _('10s'))]
++GENRES = [('blues', _('Blues'), ['blues']),
++          ('classical', _('Classical'), ['classic', 'classical', 'opera']),
++          ('country', _('Country'), ['country']),
++          ('disco', _('Disco'), ['disco']),
++          ('funk', _('Funk'), ['funk']),
++          ('rock', _('Rock'), ['rock', 'heavy', 'hard', 'rock and roll']),
++          ('metal', _('Metal'), ['metal', 'heavy', 'heavy metal']),
++          ('hip-hop', _('Hip-hop'), ['hip-hop', 'rap', 'rap & hip hop']),
++          ('house', _('House'), ['house', 'chillout', 'minimal', 'hard', 'electronic', 'dance']),
++          ('new-wave', _('New-wave'), ['new-wave']),
++          ('r-and-b', _('R&B'), ['r-and-b', 'r&b']),
++          ('punk', _('Punk'), ['punk', 'punk rock', 'hardcore', 'heavy']),
++          ('jazz', _('Jazz'), ['jazz']),
++          ('pop', _('Pop'), ['pop']),
++          ('reggae', _('Reggae'), ['reggae']),
++          ('soul', _('Soul'), ['soul', 'gospel']),
++          ('techno', _('Techno'), ['techno', 'minimal', 'trance', 'chillout', 'electronic', 'electronica', 'dance']),
++          ('other', _('Other'), ['other', 'african', 'alternative', 'ambient', 'asian', 'brazilian', 'celtic',
++                                 'christmas', 'folk', 'latin', 'oldies', 'soundtrack', 'traditional', 'world'])]
++# Genre names to filter ids, a name of more genres belongs to the last one
++# in the alphabetical order as in the Rhythmbox scope
++GENRE_IDS = {}
++for genre in sorted(GENRES):
++    for name in genre[2]:
++        GENRE_IDS[name] = genre[0]
++
+ tracks = []
+ 
+ 
+@@ -95,21 +137,25 @@ def get_music_from_audacious():
+     length = 0
+     global tracks
+     tracks = []
++    uris = set()
+     for collection in os.listdir(AUDACIOUS_DBFILE):
+         dbfile = '%s/%s' % (AUDACIOUS_DBFILE, collection)
+         database = open(dbfile, "r")
+         database = database.read()
+-        if not database.startswith("title:Library"):
+-            records = database[14:]
+-            records = records.split("uri=")
+-        else:
+-            records = ""
++        # skip the playlist title line
++        records = database.split("\nuri=")[1:]
+ 
+         for record in records:
+             track = []
+             lines = record.split("\n")
+             uri = ""
++            title = ""
++            artist = ""
++            album = ""
+             year = 0
++            genre = ""
++            tracknumber = 0
++            length = 0
+             for line in lines:
+                 line = urllib.parse.unquote(line)
+                 if line.startswith("file://"):
+@@ -128,13 +174,62 @@ def get_music_from_audacious():
+                     tracknumber = line[13:]
+                 if line.startswith("length="):
+                     length = line[7:]
++            # skip streams and tracks already found in another playlist
++            if not uri or uri in uris:
++                continue
++            uris.add(uri)
++            # use the file name as Audacious does
++            if not title:
++                title = os.path.splitext(os.path.basename(uri))[0]
+             track = [title, uri, artist, album, "taglib/mp3", int(year), genre, int(tracknumber), int(length) / 1000]
+             tracks.append(track)
+     tracks.sort(key=lambda track: track[7])
+     return tracks
+ 
+ 
++def get_embedded_art(trackfile):
++    '''
++    Returns the album art embedded in the audio file
++    '''
++    from mutagen import File
++    audio = File(trackfile)
++    if audio is None:
++        return None
++    # FLAC
++    pictures = getattr(audio, 'pictures', None)
++    if pictures:
++        return pictures[0].data
++    tags = audio.tags
++    if tags is None:
++        return None
++    # ID3
++    if hasattr(tags, 'getall'):
++        apic = tags.getall('APIC')
++        if apic:
++            return apic[0].data
++        return None
++    # MP4
++    if 'covr' in tags:
++        return bytes(tags['covr'][0])
++    # Ogg Vorbis, Opus
++    if 'metadata_block_picture' in tags:
++        import base64
++        from mutagen.flac import Picture
++        return Picture(base64.b64decode(tags['metadata_block_picture'][0])).data
++    return None
++
++
++album_art = {}
++
+ def get_album_art(track):
++    # look up the album art once per album
++    key = (os.path.dirname(track[1]), track[2], track[3])
++    if key not in album_art:
++        album_art[key] = find_album_art(track)
++    return album_art[key]
++
++
++def find_album_art(track):
+     dirname = dirname = os.path.dirname(track[1])
+     if os.path.exists(dirname + "/cover.jpg"):
+         return dirname + "/cover.jpg"
+@@ -153,13 +248,8 @@ def get_album_art(track):
+         return tb_filename
+     else:
+         try:
+-            from mutagen import File
+-            trackfile = track[1][7:]
+-            trackfile.replace("%20", " ")
+-            trackfile = urllib.parse.unquote(trackfile)
+-            audio = File(trackfile)
+-            if "APIC" in audio:
+-                artwork = audio.tags["APIC:"].data
++            artwork = get_embedded_art(track[1])
++            if artwork:
+                 if not os.path.exists(os.path.expanduser("~/.cache/media-art")):
+                     os.makedirs(os.path.expanduser("~/.cache/media-art"))
+                 with open(tb_filename, "wb") as img:
+@@ -172,16 +262,36 @@ def get_album_art(track):
+             return "media-audio"
+ 
+ 
+-def search(search, filters):
++def get_filter_state(filters):
++    '''
++    Returns the year range and the genre ids of the active filters
++    '''
++    min_year, max_year, genres = 0, None, None
++    decade = filters.get_filter_by_id('decade') if filters else None
++    if decade and decade.props.filtering:
++        first, last = decade.get_first_active(), decade.get_last_active()
++        if first and last:
++            min_year = int(first.props.id)
++            # a decade, e.g. 2000-2009, "Old" is before 1960
++            max_year = 1959 if last.props.id == '0' else int(last.props.id) + 9
++    genre = filters.get_filter_by_id('genre') if filters else None
++    if genre and genre.props.filtering:
++        genres = set(option.props.id for option in genre.options if option.props.active)
++    return min_year, max_year, genres
++
++
++def search(search, filters, max_results=-1):
+     '''
+     Search for help documents matching the search string
+     '''
+     results = []
++    min_year, max_year, genres = get_filter_state(filters)
+     global tracks
+     if len(tracks) == 0:
+         tracks = get_music_from_audacious()
+-    trackresults = []
+-    albumresults = []
++    # sets, a list lookup is slow with a large library
++    trackresults = set()
++    albumresults = set()
+ 
+     for track in tracks:
+         title = "" if track[0] is None else track[0]
+@@ -194,11 +304,23 @@ def search(search, filters):
+         track_length = 0 if track[8] is None else track[8]
+         track_number = 0 if track[7] is None else track[7]
+         genre = "" if track[6] is None else track[6]
++        if max_year is not None and not min_year <= year <= max_year:
++            continue
++        if genres is not None and GENRE_IDS.get(genre.lower(), 'other') not in genres:
++            continue
+         trackname = title + " - " + album + " - " + artist
+         if search.lower() in trackname.lower():
+-            albumart = get_album_art(track)
+             albumuri = "album://" + albumartist + "/" + album
+-            if uri not in trackresults:
++            # limit the number of songs and albums as the Rhythmbox scope
++            add_track = uri not in trackresults and \
++                (max_results < 0 or len(trackresults) < max_results)
++            # skip tracks without an album
++            add_album = album and albumuri not in albumresults and \
++                (max_results < 0 or len(albumresults) < max_results)
++            if not add_track and not add_album:
++                continue
++            albumart = get_album_art(track)
++            if add_track:
+                 results.append({'uri': uri,
+                                 'icon': albumart,
+                                 'category': 0,
+@@ -209,9 +331,9 @@ def search(search, filters):
+                                 'year': GLib.Variant('i', year),
+                                 'track_length': GLib.Variant('i', track_length),
+                                 'track_number': GLib.Variant('i', track_number)})
+-                trackresults.append(uri)
++                trackresults.add(uri)
+ 
+-            if albumuri not in albumresults:
++            if add_album:
+                 results.append({'uri': albumuri,
+                                 'icon': albumart,
+                                 'category': 1,
+@@ -222,7 +344,7 @@ def search(search, filters):
+                                 'year':GLib.Variant('i', year),
+                                 'track_length': GLib.Variant('i', track_length),
+                                 'track_number': GLib.Variant('i', track_number)})
+-                albumresults.append(albumuri)
++                albumresults.add(albumuri)
+     return results
+ 
+ 
+@@ -233,11 +355,15 @@ class Preview(Unity.ResultPreviewer):
+         album = self.result.metadata['album'].get_string()
+         artist = self.result.metadata['artist'].get_string()
+         preview = Unity.MusicPreview.new(self.result.title, '', None)
+-        preview.props.image_source_uri = 'file://%s' % self.result.icon_hint
++        # icon_hint is an icon name if the album art is missing
++        if self.result.icon_hint.startswith('/'):
++            preview.props.image_source_uri = 'file://%s' % self.result.icon_hint
++        else:
++            preview.props.image_source_uri = self.result.icon_hint
+         preview.props.subtitle = self.result.metadata['artist'].get_string()
+         if self.result.uri.startswith("album://"):
+             for track in tracks:
+-                if album in track[3] and artist in track[2]:
++                if track[3] == album and track[2] == artist:
+                     track = Unity.TrackMetadata.full('file://%s' % track[1],
+                                                      int(track[7]),
+                                                      track[0],
+@@ -276,8 +402,15 @@ class MySearch(Unity.ScopeSearchBase):
+         '''
+         try:
+             result_set = self.search_context.result_set
++            # the same numbers of results as in the Rhythmbox scope
++            if self.search_context.search_type == Unity.SearchType.GLOBAL:
++                max_results = 20
++            elif not self.search_context.search_query:
++                max_results = 100
++            else:
++                max_results = 50
+             for i in search(self.search_context.search_query,
+-                            self.search_context.filter_state):
++                            self.search_context.filter_state, max_results):
+                 if not 'uri' in i or not i['uri'] or i['uri'] == '':
+                     continue
+                 if not 'icon' in i or not i['icon'] or i['icon'] == '':
+@@ -337,8 +470,16 @@ class Scope(Unity.AbstractScope):
+         Adds filters
+         '''
+         fs = Unity.FilterSet.new()
+-        #if FILTERS:
+-        #
++        # the same filters as the music lens, filter states are only
++        # passed to the scope for its own filters
++        decade = Unity.MultiRangeFilter.new('decade', _('Decade'), None, False)
++        for option in DECADES:
++            decade.add_option(option[0], option[1], None)
++        fs.add(decade)
++        genre = Unity.CheckOptionFilterCompact.new('genre', _('Genre'), None, False)
++        for option in GENRES:
++            genre.add_option(option[0], option[1], None)
++        fs.add(genre)
+         return fs
+ 
+     def do_get_group_name(self):
+@@ -355,26 +496,18 @@ class Scope(Unity.AbstractScope):
+         album = result.metadata['album'].get_string()
+         artist = result.metadata['artist'].get_string()
+         global tracks
++        if result.uri.startswith('album://'):
++            albumtracks = [track[1] for track in tracks
++                           if track[3] == album and track[2] == artist]
++        else:
++            albumtracks = [result.uri]
++        if not albumtracks:
++            return Unity.ActivationResponse(handled=Unity.HandledType.NOT_HANDLED, goto_uri=None)
+         if id == 'show':
+-            if result.uri.startswith("album://"):
+-                for track in tracks:
+-                    if album in track[3] and artist in track[2]:
+-                        filename = tracks[1]
+-                        continue
+-            else:
+-                filename = result.uri
+-            dirname = os.path.dirname(filename)
+-            os.system("xdg-open '%s'" % str(dirname))
++            # select the (first) track in the file manager
++            UnityExtras.show_in_folder(Gio.File.new_for_path(albumtracks[0]).get_uri(), None, None)
+         else:
+-            albumtracks = ''
+-            if result.uri.startswith('album://'):
+-                for track in tracks:
+-                    if album in track[3] and artist in track[2]:
+-                        albumtracks = albumtracks + ' \'%s\'' % (track[1])
+-            else:
+-                albumtracks = '\'%s\'' % result.uri
+-            print(albumtracks)
+-            os.system('audacious -E %s' % albumtracks)
++            GLib.spawn_async(['audacious', '-E'] + albumtracks, flags=GLib.SpawnFlags.SEARCH_PATH)
+ 
+         return Unity.ActivationResponse(handled=Unity.HandledType.HIDE_DASH, goto_uri=None)
+ 
+-- 
+2.55.0
+

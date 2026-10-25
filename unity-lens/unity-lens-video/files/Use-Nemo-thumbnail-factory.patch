@@ -1,0 +1,270 @@
+From 38505df48e75e0daac175e7a04c35f95e95f41f5 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sun, 25 Oct 2026 02:44:56 +0200
+Subject: [PATCH 1/1] Use the thumbnail factory of Nemo
+
+The scope generates thumbnails only with totem-video-thumbnailer, which
+is not installed without Totem, and stores them in its own cache.
+Generate the thumbnails with the thumbnail factory of cinnamon-desktop
+(used by Nemo) in a background thread instead. The factory uses any
+installed thumbnailer (e.g. ffmpegthumbnailer or Totem) and stores the
+thumbnails in the shared thumbnail cache, so the scope and Nemo use
+each other's thumbnails. Failed thumbnails are recorded and not
+generated again.
+
+Signed-off-by: c4pp4
+---
+ configure.ac              |   2 +
+ src/Makefile.am           |   3 +
+ src/cinnamon-desktop.vapi |  21 +++++++
+ src/scope.vala            |   2 +-
+ src/thumbnailer.vala      | 117 ++++++++++++++++++++++----------------
+ 5 files changed, 94 insertions(+), 51 deletions(-)
+ create mode 100644 src/cinnamon-desktop.vapi
+
+diff --git a/configure.ac b/configure.ac
+index 5285c71..5d2e406 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -76,6 +76,8 @@ PKG_CHECK_MODULES(SCOPE_DAEMON,
+                   zeitgeist-1.0 >= 0.3.8
+                   unity >= 7.0.0
+                   unity-extras >= 6.91.11
++                  gdk-pixbuf-2.0
++                  cinnamon-desktop
+                   )
+ 
+ AC_SUBST(SCOPE_DAEMON_CFLAGS)
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 3cd6697..be0dcc2 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -18,6 +18,7 @@ unity_video_lens_daemon_CPPFLAGS = \
+   -DPKGDATADIR=\"$(PKGDATADIR)\" \
+   -DGETTEXT_PACKAGE=\"$(GETTEXT_PACKAGE)\" \
+   -DG_LOG_DOMAIN=\"unity-video-lens-daemon\" \
++  -DGNOME_DESKTOP_USE_UNSTABLE_API \
+   $(SCOPE_DAEMON_CFLAGS) \
+   $(MAINTAINER_CFLAGS) \
+   -I$(srcdir) \
+@@ -33,6 +34,8 @@ unity_video_lens_daemon_VALAFLAGS = \
+   --pkg glib-2.0 \
+   --pkg gee-0.8 \
+   --pkg zeitgeist-1.0 \
++  --pkg gdk-pixbuf-2.0 \
++  --pkg cinnamon-desktop \
+   --vapidir $(srcdir) \
+   --target-glib=2.26 \
+   $(MAINTAINER_VALAFLAGS) \
+diff --git a/src/cinnamon-desktop.vapi b/src/cinnamon-desktop.vapi
+new file mode 100644
+index 0000000..100d4ec
+--- /dev/null
++++ b/src/cinnamon-desktop.vapi
+@@ -0,0 +1,21 @@
++/* Thumbnail factory of cinnamon-desktop (used by Nemo) */
++
++[CCode (cprefix = "Gnome", lower_case_cprefix = "gnome_", cheader_filename = "libcinnamon-desktop/gnome-desktop-thumbnail.h")]
++namespace Gnome {
++	[CCode (type_id = "gnome_desktop_thumbnail_factory_get_type ()")]
++	public class DesktopThumbnailFactory : GLib.Object {
++		[CCode (has_construct_function = false)]
++		public DesktopThumbnailFactory (Gnome.DesktopThumbnailSize size);
++		public bool can_thumbnail (string uri, string mime_type, time_t mtime);
++		public void create_failed_thumbnail (string uri, time_t mtime);
++		public Gdk.Pixbuf? generate_thumbnail (string uri, string mime_type);
++		public bool has_valid_failed_thumbnail (string uri, time_t mtime);
++		public string? lookup (string uri, time_t mtime);
++		public void save_thumbnail (Gdk.Pixbuf thumbnail, string uri, time_t original_mtime);
++	}
++	[CCode (cprefix = "GNOME_DESKTOP_THUMBNAIL_SIZE_", has_type_id = false)]
++	public enum DesktopThumbnailSize {
++		NORMAL,
++		LARGE
++	}
++}
+diff --git a/src/scope.vala b/src/scope.vala
+index 14f37e6..74db541 100644
+--- a/src/scope.vala
++++ b/src/scope.vala
+@@ -60,7 +60,7 @@ namespace Unity.VideoLens
+       }
+ 
+       blacklist_tracker = new BlacklistTracker ();
+-      thumbnailer = new Thumbnailer (cache_directory);
++      thumbnailer = new Thumbnailer ();
+       locate = new Locate (cache_directory, videos_folder);
+ 
+       search_in_global = true;
+diff --git a/src/thumbnailer.vala b/src/thumbnailer.vala
+index 129332b..e51ed04 100644
+--- a/src/thumbnailer.vala
++++ b/src/thumbnailer.vala
+@@ -20,19 +20,34 @@
+ 
+ namespace Unity.VideoLens
+ {
+-  public class Thumbnailer
++  private class ThumbnailRequest
+   {
+-    private static const int MAX_THUMBNAILERS = 3;
++    public string uri;
++    public string mime_type;
++    public time_t mtime;
++  }
+ 
+-    private string videos_folder;
+-    private string cache_directory;
+-    private Gee.LinkedList<GLib.Pid?> thumbnailer_pids;
++  public class Thumbnailer
++  {
++    private Gnome.DesktopThumbnailFactory factory;
++    private GLib.ThreadPool<ThumbnailRequest>? thumbnail_pool;
++    private Gee.HashSet<string> queued_uris;
+ 
+-    public Thumbnailer (string cache_dir)
++    public Thumbnailer ()
+     {
+-      cache_directory = cache_dir;
+-      videos_folder = GLib.Environment.get_user_special_dir (GLib.UserDirectory.VIDEOS);
+-      thumbnailer_pids = new Gee.LinkedList<GLib.Pid?> ();
++      // the same thumbnail factory and cache as in Nemo
++      factory = new Gnome.DesktopThumbnailFactory (Gnome.DesktopThumbnailSize.LARGE);
++      queued_uris = new Gee.HashSet<string> ();
++
++      try
++      {
++        // generate one thumbnail at a time
++        thumbnail_pool = new GLib.ThreadPool<ThumbnailRequest>.with_owned_data (generate_thumbnail, 1, false);
++      }
++      catch (GLib.ThreadError e)
++      {
++        warning ("Failed to create thumbnail thread: %s", e.message);
++      }
+     }
+ 
+     public string get_icon (string video_file)
+@@ -40,76 +55,78 @@ namespace Unity.VideoLens
+       /* This method checks several locations for a video thumbnail.
+ 
+         1) <filename>.jpg file in the same folder (not activated for now)
+-        2) Nautilus thumbnails
+-        3) Cached thumbnails generated by the scope
++        2) Thumbnails in the shared thumbnail cache
+ 
+-        If nothing has been found, it tries to generate a thumbnail with Totem,
+-        stores and uses it.
+-        If the generation fails or is slow, it fallbacks to the standard video
+-        icon.
++        If nothing has been found, it generates a thumbnail in the background
++        with the thumbnail factory of Nemo and uses the standard video icon
++        until the thumbnail is available.
+       */
+       var file = GLib.File.new_for_path (video_file);
+-      var video_path = file.get_path ();
+ 
+       string? icon_path = null;
+ 
+-      // check if nautilus thumbnail is available
++      // check if a thumbnail is available
+       try
+       {
+-        var finfo = file.query_info (GLib.FileAttribute.THUMBNAIL_PATH + "," + GLib.FileAttribute.THUMBNAILING_FAILED, GLib.FileQueryInfoFlags.NONE);
++        var finfo = file.query_info (GLib.FileAttribute.THUMBNAIL_PATH + "," + GLib.FileAttribute.THUMBNAILING_FAILED + "," +
++                                     GLib.FileAttribute.STANDARD_CONTENT_TYPE + "," + GLib.FileAttribute.TIME_MODIFIED, GLib.FileQueryInfoFlags.NONE);
+         if (finfo.get_attribute_boolean (GLib.FileAttribute.THUMBNAILING_FAILED))
+           return "video";
+         else
+           icon_path = finfo.get_attribute_as_string (GLib.FileAttribute.THUMBNAIL_PATH);
++
++        if (icon_path == null || icon_path == "")
++          create_thumbnail (file.get_uri (), finfo.get_content_type (),
++                            (time_t) finfo.get_attribute_uint64 (GLib.FileAttribute.TIME_MODIFIED));
+       }
+       catch (GLib.Error e)
+       {
+         // silently ignore
+       }
+ 
+-      if (icon_path == null || icon_path == "")
+-      {
+-        string check_path = cache_directory + "/" + video_path.replace (videos_folder, "").replace ("/", "_");
+-
+-        // check for thumbnail generated by this scope
+-        if (Utils.is_regular_file (check_path))
+-          return check_path;
+-
+-        create_thumbnail (video_path, check_path);
+-
+-        // FIXME: this is not reliable, since we spawn thumbnailer async
+-        if (Utils.is_regular_file (check_path))
+-          return check_path;
+-      }
+-
+       if (icon_path == null || icon_path == "")
+         icon_path = "video";
+ 
+       return icon_path;
+     }
+ 
+-    private void thumbnailer_process_watch (Pid pid, int status)
++    private void create_thumbnail (string uri, string mime_type, time_t mtime)
+     {
+-      thumbnailer_pids.remove (pid);
++      if (thumbnail_pool == null || uri in queued_uris ||
++          !factory.can_thumbnail (uri, mime_type, mtime))
++        return;
++
++      var request = new ThumbnailRequest ();
++      request.uri = uri;
++      request.mime_type = mime_type;
++      request.mtime = mtime;
++
++      try
++      {
++        thumbnail_pool.add (request);
++        queued_uris.add (uri);
++      }
++      catch (GLib.ThreadError e)
++      {
++        warning ("Failed to queue thumbnail of '%s': %s", uri, e.message);
++      }
+     }
+ 
+-    public void create_thumbnail (string video_path, string thumbnail_path)
++    // runs in the thumbnail thread
++    private void generate_thumbnail (owned ThumbnailRequest request)
+     {
+-      if (thumbnailer_pids.size < MAX_THUMBNAILERS)
++      var pixbuf = factory.generate_thumbnail (request.uri, request.mime_type);
++      if (pixbuf != null)
++        factory.save_thumbnail (pixbuf, request.uri, request.mtime);
++      else
++        factory.create_failed_thumbnail (request.uri, request.mtime);
++
++      var uri = request.uri;
++      GLib.Idle.add (() =>
+       {
+-        GLib.Pid pid;
+-        string[] args = {"/usr/bin/totem-video-thumbnailer", video_path, thumbnail_path};
+-        try
+-        {
+-          GLib.Process.spawn_async (null, args, null, GLib.SpawnFlags.DO_NOT_REAP_CHILD, null, out pid);
+-          GLib.ChildWatch.add (pid, thumbnailer_process_watch);
+-          thumbnailer_pids.add (pid);
+-        }
+-        catch (Error e)
+-        {
+-          warning ("Failed to spawn thumbailer: %s", e.message);
+-        }
+-      }
++        queued_uris.remove (uri);
++        return false;
++      });
+     }
+   }
+ }
+\ No newline at end of file
+-- 
+2.55.0
+

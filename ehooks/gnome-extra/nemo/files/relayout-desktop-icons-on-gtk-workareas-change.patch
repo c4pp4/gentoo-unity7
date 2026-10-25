@@ -1,6 +1,6 @@
-From 24e7c149ea680b0d191bf66e9c143aaeb008b862 Mon Sep 17 00:00:00 2001
+From fea874d8aadc7ac3a58c2a1437c0d3e39bf81965 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Thu, 22 Oct 2026 14:15:59 +0200
+Date: Sun, 25 Oct 2026 03:41:52 +0100
 Subject: [PATCH 1/1] Relayout desktop icons when _GTK_WORKAREAS_D* changes
 
 GTK prefers the per-monitor _GTK_WORKAREAS_D* root window property over
@@ -13,14 +13,18 @@ change.
 
 Update the margins on _GTK_WORKAREAS_D* changes too.
 
+The margins are also read before the root window property events are
+selected, so a workarea change in between is missed. Read them after
+selecting the events.
+
 Signed-off-by: c4pp4
 ---
- src/nemo-desktop-icon-grid-view.c | 5 ++++-
- src/nemo-desktop-icon-view.c      | 5 ++++-
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ src/nemo-desktop-icon-grid-view.c | 11 ++++++++---
+ src/nemo-desktop-icon-view.c      | 11 ++++++++---
+ 2 files changed, 16 insertions(+), 6 deletions(-)
 
 diff --git a/src/nemo-desktop-icon-grid-view.c b/src/nemo-desktop-icon-grid-view.c
-index 4ef0060..13848dd 100644
+index 4ef0060..41d3a5f 100644
 --- a/src/nemo-desktop-icon-grid-view.c
 +++ b/src/nemo-desktop-icon-grid-view.c
 @@ -163,7 +163,10 @@ gdk_filter_func (GdkXEvent *gdk_xevent,
@@ -35,8 +39,26 @@ index 4ef0060..13848dd 100644
                  update_margins (icon_view);
              }
              break;
+@@ -310,13 +313,15 @@ realized_callback (GtkWidget *widget, NemoDesktopIconGridView *desktop_icon_grid
+ 
+   desktop_icon_grid_view->details->root_window = root_window;
+ 
+-  update_margins (desktop_icon_grid_view);
+-
+   /* Setup the property filter */
+   gdk_window_set_events (root_window, GDK_PROPERTY_CHANGE_MASK);
+   gdk_window_add_filter (root_window,
+                          gdk_filter_func,
+                          desktop_icon_grid_view);
++
++  /* Read the margins after selecting the property events, so that
++   * a workarea change in between is not missed */
++  update_margins (desktop_icon_grid_view);
+ }
+ 
+ static void
 diff --git a/src/nemo-desktop-icon-view.c b/src/nemo-desktop-icon-view.c
-index e781bc0..b1ff6a0 100644
+index e781bc0..2b4ab24 100644
 --- a/src/nemo-desktop-icon-view.c
 +++ b/src/nemo-desktop-icon-view.c
 @@ -132,7 +132,10 @@ gdk_filter_func (GdkXEvent *gdk_xevent,
@@ -51,6 +73,24 @@ index e781bc0..b1ff6a0 100644
                  update_margins (icon_view);
              }
              break;
+@@ -231,13 +234,15 @@ realized_callback (GtkWidget *widget, NemoDesktopIconView *desktop_icon_view)
+ 
+   desktop_icon_view->details->root_window = root_window;
+ 
+-  update_margins (desktop_icon_view);
+-
+   /* Setup the property filter */
+   gdk_window_set_events (root_window, GDK_PROPERTY_CHANGE_MASK);
+   gdk_window_add_filter (root_window,
+                          gdk_filter_func,
+                          desktop_icon_view);
++
++  /* Read the margins after selecting the property events, so that
++   * a workarea change in between is not missed */
++  update_margins (desktop_icon_view);
+ }
+ 
+ static void
 -- 
 2.55.0
 

@@ -1,0 +1,55 @@
+From c01a3d8a8994e684a48a861de0ae8d5d54a9aad1 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sun, 25 Oct 2026 01:24:12 +0200
+Subject: [PATCH 1/1] Fix the scope crash
+
+UnityExtras.dbus_own_name() calls the scope creation callback without
+keeping its result and libunity does not reference the scope object
+either, so the Daemon instance with the scope is freed by the Python
+garbage collector and the scope crashes on the next D-Bus request.
+Keep a reference to the daemon.
+
+Specify the Unity and UnityExtras versions and use
+GLibUnix.signal_add() to avoid PyGI warnings at every start.
+
+Signed-off-by: c4pp4
+---
+ src/unity_shotwell_daemon.py | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/src/unity_shotwell_daemon.py b/src/unity_shotwell_daemon.py
+index dc8e2ba..70bf18c 100755
+--- a/src/unity_shotwell_daemon.py
++++ b/src/unity_shotwell_daemon.py
+@@ -19,7 +19,10 @@
+ import gettext
+ import locale
+ import sys, os
+-from gi.repository import GLib, GObject, Gio, Unity, UnityExtras
++import gi
++gi.require_version('Unity', '7.0')
++gi.require_version('UnityExtras', '7.0')
++from gi.repository import GLib, GLibUnix, GObject, Gio, Unity, UnityExtras
+ import time, datetime
+ import shutil
+ import sqlite3
+@@ -570,9 +573,14 @@ class Daemon:
+                 break
+         return '%.*f%s' % (precision, bytes / factor, suffix)
+ 
++def create_daemon():
++    """Keep a reference to the daemon, libunity does not reference the scope"""
++    global scope_daemon
++    scope_daemon = Daemon()
++
+ if __name__ == '__main__':
+-    daemon = UnityExtras.dbus_own_name(BUS_NAME, Daemon, None)
++    daemon = UnityExtras.dbus_own_name(BUS_NAME, create_daemon, None)
+     if daemon:
+-        GLib.unix_signal_add(0, 2, lambda x: daemon.quit(), None)
++        GLibUnix.signal_add(0, 2, lambda x: daemon.quit(), None)
+         daemon.run([])
+ 
+-- 
+2.55.0
+

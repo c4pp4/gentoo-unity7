@@ -5,7 +5,7 @@
 		<name>gentoo-unity7</name>
 	</maintainer>
 	<use>
-		<flag name="indicator">Enable build of indicator plugin</flag>
+		<flag name="appindicator">Enable build of indicator plugin</flag>
 		<flag name="scope">Enable build of unity scope</flag>
 	</use>
 </pkgmetadata>

@@ -81,6 +81,7 @@ BDEPEND="
 
 PATCHES=(
 	"${FILESDIR}"/do-not-close-osd-notifications-on-stop.patch
+	"${FILESDIR}"/fix-volume-queue-use-after-free.patch
 	"${FILESDIR}"/optional-colord-and-wacom.patch
 	"${FILESDIR}"/remove-nautilus-support.patch
 	"${FILESDIR}"/rename-mutter-dbus-interface-to-muffin.patch

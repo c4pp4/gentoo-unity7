@@ -1,0 +1,73 @@
+From 762262d3549299d5c8306d85486fc6e3f8f68efc Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sun, 25 Oct 2026 04:25:47 +0100
+Subject: [PATCH 1/1] automount: Fix use-after-free in the volume queue
+
+Volumes added while the screen is locked are queued and mounted after
+unlocking. check_volume_queue () reads l->next after g_list_remove ()
+has freed the link l, so unity-fallback-mount-helper crashed after
+unlocking when a volume was attached during the lock (e.g. after
+resume). Keep the next link before removing the current one.
+
+volume_removed_callback () removed the volume from the queue without
+dropping the reference held by the queue. Release it.
+
+Signed-off-by: c4pp4
+---
+ plugins/automount/gsd-automount-manager.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
+
+diff --git a/plugins/automount/gsd-automount-manager.c b/plugins/automount/gsd-automount-manager.c
+index 16fa481..466c352 100644
+--- a/plugins/automount/gsd-automount-manager.c
++++ b/plugins/automount/gsd-automount-manager.c
+@@ -178,7 +178,7 @@ do_mount_volume (GVolume *volume)
+ static void
+ check_volume_queue (GsdAutomountManager *manager)
+ {
+-        GList *l;
++        GList *l, *next;
+         GVolume *volume;
+ 
+         if (manager->priv->screensaver_active || manager->priv->lockscreen_active)
+@@ -188,13 +188,15 @@ check_volume_queue (GsdAutomountManager *manager)
+ 
+         while (l != NULL) {
+                 volume = l->data;
++                /* g_list_remove () frees the link */
++                next = l->next;
+ 
+                 do_mount_volume (volume);
+                 manager->priv->volume_queue =
+                         g_list_remove (manager->priv->volume_queue, volume);
+ 
+                 g_object_unref (volume);
+-                l = l->next;
++                l = next;
+         }
+ 
+         manager->priv->volume_queue = NULL;
+@@ -233,11 +235,17 @@ volume_removed_callback (GVolumeMonitor *monitor,
+                          GVolume *volume,
+                          GsdAutomountManager *manager)
+ {
++        GList *l;
++
+         g_debug ("Volume %p removed, removing from the queue", volume);
+ 
+-        /* clear it from the queue, if present */
+-        manager->priv->volume_queue =
+-                g_list_remove (manager->priv->volume_queue, volume);
++        /* clear it from the queue, if present, and drop its reference */
++        l = g_list_find (manager->priv->volume_queue, volume);
++        if (l != NULL) {
++                manager->priv->volume_queue =
++                        g_list_delete_link (manager->priv->volume_queue, l);
++                g_object_unref (volume);
++        }
+ }
+ 
+ static void
+-- 
+2.55.0
+

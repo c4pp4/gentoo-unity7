@@ -1,7 +1,23 @@
-diff -Nur a/src/unity_chromiumbookmarks_daemon.py b/src/unity_chromiumbookmarks_daemon.py
---- a/src/unity_chromiumbookmarks_daemon.py	2013-07-23 08:19:09.000000000 +0200
-+++ b/src/unity_chromiumbookmarks_daemon.py	2020-01-24 17:26:57.309181167 +0100
-@@ -134,46 +134,46 @@
+From 26a4798723d74c4b9049946fde35e1c2332fc915 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sun, 25 Oct 2026 03:52:31 +0100
+Subject: [PATCH 1/1] Do not read thumbnails from Top Sites
+
+Chromium does not store the page thumbnails in the Top Sites database
+anymore, so the query of the missing thumbnails table fails and no
+bookmarks are found. Disable the thumbnails, the bookmarks are shown
+with the default icon.
+
+Signed-off-by: c4pp4
+---
+ src/unity_chromiumbookmarks_daemon.py | 50 +++++++++++++--------------
+ 1 file changed, 25 insertions(+), 25 deletions(-)
+
+diff --git a/src/unity_chromiumbookmarks_daemon.py b/src/unity_chromiumbookmarks_daemon.py
+index 4cf32c3..64edc39 100644
+--- a/src/unity_chromiumbookmarks_daemon.py
++++ b/src/unity_chromiumbookmarks_daemon.py
+@@ -134,46 +134,46 @@ def search(search, filters):
      Search for help documents matching the search string
      '''
      results = []
@@ -73,3 +89,6 @@ diff -Nur a/src/unity_chromiumbookmarks_daemon.py b/src/unity_chromiumbookmarks_
      return results
  
  
+-- 
+2.55.0
+

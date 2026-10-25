@@ -1,0 +1,84 @@
+From fe785569e7a37ac923640f6f01dede7061eca924 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sun, 25 Oct 2026 02:13:58 +0100
+Subject: [PATCH 1/1] Fix the preview crash
+
+Scope.do_preview_result() chains up to the asynchronous
+Unity.DeprecatedScope.do_preview_result() with a wrapped callback to
+keep the result for the preview-uri handler. PyGI passes the
+AsyncReadyCallback to Python without its user_data, so the callback is
+called with NULL user_data and the scope crashes when a photo preview
+is opened. Use Unity.DeprecatedScope, which emits preview-uri by itself,
+and keep the title, icon and comment of the results for the handler.
+
+Signed-off-by: c4pp4
+---
+ src/unity_shotwell_daemon.py | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
+
+diff --git a/src/unity_shotwell_daemon.py b/src/unity_shotwell_daemon.py
+index 70bf18c..daef007 100755
+--- a/src/unity_shotwell_daemon.py
++++ b/src/unity_shotwell_daemon.py
+@@ -77,7 +77,9 @@ class Daemon:
+     """Creation of the Shotwell scope."""
+     def __init__ (self):
+         self._enabled = True
+-        self._scope = Scope (dbus_path="/com/canonical/unity/scope/photos/shotwell", id="shotwell")
++        # Scope.do_preview_result() crashes, PyGI passes the AsyncReadyCallback
++        # without its user_data
++        self._scope = Unity.DeprecatedScope (dbus_path="/com/canonical/unity/scope/photos/shotwell", id="shotwell")
+         self._scope.connect ("search-changed", self.on_search_changed)
+         self._scope.connect("notify::active", self.on_lens_active)
+         self._scope.connect("notify::filtering", self.on_filtering_changed)
+@@ -121,6 +123,7 @@ class Daemon:
+         self._scope.export()
+         self.tagdb = []
+         self.db = None
++        self.results = {}
+         self.cancel_running_search = False
+ 
+     def callback(object, result, user_data):
+@@ -202,6 +205,7 @@ class Daemon:
+                     title = i[0]
+                     comment = i[3]
+                     uri = "file://"+i[1]
++                    self.results[uri] = {'title': title, 'icon_hint': icon_hint, 'comment': comment}
+                     model.append (uri=uri,
+                                   icon_hint=icon_hint,
+                                   category=cat,
+@@ -216,12 +220,13 @@ class Daemon:
+     def on_preview_uri(self, scope, uri):
+             """Preview request handler"""
+             preview = None
+-            if scope.last_result.uri == uri:
+-                title = scope.last_result.title
++            result = self.results.get(uri)
++            if result:
++                title = result['title']
+                 desc = ''
+                 out_of_drive = False
+                 if self.is_file (uri.replace("file://", "")):
+-                    title = self.getTitle (uri.replace("file://", ""), scope.last_result.title)
++                    title = self.getTitle (uri.replace("file://", ""), result['title'])
+                     # Test existence of a jpg thumb for raw files
+                     raw_thumb = uri.replace("file://", "")
+                     raw_thumb = raw_thumb.replace(".", "_")+"_shotwell.jpg"
+@@ -230,12 +235,12 @@ class Daemon:
+                     else:
+                         image = uri
+                 else:
+-                    image = "file://"+scope.last_result.icon_hint
++                    image = "file://"+result['icon_hint']
+                     desc = _("<b>This photo is missing.</b>\nYou can open Shotwell to retrieve it or remove it from your library.")
+                     out_of_drive = True
+                 preview = Unity.GenericPreview.new(title, desc, None)
+                 preview.props.image_source_uri = image
+-                subtitle = scope.last_result.comment.split("_ulp-date_")[1]
++                subtitle = result['comment'].split("_ulp-date_")[1]
+                 if subtitle:
+                     preview.props.subtitle = subtitle
+                 db = self.getDB ()
+-- 
+2.55.0
+

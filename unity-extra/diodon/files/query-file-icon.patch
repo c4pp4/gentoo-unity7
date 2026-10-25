@@ -1,0 +1,29 @@
+From a3c84f631dafba8cb213ab8aaed7d908afacec8f Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sun, 25 Oct 2026 00:56:29 +0200
+Subject: [PATCH 1/1] Query the file icon
+
+FileClipboardItem.get_icon() queries only the thumbnail path, but reads
+also the icon from the file info, which fails with "GFileInfo created
+without standard::icon". Query the icon as well.
+
+Signed-off-by: c4pp4
+---
+ libdiodon/file-clipboard-item.vala | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/libdiodon/file-clipboard-item.vala b/libdiodon/file-clipboard-item.vala
+index 53f41c8..b9978bf 100644
+--- a/libdiodon/file-clipboard-item.vala
++++ b/libdiodon/file-clipboard-item.vala
+@@ -159,6 +159,7 @@ namespace Diodon
+         public Icon get_icon()
+         {
+             const string FILE_ATTRS =
++              FileAttribute.STANDARD_ICON + "," +
+               FileAttribute.THUMBNAIL_PATH;
+ 
+             // icon of first file is used
+-- 
+2.55.0
+

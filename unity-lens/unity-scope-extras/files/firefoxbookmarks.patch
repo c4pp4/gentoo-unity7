@@ -1,7 +1,27 @@
-diff -Nur a/src/unity_firefoxbookmarks_daemon.py b/src/unity_firefoxbookmarks_daemon.py
---- a/src/unity_firefoxbookmarks_daemon.py	2013-08-09 13:49:28.000000000 +0200
-+++ b/src/unity_firefoxbookmarks_daemon.py	2020-01-22 21:22:44.941148161 +0100
-@@ -41,12 +41,10 @@
+From e1db073357ec6c5c9617f05cdc7e251891c8f18b Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sun, 25 Oct 2026 03:52:31 +0100
+Subject: [PATCH 1/1] Fix bookmarks with current Firefox
+
+Firefox 55 moved the favicons from places.sqlite to favicons.sqlite, so
+the bookmarks query fails on the missing moz_favicons table. Query the
+bookmarks without favicons (the thumbnails are used as icons anyway).
+
+Look up firefox or firefox-bin in PATH instead of the fixed
+/usr/bin/firefox path.
+
+Signed-off-by: c4pp4
+---
+ src/unity_firefoxbookmarks_daemon.py | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
+
+diff --git a/src/unity_firefoxbookmarks_daemon.py b/src/unity_firefoxbookmarks_daemon.py
+index 44c6ae8..76458f0 100644
+--- a/src/unity_firefoxbookmarks_daemon.py
++++ b/src/unity_firefoxbookmarks_daemon.py
+@@ -39,14 +39,12 @@ PROVIDER_ICON = SVG_DIR + 'group-browserbookmarks.svg'
+ DEFAULT_RESULT_ICON = SVG_DIR + 'group-browserbookmarks.svg'
+ DEFAULT_RESULT_MIMETYPE = 'text/html'
  DEFAULT_RESULT_TYPE = Unity.ResultType.DEFAULT
 -FIREFOX_EXECUTABLE = '/usr/bin/firefox'
 +FIREFOX_EXECUTABLE = GLib.find_program_in_path('firefox') or GLib.find_program_in_path('firefox-bin') or '/usr/bin/firefox'
@@ -17,7 +37,7 @@ diff -Nur a/src/unity_firefoxbookmarks_daemon.py b/src/unity_firefoxbookmarks_da
                           AND moz_bookmarks.type = 1
                           AND (moz_bookmarks.title LIKE '%%%s%%' OR moz_places.url LIKE '%%%s%%')
                       ORDER BY moz_bookmarks.lastModified;'''
-@@ -104,7 +102,7 @@
+@@ -104,7 +102,7 @@ def search(search, filters):
          # Stop Firefox's smart bookmark folders from showing up
          if not bookmark[1].find("place:") == -1:
              continue
@@ -26,7 +46,7 @@ diff -Nur a/src/unity_firefoxbookmarks_daemon.py b/src/unity_firefoxbookmarks_da
          path = path.replace('.mozilla/', '.cache/mozilla/') 
          icon = '%s%s.png' % (path, hashlib.md5(bookmark[1].encode()).hexdigest())
          if not os.path.exists(icon):
-@@ -113,7 +111,7 @@
+@@ -113,7 +111,7 @@ def search(search, filters):
                          'icon': icon,
                          'category': 0,
                          'title': bookmark[0],
@@ -35,3 +55,6 @@ diff -Nur a/src/unity_firefoxbookmarks_daemon.py b/src/unity_firefoxbookmarks_da
      return results
  
  
+-- 
+2.55.0
+

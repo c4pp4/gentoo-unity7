@@ -1,22 +1,38 @@
-From d083ce99e5781459f99de2d03d807e5566816119 Mon Sep 17 00:00:00 2001
+From 40d1da390267e29d936bf0bc8e7eae3dd122d605 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Sat, 14 Mar 2026 13:43:42 +0100
+Date: Sun, 25 Oct 2026 03:49:47 +0100
 Subject: [PATCH 1/1] Remove remote video support
 
 Remove the remote video scope, the online video service is not available
-anymore.
+anymore. Remove also its unit test and the libsoup-gnome VAPI file.
 
 Signed-off-by: c4pp4
 ---
- configure.ac     |  3 ---
- data/Makefile.am |  5 +----
- po/POTFILES.in   |  3 ---
- po/POTFILES.skip |  1 -
- src/Makefile.am  | 57 ------------------------------------------------
- 5 files changed, 1 insertion(+), 68 deletions(-)
+ Makefile.am                 |  2 +-
+ configure.ac                |  4 ---
+ data/Makefile.am            |  5 +---
+ po/POTFILES.in              |  5 ----
+ po/POTFILES.skip            |  5 ----
+ src/Makefile.am             | 58 -------------------------------------
+ tests/unit/Makefile.am      | 26 -----------------
+ vapi/Makefile.am            |  5 ----
+ vapi/libsoup-gnome-2.4.vapi |  8 -----
+ 9 files changed, 2 insertions(+), 116 deletions(-)
+ delete mode 100644 vapi/Makefile.am
+ delete mode 100644 vapi/libsoup-gnome-2.4.vapi
 
+diff --git a/Makefile.am b/Makefile.am
+index 7f0e7b0..8f8cd28 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -1,4 +1,4 @@
+-SUBDIRS = src po tests/unit vapi data
++SUBDIRS = src po tests/unit data
+ 
+ DISTCHECK_CONFIGURE_FLAGS = --enable-localinstall
+ 
 diff --git a/configure.ac b/configure.ac
-index 6df84f3..1099b96 100644
+index 6df84f3..5285c71 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -73,8 +73,6 @@ PKG_CHECK_MODULES(SCOPE_DAEMON,
@@ -28,7 +44,7 @@ index 6df84f3..1099b96 100644
                    zeitgeist-1.0 >= 0.3.8
                    unity >= 7.0.0
                    unity-extras >= 6.91.11
-@@ -175,7 +173,6 @@ AC_CONFIG_FILES([
+@@ -175,13 +173,11 @@ AC_CONFIG_FILES([
    Makefile
    data/Makefile
    data/local.scope.in
@@ -36,6 +52,12 @@ index 6df84f3..1099b96 100644
    src/Makefile
    po/Makefile.in
    src/config.vala
+   tests/unit/config-tests.vala
+   tests/unit/Makefile
+-  vapi/Makefile
+ ])
+ AC_OUTPUT
+ 
 diff --git a/data/Makefile.am b/data/Makefile.am
 index e10dbd9..4398abf 100644
 --- a/data/Makefile.am
@@ -66,33 +88,34 @@ index e10dbd9..4398abf 100644
 -  remote.scope \
    $(NULL)
 diff --git a/po/POTFILES.in b/po/POTFILES.in
-index 283af11..b9c6de0 100644
+index 283af11..7374f1d 100644
 --- a/po/POTFILES.in
 +++ b/po/POTFILES.in
-@@ -1,10 +1,7 @@
+@@ -1,10 +1,5 @@
  [encoding: UTF-8]
  src/daemon.vala
  src/main.vala
 -src/remote-scope.vala
 -src/remote-video-main.vala
  src/scope.vala
- src/ubuntu-video-search.vala
- tests/unit/test-ubuntu-video-search.vala
+-src/ubuntu-video-search.vala
+-tests/unit/test-ubuntu-video-search.vala
  [type: gettext/ini]data/local.scope.in.in
 -[type: gettext/ini]data/remote.scope.in.in
 diff --git a/po/POTFILES.skip b/po/POTFILES.skip
-index bc936b7..f8423ad 100644
+index bc936b7..9355242 100644
 --- a/po/POTFILES.skip
 +++ b/po/POTFILES.skip
-@@ -1,6 +1,5 @@
+@@ -1,7 +1,2 @@
  src/daemon.c
  src/scope.c
 -src/remote-scope.c
- src/ubuntu-video-search.c
- tests/unit/test-ubuntu-video-search.c
- tests/unit/ubuntu-video-search.c
+-src/ubuntu-video-search.c
+-tests/unit/test-ubuntu-video-search.c
+-tests/unit/ubuntu-video-search.c
+-tests/unit/remote-scope.c
 diff --git a/src/Makefile.am b/src/Makefile.am
-index 24eb16d..119cba7 100644
+index 24eb16d..3cd6697 100644
 --- a/src/Makefile.am
 +++ b/src/Makefile.am
 @@ -11,7 +11,6 @@ AM_LDFLAGS = $(COVERAGE_LDFLAGS)
@@ -120,7 +143,12 @@ index 24eb16d..119cba7 100644
  unity_video_lens_daemon_VALAFLAGS = \
    -C \
    --pkg dee-1.0 \
-@@ -50,34 +39,10 @@ unity_video_lens_daemon_VALAFLAGS = \
+@@ -45,39 +34,14 @@ unity_video_lens_daemon_VALAFLAGS = \
+   --pkg gee-0.8 \
+   --pkg zeitgeist-1.0 \
+   --vapidir $(srcdir) \
+-  --vapidir $(top_srcdir)/vapi \
+   --target-glib=2.26 \
    $(MAINTAINER_VALAFLAGS) \
    $(NULL)
  
@@ -155,7 +183,7 @@ index 24eb16d..119cba7 100644
  unity_video_lens_daemon_VALASOURCES = \
    blacklist-tracker.vala \
    daemon.vala \
-@@ -90,46 +55,24 @@ unity_video_lens_daemon_VALASOURCES = \
+@@ -90,46 +54,24 @@ unity_video_lens_daemon_VALASOURCES = \
    video-file.vala \
    $(NULL)
  
@@ -202,6 +230,111 @@ index 24eb16d..119cba7 100644
    $(unity_video_lens_daemon_VALASOURCES:.vala=.c) \
 -  $(unity_scope_video_remote_VALASOURCES:.vala=.c) \
    $(NULL)
+diff --git a/tests/unit/Makefile.am b/tests/unit/Makefile.am
+index f0fadd8..682b9fc 100644
+--- a/tests/unit/Makefile.am
++++ b/tests/unit/Makefile.am
+@@ -3,7 +3,6 @@ include $(top_srcdir)/Makefile.decl
+ check_PROGRAMS = \
+ 	test-locate \
+ 	test-utils \
+-        test-ubuntu-video-search \
+ 	$(NULL)
+ 
+ TEST_PROGS += $(check_PROGRAMS)
+@@ -14,14 +13,10 @@ AM_VALAFLAGS = \
+ 	  --pkg unity-extras \
+ 	  --pkg gio-2.0 \
+ 	  --pkg gio-unix-2.0 \
+-	  --pkg json-glib-1.0 \
+ 	  --pkg glib-2.0 \
+ 	  --pkg gee-0.8 \
+ 	  --pkg zeitgeist-1.0 \
+-	  --pkg libsoup-gnome-2.4 \
+-	  --pkg libsoup-2.4 \
+ 	  --vapidir $(srcdir) \
+-	  --vapidir $(top_srcdir)/vapi \
+ 	  --target-glib=2.26 \
+ 	  $(MAINTAINER_VALAFLAGS) \
+ 	  $(NULL)
+@@ -58,22 +53,10 @@ test_utils_VALASOURCES = \
+ 	$(top_srcdir)/src/utils.vala \
+ 	$(NULL)
+ 
+-test_ubuntu_video_search_VALASOURCES = \
+-	test-ubuntu-video-search.vala \
+-	config-tests.vala \
+-	$(top_srcdir)/src/remote-scope-globals.vala \
+-	$(top_srcdir)/src/ubuntu-video-search.vala \
+-	$(top_srcdir)/src/video-file.vala \
+-	$(top_srcdir)/src/remote-scope.vala \
+-	$(top_srcdir)/src/utils.vala \
+-	$(NULL)
+-
+ nodist_test_locate_SOURCES = $(test_locate_VALASOURCES:.vala=.c)
+ 
+ nodist_test_utils_SOURCES = $(test_utils_VALASOURCES:.vala=.c)
+ 
+-nodist_test_ubuntu_video_search_SOURCES = $(test_ubuntu_video_search_VALASOURCES:.vala=.c)
+-
+ CLEANFILES = *.stamp \
+ 	  *.c \
+ 	  $(NULL)
+@@ -81,10 +64,6 @@ CLEANFILES = *.stamp \
+ EXTRA_DIST = \
+ 	$(test_locate_VALASOURCES) \
+ 	$(test_utils_VALASOURCES) \
+-	$(test_ubuntu_video_search_VALASOURCES) \
+-	data/videosearch_input1.txt \
+-	data/videosearch_input2.txt \
+-	data/videosearch_details1.txt \
+         data/video1.avi \
+         data/video2.avi \
+         data/video3.avi \
+@@ -96,7 +75,6 @@ EXTRA_DIST = \
+ BUILT_SOURCES = \
+ 	test-locate.vala.stamp \
+ 	test-utils.vala.stamp \
+-	test-ubuntu-video-search.vala.stamp \
+ 	$(NULL)
+ 
+ test-locate.vala.stamp: $(test_locate_VALASOURCES)
+@@ -107,10 +85,6 @@ test-utils.vala.stamp: $(test_utils_VALASOURCES)
+ 	$(AM_V_GEN)$(VALAC) -C $(AM_VALAFLAGS) $(VALAFLAGS) $^
+ 	@touch $@
+ 
+-test-ubuntu-video-search.vala.stamp: $(test_ubuntu_video_search_VALASOURCES)
+-	$(AM_V_GEN)$(VALAC) -C $(AM_VALAFLAGS) $(VALAFLAGS) $^
+-	@touch $@
+-
+ # START HEADLESS TESTS
+ if ENABLE_HEADLESS_TESTS
+ test-headless:
+diff --git a/vapi/Makefile.am b/vapi/Makefile.am
+deleted file mode 100644
+index f3a4d38..0000000
+--- a/vapi/Makefile.am
++++ /dev/null
+@@ -1,5 +0,0 @@
+-NULL =
+-BUILT_SOURCES =
+-CLEANFILES =
+-EXTRA_DIST = libsoup-gnome-2.4.vapi
+-
+diff --git a/vapi/libsoup-gnome-2.4.vapi b/vapi/libsoup-gnome-2.4.vapi
+deleted file mode 100644
+index 3af2562..0000000
+--- a/vapi/libsoup-gnome-2.4.vapi
++++ /dev/null
+@@ -1,8 +0,0 @@
+-[CCode (cprefix = "Soup", gir_namespace = "SoupGNOME", gir_version = "2.4", lower_case_cprefix = "soup_")]
+-namespace SoupGNOME {
+-	[CCode (cheader_filename = "libsoup/soup-gnome.h", type_id = "soup_proxy_resolver_gnome_get_type ()")]
+-	public class ProxyResolverGNOME : Soup.ProxyResolverDefault, Soup.ProxyURIResolver, Soup.SessionFeature {
+-		[CCode (has_construct_function = false)]
+-		protected ProxyResolverGNOME ();
+-	}
+-}
 -- 
-2.52.0
+2.55.0
 

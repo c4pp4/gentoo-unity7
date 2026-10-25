@@ -17,6 +17,8 @@ LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="amd64"
 IUSE="+accessibility classic-fonts classic-theme +files lowgfx +music +photos +ubuntu-sounds +video"
+# Video lens uses the preview player of the music lens #
+REQUIRED_USE="video? ( music )"
 RESTRICT="binchecks strip test"
 
 # media-fonts/ubuntu-font-family dependency #

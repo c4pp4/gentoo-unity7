@@ -1,0 +1,97 @@
+From 16f6beb72a3fca03f08e4de3e8c8fafcc5f6791f Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sun, 25 Oct 2026 02:27:13 +0100
+Subject: [PATCH 1/1] Fix Dash preview thumbnails
+
+The Dash preview thumbnail generator expands only %s, %u and %o in the
+Exec line of the thumbnailers in /usr/share/thumbnailers, so commands
+with the %i input path (e.g. ffmpegthumbnailer) fail. The failed
+thumbnailer leaves an empty output file, which is taken as a cached
+thumbnail ("Unable to load icon ... Unrecognized image file format").
+The URI and file names are also not quoted, so a file name with an
+apostrophe or spaces breaks the command line.
+
+Expand %i, quote the substituted values, remove the output file of a
+failed thumbnailer and generate the thumbnail again when the cached
+file is empty.
+
+Signed-off-by: c4pp4
+---
+ unity-shared/ThumbnailGenerator.cpp    |  4 +++-
+ unity-shared/UserThumbnailProvider.cpp | 21 +++++++++++++++++++--
+ 2 files changed, 22 insertions(+), 3 deletions(-)
+
+diff --git a/unity-shared/ThumbnailGenerator.cpp b/unity-shared/ThumbnailGenerator.cpp
+index f3f585d..1124cb2 100644
+--- a/unity-shared/ThumbnailGenerator.cpp
++++ b/unity-shared/ThumbnailGenerator.cpp
+@@ -155,7 +155,9 @@ bool CheckCache(std::string const& uri_in, std::string& filename_out)
+   filename_out += std::to_string(std::hash<std::string>()(uri_in)) + ".png";
+ 
+   glib::Object<GFile> cache_file(g_file_new_for_path(filename_out.c_str()));
+-  return g_file_query_exists(cache_file, NULL);
++  glib::Object<GFileInfo> cache_info(g_file_query_info(cache_file, G_FILE_ATTRIBUTE_STANDARD_SIZE, G_FILE_QUERY_INFO_NONE, NULL, NULL));
++  // an empty file is left by a failed thumbnailer, generate the thumbnail again
++  return cache_info && g_file_info_get_size(cache_info) > 0;
+ }
+ 
+ ThumbnailNotifier::Ptr ThumbnailGeneratorImpl::GetThumbnail(std::string const& uri, int size)
+diff --git a/unity-shared/UserThumbnailProvider.cpp b/unity-shared/UserThumbnailProvider.cpp
+index 5e4de6f..8474e03 100644
+--- a/unity-shared/UserThumbnailProvider.cpp
++++ b/unity-shared/UserThumbnailProvider.cpp
+@@ -20,6 +20,7 @@
+  */
+ 
+ #include <Nux/Nux.h>
++#include <glib/gstdio.h>
+ #include "UnityCore/GLibWrapper.h"
+ #include "UserThumbnailProvider.h"
+ #include "ThumbnailGenerator.h"
+@@ -58,11 +59,24 @@ bool UserThumbnailer::Run(int size, std::string const& input_file, std::string&
+ 
+   // replace input file name
+   pos = tmp_command_line.find("%u");
+-  if (pos != std::string::npos) { tmp_command_line.replace(pos, 2, input_file); }
++  if (pos != std::string::npos) { tmp_command_line.replace(pos, 2, glib::String(g_shell_quote(input_file.c_str())).Str()); }
++
++  // replace input file path
++  pos = tmp_command_line.find("%i");
++  if (pos != std::string::npos)
++  {
++    glib::String input_path(g_filename_from_uri(input_file.c_str(), NULL, NULL));
++    if (!input_path)
++    {
++      error_hint = "Input file is not a local file";
++      return false;
++    }
++    tmp_command_line.replace(pos, 2, glib::String(g_shell_quote(input_path)).Str());
++  }
+ 
+   // replace output file name
+   pos = tmp_command_line.find("%o");
+-  if (pos != std::string::npos) { tmp_command_line.replace(pos, 2, output_file); }
++  if (pos != std::string::npos) { tmp_command_line.replace(pos, 2, glib::String(g_shell_quote(output_file.c_str())).Str()); }
+ 
+   gint exit_status = 0;
+   GError* err = NULL;
+@@ -71,6 +85,7 @@ bool UserThumbnailer::Run(int size, std::string const& input_file, std::string&
+   {
+     error_hint = err->message;
+     g_error_free (err);
++    g_unlink(output_file.c_str());
+     return false;
+   }
+   else if (exit_status != 0)
+@@ -78,6 +93,8 @@ bool UserThumbnailer::Run(int size, std::string const& input_file, std::string&
+     std::stringstream ss;
+     ss << "Failed to create thumbnail. Program exited with exit_status=" << exit_status;
+     error_hint = ss.str();
++    // remove an incomplete thumbnail
++    g_unlink(output_file.c_str());
+     return false;
+   }
+ 
+-- 
+2.55.0
+

@@ -15,7 +15,7 @@ SRC_URI="${UURL}.orig.tar.xz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="+indicator scope test"
+IUSE="+appindicator scope test"
 RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
@@ -26,7 +26,7 @@ COMMON_DEPEND="
 	>=x11-libs/libX11-1.6.3
 	>=x11-libs/libXtst-1.2.0
 
-	indicator? ( >=dev-libs/libayatana-appindicator-0.5.3 )
+	appindicator? ( >=dev-libs/libayatana-appindicator-0.5.3 )
 	scope? ( >=unity-base/unity-7.1.0 )
 "
 RDEPEND="${COMMON_DEPEND}
@@ -45,7 +45,11 @@ BDEPEND="
 	$(vala_depend)
 "
 
-PATCHES=( "${FILESDIR}"/fix-first-run.patch )
+PATCHES=(
+	"${FILESDIR}"/fix-first-run.patch
+	"${FILESDIR}"/query-file-icon.patch
+	"${FILESDIR}"/do-not-warn-about-deprecated-appindicator.patch
+)
 
 src_prepare() {
 	# Make test optional #
@@ -62,7 +66,7 @@ src_prepare() {
 
 src_configure() {
 	local emesonargs=(
-		$(meson_use !indicator disable-indicator-plugin)
+		$(meson_use !appindicator disable-indicator-plugin)
 		$(meson_use scope enable-unity-scope)
 	)
 	meson_src_configure

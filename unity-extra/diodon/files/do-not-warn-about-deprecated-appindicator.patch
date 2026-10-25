@@ -1,0 +1,41 @@
+From 4e22b43af11a76db27f069ae293b668bb0ea65ef Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sun, 25 Oct 2026 00:56:29 +0200
+Subject: [PATCH 1/1] Do not warn that libayatana-appindicator is deprecated
+
+app_indicator_new() logs a warning that libayatana-appindicator is
+deprecated at every start. Its replacement libayatana-appindicator-glib
+exports the menu to org.gtk.Menus and org.gtk.Actions instead of
+com.canonical.dbusmenu, which is not supported by the Unity panel.
+Create the indicator with g_object_new() and the same properties as
+app_indicator_new() does.
+
+Signed-off-by: c4pp4
+---
+ plugins/indicator/indicator-plugin.vala | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/plugins/indicator/indicator-plugin.vala b/plugins/indicator/indicator-plugin.vala
+index a5260bd..80d6523 100644
+--- a/plugins/indicator/indicator-plugin.vala
++++ b/plugins/indicator/indicator-plugin.vala
+@@ -40,8 +40,14 @@ namespace Diodon.Plugins
+             Controller controller = object as Controller;
+ 
+             if(indicator == null) {
+-                indicator = new AppIndicator.Indicator("Diodon", "diodon-panel",
+-                    AppIndicator.IndicatorCategory.APPLICATION_STATUS);
++                // app_indicator_new() warns that libayatana-appindicator is
++                // deprecated, but its replacement libayatana-appindicator-glib
++                // exports the menu to org.gtk.Menus, not supported by Unity
++                indicator = (AppIndicator.Indicator) GLib.Object.new(
++                    typeof(AppIndicator.Indicator),
++                    "id", "Diodon",
++                    "category", "ApplicationStatus",
++                    "icon-name", "diodon-panel");
+ 
+                 indicator.set_menu(controller.get_recent_menu());
+ 
+-- 
+2.55.0
+

@@ -1,0 +1,32 @@
+From: c4pp4
+Subject: [PATCH 1/1] Do not warn that libayatana-appindicator is deprecated
+
+app_indicator_new() logs a warning that libayatana-appindicator is
+deprecated at every start. Its replacement libayatana-appindicator-glib
+exports the menu to org.gtk.Menus and org.gtk.Actions instead of
+com.canonical.dbusmenu, which is not supported by the Unity panel.
+Create the indicator with g_object_new() and the same properties as
+app_indicator_new() does.
+
+Signed-off-by: c4pp4
+---
+--- a/src/applet.c
++++ b/src/applet.c
+@@ -3215,9 +3215,14 @@ setup_widgets (NMApplet *applet)
+ 
+ #ifdef WITH_APPINDICATOR
+ 	if (with_appindicator) {
+-		applet->app_indicator = app_indicator_new ("nm-applet",
+-		                                           "nm-no-connection",
+-		                                           APP_INDICATOR_CATEGORY_SYSTEM_SERVICES);
++		/* app_indicator_new() warns that libayatana-appindicator is
++		 * deprecated, but its replacement libayatana-appindicator-glib
++		 * exports the menu to org.gtk.Menus, not supported by Unity */
++		applet->app_indicator = g_object_new (APP_INDICATOR_TYPE,
++		                                      "id", "nm-applet",
++		                                      "category", "SystemServices",
++		                                      "icon-name", "nm-no-connection",
++		                                      NULL);
+ 		if (!applet->app_indicator)
+ 			return FALSE;
+ 		app_indicator_set_title(applet->app_indicator, _("Network"));

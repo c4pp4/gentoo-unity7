@@ -45,15 +45,15 @@ setvar() {
 	eval "_dep_${1}=\"${5}\""
 	packages+=( ${1} )
 }
-#[fnc] [name]                   [UVER]                  [UREV]   [IUSE] [RDEPEND]                                                            [comment]
-setvar audacious                0.1+13.10.20130927.1    0ubuntu1 +      "$(python_gen_cond_dep 'dev-python/dbus-python[${PYTHON_USEDEP}]')"  ## works with audacious 3.9
-setvar calculator               0.1+14.04.20140328      0ubuntu6 +      ""                                                                   ## works with gnome-calculator 3.32
-setvar chromiumbookmarks        0.1+13.10.20130723      0ubuntu1 +      ""                                                                   ## works with chromium 79 (fixed by patch)
-setvar devhelp                  0.1+14.04.20140328      0ubuntu5 -      "$(python_gen_cond_dep 'dev-python/lxml[${PYTHON_USEDEP}]')"         ## works
-setvar firefoxbookmarks         0.1+13.10.20130809.1    0ubuntu1 +      ""                                                                   ## works with firefox 72 (fixed by patch)
-setvar manpages                 3.0+14.04.20140324      0ubuntu5 -      "sys-apps/man-db x11-libs/gtk+:3"                                    ## works
-setvar texdoc                   0.1+14.04.20140328      0ubuntu1 -      ""                                                                   ## works
-setvar virtualbox               0.1+13.10.20130723      0ubuntu4 -      ""                                                                   ## works
+#[fnc] [name]                   [UVER]                  [UREV]   [IUSE] [RDEPEND]
+setvar audacious                0.1+13.10.20130927.1    0ubuntu1 +      "$(python_gen_cond_dep 'dev-python/dbus-python[${PYTHON_USEDEP}] media-libs/mutagen[${PYTHON_USEDEP}]')"
+setvar calculator               0.1+14.04.20140328      0ubuntu6 +      ""
+setvar chromiumbookmarks        0.1+13.10.20130723      0ubuntu1 +      ""
+setvar devhelp                  0.1+14.04.20140328      0ubuntu5 -      "$(python_gen_cond_dep 'dev-python/lxml[${PYTHON_USEDEP}]')"
+setvar firefoxbookmarks         0.1+13.10.20130809.1    0ubuntu1 +      ""
+setvar manpages                 3.0+14.04.20140324      0ubuntu5 -      "sys-apps/man-db x11-libs/gtk+:3"
+setvar texdoc                   0.1+14.04.20140328      0ubuntu1 -      ""
+setvar virtualbox               0.1+13.10.20130723      0ubuntu4 -      ""
 ## Separate the columns with spaces only (no tabs) ##
 
 UURL="${UURL%/*}"; unset SRC_URI

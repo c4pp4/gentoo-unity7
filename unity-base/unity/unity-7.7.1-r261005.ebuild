@@ -107,6 +107,7 @@ BDEPEND="
 PATCHES=(
 	"${FILESDIR}"/add-nemo-support.patch
 	"${FILESDIR}"/add-unity-version-xml.patch
+	"${FILESDIR}"/fix-dash-preview-thumbnails.patch
 	"${FILESDIR}"/fix-recently-used-tracking-for-DBusActivatable-apps.patch
 	"${FILESDIR}"/lockscreen-spawn-panel-service-without-systemd.patch
 	"${FILESDIR}"/prevent-compiz-segfault-by-guarding-pthread_join.patch

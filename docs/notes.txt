@@ -35,7 +35,7 @@ gnome-extra/evolution-data-server       # Use libnotify in Unity (evolution-alar
 gnome-extra/gnome-calendar              # Use unity-control-center as the fallback
 gnome-extra/gnome-contacts              # Use gnome-online-accounts-gtk as the fallback
 gnome-extra/nemo                        # Add Unity Launcher support, enable StartupNotify
-gnome-extra/nm-applet                   # Show nm-applet in indicator panel (Have-the-appindicator-enabled-by-default.patch), show notifications via libnotify when in Unity, do not autostart in Cinnamon
+gnome-extra/nm-applet                   # Show nm-applet in indicator panel (Have-the-appindicator-enabled-by-default.patch), show notifications via libnotify when in Unity, do not autostart in Cinnamon, do not warn that libayatana-appindicator is deprecated
 gnome-extra/polkit-gnome                # Patched to have polkit-gnome-authentication-agent-1 xdg-autostart on Unity login
                                         #  Ubuntu patchset:
                                         #  0001-Select-the-current-user-to-authenticate-with-by-defa.patch

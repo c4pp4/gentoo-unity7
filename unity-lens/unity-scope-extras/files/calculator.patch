@@ -1,7 +1,21 @@
-diff -Nur a/src/unity_calculator_daemon.py b/src/unity_calculator_daemon.py
---- a/src/unity_calculator_daemon.py	2026-10-22 23:25:06.811414939 +0200
-+++ b/src/unity_calculator_daemon.py	2026-10-22 23:25:06.817215928 +0200
-@@ -71,8 +71,8 @@
+From d692b3f5ad8094c279786013ef92623b6012251b Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sun, 25 Oct 2026 03:52:31 +0100
+Subject: [PATCH 1/1] Fix invalid escape sequences
+
+The '\(' and '\)' string literals are invalid escape sequences, which
+Python reports with a SyntaxWarning. Use raw strings.
+
+Signed-off-by: c4pp4
+---
+ src/unity_calculator_daemon.py | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/unity_calculator_daemon.py b/src/unity_calculator_daemon.py
+index 5835801..ef6ead8 100644
+--- a/src/unity_calculator_daemon.py
++++ b/src/unity_calculator_daemon.py
+@@ -71,8 +71,8 @@ def search(search, filters):
      search = search.replace(';','')
      search = search.replace('&','')
      hint = search
@@ -12,3 +26,6 @@ diff -Nur a/src/unity_calculator_daemon.py b/src/unity_calculator_daemon.py
      hint = hint.replace('sqrt','√')
      print ("Operation: %s" % hint)
      try:
+-- 
+2.55.0
+

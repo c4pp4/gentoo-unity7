@@ -9,6 +9,6 @@
 		<flag name="music">Music collection lens for the Dash</flag>
 		<flag name="photos">Photo collection lens for the Dash</flag>
 		<flag name="plugins">Additional scopes for the Dash</flag>
-		<flag name="video">Online and local video collection lens for the Dash</flag>
+		<flag name="video">Local video collection lens for the Dash (requires the music lens for video previews)</flag>
 	</use>
 </pkgmetadata>

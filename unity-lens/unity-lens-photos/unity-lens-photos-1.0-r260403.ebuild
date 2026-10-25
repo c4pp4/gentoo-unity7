@@ -23,6 +23,7 @@ RESTRICT="test"
 
 RDEPEND="
 	>=dev-libs/dee-1.2.5:0=[${PYTHON_SINGLE_USEDEP}]
+	>=dev-libs/glib-2.80:2[introspection]
 	>=dev-libs/libunity-7:0=[${PYTHON_SINGLE_USEDEP}]
 	media-gfx/shotwell
 
@@ -37,6 +38,9 @@ BDEPEND="
 PATCHES=(
 	"${FILESDIR}"/Fix-timestamp-NoneType-error.patch
 	"${FILESDIR}"/remove-goa-scopes.diff
+	"${FILESDIR}"/Show-photo-in-default-file-manager.patch
+	"${FILESDIR}"/Fix-scope-crash.patch
+	"${FILESDIR}"/Fix-preview-crash.patch
 )
 
 src_unpack() {
