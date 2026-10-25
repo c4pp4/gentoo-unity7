@@ -1,0 +1,38 @@
+From 6f7345c340bfca598604bd916aaad7eb90d63d0e Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sun, 25 Oct 2026 13:26:03 +0100
+Subject: [PATCH 1/1] Implement playback control properties of the greeter player
+
+MediaPlayerUser did not implement can-do-play, can-do-prev and
+can-do-next, the service running in the greeter warned about each of
+them when it built the phone greeter menu with the player of the user.
+The controls are sent through unity-greeter-session-broadcast, enable
+them only if it is running.
+
+Signed-off-by: c4pp4
+---
+ src/media-player-user.vala | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/src/media-player-user.vala b/src/media-player-user.vala
+index ec31d25..01d63ed 100644
+--- a/src/media-player-user.vala
++++ b/src/media-player-user.vala
+@@ -200,6 +200,14 @@ public class MediaPlayerUser : MediaPlayer {
+ 	/* A bit weird.  Not sure how we should handle this. */
+ 	public override bool can_raise { get { return true; } }
+ 
++	/* The controls work only if unity-greeter-session-broadcast is running */
++	bool greeter_is_valid () {
++		return this.greeter != null && (this.greeter as DBusProxy).g_name_owner != null;
++	}
++	public override bool can_do_play { get { return greeter_is_valid(); } }
++	public override bool can_do_prev { get { return greeter_is_valid(); } }
++	public override bool can_do_next { get { return greeter_is_valid(); } }
++
+ 	/* Fill out the track based on the values in the proxy */
+ 	MediaPlayer.Track track_cache;
+ 	public override MediaPlayer.Track? current_track {
+-- 
+2.55.0
+

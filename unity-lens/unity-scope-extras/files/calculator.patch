@@ -1,21 +1,55 @@
-From d692b3f5ad8094c279786013ef92623b6012251b Mon Sep 17 00:00:00 2001
+From 3d81f345ef5807b4ba53f00df8cdf4b02d2215d0 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Sun, 25 Oct 2026 03:52:31 +0100
-Subject: [PATCH 1/1] Fix invalid escape sequences
+Date: Sun, 25 Oct 2026 13:00:32 +0100
+Subject: [PATCH 1/1] Fix warnings, support mate-calc
 
 The '\(' and '\)' string literals are invalid escape sequences, which
 Python reports with a SyntaxWarning. Use raw strings.
 
+Require the Unity version before the import, PyGI warns otherwise.
+Do not import the unused UnityExtras.
+
+Use mate-calc if gnome-calculator is not installed. mate-calc solves
+the equation the same way, but it can not start with an equation, open
+it without the result. Return no results without a calculator.
+
 Signed-off-by: c4pp4
 ---
- src/unity_calculator_daemon.py | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ src/unity_calculator_daemon.py | 28 +++++++++++++++++++++-------
+ 1 file changed, 21 insertions(+), 7 deletions(-)
 
 diff --git a/src/unity_calculator_daemon.py b/src/unity_calculator_daemon.py
-index 5835801..ef6ead8 100644
+index 5835801..b613bc2 100644
 --- a/src/unity_calculator_daemon.py
 +++ b/src/unity_calculator_daemon.py
-@@ -71,8 +71,8 @@ def search(search, filters):
+@@ -14,7 +14,9 @@
+ # You should have received a copy of the GNU General Public License along 
+ # with this program.  If not, see <http://www.gnu.org/licenses/>.
+ 
+-from gi.repository import Unity, UnityExtras
++import gi
++gi.require_version('Unity', '7.0')
++from gi.repository import Unity
+ from gi.repository import Gio, GLib
+ import gettext
+ 
+@@ -43,7 +45,14 @@ CATEGORIES = [c1]
+ FILTERS = []
+ EXTRA_METADATA = []
+ 
+-CALCULATOR_EXECUTABLE = '/usr/bin/gnome-calculator'
++CALCULATOR_EXECUTABLE = GLib.find_program_in_path('gnome-calculator')
++CALCULATOR_ICON = 'gnome-calculator'
++CALCULATOR_EQUATION_OPTION = '-e'
++if not CALCULATOR_EXECUTABLE:
++    CALCULATOR_EXECUTABLE = GLib.find_program_in_path('mate-calc')
++    CALCULATOR_ICON = 'accessories-calculator'
++    # mate-calc can not start with an equation
++    CALCULATOR_EQUATION_OPTION = None
+ 
+ def search(search, filters):
+     '''
+@@ -71,10 +80,12 @@ def search(search, filters):
      search = search.replace(';','')
      search = search.replace('&','')
      hint = search
@@ -25,7 +59,41 @@ index 5835801..ef6ead8 100644
 +    hint = hint.replace(r'\)',')')
      hint = hint.replace('sqrt','√')
      print ("Operation: %s" % hint)
++    if not CALCULATOR_EXECUTABLE:
++        return results
      try:
+         result = GLib.spawn_sync(None,
+                                  [CALCULATOR_EXECUTABLE,
+@@ -90,7 +101,7 @@ def search(search, filters):
+     results.append({'uri':r,
+                     'title':r,
+                     'comment':hint,
+-                    'icon':'gnome-calculator'})
++                    'icon':CALCULATOR_ICON})
+     return results
+ 
+ 
+@@ -134,7 +145,7 @@ class MySearch (Unity.ScopeSearchBase):
+ class Preview (Unity.ResultPreviewer):
+ 
+     def do_run(self):
+-        image = Gio.ThemedIcon.new('gnome-calculator')
++        image = Gio.ThemedIcon.new(CALCULATOR_ICON)
+         preview = Unity.GenericPreview.new(self.result.title, '', image)
+         preview.props.subtitle = self.result.comment
+         open_action = Unity.PreviewAction.new("open", _("Open in calculator"), None)
+@@ -200,7 +211,10 @@ class Scope (Unity.AbstractScope):
+         return rp
+ 
+     def do_activate(self, result, metadata, id):
+-        GLib.spawn_async([CALCULATOR_EXECUTABLE, "-e", result.uri])
++        command = [CALCULATOR_EXECUTABLE]
++        if CALCULATOR_EQUATION_OPTION:
++            command += [CALCULATOR_EQUATION_OPTION, result.uri]
++        GLib.spawn_async(command)
+         return Unity.ActivationResponse(handled=Unity.HandledType.HIDE_DASH, goto_uri=None)
+ 
+ def load_scope():
 -- 
 2.55.0
 

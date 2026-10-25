@@ -1,0 +1,88 @@
+From 3bbbce27bbf7aa2a22508532e1ad47fe6d2eb76a Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sun, 25 Oct 2026 11:49:44 +0100
+Subject: [PATCH 1/1] Fix Python scope runner with current Python and PyGObject
+
+Replace imp.load_source(), the imp module was removed in Python 3.12.
+
+Require the Unity version before the import, use GLibUnix.signal_add()
+instead of the deprecated GLib.unix_signal_add_full() and do not call
+GLib.threads_init(), which is not needed since PyGObject 3.11. PyGI
+warns about all of them.
+
+Signed-off-by: c4pp4
+---
+ bindings/python/scope-runner-dbus.py | 23 +++++++++++++++++------
+ 1 file changed, 17 insertions(+), 6 deletions(-)
+
+diff --git a/bindings/python/scope-runner-dbus.py b/bindings/python/scope-runner-dbus.py
+index 3489a56..fe50b34 100644
+--- a/bindings/python/scope-runner-dbus.py
++++ b/bindings/python/scope-runner-dbus.py
+@@ -16,18 +16,30 @@
+ # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ 
+ import argparse
+-import imp
+ import importlib
++import importlib.machinery
++import importlib.util
+ import os
+ import sys
+ 
++import gi
++gi.require_version('Unity', '7.0')
+ from gi.repository import Unity
+-from gi.repository import GLib
++from gi.repository import GLib, GLibUnix
+ 
+ MODULE_TYPE = "python{0}".format(sys.version_info.major)
+ # An internal type to cover legacy "load_source" imports
+ SOURCE_TYPE = MODULE_TYPE + "-source"
+ 
++# imp.load_source() was removed in Python 3.12
++def load_source(modulename, filename):
++  loader = importlib.machinery.SourceFileLoader(modulename, filename)
++  spec = importlib.util.spec_from_file_location(modulename, filename, loader=loader)
++  module = importlib.util.module_from_spec(spec)
++  sys.modules[modulename] = module
++  loader.exec_module(module)
++  return module
++
+ 
+ class PythonScopeLoader(Unity.ScopeLoader):
+   def do_get_scopes(self, name, module_type):
+@@ -36,7 +48,7 @@ class PythonScopeLoader(Unity.ScopeLoader):
+       module = importlib.import_module(name)
+     elif module_type == SOURCE_TYPE:
+       modulename, _ = os.path.splitext(os.path.basename(name))
+-      module = imp.load_source(modulename, name)
++      module = load_source(modulename, name)
+     else:
+       raise RuntimeError("Unknown module type: {0}".format(module_type))
+     return [module.load_scope()]
+@@ -49,11 +61,10 @@ def load_scope(name, as_module):
+     # Treat as source file name: use the file's base name as a module
+     # name in the hope it is unique.
+     modulename, _ = os.path.splitext(os.path.basename(name))
+-    module = imp.load_source(modulename, name)
++    module = load_source(modulename, name)
+   return module.load_scope()
+ 
+ def main(argv):
+-  GLib.threads_init()
+   parser = argparse.ArgumentParser(
+     description='A host process for Unity scopes written in Python')
+   parser.add_argument(
+@@ -85,7 +96,7 @@ def main(argv):
+       loader.load_module(name, SOURCE_TYPE)
+   # add manual handling for SIGTERM, since we don't use GLib.MainLoop
+   # from python it wouldn't be handled properly
+-  GLib.unix_signal_add_full(0, 2, lambda x: Unity.ScopeDBusConnector.quit(), None)
++  GLibUnix.signal_add(0, 2, lambda x: Unity.ScopeDBusConnector.quit(), None)
+   Unity.ScopeDBusConnector.run()
+ 
+ if __name__ == "__main__":
+-- 
+2.55.0
+

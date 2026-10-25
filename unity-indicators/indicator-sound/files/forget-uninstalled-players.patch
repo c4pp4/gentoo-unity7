@@ -1,0 +1,83 @@
+From eb1e113fab8c65c65cbe6e50f43f3b9a3a8d29d2 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sun, 25 Oct 2026 13:43:43 +0100
+Subject: [PATCH 1/1] Forget uninstalled players
+
+The interested-media-players key keeps the players that have appeared
+in the menu, including the uninstalled ones. The service warned about
+each of them at every start, because the key was rewritten only when a
+player was added or removed. Rewrite it if a player could not be added.
+
+Signed-off-by: c4pp4
+---
+ src/media-player-list-mpris.vala | 13 ++++++++++---
+ src/media-player-list.vala       |  2 +-
+ src/service.vala                 |  6 +++++-
+ 3 files changed, 16 insertions(+), 5 deletions(-)
+
+diff --git a/src/media-player-list-mpris.vala b/src/media-player-list-mpris.vala
+index 7b0225b..1a1d426 100644
+--- a/src/media-player-list-mpris.vala
++++ b/src/media-player-list-mpris.vala
+@@ -90,8 +90,10 @@ public class MediaPlayerListMpris : MediaPlayerList {
+ 	/**
+ 	 * Synchronizes the player list with @desktop_ids.  After this call, this list will only contain the players
+ 	 * in @desktop_ids.  Players that were running but are not in @desktop_ids will remain in the list.
++	 *
++	 * Returns false if a player in @desktop_ids could not be added, e.g. it is not installed anymore.
+ 	 */
+-	public override void sync (string[] desktop_ids) {
++	public override bool sync (string[] desktop_ids) {
+ 
+ 		/* hash desktop_ids for faster lookup */
+ 		var hash = new GenericSet<string> (str_hash, str_equal);
+@@ -105,8 +107,13 @@ public class MediaPlayerListMpris : MediaPlayerList {
+ 		}
+ 
+ 		/* insert all players (insert() takes care of not adding a player twice */
+-		foreach (var id in desktop_ids)
+-			this.insert (id);
++		bool added_all = true;
++		foreach (var id in desktop_ids) {
++			if (this.insert (id) == null)
++				added_all = false;
++		}
++
++		return added_all;
+ 	}
+ 
+ 	HashTable<string, MediaPlayerMpris> _players;
+diff --git a/src/media-player-list.vala b/src/media-player-list.vala
+index 03cd7d6..0029831 100644
+--- a/src/media-player-list.vala
++++ b/src/media-player-list.vala
+@@ -25,7 +25,7 @@ public abstract class MediaPlayerList : Object {
+ 	}
+ 	public virtual Iterator iterator () { return new Iterator(); }
+ 
+-	public virtual void sync (string[] ids) { return; }
++	public virtual bool sync (string[] ids) { return true; }
+ 
+ 	public signal void player_added (MediaPlayer player);
+ 	public signal void player_removed (MediaPlayer player);
+diff --git a/src/service.vala b/src/service.vala
+index 6b86081..a95b34e 100644
+--- a/src/service.vala
++++ b/src/service.vala
+@@ -542,8 +542,12 @@ public class IndicatorSound.Service: Object {
+ 
+ 	void sync_preferred_players () {
+ 		this.syncing_preferred_players = true;
+-		this.players.sync (settings.get_strv ("interested-media-players"));
++		bool added_all = this.players.sync (settings.get_strv ("interested-media-players"));
+ 		this.syncing_preferred_players = false;
++
++		/* forget the players that are not installed anymore */
++		if (!added_all)
++			this.update_preferred_players ();
+ 	}
+ 
+ 	void update_preferred_players () {
+-- 
+2.55.0
+

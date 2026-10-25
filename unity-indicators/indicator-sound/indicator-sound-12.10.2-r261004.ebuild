@@ -45,7 +45,9 @@ PATCHES=(
 	"${FILESDIR}"/connect-to-playlists-proxy.patch
 	"${FILESDIR}"/exit-without-finalizing-on-sigterm.patch
 	"${FILESDIR}"/fix-notification-icon.patch
+	"${FILESDIR}"/forget-uninstalled-players.patch
 	"${FILESDIR}"/greeter-user-lookup-on-name-owner.patch
+	"${FILESDIR}"/implement-greeter-player-controls.patch
 	"${FILESDIR}"/quiet-missing-pulseaudio-dbus.patch
 	"${FILESDIR}"/remove-playlist-item-only-if-present.patch
 )

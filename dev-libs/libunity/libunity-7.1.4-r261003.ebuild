@@ -29,13 +29,11 @@ COMMON_DEPEND="
 	x11-libs/gtk+:3
 "
 RDEPEND="${COMMON_DEPEND}
+	>=dev-libs/glib-2.80:2[introspection]
 	gnome-base/dconf
 
 	${PYTHON_DEPS}
-	$(python_gen_cond_dep '
-		dev-python/pygobject:3[${PYTHON_USEDEP}]
-		dev-python/zombie-imp[${PYTHON_USEDEP}]
-	')
+	$(python_gen_cond_dep 'dev-python/pygobject:3[${PYTHON_USEDEP}]')
 "
 DEPEND="${COMMON_DEPEND}"
 BDEPEND="
@@ -54,6 +52,8 @@ BDEPEND="
 
 	$(vala_depend)
 "
+
+PATCHES=( "${FILESDIR}"/fix-python-scope-runner.patch )
 
 src_configure() {
 	local myeconfargs=(

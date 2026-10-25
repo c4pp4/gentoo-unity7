@@ -36,7 +36,6 @@ RDEPEND="
 		dev-python/dbus-python[${PYTHON_USEDEP}]
 		dev-python/pygobject:3[${PYTHON_USEDEP}]
 		dev-python/pyxdg[${PYTHON_USEDEP}]
-		dev-python/zombie-imp[${PYTHON_USEDEP}]
 	')
 "
 BDEPEND="sys-devel/gettext"
@@ -44,6 +43,7 @@ BDEPEND="sys-devel/gettext"
 PATCHES=(
 	"${FILESDIR}"/handle-glib-exception-in-conntest.patch
 	"${FILESDIR}"/fix-notification-icon.patch
+	"${FILESDIR}"/replace-removed-imp-module.patch
 )
 
 src_prepare() {

@@ -103,7 +103,7 @@ RDEPEND="
 			media-sound/audacious
 		)
 		|| (
-			media-video/vlc
+			( media-video/vlc media-video/ffmpegthumbnailer )
 			media-video/totem
 		)
 		x11-terms/mate-terminal

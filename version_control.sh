@@ -30,7 +30,6 @@ declare -A skip_packages=(
 
 ## Packages with a different Ubuntu source package name.
 declare -A upstream_names=(
-	["dev-python/zombie-imp"]="python-zombie-imp"
 	["gnome-extra/nemo-engrampa"]="nemo-fileroller"
 	["unity-extra/indicator-classicmenu"]="classicmenu-indicator"
 	["unity-extra/indicator-psensor"]="psensor"

@@ -9,7 +9,7 @@ PYTHON_COMPAT=( python3_{12..15} )
 UVER=
 UREV=
 
-inherit distutils-r1 ubuntu-versionator
+inherit distutils-r1 optfeature ubuntu-versionator
 
 DESCRIPTION="Extra scopes for the Unity Dash"
 HOMEPAGE="https://launchpad.net/onehundredscopes"
@@ -134,42 +134,18 @@ src_install() {
 pkg_postinst() {
 	ubuntu-versionator_pkg_postinst
 
-	local note
-	local -a notes
+	optfeature_header "Install additional packages for the enabled scopes:"
+	use audacious && optfeature "audacious scope" media-sound/audacious
+	use calculator && optfeature "calculator scope" gnome-extra/gnome-calculator mate-extra/mate-calc
+	use chromiumbookmarks && optfeature "chromiumbookmarks scope" www-client/chromium
+	use devhelp && optfeature "devhelp scope" dev-util/devhelp
+	use firefoxbookmarks && optfeature "firefoxbookmarks scope" www-client/firefox www-client/firefox-bin
+	use manpages && optfeature "manpages scope" gnome-extra/yelp
+	use texdoc && optfeature "texdoc scope" "dev-util/devhelp app-text/texlive-core[doc]"
+	use virtualbox && optfeature "virtualbox scope" app-emulation/virtualbox
 
-	## Add a note about packages ($@) needed by a scope ($1) that are not installed.
-	scope_needs() {
-		local \
-			scope="$1" \
-			atom
-
-		local -a missing
-
-		shift
-		for atom in "$@"; do
-			has_version "${atom}" || missing+=( "${atom}" )
-		done
-		[[ -n ${missing[@]} ]] && notes+=( "${scope} scope needs to install: ${missing[*]}" )
-	}
-
-	use audacious && scope_needs audacious media-sound/audacious
-	use calculator && scope_needs calculator gnome-extra/gnome-calculator
-	use chromiumbookmarks && scope_needs chromiumbookmarks www-client/chromium
-	use devhelp && scope_needs devhelp dev-util/devhelp
-	use firefoxbookmarks && ! has_version www-client/firefox-bin && scope_needs firefoxbookmarks www-client/firefox
-	use texdoc && scope_needs texdoc dev-util/devhelp "app-text/texlive-core[doc]"
-	use virtualbox && scope_needs virtualbox app-emulation/virtualbox
 	if use manpages; then
-		scope_needs manpages gnome-extra/yelp
-		notes+=( "manpages scope needs to run 'mandb' command to create or update the manual page index caches." )
-	fi
-
-	## Print the notes separated by empty lines from the rest of the output.
-	if [[ -n ${notes[@]} ]]; then
-		echo
-		for note in "${notes[@]}"; do
-			elog "${note}"
-		done
-		echo
+		elog
+		elog "manpages scope needs to run 'mandb' command to create or update the manual page index caches."
 	fi
 }

@@ -1,7 +1,6 @@
 ========================================================================
 * Reasons for patching/maintaining packages:
 ========================================================================
-dev-python/zombie-imp                   # Copy of the 'imp' module that was removed in Python 3.12
 media-fonts/fonts-noto-cjk              # Repacked version with reduced size
 media-fonts/fonts-ubuntu                # Newer version of Ubuntu fonts
 media-libs/glewmx                       # Needed by unity-base/nux and unity-base/unity, MX was discontinued as of GLEW 2.0.0
