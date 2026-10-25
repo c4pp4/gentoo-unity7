@@ -1,6 +1,6 @@
-From d297842a522f49ff7af03c534bd8d8c1d46c53c0 Mon Sep 17 00:00:00 2001
+From 293e947ef86d7c11432b03da0d2ec04ea9434259 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Sun, 25 Oct 2026 04:40:09 +0100
+Date: Sun, 25 Oct 2026 05:39:02 +0100
 Subject: [PATCH 1/1] Fix playlist parsing, album art, filters, actions and
  translations
 
@@ -13,6 +13,8 @@ Playlists:
   value of the previous track
 - use the file name as title of a track without the title tag and skip
   tracks without an album in the Albums category
+- return no results without the Audacious playlists, the scope is
+  installed also without Audacious and failed at every search
 
 Album art:
 - read the embedded album art with mutagen from ID3 (MP3), FLAC, MP4
@@ -51,11 +53,11 @@ Translations:
 
 Signed-off-by: c4pp4
 ---
- src/unity_audacious_daemon.py | 221 +++++++++++++++++++++++++++-------
- 1 file changed, 177 insertions(+), 44 deletions(-)
+ src/unity_audacious_daemon.py | 224 +++++++++++++++++++++++++++-------
+ 1 file changed, 180 insertions(+), 44 deletions(-)
 
 diff --git a/src/unity_audacious_daemon.py b/src/unity_audacious_daemon.py
-index 6ff2d31..bc66c23 100644
+index 6ff2d31..71b830b 100644
 --- a/src/unity_audacious_daemon.py
 +++ b/src/unity_audacious_daemon.py
 @@ -14,8 +14,12 @@
@@ -125,11 +127,14 @@ index 6ff2d31..bc66c23 100644
  tracks = []
  
  
-@@ -95,21 +137,25 @@ def get_music_from_audacious():
+@@ -95,21 +137,28 @@ def get_music_from_audacious():
      length = 0
      global tracks
      tracks = []
 +    uris = set()
++    # Audacious is not used (the scope is installed without it)
++    if not os.path.isdir(AUDACIOUS_DBFILE):
++        return tracks
      for collection in os.listdir(AUDACIOUS_DBFILE):
          dbfile = '%s/%s' % (AUDACIOUS_DBFILE, collection)
          database = open(dbfile, "r")
@@ -156,7 +161,7 @@ index 6ff2d31..bc66c23 100644
              for line in lines:
                  line = urllib.parse.unquote(line)
                  if line.startswith("file://"):
-@@ -128,13 +174,62 @@ def get_music_from_audacious():
+@@ -128,13 +177,62 @@ def get_music_from_audacious():
                      tracknumber = line[13:]
                  if line.startswith("length="):
                      length = line[7:]
@@ -219,7 +224,7 @@ index 6ff2d31..bc66c23 100644
      dirname = dirname = os.path.dirname(track[1])
      if os.path.exists(dirname + "/cover.jpg"):
          return dirname + "/cover.jpg"
-@@ -153,13 +248,8 @@ def get_album_art(track):
+@@ -153,13 +251,8 @@ def get_album_art(track):
          return tb_filename
      else:
          try:
@@ -235,7 +240,7 @@ index 6ff2d31..bc66c23 100644
                  if not os.path.exists(os.path.expanduser("~/.cache/media-art")):
                      os.makedirs(os.path.expanduser("~/.cache/media-art"))
                  with open(tb_filename, "wb") as img:
-@@ -172,16 +262,36 @@ def get_album_art(track):
+@@ -172,16 +265,36 @@ def get_album_art(track):
              return "media-audio"
  
  
@@ -275,7 +280,7 @@ index 6ff2d31..bc66c23 100644
  
      for track in tracks:
          title = "" if track[0] is None else track[0]
-@@ -194,11 +304,23 @@ def search(search, filters):
+@@ -194,11 +307,23 @@ def search(search, filters):
          track_length = 0 if track[8] is None else track[8]
          track_number = 0 if track[7] is None else track[7]
          genre = "" if track[6] is None else track[6]
@@ -301,7 +306,7 @@ index 6ff2d31..bc66c23 100644
                  results.append({'uri': uri,
                                  'icon': albumart,
                                  'category': 0,
-@@ -209,9 +331,9 @@ def search(search, filters):
+@@ -209,9 +334,9 @@ def search(search, filters):
                                  'year': GLib.Variant('i', year),
                                  'track_length': GLib.Variant('i', track_length),
                                  'track_number': GLib.Variant('i', track_number)})
@@ -313,7 +318,7 @@ index 6ff2d31..bc66c23 100644
                  results.append({'uri': albumuri,
                                  'icon': albumart,
                                  'category': 1,
-@@ -222,7 +344,7 @@ def search(search, filters):
+@@ -222,7 +347,7 @@ def search(search, filters):
                                  'year':GLib.Variant('i', year),
                                  'track_length': GLib.Variant('i', track_length),
                                  'track_number': GLib.Variant('i', track_number)})
@@ -322,7 +327,7 @@ index 6ff2d31..bc66c23 100644
      return results
  
  
-@@ -233,11 +355,15 @@ class Preview(Unity.ResultPreviewer):
+@@ -233,11 +358,15 @@ class Preview(Unity.ResultPreviewer):
          album = self.result.metadata['album'].get_string()
          artist = self.result.metadata['artist'].get_string()
          preview = Unity.MusicPreview.new(self.result.title, '', None)
@@ -340,7 +345,7 @@ index 6ff2d31..bc66c23 100644
                      track = Unity.TrackMetadata.full('file://%s' % track[1],
                                                       int(track[7]),
                                                       track[0],
-@@ -276,8 +402,15 @@ class MySearch(Unity.ScopeSearchBase):
+@@ -276,8 +405,15 @@ class MySearch(Unity.ScopeSearchBase):
          '''
          try:
              result_set = self.search_context.result_set
@@ -357,7 +362,7 @@ index 6ff2d31..bc66c23 100644
                  if not 'uri' in i or not i['uri'] or i['uri'] == '':
                      continue
                  if not 'icon' in i or not i['icon'] or i['icon'] == '':
-@@ -337,8 +470,16 @@ class Scope(Unity.AbstractScope):
+@@ -337,8 +473,16 @@ class Scope(Unity.AbstractScope):
          Adds filters
          '''
          fs = Unity.FilterSet.new()
@@ -376,7 +381,7 @@ index 6ff2d31..bc66c23 100644
          return fs
  
      def do_get_group_name(self):
-@@ -355,26 +496,18 @@ class Scope(Unity.AbstractScope):
+@@ -355,26 +499,18 @@ class Scope(Unity.AbstractScope):
          album = result.metadata['album'].get_string()
          artist = result.metadata['artist'].get_string()
          global tracks

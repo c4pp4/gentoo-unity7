@@ -44,8 +44,14 @@ BDEPEND="
 PDEPEND="
 	|| (
 		media-sound/rhythmbox
-		unity-lens/unity-scope-extras[audacious]
+		(
+			media-sound/audacious
+			unity-lens/unity-scope-extras[audacious]
+		)
 	)
 "
 
-PATCHES=( "${FILESDIR}"/Remove-Banshee-support.patch )
+PATCHES=(
+	"${FILESDIR}"/Do-not-warn-about-missing-Rhythmbox-database.patch
+	"${FILESDIR}"/Remove-Banshee-support.patch
+)

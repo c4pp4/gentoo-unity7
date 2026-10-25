@@ -1,0 +1,45 @@
+From a87e327ead2a86866c9d93ce90036f757c18a935 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sun, 25 Oct 2026 05:36:16 +0100
+Subject: [PATCH 1/1] Do not warn about a missing Rhythmbox database
+
+The Rhythmbox scope is installed also when Audacious is used instead of
+Rhythmbox. Without the Rhythmbox database and album art database it
+warns "Unable to open album-art DB!" and "Error while parsing rhythmbox
+DB" in every session. Skip the missing files silently, the file
+monitors parse them when Rhythmbox creates them.
+
+Signed-off-by: c4pp4
+---
+ src/rhythmbox-collection.vala | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/src/rhythmbox-collection.vala b/src/rhythmbox-collection.vala
+index 5c66a49..de9784f 100644
+--- a/src/rhythmbox-collection.vala
++++ b/src/rhythmbox-collection.vala
+@@ -502,6 +502,10 @@ namespace Unity.MusicLens
+             }
+           }
+ 
++          // Rhythmbox has not created the DB (yet), the monitor parses it
++          // when it is created
++          if (!FileUtils.test (path, FileTest.EXISTS)) return;
++
+           var flags = TDB.OpenFlags.INCOMPATIBLE_HASH | TDB.OpenFlags.SEQNUM | TDB.OpenFlags.NOLOCK;
+           album_art_tdb = new TDB.Database (path, 999, flags,
+                                             Posix.O_RDONLY, 0600);
+@@ -569,6 +573,10 @@ namespace Unity.MusicLens
+               parser.parse ((string) buffer, bytes_read);
+             }
+           }
++          catch (IOError.NOT_FOUND err)
++          {
++            // Rhythmbox has not created the DB (yet)
++          }
+           catch (Error err)
+           {
+             warning ("Error while parsing rhythmbox DB: %s", err.message);
+-- 
+2.55.0
+
