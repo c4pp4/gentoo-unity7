@@ -98,7 +98,6 @@ RDEPEND="
 			media-gfx/eom
 			media-gfx/loupe
 		)
-		media-gfx/shotwell
 		|| (
 			media-sound/rhythmbox
 			media-sound/audacious
