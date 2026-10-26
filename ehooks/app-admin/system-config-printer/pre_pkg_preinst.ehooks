@@ -8,6 +8,8 @@ ehooks() {
 		"${ED}"/etc/xdg/autostart/Gentoo-print-applet.desktop || die
 	grep -q "^NotShowIn=KDE;GNOME;Cinnamon;Unity;$" "${ED}"/etc/xdg/autostart/Gentoo-print-applet.desktop || die
 
+	# Show the printers icon as the About dialog logo #
+	# 'printer' resolves to printer-symbolic of ubuntu-mono-* and Yaru-*-dark #
 	sed -i \
 		-e "s:\(self.AboutDialog.set_\)\(icon_name('printer\):\1logo_\2s:" \
 		"${ED}"/usr/share/"${PN}"/"${PN}".py || die

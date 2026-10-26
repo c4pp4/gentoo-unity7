@@ -1,6 +1,6 @@
-From 30721d0dbdc253f34af646dbf232cd310eb5164c Mon Sep 17 00:00:00 2001
+From ac2ff2cd9b150fba2550d8551ffbe3b410bd59fe Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Sun, 3 Sep 2023 11:06:48 +0200
+Date: Sun, 25 Oct 2026 21:17:36 +0100
 Subject: [PATCH 1/1] Optional bluetooth, colord, kerberos and wacom
 
 Add configure options to build without the bluetooth, colord, kerberos
@@ -14,7 +14,7 @@ Signed-off-by: c4pp4
  3 files changed, 129 insertions(+), 32 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index a9603a6..435d8c8 100644
+index a9603a6..6489623 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -160,7 +160,6 @@ PKG_CHECK_MODULES(NETWORK_PANEL, $COMMON_MODULES gmodule-2.0
@@ -67,7 +67,7 @@ index a9603a6..435d8c8 100644
 +              [],
 +              [enable_bluetooth=auto])
 +
-+AS_IF([test "x$enable_bluetooth" = "xyes"],
++AS_IF([test "x$enable_bluetooth" != "xno"],
 +      [PKG_CHECK_MODULES([BLUETOOTH_PANEL],
 +                         [$COMMON_MODULES gnome-bluetooth-3.0],
 +                         [
@@ -168,7 +168,7 @@ index a9603a6..435d8c8 100644
 +        AC_PATH_PROG(KRB5_CONFIG, krb5-config, no)
 +
 +        AS_IF([test "x$KRB5_CONFIG" = "xno"],
-+              AC_MSG_ERROR([krb5-config executable not found in your path - should be installed with the kerberos libraries]))
++              [AC_MSG_ERROR([krb5-config executable not found in your path - should be installed with the kerberos libraries])])
 +
 +        AC_MSG_CHECKING([for krb5 libraries and flags])
 +        KRB5_CFLAGS="`$KRB5_CONFIG --cflags`"

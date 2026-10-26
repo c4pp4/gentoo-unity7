@@ -1,6 +1,6 @@
-From 558df1cece1ea9794b68ea8c7746424f374644ca Mon Sep 17 00:00:00 2001
+From 4079e258c852e45a6f28640e768b3f55597b72f4 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Wed, 22 Apr 2026 13:22:13 +0200
+Date: Sun, 25 Oct 2026 20:12:12 +0100
 Subject: [PATCH 1/1] Integrate 'Language Support' panel
 
 Allow set up Language and Formats for Unity and Login Screen (it's
@@ -18,16 +18,16 @@ Signed-off-by: c4pp4
  panels/common/Makefile.am                     |   2 +
  panels/common/cc-common-language.c            | 633 +++---------
  panels/common/cc-common-language.h            |   8 -
- panels/common/cc-language-chooser.c           | 610 ++++++-----
+ panels/common/cc-language-chooser.c           | 611 ++++++-----
  panels/common/cc-language-chooser.h           |  10 +-
  panels/common/cc-util.c                       | 114 +++
  panels/common/cc-util.h                       |  28 +
  panels/common/language-chooser.ui             | 144 +--
  panels/keyboard/keyboard-general.c            |   3 +-
  panels/langselector/Makefile.am               |  48 +
- panels/langselector/cc-format-chooser.c       | 589 +++++++++++
+ panels/langselector/cc-format-chooser.c       | 590 +++++++++++
  panels/langselector/cc-format-chooser.h       |  36 +
- panels/langselector/cc-langselector-panel.c   | 947 ++++++++++++++++++
+ panels/langselector/cc-langselector-panel.c   | 953 ++++++++++++++++++
  panels/langselector/cc-langselector-panel.h   |  73 ++
  panels/langselector/format-chooser.ui         | 339 +++++++
  panels/langselector/langselector-module.c     |  41 +
@@ -37,7 +37,7 @@ Signed-off-by: c4pp4
  panels/region/cc-region-panel.c               |   3 -
  panels/region/gnome-region-panel-formats.c    | 214 ----
  panels/region/gnome-region-panel-formats.h    |  31 -
- panels/region/gnome-region-panel-input.c      |  40 +-
+ panels/region/gnome-region-panel-input.c      |  45 +-
  panels/region/gnome-region-panel-lang.c       | 159 +--
  panels/region/gnome-region-panel-lang.h       |  32 -
  panels/region/gnome-region-panel-system.c     | 105 --
@@ -45,9 +45,9 @@ Signed-off-by: c4pp4
  panels/region/unity-region-panel-fcitx.ui     |  23 +-
  panels/region/unity-region-panel-ibus.ui      |  23 +-
  .../data/user-accounts-dialog.ui              |  15 +-
- panels/user-accounts/um-user-panel.c          | 164 +--
+ panels/user-accounts/um-user-panel.c          | 166 +--
  po/POTFILES.in                                |   6 +-
- 34 files changed, 3238 insertions(+), 1479 deletions(-)
+ 34 files changed, 3251 insertions(+), 1481 deletions(-)
  create mode 100644 panels/common/cc-util.c
  create mode 100644 panels/common/cc-util.h
  create mode 100644 panels/langselector/Makefile.am
@@ -871,10 +871,10 @@ index 9894988..7a3f554 100644
  void     cc_common_language_setup_list              (GtkWidget    *treeview,
  						     GHashTable   *initial);
 diff --git a/panels/common/cc-language-chooser.c b/panels/common/cc-language-chooser.c
-index 502dc59..360d744 100644
+index 502dc59..625890e 100644
 --- a/panels/common/cc-language-chooser.c
 +++ b/panels/common/cc-language-chooser.c
-@@ -19,326 +19,468 @@
+@@ -19,326 +19,469 @@
   * Written by: Matthias Clasen <mclasen@redhat.com>
   */
  
@@ -1057,21 +1057,21 @@ index 502dc59..360d744 100644
 -        GHashTable *user_langs;
 -        const char *display;
 +        GtkWidget *widget;
-+
+ 
+-        gtk_list_store_clear (store);
 +        widget = padded_label_new (_("No languages found"), TRUE);
 +        gtk_widget_set_sensitive (widget, FALSE);
 +        return widget;
 +}
  
--        gtk_list_store_clear (store);
+-	user_langs = cc_common_language_get_initial_languages ();
 +static void
 +add_languages (GtkDialog   *chooser,
 +               gchar      **locale_ids,
 +               GHashTable  *initial)
 +{
 +        CcLanguageChooserPrivate *priv = GET_PRIVATE (chooser);
- 
--	user_langs = cc_common_language_get_initial_languages ();
++
 +        while (*locale_ids) {
 +                gchar *locale_id;
 +                gboolean is_initial;
@@ -1132,15 +1132,15 @@ index 502dc59..360d744 100644
  {
 -  guint async_id = GPOINTER_TO_UINT (data);
 +        gchar **w;
-+
+ 
+-  g_source_remove (async_id);
 +        if (str == NULL)
 +                return FALSE;
 +
 +        for (w = words; *w; ++w)
 +                if (!strstr (str, *w))
 +                        return FALSE;
- 
--  g_source_remove (async_id);
++
 +        return TRUE;
  }
  
@@ -1377,13 +1377,11 @@ index 502dc59..360d744 100644
 -	gboolean visible;
 +        CcLanguageChooserPrivate *priv = GET_PRIVATE (chooser);
 +        gchar *new_locale_id;
- 
--	filter_string = g_object_get_data (G_OBJECT (model), "filter-string");
++
 +        if (row == NULL)
 +                return;
  
--	if (filter_string == NULL)
--		return TRUE;
+-	filter_string = g_object_get_data (G_OBJECT (model), "filter-string");
 +        if (row == priv->more_item) {
 +                show_more (chooser, TRUE);
 +                return;
@@ -1398,11 +1396,8 @@ index 502dc59..360d744 100644
 +        }
 +}
  
--	gdk_threads_enter ();
--	gtk_tree_model_get (model, iter, DISPLAY_LOCALE_COL, &locale, -1);
--	gdk_threads_leave ();
--	if (locale == NULL)
--		return FALSE;
+-	if (filter_string == NULL)
+-		return TRUE;
 +static void
 +activate_default (GtkWindow *window,
 +                  GtkDialog *chooser)
@@ -1410,7 +1405,12 @@ index 502dc59..360d744 100644
 +        CcLanguageChooserPrivate *priv = GET_PRIVATE (chooser);
 +        GtkWidget *focus;
 +        gchar *locale_id;
-+
+ 
+-	gdk_threads_enter ();
+-	gtk_tree_model_get (model, iter, DISPLAY_LOCALE_COL, &locale, -1);
+-	gdk_threads_leave ();
+-	if (locale == NULL)
+-		return FALSE;
 +        focus = gtk_window_get_focus (window);
 +        if (!focus)
 +                return;
@@ -1489,7 +1489,6 @@ index 502dc59..360d744 100644
 +        chooser = WID ("language-dialog");
 +        priv = g_new0 (CcLanguageChooserPrivate, 1);
 +        g_object_set_data_full (G_OBJECT (chooser), "private", priv, cc_language_chooser_private_free);
-+        g_object_set_data_full (G_OBJECT (chooser), "builder", builder, g_object_unref);
 +
 +        priv->done_button = WID ("ok-button");
 +        priv->filter_entry = WID ("language-filter-entry");
@@ -1539,38 +1538,40 @@ index 502dc59..360d744 100644
 -	gtk_tree_model_filter_set_visible_func (GTK_TREE_MODEL_FILTER (filter_model), filter_languages,
 -						NULL, NULL);
 -	gtk_tree_view_set_model (GTK_TREE_VIEW (list), filter_model);
-+        return chooser;
-+}
++        g_object_unref (builder);
  
 -	/* Setup so that the list is added after the dialogue is shown */
 -        cursor = gdk_cursor_new (GDK_WATCH);
 -        gdk_window_set_cursor (gtk_widget_get_window (parent), cursor);
 -        g_object_unref (cursor);
++        return chooser;
++}
+ 
+-        gtk_window_set_transient_for (GTK_WINDOW (chooser), GTK_WINDOW (parent));
 +void
 +cc_language_chooser_clear_filter (GtkWidget *chooser)
 +{
 +        CcLanguageChooserPrivate *priv = GET_PRIVATE (chooser);
- 
--        gtk_window_set_transient_for (GTK_WINDOW (chooser), GTK_WINDOW (parent));
-+        gtk_entry_set_text (GTK_ENTRY (priv->filter_entry), "");
-+        show_more (GTK_DIALOG (chooser), FALSE);
-+}
  
 -	g_object_set_data_full (G_OBJECT (chooser), "user-langs",
 -				user_langs, (GDestroyNotify) g_hash_table_destroy);
 -        timeout = g_idle_add ((GSourceFunc) finish_language_chooser, chooser);
 -        g_object_set_data (G_OBJECT (chooser), "timeout", GUINT_TO_POINTER (timeout));
 -        g_object_weak_ref (G_OBJECT (chooser), (GWeakNotify) remove_timeout, GUINT_TO_POINTER (timeout));
++        gtk_entry_set_text (GTK_ENTRY (priv->filter_entry), "");
++        show_more (GTK_DIALOG (chooser), FALSE);
++}
+ 
+-        g_object_unref (builder);
 +const gchar *
 +cc_language_chooser_get_language (GtkWidget *chooser)
 +{
 +        CcLanguageChooserPrivate *priv = GET_PRIVATE (chooser);
  
--        g_object_unref (builder);
+-        return chooser;
 +        return priv->language;
 +}
- 
--        return chooser;
++
 +void
 +cc_language_chooser_set_language (GtkWidget   *chooser,
 +                                  const gchar *language)
@@ -2001,10 +2002,10 @@ index 0000000..526a0bc
 +-include $(top_srcdir)/git.mk
 diff --git a/panels/langselector/cc-format-chooser.c b/panels/langselector/cc-format-chooser.c
 new file mode 100644
-index 0000000..4b5aeaa
+index 0000000..d53a12a
 --- /dev/null
 +++ b/panels/langselector/cc-format-chooser.c
-@@ -0,0 +1,589 @@
+@@ -0,0 +1,590 @@
 +/*
 + * Copyright (C) 2013 Red Hat, Inc.
 + *
@@ -2532,7 +2533,6 @@ index 0000000..4b5aeaa
 +        chooser = WID ("dialog");
 +        priv = g_new0 (CcFormatChooserPrivate, 1);
 +        g_object_set_data_full (G_OBJECT (chooser), "private", priv, cc_format_chooser_private_free);
-+        g_object_set_data_full (G_OBJECT (chooser), "builder", builder, g_object_unref);
 +
 +        priv->done_button = WID ("ok-button");
 +        priv->filter_entry = WID ("langselector-filter-entry");
@@ -2576,6 +2576,8 @@ index 0000000..4b5aeaa
 +
 +        g_signal_connect (chooser, "activate-default",
 +                          G_CALLBACK (activate_default), chooser);
++
++        g_object_unref (builder);
 +
 +        return chooser;
 +}
@@ -2638,10 +2640,10 @@ index 0000000..6b49c01
 +#endif /* __CC_FORMAT_CHOOSER_H__ */
 diff --git a/panels/langselector/cc-langselector-panel.c b/panels/langselector/cc-langselector-panel.c
 new file mode 100644
-index 0000000..62a0d21
+index 0000000..ea46e44
 --- /dev/null
 +++ b/panels/langselector/cc-langselector-panel.c
-@@ -0,0 +1,947 @@
+@@ -0,0 +1,953 @@
 +/*
 + * Copyright (C) 2010 Intel, Inc
 + *
@@ -3075,6 +3077,9 @@ index 0000000..62a0d21
 +        cc_language_chooser_set_language (chooser, get_effective_language (self));
 +        g_signal_connect (chooser, "response",
 +                          G_CALLBACK (language_response), self);
++        g_signal_connect_object (self, "destroy",
++                                 G_CALLBACK (gtk_widget_destroy), chooser,
++                                 G_CONNECT_SWAPPED);
 +        gtk_window_present (GTK_WINDOW (chooser));
 +}
 +
@@ -3111,6 +3116,9 @@ index 0000000..62a0d21
 +        cc_format_chooser_set_region (chooser, get_effective_region (self));
 +        g_signal_connect (chooser, "response",
 +                          G_CALLBACK (format_response), self);
++        g_signal_connect_object (self, "destroy",
++                                 G_CALLBACK (gtk_widget_destroy), chooser,
++                                 G_CONNECT_SWAPPED);
 +        gtk_window_present (GTK_WINDOW (chooser));
 +}
 +
@@ -3124,7 +3132,7 @@ index 0000000..62a0d21
 +        GError *error = NULL;
 +        gboolean allowed;
 +
-+        allowed = g_permission_acquire_finish (priv->permission, res, &error);
++        allowed = g_permission_acquire_finish (G_PERMISSION (source), res, &error);
 +        if (error) {
 +                if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
 +                        g_warning ("Failed to acquire permission: %s\n", error->message);
@@ -3336,7 +3344,7 @@ index 0000000..62a0d21
 +        GVariantBuilder *b;
 +        gchar *s;
 +
-+        if (priv->system_language == NULL)
++        if (priv->system_language == NULL || priv->localed == NULL)
 +                return;
 +
 +        b = g_variant_builder_new (G_VARIANT_TYPE ("as"));
@@ -3522,7 +3530,7 @@ index 0000000..62a0d21
 +        CcShell *shell;
 +        GError *error = NULL;
 +
-+        shell = cc_panel_get_shell (self);
++        shell = cc_panel_get_shell (CC_PANEL (self));
 +        if (!cc_shell_set_active_panel_from_id (shell, "region", NULL, &error))
 +        {
 +                g_warning ("Failed to activate Region panel: %s", error ? error->message : "unknown error");
@@ -4610,7 +4618,7 @@ index 6ba1176..0000000
 -
 -#endif
 diff --git a/panels/region/gnome-region-panel-input.c b/panels/region/gnome-region-panel-input.c
-index 5e552ed..345b5e0 100644
+index 5e552ed..2f361c2 100644
 --- a/panels/region/gnome-region-panel-input.c
 +++ b/panels/region/gnome-region-panel-input.c
 @@ -80,6 +80,9 @@
@@ -4669,16 +4677,21 @@ index 5e552ed..345b5e0 100644
  
    return TRUE;
  }
-@@ -1875,8 +1893,10 @@ setup_input_tabs (GtkBuilder    *builder_,
+@@ -1875,8 +1893,15 @@ setup_input_tabs (GtkBuilder    *builder_,
                      G_CALLBACK (show_selected_layout), builder);
    g_signal_connect (WID("input_source_settings"), "clicked",
                      G_CALLBACK (show_selected_settings), builder);
 -  g_signal_connect (WID("jump-to-shortcuts"), "activate-link",
 -                    G_CALLBACK (go_to_shortcuts), panel);
-+  g_signal_connect (WID("jump-to-langselector"), "activate-link",
-+                    G_CALLBACK (go_to_langselector), panel);
-+  g_signal_connect (WID("jump-to-keyboard"), "activate-link",
-+                    G_CALLBACK (go_to_keyboard), panel);
++  if (WID("jump-to-langselector"))
++    g_signal_connect (WID("jump-to-langselector"), "activate-link",
++                      G_CALLBACK (go_to_langselector), panel);
++  if (WID("jump-to-keyboard"))
++    g_signal_connect (WID("jump-to-keyboard"), "activate-link",
++                      G_CALLBACK (go_to_keyboard), panel);
++  else if (WID("jump-to-shortcuts"))
++    g_signal_connect (WID("jump-to-shortcuts"), "activate-link",
++                      G_CALLBACK (go_to_keyboard), panel);
    g_signal_connect (G_OBJECT (input_sources_settings),
                      "changed::" KEY_INPUT_SOURCES,
                      G_CALLBACK (input_sources_changed),
@@ -5202,7 +5215,7 @@ index 7873126..850e976 100644
                            <packing>
                              <property name="left_attach">1</property>
 diff --git a/panels/user-accounts/um-user-panel.c b/panels/user-accounts/um-user-panel.c
-index cda837b..35360ad 100644
+index cda837b..f472fab 100644
 --- a/panels/user-accounts/um-user-panel.c
 +++ b/panels/user-accounts/um-user-panel.c
 @@ -34,6 +34,9 @@
@@ -5273,16 +5286,19 @@ index cda837b..35360ad 100644
                                  }
                          }
                          g_slist_free (list);
-@@ -656,7 +667,7 @@ show_user (ActUser *user, CcUserPanelPrivate *d)
+@@ -656,10 +667,8 @@ show_user (ActUser *user, CcUserPanelPrivate *d)
          GtkWidget *label2;
          GtkWidget *label3;
          GdkPixbuf *pixbuf;
 -        gchar *lang, *text;
 +        gchar *lang, *text, *name;
          GtkWidget *widget;
-         GtkTreeModel *model;
-         GtkTreeIter iter;
-@@ -690,16 +701,24 @@ show_user (ActUser *user, CcUserPanelPrivate *d)
+-        GtkTreeModel *model;
+-        GtkTreeIter iter;
+         gboolean show, enable;
+         ActUser *current;
+ 
+@@ -690,16 +699,24 @@ show_user (ActUser *user, CcUserPanelPrivate *d)
          g_signal_handlers_unblock_by_func (widget, autologin_changed, d);
          gtk_widget_set_sensitive (widget, get_autologin_possible (user));
  
@@ -5313,7 +5329,7 @@ index cda837b..35360ad 100644
  
          /* Fingerprint: show when self, possible, and local account */
          widget = get_widget (d, "account-fingerprint-notebook");
-@@ -779,6 +798,8 @@ change_name_done (GtkWidget          *entry,
+@@ -779,6 +796,8 @@ change_name_done (GtkWidget          *entry,
          ActUser *user;
  
          user = get_selected_user (d);
@@ -5322,7 +5338,7 @@ index cda837b..35360ad 100644
  
          text = cc_editable_entry_get_text (CC_EDITABLE_ENTRY (entry));
          if (g_strcmp0 (text, act_user_get_real_name (user)) != 0 &&
-@@ -799,6 +820,8 @@ account_type_changed (UmEditableCombo    *combo,
+@@ -799,6 +818,8 @@ account_type_changed (UmEditableCombo    *combo,
          gint account_type;
  
          user = get_selected_user (d);
@@ -5331,7 +5347,7 @@ index cda837b..35360ad 100644
  
          model = um_editable_combo_get_model (combo);
          um_editable_combo_get_active_iter (combo, &iter);
-@@ -816,80 +839,76 @@ language_response (GtkDialog         *dialog,
+@@ -816,80 +837,76 @@ language_response (GtkDialog         *dialog,
                     gint               response_id,
                     CcUserPanelPrivate *d)
  {
@@ -5367,11 +5383,6 @@ index cda837b..35360ad 100644
 -        if (response_id == GTK_RESPONSE_OK) {
 -                lang = cc_language_chooser_get_language (GTK_WIDGET (dialog));
 -                act_user_set_language (user, lang);
--        }
--        else {
--                lang = g_strdup (act_user_get_language (user));
--                if (!lang)
--                        lang = cc_common_language_get_current_language ();
 +                button = get_widget (d, "account-language-button-label");
 +                name = gnome_get_language_from_locale (lang, NULL);
 +                if (!name)
@@ -5379,6 +5390,11 @@ index cda837b..35360ad 100644
 +                gtk_label_set_label (GTK_LABEL (button), name);
 +                g_free (name);
          }
+-        else {
+-                lang = g_strdup (act_user_get_language (user));
+-                if (!lang)
+-                        lang = cc_common_language_get_current_language ();
+-        }
 -        cc_common_language_get_iter_for_language (model, lang, &iter);
 -        um_editable_combo_set_active_iter (UM_EDITABLE_COMBO (combo), &iter);
 -        g_free (lang);
@@ -5457,7 +5473,7 @@ index cda837b..35360ad 100644
          g_object_unref (user);
  }
  
-@@ -899,6 +918,8 @@ change_password (GtkButton *button, CcUserPanelPrivate *d)
+@@ -899,6 +916,8 @@ change_password (GtkButton *button, CcUserPanelPrivate *d)
          ActUser *user;
  
          user = get_selected_user (d);
@@ -5466,7 +5482,7 @@ index cda837b..35360ad 100644
  
          um_password_dialog_set_user (d->password_dialog, user);
          um_password_dialog_show (d->password_dialog,
-@@ -914,8 +935,13 @@ change_fingerprint (GtkButton *button, CcUserPanelPrivate *d)
+@@ -914,8 +933,13 @@ change_fingerprint (GtkButton *button, CcUserPanelPrivate *d)
          ActUser *user;
  
          user = get_selected_user (d);
@@ -5481,7 +5497,7 @@ index cda837b..35360ad 100644
  
          label = get_widget (d, "account-fingerprint-value-label");
          label2 = get_widget (d, "account-fingerprint-button-label");
-@@ -930,6 +956,8 @@ show_history (GtkButton *button, CcUserPanelPrivate *d)
+@@ -930,6 +954,8 @@ show_history (GtkButton *button, CcUserPanelPrivate *d)
          ActUser *user;
  
          user = get_selected_user (d);
@@ -5490,7 +5506,7 @@ index cda837b..35360ad 100644
  
          um_history_dialog_set_user (d->history_dialog, user);
          um_history_dialog_show (d->history_dialog, GTK_WINDOW (gtk_widget_get_toplevel (d->main_box)));
-@@ -1167,8 +1195,8 @@ on_permission_changed (GPermission *permission,
+@@ -1167,8 +1193,8 @@ on_permission_changed (GPermission *permission,
                  gtk_widget_show (get_widget (d, "user-icon-button"));
                  gtk_widget_hide (get_widget (d, "user-icon-nonbutton"));
  
@@ -5501,7 +5517,7 @@ index cda837b..35360ad 100644
  
                  um_editable_button_set_editable (UM_EDITABLE_BUTTON (get_widget (d, "account-password-button")), TRUE);
                  remove_unlock_tooltip (get_widget (d, "account-password-button"));
-@@ -1179,8 +1207,8 @@ on_permission_changed (GPermission *permission,
+@@ -1179,8 +1205,8 @@ on_permission_changed (GPermission *permission,
                  gtk_widget_hide (get_widget (d, "user-icon-button"));
                  gtk_widget_show (get_widget (d, "user-icon-nonbutton"));
  
@@ -5512,19 +5528,19 @@ index cda837b..35360ad 100644
  
                  um_editable_button_set_editable (UM_EDITABLE_BUTTON (get_widget (d, "account-password-button")), FALSE);
                  add_unlock_tooltip (get_widget (d, "account-password-button"));
-@@ -1381,8 +1409,9 @@ setup_main_window (CcUserPanelPrivate *d)
+@@ -1381,8 +1407,9 @@ setup_main_window (CcUserPanelPrivate *d)
          button = get_widget (d, "account-password-button");
          g_signal_connect (button, "start-editing", G_CALLBACK (change_password), d);
  
 -        button = get_widget (d, "account-language-combo");
 -        g_signal_connect (button, "editing-done", G_CALLBACK (language_changed), d);
 +        button = get_widget (d, "account-language-button");
-+        gtk_button_set_relief (button, GTK_RELIEF_NONE);
++        gtk_button_set_relief (GTK_BUTTON (button), GTK_RELIEF_NONE);
 +        g_signal_connect (button, "clicked", G_CALLBACK (change_language), d);
  
          button = get_widget (d, "autologin-switch");
          g_signal_connect (button, "notify::active", G_CALLBACK (autologin_changed), d);
-@@ -1522,6 +1551,7 @@ cc_user_panel_dispose (GObject *object)
+@@ -1522,6 +1549,7 @@ cc_user_panel_dispose (GObject *object)
                  gtk_tree_iter_free (priv->other_iter);
                  priv->other_iter = NULL;
          }

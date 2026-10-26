@@ -22,7 +22,7 @@ REQUIRED_USE="vnc? ( sharing )"
 RESTRICT="test"
 
 COMMON_DEPEND="
-	>=app-i18n/ibus-1.5.1[vala]
+	>=app-i18n/ibus-1.5.31[vala]
 	>=dev-libs/glib-2.39.91:2
 	>=dev-libs/libpwquality-1.1.0
 	>=dev-libs/libtimezonemap-0.4.5
@@ -65,6 +65,7 @@ COMMON_DEPEND="
 RDEPEND="${COMMON_DEPEND}
 	>=app-accessibility/at-spi2-core-2.46.0:2
 	app-text/iso-codes
+	gnome-extra/cinnamon-desktop
 	gnome-extra/polkit-gnome
 	gui-libs/gdk-pixbuf-loader-webp
 	>=media-libs/fontconfig-2.12.6:1.0
@@ -115,7 +116,6 @@ PATCHES=(
 	"${FILESDIR}"/appearance-ignore_screenshots_from_mate_screenshot.patch
 	"${FILESDIR}"/appearance-process_filename_dark_files.patch
 	"${FILESDIR}"/network-fix-hotspot-button-state.patch
-	"${FILESDIR}"/prevent-multiple-ibus_init-call.patch
 	"${FILESDIR}"/sharing-fix_translation.patch
 	"${FILESDIR}"/shell-fix_theme_selection_and_hover.patch
 	"${FILESDIR}"/use-cinnamon-schema-for-idle-delay.patch
@@ -131,6 +131,12 @@ src_prepare() {
 			configure.ac || die
 		grep -Fq "[have_networkmanager=no], have_networkmanager=no)" configure.ac || die
 	fi
+
+	# Use Gentoo's libexecdir for the legacy IBus setup tools #
+	sed -i \
+		-e '/LEGACY_IBUS_SETUP_DIR/{s:"/usr/lib/ibus":"/usr/libexec":}' \
+		panels/region/gnome-region-panel-input.c || die
+	grep -Fq '#define LEGACY_IBUS_SETUP_DIR "/usr/libexec"' panels/region/gnome-region-panel-input.c || die
 
 	# Install only online-accounts icons #
 	if use gnome-online-accounts; then

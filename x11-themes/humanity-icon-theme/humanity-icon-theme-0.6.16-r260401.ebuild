@@ -48,6 +48,8 @@ src_install() {
 	doins -r Humanity-Dark
 
 	# Fix unity-control-center printers panel icon #
+	# 'printer' resolves to printer-symbolic of ubuntu-mono-* and Yaru-*-dark #
+	# (GThemedIcon adds -symbolic fallbacks), 'printers' has no symbolic variant #
 	dosym -r /usr/share/icons/Humanity/devices/48/printer.svg \
 		/usr/share/icons/Humanity/devices/48/printers.svg
 
