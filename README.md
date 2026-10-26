@@ -2,7 +2,7 @@
 
 # Gentoo Unity⁷ Desktop
 
-A Gentoo overlay for building and running the Unity7 desktop environment on systemd or, experimentally, OpenRC with elogind.
+A Gentoo overlay for building and running the Unity7 desktop environment. It packages the complete desktop from Ubuntu sources, including the Unity shell with Compiz and Nux, Unity Greeter for LightDM, the indicators, lenses and scopes, Unity Control Center and Unity Settings Daemon. The desktop runs on systemd or, experimentally, on OpenRC with elogind.
 
 - [Build instructions][build]
 - [USE flag tips][tips]
