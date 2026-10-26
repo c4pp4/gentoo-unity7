@@ -53,6 +53,8 @@ BDEPEND="
 	doc? ( app-text/doxygen[dot] )
 "
 
+PATCHES=( "${FILESDIR}"/migrate-to-libpcre2.patch )
+
 src_prepare() {
 	# Use headers from media-libs/glewmx package #
 	sed -i \
@@ -68,6 +70,12 @@ src_prepare() {
 		"${PN}_${PV}${UVER}-${UREV}".diff || die
 	grep -Fq '"x$DESKTOP_SESSION" = "xunity"' "${PN}_${PV}${UVER}-${UREV}".diff || die
 	grep -Fq "/usr/$(get_libdir)/${PN}/unity_support_test" "${PN}_${PV}${UVER}-${UREV}".diff || die
+
+	# Replace Debian PCRE2 migration patch (it leaked the compiled pattern) #
+	sed -i \
+		-e '/^+++ .*debian\/patches\/series/,/^--- / s/^+migrate-to-libpcre2\.patch$/+#migrate-to-libpcre2.patch/' \
+		"${PN}_${PV}${UVER}-${UREV}".diff || die
+	grep -Fxq '+#migrate-to-libpcre2.patch' "${PN}_${PV}${UVER}-${UREV}".diff || die
 
 	ubuntu-versionator_src_prepare
 }
