@@ -1,6 +1,6 @@
-From 26a4798723d74c4b9049946fde35e1c2332fc915 Mon Sep 17 00:00:00 2001
+From 804f979655901bfea5e697a59c3be05f6424c9dd Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Sun, 25 Oct 2026 03:52:31 +0100
+Date: Sun, 1 Nov 2026 22:58:03 +0100
 Subject: [PATCH 1/1] Do not read thumbnails from Top Sites
 
 Chromium does not store the page thumbnails in the Top Sites database
@@ -8,16 +8,47 @@ anymore, so the query of the missing thumbnails table fails and no
 bookmarks are found. Disable the thumbnails, the bookmarks are shown
 with the default icon.
 
+Look up the other profiles only if ~/.config/chromium/ exists, the
+missing directory was reported at every search.
+
+Require the Unity version before the import, PyGI warns otherwise.
+
 Signed-off-by: c4pp4
 ---
- src/unity_chromiumbookmarks_daemon.py | 50 +++++++++++++--------------
- 1 file changed, 25 insertions(+), 25 deletions(-)
+ src/unity_chromiumbookmarks_daemon.py | 59 ++++++++++++++-------------
+ 1 file changed, 31 insertions(+), 28 deletions(-)
 
 diff --git a/src/unity_chromiumbookmarks_daemon.py b/src/unity_chromiumbookmarks_daemon.py
-index 4cf32c3..64edc39 100644
+index 4cf32c3..998d555 100644
 --- a/src/unity_chromiumbookmarks_daemon.py
 +++ b/src/unity_chromiumbookmarks_daemon.py
-@@ -134,46 +134,46 @@ def search(search, filters):
+@@ -14,6 +14,8 @@
+ # You should have received a copy of the GNU General Public License along
+ # with this program.  If not, see <http://www.gnu.org/licenses/>.
+ 
++import gi
++gi.require_version('Unity', '7.0')
+ from gi.repository import GLib, Gio
+ from gi.repository import Unity
+ import gettext
+@@ -60,12 +62,13 @@ EXTRA_METADATA = []
+ 
+ def get_chromium_profiles():
+     BOOKMARKS_PATH = [DEFAULT_BOOKMARKS]
+-    if not PARSE_ALL_PROFILES:
++    config_path = os.getenv("HOME") + "/.config/chromium/"
++    if not PARSE_ALL_PROFILES or not os.path.isdir(config_path):
+         return BOOKMARKS_PATH
+     try:
+-        for f in os.listdir(os.getenv("HOME") + "/.config/chromium/"):
++        for f in os.listdir(config_path):
+             if f == "Default" or f.startswith('Profile '):
+-                profile_path = os.getenv("HOME") + "/.config/chromium/"+f+"/Bookmarks"
++                profile_path = config_path+f+"/Bookmarks"
+                 if not profile_path in BOOKMARKS_PATH:
+                     BOOKMARKS_PATH.append(profile_path)
+     except Exception as error:
+@@ -134,46 +137,46 @@ def search(search, filters):
      Search for help documents matching the search string
      '''
      results = []
@@ -90,5 +121,5 @@ index 4cf32c3..64edc39 100644
  
  
 -- 
-2.55.0
+2.56.0
 
