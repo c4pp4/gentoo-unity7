@@ -112,6 +112,10 @@ RDEPEND="
 		app-crypt/seahorse
 		gnome-base/dconf-editor
 		gnome-extra/gnome-system-monitor
+		|| (
+			net-misc/remmina
+			net-misc/gnome-connections
+		)
 		net-p2p/transmission
 		sys-apps/gnome-disk-utility
 		unity-base/unity-control-center[gnome-online-accounts]
@@ -128,7 +132,6 @@ RDEPEND="
 			gnome-extra/gnome-weather
 			media-gfx/gnome-font-viewer
 			media-gfx/simple-scan
-			net-misc/gnome-connections
 			sci-geosciences/gnome-maps
 		)
 	)
