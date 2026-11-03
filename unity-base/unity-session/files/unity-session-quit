@@ -1,14 +1,17 @@
 #!/bin/sh
+## The dialogs of Unity, as gnome-session-quit shows them (cinnamon-session
+##  logs out without a prompt in Unity, logout-prompt = false, and reboots
+##  and shuts down without a dialog)
 
-BUS="org.gnome.SessionManager"
-OBJ="/org/gnome/SessionManager"
-IFACE="org.gnome.SessionManager"
+BUS="com.canonical.Unity"
+OBJ="/com/canonical/Unity/Session"
+IFACE="com.canonical.Unity.Session"
 
 ACTION="${1:---logout}"
 
 case "$ACTION" in
   --logout)
-    METHOD="Logout uint32 0"
+    METHOD="RequestLogout"
     ;;
   --reboot)
     METHOD="RequestReboot"

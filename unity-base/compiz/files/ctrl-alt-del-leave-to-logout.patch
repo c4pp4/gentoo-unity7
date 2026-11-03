@@ -1,0 +1,51 @@
+From: c4pp4
+Subject: [PATCH 1/1] commands: leave Ctrl+Alt+Del to the logout of the settings daemon
+
+Ubuntu bound Ctrl+Alt+Del to "gnome-system-monitor -p" in the commands plugin
+and in the GNOME integration (LP: #890747), but unity-settings-daemon binds
+the same key to its logout action and grabs it first, so the command never
+runs, the two bindings only compete for the key. Drop the default key and
+command, Ctrl+Alt+Del shows the logout dialog of Unity.
+
+Signed-off-by: c4pp4
+---
+--- a/compizconfig/integration/gnome/gsettings/org.compiz.integrated.gschema.xml
++++ b/compizconfig/integration/gnome/gsettings/org.compiz.integrated.gschema.xml
+@@ -11,7 +11,7 @@
+ 	    <default>"gnome-screenshot"</default>
+ 	</key>
+ 	<key type="as" name="run-command-21">
+-	    <default>["&lt;Control&gt;&lt;Alt&gt;Delete"]</default>
++	    <default>["Disabled"]</default>
+ 	</key>
+ 	<key type="as" name="run-command-12">
+ 	    <default>["Disabled"]</default>
+@@ -50,7 +50,7 @@
+ 	    <default>["Disabled"]</default>
+ 	</key>
+ 	<key type="s" name="command-21">
+-	    <default>"/usr/bin/gnome-system-monitor -p"</default>
++	    <default>""</default>
+ 	</key>
+ 	<key type="s" name="command-12">
+ 	    <default>""</default>
+--- a/plugins/commands/commands.xml.in
++++ b/plugins/commands/commands.xml.in
+@@ -117,7 +117,7 @@
+ 		<option name="command20" type="string">
+ 		    <_short>Command line 20</_short>
+ 		    <_long>Command line to be executed in shell when run_command20 is invoked</_long>
+-		    <default>/usr/bin/gnome-system-monitor -p</default>
++		    <!-- <default>/usr/bin/gnome-system-monitor -p</default> -->
+ 		</option>
+ 	    </group>
+ 	    <group>
+@@ -205,7 +205,7 @@
+ 		<option name="run_command20_key" type="key">
+ 		    <_short>Run command 20</_short>
+ 		    <_long>A keybinding that when invoked, will run the shell command identified by command20</_long>
+-		    <default>&lt;Control&gt;&lt;Alt&gt;Delete</default>
++		    <!-- <default>&lt;Control&gt;&lt;Alt&gt;Delete</default> -->
+ 		</option>
+ 	    </group>
+ 	    <group>

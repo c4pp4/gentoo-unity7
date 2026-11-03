@@ -103,6 +103,12 @@ src_prepare() {
 		gnome-settings-daemon/gsd-rr-config.c || die
 	grep -Fq "execve (canary_argv[0], canary_argv, canary_env); _exit (1);" gnome-settings-daemon/gsd-rr-config.c || die
 
+	# Log out with the dialog of Unity (Ctrl+Alt+Del), gnome-session-quit is not installed #
+	sed -i \
+		-e 's/"gnome-session-quit --logout"/"unity-session-quit --logout"/' \
+		plugins/media-keys/gsd-media-keys-manager.c || die
+	grep -Fq '"unity-session-quit --logout"' plugins/media-keys/gsd-media-keys-manager.c || die
+
 	# Disable all language files as they can be incomplete #
 	#  due to being provided by Ubuntu's language-pack packages #
 	> po/LINGUAS

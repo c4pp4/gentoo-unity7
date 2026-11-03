@@ -86,7 +86,10 @@ BDEPEND="
 
 MAKEOPTS="${MAKEOPTS} -j1"
 
-PATCHES=( "${FILESDIR}"/compizconfig-fix-spurious-errors.patch )
+PATCHES=(
+	"${FILESDIR}"/compizconfig-fix-spurious-errors.patch
+	"${FILESDIR}"/ctrl-alt-del-leave-to-logout.patch
+)
 
 src_prepare() {
 	# Fix desktop freeze for Chromium, Chrome and Kodi when returning #
