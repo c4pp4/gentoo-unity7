@@ -60,9 +60,9 @@ src_prepare() {
 			src/service.c || die
 		grep -Fq 'distro_name = g_strdup("Unity")' src/service.c || die
 		sed -i \
-			-e 's:yelp:yelp help\:ubuntu-help:g' \
+			-e 's:run_outside_app ("yelp");:run_outside_app ("yelp help\:ubuntu-help");:' \
 			src/backend-dbus/actions.c || die
-		grep -Fq "yelp help:ubuntu-help" src/backend-dbus/actions.c || die
+		grep -Fq 'run_outside_app ("yelp help:ubuntu-help");' src/backend-dbus/actions.c || die
 	else
 		sed -i \
 			-e '/"indicator.help");$/{s|^|//|}' \
