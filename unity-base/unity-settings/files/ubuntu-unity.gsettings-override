@@ -5,6 +5,9 @@ idle-delay = 300
 
 [org.cinnamon.SessionManager:Unity]
 logout-prompt = false
+# The default of cinnamon-session without nm-applet (Cinnamon has its own network applet),
+#  gnome-extra/cinnamon-session ehooks warn when the default changes
+autostart-blacklist = ['gnome-settings-daemon', 'org.gnome.SettingsDaemon', 'gnome-fallback-mount-helper', 'gnome-screensaver', 'mate-screensaver', 'mate-keyring-daemon', 'indicator-session', 'gnome-initial-setup-copy-worker', 'gnome-initial-setup-first-login', 'gnome-welcome-tour', 'xscreensaver-autostart', 'nautilus-autostart', 'caja', 'xfce4-notifyd', 'xfce4-power-manager', 'touchegg']
 
 [org.gnome.desktop.background:Unity]
 show-desktop-icons = false

@@ -1,0 +1,24 @@
+ehooks() {
+	## The autostart-blacklist of the Unity session in unity-base/unity-settings ##
+	## is the default without nm-applet, warn when the default changes ##
+	local \
+		schema="${S}"/data/org.cinnamon.SessionManager.gschema.xml \
+		override="${REPO_ROOT}"/unity-base/unity-settings/files/ubuntu-unity.gsettings-override \
+		default unity
+
+	default=$(sed -n "/<key name=\"autostart-blacklist\"/,/<\/key>/s/^ *<default>\(.*\)<\/default>$/\1/p" "${schema}" 2>/dev/null)
+	unity=$(sed -n "/^\[org.cinnamon.SessionManager:Unity\]$/,/^\[/s/^autostart-blacklist = //p" "${override}" 2>/dev/null)
+
+	if [[ -z ${default} || -z ${unity} ]]; then
+		ewarn "The autostart-blacklist of ${CATEGORY}/${PN} or of the Unity session was not found:"
+		ewarn "  ${schema}"
+		ewarn "  ${override}"
+	elif [[ $(tr -d "[]' " <<< "${default}" | tr "," "\n" | grep -vx "nm-applet") \
+		!= $(tr -d "[]' " <<< "${unity}" | tr "," "\n") ]]; then
+		ewarn "The default autostart-blacklist of ${CATEGORY}/${PN} has changed:"
+		ewarn "  ${default}"
+		ewarn "The autostart-blacklist of the Unity session should be the default without nm-applet:"
+		ewarn "  ${unity}"
+		ewarn "  ${override}"
+	fi
+}

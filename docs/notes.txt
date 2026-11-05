@@ -29,12 +29,12 @@ gnome-base/gnome-menus:3                # Needed for some menu patches
                                         #  80_file_monitor_delayed.patch
                                         #  ubuntu_gcc_translations.patch
 gnome-base/gsettings-desktop-schemas    # Add a new preference to lock the screen when the system suspends
-gnome-extra/cinnamon-session            # Add SessionIsActive property and fix session handling, enable-nm-applet-autostart, add unity-session-properties application, use the default mechanism to check XDG_CURRENT_DESKTOP, support X-GNOME-HiddenUnderSystemd
+gnome-extra/cinnamon-session            # Add SessionIsActive property and fix session handling, add unity-session-properties application, use the default mechanism to check XDG_CURRENT_DESKTOP, support X-GNOME-HiddenUnderSystemd, warn when the default autostart-blacklist changes (the Unity session sets it without nm-applet in unity-base/unity-settings)
 gnome-extra/evolution-data-server       # Use libnotify in Unity (evolution-alarm-notify), notify-osd shows notifications with actions as dialogs
 gnome-extra/gnome-calendar              # Use unity-control-center as the fallback
 gnome-extra/gnome-contacts              # Use gnome-online-accounts-gtk as the fallback
 gnome-extra/nemo                        # Add Unity Launcher support, enable StartupNotify
-gnome-extra/nm-applet                   # Show nm-applet in indicator panel (Have-the-appindicator-enabled-by-default.patch), show notifications via libnotify when in Unity, do not autostart in Cinnamon, do not warn that libayatana-appindicator is deprecated
+gnome-extra/nm-applet                   # Show nm-applet in indicator panel (Have-the-appindicator-enabled-by-default.patch), show notifications via libnotify when in Unity, do not warn that libayatana-appindicator is deprecated
 gnome-extra/polkit-gnome                # Patched to have polkit-gnome-authentication-agent-1 xdg-autostart on Unity login
                                         #  Ubuntu patchset:
                                         #  0001-Select-the-current-user-to-authenticate-with-by-defa.patch
