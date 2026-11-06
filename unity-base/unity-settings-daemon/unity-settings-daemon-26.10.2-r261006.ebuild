@@ -103,14 +103,14 @@ src_prepare() {
 		gnome-settings-daemon/gsd-rr-config.c || die
 	grep -Fq "execve (canary_argv[0], canary_argv, canary_env); _exit (1);" gnome-settings-daemon/gsd-rr-config.c || die
 
-	# Log out with the dialog of Unity (Ctrl+Alt+Del), gnome-session-quit is not installed #
+	# Log out with Unity's dialog on Ctrl+Alt+Del; gnome-session-quit is not installed #
 	sed -i \
 		-e 's/"gnome-session-quit --logout"/"unity-session-quit --logout"/' \
 		plugins/media-keys/gsd-media-keys-manager.c || die
 	grep -Fq '"unity-session-quit --logout"' plugins/media-keys/gsd-media-keys-manager.c || die
 
-	# Disable all language files as they can be incomplete #
-	#  due to being provided by Ubuntu's language-pack packages #
+	# Disable all language files. They can be incomplete, because Ubuntu's #
+	#  language pack packages provide the translations #
 	> po/LINGUAS
 
 	ubuntu-versionator_src_prepare
@@ -131,7 +131,7 @@ src_prepare() {
 	grep -Fqx "ExecStart=/usr/libexec/unity-settings-daemon-localeexec" \
 		debian/user/unity-settings-daemon.service || die
 
-	# Started by the systemd user unit when cinnamon-session runs as a systemd service #
+	# The systemd user unit starts it when cinnamon-session runs as a systemd service #
 	echo "X-GNOME-HiddenUnderSystemd=true" >> data/unity-settings-daemon.desktop.in.in || die
 }
 

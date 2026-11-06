@@ -46,8 +46,8 @@ src_prepare() {
 	sed -i "s:/usr/share:share:" setup.py || die
 	! grep -Fq "/usr/share" setup.py || die
 
-	# Use DistUtilsExtra build commands explicitly, setuptools doesn't #
-	# honour entry points overriding built-in commands anymore #
+	# Use the DistUtilsExtra build commands explicitly, because setuptools no #
+	# longer honors entry points that override built-in commands #
 	sed -i \
 		-e "/^import  _meta/a from DistUtilsExtra.command import build_extra, build_i18n" \
 		-e "/^setup($/a \    cmdclass = {'build': build_extra.build_extra, 'build_i18n': build_i18n.build_i18n}," \

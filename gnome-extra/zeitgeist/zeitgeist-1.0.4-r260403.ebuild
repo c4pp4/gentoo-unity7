@@ -134,7 +134,7 @@ pkg_postinst() {
 	ubuntu-versionator_pkg_postinst
 
 	echo
-	elog "In case of problems, reset ZeitGeist database:"
+	elog "If you have problems, reset the Zeitgeist database:"
 	elog "rm -rfv ~/.local/share/zeitgeist"
 	echo
 }

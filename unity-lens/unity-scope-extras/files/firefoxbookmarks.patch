@@ -1,6 +1,6 @@
-From 763c05f8172fa52306fff467ed098a49ade40f18 Mon Sep 17 00:00:00 2001
+From 11461400afe9509c909fd84c51989aea9b390339 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Sun, 1 Nov 2026 22:58:03 +0100
+Date: Fri, 06 Nov 2026 14:00:36 +0100
 Subject: [PATCH 1/1] Fix bookmarks with current Firefox
 
 Firefox 55 moved the favicons from places.sqlite to favicons.sqlite, so
@@ -10,10 +10,10 @@ bookmarks without favicons (the thumbnails are used as icons anyway).
 Look up firefox or firefox-bin in PATH instead of the fixed
 /usr/bin/firefox path.
 
-Return no results without ~/.mozilla/firefox/, the search failed on
+Return no results without ~/.mozilla/firefox/; the search failed on
 os.listdir() until Firefox was run for the first time.
 
-Require the Unity version before the import, PyGI warns otherwise.
+Require the Unity version before the import; otherwise PyGI warns.
 
 Signed-off-by: c4pp4
 ---

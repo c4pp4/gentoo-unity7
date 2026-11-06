@@ -1,6 +1,6 @@
-From 293e947ef86d7c11432b03da0d2ec04ea9434259 Mon Sep 17 00:00:00 2001
+From eccfa775e6592353101aa3ee979de9a00f86dd52 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Sun, 25 Oct 2026 05:39:02 +0100
+Date: Fri, 06 Nov 2026 14:00:36 +0100
 Subject: [PATCH 1/1] Fix playlist parsing, album art, filters, actions and
  translations
 
@@ -9,47 +9,47 @@ Playlists:
   "title=Library"
 - skip streams (e.g. internet radios), which were added as tracks
   without a file, and tracks already found in another playlist
-- reset the track fields for each track, a track without a tag got the
+- reset the track fields for each track; a track without a tag got the
   value of the previous track
 - use the file name as title of a track without the title tag and skip
   tracks without an album in the Albums category
-- return no results without the Audacious playlists, the scope is
-  installed also without Audacious and failed at every search
+- return no results without the Audacious playlists; the scope is also
+  installed without Audacious and failed at every search
 
 Album art:
 - read the embedded album art with mutagen from ID3 (MP3), FLAC, MP4
-  and Ogg (Vorbis, Opus) files, the file name was cut by 7 characters
-  and the ID3 picture was looked up by a wrong key
+  and Ogg (Vorbis, Opus) files; the file name was cut by 7 characters,
+  and the ID3 picture was looked up with a wrong key
 - look up the album art once per album and only for the shown results
 - use the icon name in the preview when the album art is missing
   (file://media-audio failed in the Dash)
 
 Search:
 - return at most 100 songs and 100 albums without a search string, 20
-  in the global search and 50 in the lens search as the Rhythmbox
-  scope, all tracks of the library (thousands) were returned when the
-  lens was opened
-- look up the already added results in sets, the list lookups took
-  seconds with a large library
+  in the global search and 50 in the lens search, as the Rhythmbox scope
+  does; all library tracks (thousands) were returned when the lens was
+  opened
+- look up the already added results in sets; list lookups took seconds
+  with a large library
 
 Filters:
-- add the Decade and Genre filters of the music lens, the filter state
-  is passed only for the scope's own filters, so the search failed
+- add the music lens Decade and Genre filters; the filter state is
+  passed only for the scope's own filters, so the search failed
   ("Unable to find filter with id") when a filter was used
 - filter by the year and by the genre mapped to the filter options as
   in the Rhythmbox scope, "Old" means before 1960
 
 Actions:
 - show the track (the first track of an album) in the file manager via
-  UnityExtras.show_in_folder(), the album action failed on a wrong
-  variable and xdg-open was run via shell
-- run Audacious without a shell, file names with an apostrophe broke
+  UnityExtras.show_in_folder(); the album action failed on a wrong
+  variable, and xdg-open was run through a shell
+- run Audacious without a shell; file names with an apostrophe broke
   the command line
 - match album tracks by the exact album and artist name
 
 Translations:
-- the scope has no translations, use the same strings of the music
-  lens (Play, Show in Folder, Songs, Albums)
+- the scope has no translations, so use the music lens strings (Play,
+  Show in Folder, Songs, Albums)
 
 Signed-off-by: c4pp4
 ---

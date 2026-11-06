@@ -5,7 +5,6 @@
 		<name>gentoo-unity7</name>
 	</maintainer>
 	<use>
-		<flag name="dev">Unmask overlay development packages with
-			missing keyword (experimental)</flag>
+		<flag name="dev">Unmask overlay development packages that have no keywords (experimental)</flag>
 	</use>
 </pkgmetadata>

@@ -17,7 +17,7 @@ LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="amd64"
 IUSE="+accessibility classic-fonts classic-theme +files lowgfx +music +photos +ubuntu-sounds +video"
-# Video lens uses the preview player of the music lens #
+# The video lens uses the music lens preview player #
 REQUIRED_USE="video? ( music )"
 RESTRICT="binchecks strip test"
 
@@ -131,7 +131,7 @@ pkg_preinst() {
 
 	# Keep the existing user's index.theme #
 	rm "${ED}${index}" || die
-	elog "Existing ${index} has been kept untouched."
+	elog "The existing ${index} has been kept."
 }
 
 pkg_postinst() {

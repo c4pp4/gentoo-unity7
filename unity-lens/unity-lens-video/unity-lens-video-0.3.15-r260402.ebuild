@@ -53,8 +53,8 @@ PATCHES=(
 )
 
 src_prepare() {
-	# Wait for updatedb, a search runs locate right after it #
-	# (the first search found nothing, the database didn't exist yet) #
+	# Wait for updatedb, because a search runs locate right after it. The first #
+	# search found nothing, because the database did not exist yet #
 	sed -i "/updatedb_bin/{s/async/sync/}" src/locate.vala || die
 	grep -Fq 'GLib.Process.spawn_command_line_sync (@"$updatedb_bin' src/locate.vala || die
 

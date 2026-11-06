@@ -1,7 +1,7 @@
 #!/bin/sh
-## The dialogs of Unity, as gnome-session-quit shows them (cinnamon-session
-##  logs out without a prompt in Unity, logout-prompt = false, and reboots
-##  and shuts down without a dialog)
+## Show Unity's dialogs, as gnome-session-quit does. In Unity, cinnamon-session
+##  logs out without a prompt (logout-prompt = false) and reboots and shuts
+##  down without a dialog.
 
 BUS="com.canonical.Unity"
 OBJ="/com/canonical/Unity/Session"

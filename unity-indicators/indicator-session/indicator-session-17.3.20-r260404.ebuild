@@ -77,8 +77,8 @@ src_prepare() {
 	sed -i 's:libwhoopsie):):g' CMakeLists.txt || die
 	sed -i '/whoopsie/d' src/service.c || die
 
-	# Disable all language files as they can be incomplete #
-	#  due to being provided by Ubuntu's language-pack packages #
+	# Disable all language files. They can be incomplete, because Ubuntu's #
+	#  language pack packages provide the translations #
 	cmake_comment_add_subdirectory po
 
 	ubuntu-versionator_src_prepare

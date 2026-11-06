@@ -2,9 +2,9 @@ From: c4pp4
 Subject: [PATCH 1/1] Do not warn that libayatana-appindicator is deprecated
 
 app_indicator_new() logs a warning that libayatana-appindicator is
-deprecated at every start. Its replacement libayatana-appindicator-glib
+deprecated at every start. Its replacement, libayatana-appindicator-glib,
 exports the menu to org.gtk.Menus and org.gtk.Actions instead of
-com.canonical.dbusmenu, which is not supported by the Unity panel.
+com.canonical.dbusmenu, and the Unity panel does not support them.
 Create the indicator with g_object_new() and the same properties as
 app_indicator_new() does.
 

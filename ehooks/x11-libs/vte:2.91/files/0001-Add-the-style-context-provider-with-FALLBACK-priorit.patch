@@ -10,6 +10,8 @@ colours. This can be overridden by the theme.
 This reverts commit bd86e7637d89a55941674756e3e223c82aee2305.
 
 Bug-Upstream: https://bugzilla.gnome.org/show_bug.cgi?id=740123
+
+[c4pp4: rebased to follow upstream changes]
 ---
  src/vtegtk.cc | 10 ++++++++++
  1 file changed, 10 insertions(+)

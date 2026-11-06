@@ -46,13 +46,13 @@ PDEPEND="
 "
 
 PATCHES=(
-	# Include /usr/share/cursors/xorg-x11/ in the paths to check for cursor themes as Gentoo #
-	#  installs cursor themes in both /usr/share/cursors/xorg-x11/ and /usr/share/icons/ #
+	# Include /usr/share/cursors/xorg-x11/ in the cursor theme search paths, because #
+	#  Gentoo installs cursor themes in both /usr/share/cursors/xorg-x11/ and /usr/share/icons/ #
 	"${FILESDIR}"/xorg-cursor-themes-path.diff
 
-	# Set also com.canonical.Unity.Interface cursor-scale-factor for large cursors as Unity #
-	#  computes com.ubuntu.user-interface.desktop cursor-size used by unity-settings-daemon #
-	#  from it and overwrites it at every start #
+	# Also set com.canonical.Unity.Interface cursor-scale-factor for large cursors. #
+	#  Unity computes the com.ubuntu.user-interface.desktop cursor-size, which #
+	#  unity-settings-daemon uses, from it and overwrites it at every start #
 	"${FILESDIR}"/unity-cursor-scale-factor.diff
 )
 

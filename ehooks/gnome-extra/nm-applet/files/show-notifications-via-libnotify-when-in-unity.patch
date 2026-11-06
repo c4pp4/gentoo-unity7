@@ -1,11 +1,10 @@
-From e5ff320cfb3f387166d63674499c4e8f06256575 Mon Sep 17 00:00:00 2001
+From 580192478db3f9d4e36ec899c25d9d3e3df7fdca Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Wed, 21 Oct 2026 04:37:35 +0200
+Date: Fri, 06 Nov 2026 14:43:39 +0100
 Subject: [PATCH 1/1] Show notifications via libnotify when in Unity
 
-GNotification notifications are not shown by notify-osd. Send the
-notifications via libnotify instead when running in Unity or unity-
-greeter.
+notify-osd does not show GNotification notifications. Send them through
+libnotify instead when running in Unity or unity-greeter.
 
 Signed-off-by: c4pp4
 ---

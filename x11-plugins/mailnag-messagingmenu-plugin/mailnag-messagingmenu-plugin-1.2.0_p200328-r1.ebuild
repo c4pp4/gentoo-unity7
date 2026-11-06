@@ -32,7 +32,7 @@ RDEPEND="
 PDEPEND=">=net-mail/mailnag-2.0.0[${PYTHON_SINGLE_USEDEP}]"
 
 src_prepare() {
-	# Run the action launcher via its shebang, python2 is gone #
+	# Run the action launcher through its shebang; python2 is gone #
 	sed -i "s:python2 %PREFIX%:%PREFIX%:" mailnag-messagingmenu.desktop.in || die
 	! grep -Fq "python2" mailnag-messagingmenu.desktop.in || die
 

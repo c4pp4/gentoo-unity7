@@ -57,7 +57,7 @@ find_greeters() {
 ### show action ###
 
 describe_show() {
-	echo "Show the current set greeter"
+	echo "Show the currently set greeter"
 }
 
 do_show() {
@@ -82,7 +82,7 @@ do_list() {
 
 	if [ "${current}" ]; then
 		for (( i = 0; i < ${#greeters[@]}; i++ )); do
-			# highlight the current set greeter
+			# highlight the currently set greeter
 			[[ ${greeters[i]} = ${current} ]] && greeters[i]=$(highlight_marker "${greeters[i]}")
 		done
 	fi

@@ -1,10 +1,11 @@
-From 40d1da390267e29d936bf0bc8e7eae3dd122d605 Mon Sep 17 00:00:00 2001
+From 9fd28466fc68b02d12c1951bd665622ba7643aa2 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Sun, 25 Oct 2026 03:49:47 +0100
+Date: Fri, 06 Nov 2026 14:00:36 +0100
 Subject: [PATCH 1/1] Remove remote video support
 
-Remove the remote video scope, the online video service is not available
-anymore. Remove also its unit test and the libsoup-gnome VAPI file.
+Remove the remote video scope, because the online video service is no
+longer available. Also remove its unit test and the libsoup-gnome VAPI
+file.
 
 Signed-off-by: c4pp4
 ---

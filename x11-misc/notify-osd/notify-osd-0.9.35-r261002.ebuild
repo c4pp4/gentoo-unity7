@@ -75,8 +75,8 @@ src_install() {
 
 	save_config src/{bubble,defaults,dnd}.c
 
-	# Don't install D-Bus activation file, notify-osd is started from XDG autostart (Debian bug #640120) #
-	#  Activated at logout, it would block on services stopped along with the session #
+	# Don't install the D-Bus activation file; notify-osd starts from XDG autostart (Debian bug #640120) #
+	#  When activated at logout, it would block on services that stop with the session #
 	rm "${ED}"/usr/share/dbus-1/services/org.freedesktop.Notifications.service || die
 	rmdir "${ED}"/usr/share/dbus-1/services "${ED}"/usr/share/dbus-1 || die
 

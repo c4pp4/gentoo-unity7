@@ -60,7 +60,7 @@ src_prepare() {
 		lib/meson.build || die
 	grep -Fq "'jayatana-${SLOT}'" lib/meson.build || die
 
-	# Ajust JDK 9+ options #
+	# Adjust JDK 9+ options #
 	sed -i \
 		-e "/args/d" \
 		-e "/command/{s/-f/uvfm/}" \

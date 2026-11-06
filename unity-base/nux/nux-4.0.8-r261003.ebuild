@@ -71,7 +71,7 @@ src_prepare() {
 	grep -Fq '"x$DESKTOP_SESSION" = "xunity"' "${PN}_${PV}${UVER}-${UREV}".diff || die
 	grep -Fq "/usr/$(get_libdir)/${PN}/unity_support_test" "${PN}_${PV}${UVER}-${UREV}".diff || die
 
-	# Replace Debian PCRE2 migration patch (it leaked the compiled pattern) #
+	# Replace the Debian PCRE2 migration patch, which leaked the compiled pattern #
 	sed -i \
 		-e '/^+++ .*debian\/patches\/series/,/^--- / s/^+migrate-to-libpcre2\.patch$/+#migrate-to-libpcre2.patch/' \
 		"${PN}_${PV}${UVER}-${UREV}".diff || die

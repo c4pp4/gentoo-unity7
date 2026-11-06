@@ -20,13 +20,13 @@ ehooks() {
 	newins "${EHOOKS_FILESDIR}"/99_default.gsettings-override \
 		99_default.gschema.override
 
-	# Install PolicyKit rules from Fedora which allow the lightdm user to access
-	# the systemd-logind, consolekit, and upower DBus interfaces
+	# Install PolicyKit rules from Fedora that allow the lightdm user to access
+	# the systemd-logind, ConsoleKit and UPower D-Bus interfaces
 	insinto /usr/share/polkit-1/rules.d
 	newins "${EHOOKS_FILESDIR}"/${PN}.rules ${PN}.rules
 
-	# Don't start gnome-keyring-daemon for the greeter user,
-	# system-local-login pulls in pam_gnome_keyring via pambase[gnome-keyring]
+	# Don't start gnome-keyring-daemon for the greeter user. system-local-login
+	# pulls in pam_gnome_keyring through pambase[gnome-keyring]
 	sed -i "s/system-local-login/system-login/" "${ED}"/etc/pam.d/${PN}-greeter || die
 	grep -q "^session.*system-login$" "${ED}"/etc/pam.d/${PN}-greeter || die
 }

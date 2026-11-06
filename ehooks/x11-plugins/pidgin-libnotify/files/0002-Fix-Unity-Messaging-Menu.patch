@@ -1,10 +1,10 @@
-From f9befc2e57772f4b4cfd7896ecd5322c17c778d3 Mon Sep 17 00:00:00 2001
+From 4f99c4b0434809a67ce5d3517b58245f2bc0d6b0 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Sat, 29 Nov 2025 00:28:42 +0100
+Date: Fri, 06 Nov 2026 14:43:39 +0100
 Subject: [PATCH 2/2] Fix Unity Messaging Menu
 
-Make possible to close conversation window opened by Unity Messaging
-Menu (debian/patches/messaging_menu.patch).
+Make it possible to close a conversation window opened from the Unity
+Messaging Menu (debian/patches/messaging_menu.patch).
 
 Bug-Ubuntu: https://launchpad.net/bugs/1339405
 

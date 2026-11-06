@@ -5,6 +5,6 @@
 		<name>gentoo-unity7</name>
 	</maintainer>
 	<use>
-		<flag name="extra">CJK all weight</flag>
+		<flag name="extra">Install all CJK font weights</flag>
 	</use>
 </pkgmetadata>

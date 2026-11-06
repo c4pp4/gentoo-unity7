@@ -18,7 +18,7 @@
 		<flag name="notifications">Collects recent messages sent with libnotify to a notification daemon</flag>
 		<flag name="paste">Copy/Paste clipboard indicator</flag>
 		<flag name="cups">Printer jobs indicator</flag>
-		<flag name="sensors">Hardware sensors indicator such as CPU temp</flag>
+		<flag name="sensors">Hardware sensors indicator, such as CPU temperature</flag>
 		<flag name="session">Session management indicator</flag>
 		<flag name="sound">Audio control and application launching indicator</flag>
 		<flag name="weather">Weather indicator</flag>

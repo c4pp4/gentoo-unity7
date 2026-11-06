@@ -1,6 +1,8 @@
 Subject: [PATCH 1/2] Add a traditional menu bar (v3.28.2)
 Bug: https://bugzilla.gnome.org/749976
 Bug-Debian: https://bugs.debian.org/793445
+
+[c4pp4: rebased to follow upstream changes]
 ---
  data/eog-menubar.ui   | 213 ++++++++++++++++++++++++++++++++++++++++++++++++++
  data/meson.build      |   1 +

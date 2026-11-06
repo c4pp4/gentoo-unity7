@@ -1,10 +1,10 @@
-From aa34c8e43066dafb6dee075205f4db8bb0add083 Mon Sep 17 00:00:00 2001
+From 50a667e1a5751b56020a49a864c5a33793bc6d9f Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Thu, 22 Oct 2026 03:03:04 +0200
+Date: Fri, 06 Nov 2026 14:43:39 +0100
 Subject: [PATCH 1/1] Add Unity7 support
 
-Add *WithTimestamp dbus methods for file operations.
-Operations that might trigger a dialog, that should be presented with event time.
+Add *WithTimestamp D-Bus methods for file operations that might show a
+dialog, so that the dialog is presented with the event time.
 Bug-Ubuntu: https://launchpad.net/bugs/1445595
 Bug: https://bugzilla.gnome.org/show_bug.cgi?id=758833
 Based on Nautilus 20_add_timestamp_to_operations.patch.
@@ -14,9 +14,9 @@ List bookmarks in the context menu and display a bar on the icon during
 copies.
 Based on Nautilus 12_unity_launcher_support.patch (Xenial).
 
-Add a new dbus property
-"org.freedesktop.FileManager1" dbus interface where it stores the lists of
-opened locations referenced by their parent nemo window XID.
+Add a new D-Bus property to the "org.freedesktop.FileManager1" interface
+that stores the lists of open locations, referenced by the XID of their
+parent Nemo window.
 Bug-Ubuntu: https://bugs.launchpad.net/unity/+bug/887449
 Based on Nautilus 19_unity_open_location_xid.patch.
 

@@ -36,7 +36,7 @@ declare -A upstream_names=(
 	["unity-indicators/indicator-appearance"]="unity-indicator-appearance"
 )
 
-## Temporarily accept keywords from testing branch.
+## Temporarily accept keywords from the testing branch.
 testing_packages=(
 	mail-client/thunderbird:0/esr
 	mail-client/thunderbird:0/stable
@@ -524,7 +524,7 @@ debian_changes() {
 
 	uvers=( $(get_ehooks_uvers "${repo_path}" "$@") )
 	if [[ -z ${uvers[@]} ]]; then
-		[[ -n $* ]] && eerror "No package found! Package name must be in format: \${CATEGORY}/\${PN}." || eerror "No package found."
+		[[ -n $* ]] && eerror "No package found! The package name must be in the format \${CATEGORY}/\${PN}." || eerror "No package found."
 		echo
 		exit 1
 	fi
@@ -954,26 +954,26 @@ case $1 in
 		echo "${color_blue}DESCRIPTION${color_norm}"
 		echo "	Gentoo Unity⁷ version control tool."
 		echo
-		echo "	/usr/bin/${color_blue}gentoo-unity-ver${color_norm} is a symlink to gentoo-unity7/version_control.sh script."
+		echo "	/usr/bin/${color_blue}gentoo-unity-ver${color_norm} is a symlink to the gentoo-unity7/version_control.sh script."
 		echo
 		echo "${color_blue}OPTIONS${color_norm}"
 		echo "	${color_blue}-b${color_norm}, ${color_blue}--blake${color_norm} [${color_cyan}${color_underline}repo path${color_underline_end}${color_norm}] [${color_cyan}${color_underline}packages${color_underline_end}${color_norm}]"
-		echo "		It updates BLAKE2 checksum of debian archive file in {pre,post}_src_unpack.ehooks."
+		echo "		Update the BLAKE2 checksum of the Debian archive file in {pre,post}_src_unpack.ehooks."
 		echo
 		echo "	${color_blue}-c${color_norm}, ${color_blue}--changes${color_norm} [${color_cyan}${color_underline}repo path${color_underline_end}${color_norm}] [${color_cyan}${color_underline}packages${color_underline_end}${color_norm}]"
-		echo "		It looks for available version changes of debian archive file."
+		echo "		Look for available version changes of the Debian archive file."
 		echo
 		echo "	${color_blue}-l${color_norm}, ${color_blue}--list${color_norm}"
-		echo "		It lists packages affected by ehooks changes, one atom per line (used by the @ehooks-rebuild package set)."
+		echo "		List the packages affected by ehooks changes, one atom per line (used by the @ehooks-rebuild package set)."
 		echo
 		echo "	${color_blue}-n${color_norm}, ${color_blue}--notice${color_norm}"
-		echo "		It prints a notice about packages affected by ehooks changes only if a rebuild is needed (used by the repo.postsync.d hook)."
+		echo "		Print a notice about the packages affected by ehooks changes, only if a rebuild is needed (used by the repo.postsync.d hook)."
 		echo
 		echo "	${color_blue}-r${color_norm}, ${color_blue}--reset${color_norm}"
-		echo "		It looks for ehooks changes and sets them as applied (it resets modification time)."
+		echo "		Look for ehooks changes and mark them as applied (resets the modification time)."
 		echo
 		echo "	${color_blue}-u${color_norm}, ${color_blue}--update${color_norm} [${color_cyan}${color_underline}repo path${color_underline_end}${color_norm}]"
-		echo "		It updates gentoo-unity7.mask version entries (it needs temporary access to /etc/portage/package.{unmask,accept_keywords}), unity-base/unity-language-pack version entries, unity-lens/unity-scope-extras version entries and it looks for available packages updates."
+		echo "		Update the gentoo-unity7.mask version entries (needs temporary access to /etc/portage/package.{unmask,accept_keywords}) and the unity-base/unity-language-pack and unity-lens/unity-scope-extras version entries, and look for available package updates."
 		echo
 		exit 1
 esac

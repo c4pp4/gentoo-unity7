@@ -73,7 +73,7 @@ BDEPEND="
 "
 
 src_prepare() {
-	# Drop stray top-level module, it would be installed into site-packages #
+	# Drop a stray top-level module; it would be installed into site-packages #
 	rm settings_ui.py || die
 
 	# Fix doc dir #

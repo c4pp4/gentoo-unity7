@@ -1,7 +1,7 @@
-From 60e52ccab7c1f273e8a93380fec5b5fc310600d6 Mon Sep 17 00:00:00 2001
+From e9109a027dd78e8e02a5a01e3760cad3764d584c Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Thu, 22 Oct 2026 03:03:08 +0200
-Subject: [PATCH 1/1] Add nemo-persist key.
+Date: Fri, 06 Nov 2026 14:43:39 +0100
+Subject: [PATCH 1/1] Add nemo-persist key
 
 The Launcher's quicklist bookmark plugin only works if the main
 application is running.

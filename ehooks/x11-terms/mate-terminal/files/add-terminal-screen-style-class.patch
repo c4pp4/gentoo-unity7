@@ -1,12 +1,13 @@
-From bb523b0e2d19cd5f43c541aeeeb7dda6e1a37fef Mon Sep 17 00:00:00 2001
+From 48215a55726914820ab5773ed315ff5bdc0567bf Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Thu, 22 Oct 2026 02:28:02 +0200
+Date: Fri, 06 Nov 2026 14:43:39 +0100
 Subject: [PATCH 1/1] Add terminal-screen style class
 
 Allow themes to set terminal colors via the vte-terminal.terminal-screen
-selector (e.g. Ambiance and Radiance) when using theme colors. Requires
-x11-libs/vte:2.91 patch adding the style context provider with FALLBACK
-priority, otherwise VTE's own colors take precedence over the theme.
+selector (e.g. Ambiance and Radiance) when using theme colors. This
+requires the x11-libs/vte:2.91 patch that adds the style context provider
+with FALLBACK priority; otherwise VTE's own colors take precedence over
+the theme.
 
 Signed-off-by: c4pp4
 ---

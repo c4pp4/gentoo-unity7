@@ -17,7 +17,7 @@ app-i18n/ibus                           # Patched for indicator-keyboard support
 app-office/libreoffice                  # Create fontconfig configuration (30-opensymbol.conf) symlink
 app-office/libreoffice-bin              # Create fontconfig configuration (30-opensymbol.conf) symlink
 app-text/evince                         # Add traditional menu bar (https://bugzilla.gnome.org/show_bug.cgi?id=736419), add menu translations
-dev-cpp/gtest                           # Install /usr/src/{gmock,gtest}/* source files lacking from main tree ebuild
+dev-cpp/gtest                           # Install /usr/src/{gmock,gtest}/* source files missing from the main tree ebuild
 dev-libs/glib:2                         # Patched to call gettext if .desktop file does not have inline translations
 gnome-base/gnome-menus:3                # Needed for some menu patches
                                         #  Ubuntu patchset:
@@ -30,12 +30,12 @@ gnome-base/gnome-menus:3                # Needed for some menu patches
                                         #  ubuntu_gcc_translations.patch
 gnome-base/gsettings-desktop-schemas    # Add a new preference to lock the screen when the system suspends
 gnome-extra/cinnamon-session            # Add SessionIsActive property and fix session handling, add unity-session-properties application, use the default mechanism to check XDG_CURRENT_DESKTOP, support X-GNOME-HiddenUnderSystemd, warn when the default autostart-blacklist changes (the Unity session sets it without nm-applet in unity-base/unity-settings)
-gnome-extra/evolution-data-server       # Use libnotify in Unity (evolution-alarm-notify), notify-osd shows notifications with actions as dialogs
+gnome-extra/evolution-data-server       # Use libnotify in Unity (evolution-alarm-notify), because notify-osd shows notifications with actions as dialogs
 gnome-extra/gnome-calendar              # Use unity-control-center as the fallback
 gnome-extra/gnome-contacts              # Use gnome-online-accounts-gtk as the fallback
 gnome-extra/nemo                        # Add Unity Launcher support, enable StartupNotify
 gnome-extra/nm-applet                   # Show nm-applet in indicator panel (Have-the-appindicator-enabled-by-default.patch), show notifications via libnotify when in Unity, do not warn that libayatana-appindicator is deprecated
-gnome-extra/polkit-gnome                # Patched to have polkit-gnome-authentication-agent-1 xdg-autostart on Unity login
+gnome-extra/polkit-gnome                # Start polkit-gnome-authentication-agent-1 from XDG autostart on Unity login
                                         #  Ubuntu patchset:
                                         #  0001-Select-the-current-user-to-authenticate-with-by-defa.patch
                                         #  0002-Auth-dialog-Make-the-label-wrap-at-70-chars.patch
@@ -78,7 +78,7 @@ sys-apps/dbus                           # Don't run dbus-launch when DESKTOP_SES
 www-client/firefox:rapid                # Latest version, add Unity menu bar and desktop launcher with quicklist and translations
 www-client/firefox[-NNN]:esr            # ESR version, add Unity menu bar and desktop launcher with quicklist and translations
 www-client/firefox-bin                  # Add desktop launcher with quicklist and translations
-x11-libs/gtk+:2                         # Support for dynamically loading overlay scrollbars, hide local menu bars under Unity in favour of the global menu, load accessibility modules (90atk-adaptor from Ubuntu)
+x11-libs/gtk+:2                         # Support for dynamically loading overlay scrollbars, hide local menu bars under Unity in favor of the global menu, load accessibility modules (90atk-adaptor from Ubuntu)
 x11-libs/gtk+:3                         # Needed for global appmenu, fix firefox/thunderbird global submenus to be initially populated
                                         #  Ubuntu patchset:
                                         #  bzg_gtkcellrenderer_grabbing_modifier.patch
@@ -203,5 +203,5 @@ x11-themes/adwaita-icon-theme-legacy    # Inherit Adwaita icons before hicolor
  "Vertex buffer object" and "Always use buffer swapping" ARE all selected.
  Scroll down to "Image Loading" and make sure all plugins ("JPEG", "PNG", "SVG" and "Text") ARE selected.
  * Some applications such as Steam or Chromium with hardware acceleration enabled may lose window focus, particularly
-   after unminimising the window or waking from screen lock/blank
+   after unminimizing the window or waking from screen lock/blank
         - Enabling the "Keep previews of minimized windows" option under "Workarounds" fixes this issue

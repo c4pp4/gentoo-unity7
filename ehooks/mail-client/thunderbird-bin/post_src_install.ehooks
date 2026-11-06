@@ -1,5 +1,5 @@
 ehooks() {
-	# Disable titlebar in system-wide preferences #
+	# Disable the title bar in the system-wide preferences #
 	if [[ -e ${ED}/opt/${MOZ_PN}/defaults/pref/gentoo-prefs.js ]]; then
 		echo 'pref("mail.tabs.drawInTitlebar",           false);' \
 			>> ${ED}/opt/${MOZ_PN}/defaults/pref/gentoo-prefs.js

@@ -1,20 +1,21 @@
-From e537acdf7a5efcd465951c70ccde9ecbe29a927b Mon Sep 17 00:00:00 2001
+From c3c40e691f9f1695adea17afaa51d860bd2ec14b Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Wed, 21 Oct 2026 20:55:24 +0200
+Date: Fri, 06 Nov 2026 14:43:39 +0100
 Subject: [PATCH 1/1] Unity shortcuts plugin
 
-Control the player with the multimedia keys in Unity. Based on the GNOME
-Shortcuts plugin removed upstream in audacious-plugins 3.10 (commit
+Control the player with the media keys in Unity. Based on the GNOME
+Shortcuts plugin that upstream removed in audacious-plugins 3.10 (commit
 3dc8222f59, "GNOME 3.26 broke compatibility with this plugin").
 
-unity-settings-daemon has no MPRIS support for media keys, it forwards
-them only to applications registered via GrabMediaPlayerKeys on
-org.gnome.SettingsDaemon.MediaKeys by the MediaPlayerKeyPressed signal.
+unity-settings-daemon has no MPRIS support for media keys. It only
+forwards them, with the MediaPlayerKeyPressed signal, to applications that
+register through GrabMediaPlayerKeys on org.gnome.SettingsDaemon.MediaKeys.
 
 Handled keys: Play/Pause, Stop, Previous, Next, Rewind and FastForward
-(seek by the "step_size" setting). Volume and mute keys are handled by
-unity-settings-daemon itself and never forwarded. Repeat and Shuffle
-are not handled, their keycodes are above 255 and not reachable in X11.
+(seeking by the "step_size" setting). unity-settings-daemon handles the
+volume and mute keys itself and never forwards them. Repeat and Shuffle
+are not handled, because their keycodes are above 255 and cannot be
+reached in X11.
 
 Signed-off-by: c4pp4
 ---

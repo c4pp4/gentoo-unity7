@@ -87,8 +87,8 @@ src_prepare() {
 	grep -Fqx "entry.image.set_pixel_size(22);" "${S}"/src/menubar.vala || die
 	grep -Fq "hbox.pack_start (entry.image, false, false, 3);" "${S}"/src/menubar.vala || die
 
-	# Disable all language files as they can be incomplete #
-	#  due to being provided by Ubuntu's language-pack packages #
+	# Disable all language files. They can be incomplete, because Ubuntu's #
+	#  language pack packages provide the translations #
 	> po/LINGUAS
 
 	ubuntu-versionator_src_prepare
@@ -136,7 +136,7 @@ src_install() {
 }
 
 pkg_postinst() {
-	elog "Setting '${PN}' as default greeter of LightDM."
+	elog "Setting '${PN}' as the default LightDM greeter."
 	"${EROOT}"/usr/bin/eselect lightdm set unity-greeter
 
 	ubuntu-versionator_pkg_postinst

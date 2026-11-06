@@ -189,7 +189,7 @@ src_prepare() {
 		shell/appdata/Makefile.am || die
 	grep -Fqx 'appdatadir = $(datadir)/metainfo' shell/appdata/Makefile.am || die
 
-	# Rename cc-remote-login-helper as is provided by gnome-base/gnome-control-center #
+	# Rename cc-remote-login-helper, because gnome-base/gnome-control-center provides it #
 	sed -i \
 		-e "s/cc-remote-login-helper/ucc-remote-login-helper/g" \
 		panels/sharing/{cc-remote-login.c,com.canonical.controlcenter.remote-login-helper.policy.in.in,Makefile.am} || die
@@ -200,7 +200,7 @@ src_prepare() {
 		panels/sharing/Makefile.am || die
 	mv panels/sharing/cc-remote-login-helper.c panels/sharing/ucc-remote-login-helper.c || die
 
-	# Rename /usr/share/pixmaps/faces/ as is provided by gnome-base/gnome-control-center #
+	# Rename /usr/share/pixmaps/faces/, because gnome-base/gnome-control-center provides it #
 	sed -i \
 		-e "s/faces/ucc-faces/" \
 		panels/user-accounts/data/faces/Makefile.am || die
@@ -228,8 +228,8 @@ src_prepare() {
 	grep -Eq 'colors_name\[\] = \{ "Adwaita", "Ambiance", .*"Yellow \(Yaru-dark\)" \}' \
 		panels/appearance/cc-appearance-panel.c || die
 
-	# Disable all language files as they can be incomplete #
-	#  due to being provided by Ubuntu's language-pack packages #
+	# Disable all language files. They can be incomplete, because Ubuntu's #
+	#  language pack packages provide the translations #
 	> po/LINGUAS
 
 	ubuntu-versionator_src_prepare
@@ -273,7 +273,7 @@ pkg_postinst() {
 
 	if use sharing; then
 		echo
-		elog "USE flag 'sharing' declared:"
+		elog "USE flag 'sharing' is enabled:"
 		elog "To make personal file sharing discoverable on the local network,"
 		elog "enable the Avahi daemon:"
 		elog "systemctl enable --now avahi-daemon.service"
@@ -282,8 +282,8 @@ pkg_postinst() {
 
 	if use vnc; then
 		echo
-		ewarn "USE flag 'vnc' declared:"
-		ewarn "Vino is no longer under active development and supported."
+		ewarn "USE flag 'vnc' is enabled:"
+		ewarn "Vino is no longer actively developed or supported."
 		ewarn "If you decide to use Vino anyway, you do so at your own risk."
 		echo
 	fi

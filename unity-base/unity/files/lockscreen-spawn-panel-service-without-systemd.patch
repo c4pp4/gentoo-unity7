@@ -1,10 +1,10 @@
-From b7608aec4bcc049b155cf35a3c0c9ed75aef59ea Mon Sep 17 00:00:00 2001
+From f8df5f8176c7b9e70ceda5587c54d16edb53450b Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Thu, 22 Oct 2026 04:30:58 +0200
+Date: Fri, 06 Nov 2026 14:00:36 +0100
 Subject: [PATCH 1/1] Launch lockscreen panel service without systemd
 
 Without the 'systemd --user' process (e.g. on OpenRC), the
-unity-screen-locked.target unit can not be started via
+unity-screen-locked.target unit cannot be started through
 org.freedesktop.systemd1, so the lockscreen panel ends up without
 indicators. Launch unity-panel-service in lockscreen mode directly
 in that case and terminate it when the screen is unlocked.

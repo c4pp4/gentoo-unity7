@@ -60,12 +60,12 @@ src_prepare() {
 	# Make test optional #
 	sed -i "s/TEST REQUIRED/TEST QUIET/" CMakeLists.txt || die
 
-	# Do not delay the logout for 90 s if the service hangs on termination #
+	# Do not delay logout by 90 s if the service hangs on termination #
 	sed -i "/^Restart=/a TimeoutStopSec=10" data/indicator-sound.service.in || die
 	grep -qx "TimeoutStopSec=10" data/indicator-sound.service.in || die
 
-	# Disable all language files as they can be incomplete #
-	#  due to being provided by Ubuntu's language-pack packages #
+	# Disable all language files. They can be incomplete, because Ubuntu's #
+	#  language pack packages provide the translations #
 	cmake_comment_add_subdirectory po
 
 	# Test helper library only, tests are disabled upstream #

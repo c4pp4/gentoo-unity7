@@ -5,7 +5,7 @@
 		<name>gentoo-unity7</name>
 	</maintainer>
 	<use>
-		<flag name="datahub">Use build datahub for passive event injection</flag>
+		<flag name="datahub">Build the datahub for passive event injection</flag>
 		<flag name="downloads-monitor">Monitor the XDG_DOWNLOAD_DIRECTORY</flag>
 		<flag name="fts">Enable the full text search extension</flag>
 		<flag name="sql-debug">Enable SQL debugging</flag>

@@ -1,17 +1,17 @@
-From 804f979655901bfea5e697a59c3be05f6424c9dd Mon Sep 17 00:00:00 2001
+From 096f0b2d5e4b4ad20bab48acd7f96fb8e538011b Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Sun, 1 Nov 2026 22:58:03 +0100
+Date: Fri, 06 Nov 2026 14:00:36 +0100
 Subject: [PATCH 1/1] Do not read thumbnails from Top Sites
 
 Chromium does not store the page thumbnails in the Top Sites database
 anymore, so the query of the missing thumbnails table fails and no
-bookmarks are found. Disable the thumbnails, the bookmarks are shown
+bookmarks are found. Disable the thumbnails; the bookmarks are shown
 with the default icon.
 
-Look up the other profiles only if ~/.config/chromium/ exists, the
+Look up the other profiles only if ~/.config/chromium/ exists; the
 missing directory was reported at every search.
 
-Require the Unity version before the import, PyGI warns otherwise.
+Require the Unity version before the import; otherwise PyGI warns.
 
 Signed-off-by: c4pp4
 ---

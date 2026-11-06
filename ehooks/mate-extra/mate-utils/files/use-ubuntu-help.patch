@@ -1,7 +1,7 @@
-From 29c186c05783997748962ae13284a80244ac3d84 Mon Sep 17 00:00:00 2001
+From 69bc0ddda10bbf903e5f15f26f6d22ae8f0b8e55 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Wed, 21 Oct 2026 16:18:15 +0200
-Subject: [PATCH 1/1] Use ubuntu help when in Unity
+Date: Fri, 06 Nov 2026 14:43:39 +0100
+Subject: [PATCH 1/1] Use the Ubuntu help in Unity
 
 Open the screenshot page of the Ubuntu help instead of the MATE user
 guide when running in Unity.

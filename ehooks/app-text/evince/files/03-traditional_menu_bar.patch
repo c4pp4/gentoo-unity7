@@ -9,6 +9,8 @@ the gtk-shell-shows-app-menu and gtk-shell-shows-menubar settings.
 The view and action menus are hidden when the menubar is shown.
 
 https://bugzilla.gnome.org/show_bug.cgi?id=736419
+
+[c4pp4: rebased to follow upstream changes]
 ---
  po/POTFILES.in             |   1 +
  shell/ev-application.c     |  42 +++++++

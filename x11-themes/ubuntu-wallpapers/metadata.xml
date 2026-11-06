@@ -5,7 +5,7 @@
 		<name>gentoo-unity7</name>
 	</maintainer>
 	<use>
-		<flag name="gnome">Gnome wallpapers</flag>
+		<flag name="gnome">GNOME wallpapers</flag>
 		<flag name="karmic">Karmic Koala wallpapers</flag>
 		<flag name="lucid">Lucid Lynx wallpapers</flag>
 		<flag name="maverick">Maverick Meerkat wallpapers</flag>

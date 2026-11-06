@@ -106,7 +106,7 @@
 
     `eapply "${EHOOKS_FILESDIR}"`
 
-  - To run **eautoreconf** (the autotools eclass does not need to be inherited, eautoreconf is loaded automatically):
+  - To run **eautoreconf** (the autotools eclass does not need to be inherited; eautoreconf is loaded automatically):
 
     `eautoreconf`
 

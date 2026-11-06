@@ -67,6 +67,6 @@ src_install() {
 pkg_postinst() {
 	ubuntu-versionator_pkg_postinst
 
-	elog "Please note the printer jobs indicator requires the cupsd daemon to be"
-	elog "running so that it can grab printer job status from cups dbus notifier"
+	elog "Note that the printer jobs indicator requires the cupsd daemon to be"
+	elog "running, so that it can get the print job status from the CUPS D-Bus notifier."
 }

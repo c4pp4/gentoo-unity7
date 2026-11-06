@@ -403,15 +403,15 @@ pkg_postinst() {
 
 	if use uwidgets; then
 		echo
-		elog "To install official widgets, copy them"
-		elog "from /usr/share/unity/widgets to user's"
+		elog "To install the official widgets, copy them"
+		elog "from /usr/share/unity/widgets to the user's"
 		elog "~/.local/share/unity/widgets folder."
 	fi
 
 	echo
-	elog "If you use a custom ~/.xinitrc to startx then you should"
-	elog "add the following to the top of your ~/.xinitrc file"
-	elog "to ensure all needed services are started:"
+	elog "If you use a custom ~/.xinitrc with startx, add the following"
+	elog "to the top of your ~/.xinitrc file to ensure that all needed"
+	elog "services are started:"
 	elog
 	elog '#!/bin/sh'
 	elog

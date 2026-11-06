@@ -1,12 +1,12 @@
-From 8075b310607eb2f82adaf66a0d5a5340f38569e3 Mon Sep 17 00:00:00 2001
+From e9f7e7c240cebe9e1a0c2ed4cdcd49f84a41e346 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Wed, 21 Oct 2026 12:47:20 +0200
+Date: Fri, 06 Nov 2026 14:43:39 +0100
 Subject: [PATCH 1/1] Use libnotify when available (evolution-alarm-notify)
 
-notify-osd in Unity does not support notification actions and shows
-the reminder sent via GNotification (with the default action and the
-"Reminders" button) as a dialog. Send a plain notification via
-libnotify instead, but only when running in Unity.
+notify-osd in Unity does not support notification actions, so it shows
+the reminder that GNotification sends, with its default action and the
+"Reminders" button, as a dialog. Send a plain notification through
+libnotify instead, but only in Unity.
 
 Signed-off-by: c4pp4
 ---

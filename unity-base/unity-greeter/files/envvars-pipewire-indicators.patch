@@ -1,6 +1,6 @@
-From 0141206db69176cd7e26632df6968eadc17eacb3 Mon Sep 17 00:00:00 2001
+From cd952c45922a1dcc05716aa68e404a1dcd2a586d Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Tue, 20 Oct 2026 13:03:31 +0200
+Date: Fri, 06 Nov 2026 14:00:36 +0100
 Subject: [PATCH 1/1] Fix environment variables, start indicators and PipeWire
  without systemd
 
@@ -12,7 +12,7 @@ Import the XDG_SESSION_CLASS environment variable, which is used
 by indicator-sound.
 
 Without the 'systemd --user' process (e.g. on OpenRC), the indicator
-services can not be started via systemctl, so launch them directly.
+services cannot be started with systemctl, so launch them directly.
 Skip importing environment variables into the systemd manager
 environment block in that case.
 

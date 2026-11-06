@@ -1,5 +1,5 @@
 # PCH is masked globally due to its instability #
-# Telepathy is dead and packages masked for removal #
+# Telepathy is dead, and its packages are masked for removal #
 # see /var/db/repos/gentoo/profiles/base/use.mask #
 dev-libs/libcolumbus -pch
 net-misc/vino -telepathy

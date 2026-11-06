@@ -1,6 +1,6 @@
-From 15c2085e7fcaf1ff51b935a3344f308561c8c695 Mon Sep 17 00:00:00 2001
+From 16bd61795f49b96fcdfd024195eda0aae7d6717f Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Thu, 22 Oct 2026 00:49:01 +0200
+Date: Fri, 06 Nov 2026 14:43:39 +0100
 Subject: [PATCH 1/1] Populate Firefox/Thunderbird global submenus
 
 GtkMenu fixates the size of its toplevel after it has been positioned
@@ -10,8 +10,9 @@ items of Firefox and Thunderbird submenus arrive via dbusmenu only after
 the submenu is shown, so the fixated menu stays at the size of the empty
 menu. Don't fixate the size when running in Unity (X11 only).
 
-gtk_window_fixate_size () is used only here, the change affects GtkMenu
-popups whose content changes while they are open, and only in Unity.
+gtk_window_fixate_size () is used only here, so the change affects only
+GtkMenu popups whose content changes while they are open, and only in
+Unity.
 
 Signed-off-by: c4pp4
 ---

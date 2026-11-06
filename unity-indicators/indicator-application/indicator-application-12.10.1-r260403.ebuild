@@ -52,7 +52,7 @@ src_prepare() {
 		configure || die
 	grep -qx "SYSTEMD_USERDIR=$(systemd_get_userunitdir)" configure || die
 
-	# Started by the systemd user unit when cinnamon-session runs as a systemd service #
+	# The systemd user unit starts it when cinnamon-session runs as a systemd service #
 	echo "X-GNOME-HiddenUnderSystemd=true" >> data/indicator-application.desktop.in || die
 }
 

@@ -75,7 +75,7 @@ pkg_postinst() {
 
 	if use dev; then
 		echo
-		ewarn "Overlay development packages unmasked. Continue if you really know how broken development packages could be."
+		ewarn "Overlay development packages are unmasked. Continue only if you know how broken development packages can be."
 		echo
 	fi
 

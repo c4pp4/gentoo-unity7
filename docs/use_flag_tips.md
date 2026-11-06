@@ -8,7 +8,7 @@
   unity-indicators/unity-indicators-meta paste
   ```
 
-- You can install mail notification with Messaging Menu support **net-mail/mailnag**:
+- You can install **net-mail/mailnag** for mail notifications with Messaging Menu support:
 
   ```
   unity-indicators/unity-indicators-meta mail

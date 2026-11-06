@@ -41,8 +41,8 @@ BDEPEND="
 PATCHES=( "${FILESDIR}"/remove-1kb-filter-option.patch )
 
 src_prepare() {
-	# Disable all language files as they can be incomplete #
-	#  due to being provided by Ubuntu's language-pack packages #
+	# Disable all language files. They can be incomplete, because Ubuntu's #
+	#  language pack packages provide the translations #
 	> po/LINGUAS || die
 
 	ubuntu-versionator_src_prepare

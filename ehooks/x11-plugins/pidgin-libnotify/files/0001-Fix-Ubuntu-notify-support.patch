@@ -1,10 +1,10 @@
-From a6c648c6401a9f7db2b077fd8b5a38a4501bc6a2 Mon Sep 17 00:00:00 2001
+From 28c8a5265011a8afcc1550ffaf24de09f2a3ceaf Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Sat, 29 Nov 2025 00:28:42 +0100
+Date: Fri, 06 Nov 2026 14:43:39 +0100
 Subject: [PATCH 1/2] Fix Ubuntu notify support
 
-Show new message/conversation popup when enabled by plugin extension
-Libnotify Popups (fix debian/patches/ubuntu_notify_support.patch).
+Show the new message and conversation popups when the Libnotify Popups
+plugin enables them (fixes debian/patches/ubuntu_notify_support.patch).
 
 Bug-Ubuntu: https://launchpad.net/bugs/1339405
 

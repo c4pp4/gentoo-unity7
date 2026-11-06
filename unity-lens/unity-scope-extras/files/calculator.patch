@@ -1,16 +1,16 @@
-From 3d81f345ef5807b4ba53f00df8cdf4b02d2215d0 Mon Sep 17 00:00:00 2001
+From 1b1d04c8dff71bd42bfe61f7c30d9e5fe16b691d Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Sun, 25 Oct 2026 13:00:32 +0100
+Date: Fri, 06 Nov 2026 14:00:36 +0100
 Subject: [PATCH 1/1] Fix warnings, support mate-calc
 
 The '\(' and '\)' string literals are invalid escape sequences, which
 Python reports with a SyntaxWarning. Use raw strings.
 
-Require the Unity version before the import, PyGI warns otherwise.
+Require the Unity version before the import; otherwise PyGI warns.
 Do not import the unused UnityExtras.
 
 Use mate-calc if gnome-calculator is not installed. mate-calc solves
-the equation the same way, but it can not start with an equation, open
+the equation the same way, but it cannot start with an equation, so open
 it without the result. Return no results without a calculator.
 
 Signed-off-by: c4pp4

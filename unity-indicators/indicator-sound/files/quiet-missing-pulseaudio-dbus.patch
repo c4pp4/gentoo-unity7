@@ -1,11 +1,11 @@
-From 095a4f17e7a0aae76476150ec332bba6ecfd16bf Mon Sep 17 00:00:00 2001
+From 39f7fa465ca87816bd88a5747272369a3076a194 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Wed, 21 Oct 2026 03:15:55 +0200
+Date: Fri, 06 Nov 2026 14:00:36 +0100
 Subject: [PATCH 1/1] Do not warn about missing PulseAudio D-Bus interface
 
 PipeWire does not provide the org.PulseAudio1 D-Bus interface, so the
 warning is printed on every start. The interface is only needed for the
-optional Stream Restore support, volume control works without it.
+optional Stream Restore support; volume control works without it.
 
 Signed-off-by: c4pp4
 ---

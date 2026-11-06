@@ -7,11 +7,8 @@
 	<use>
 		<flag name="colord">Support color management using
 			<pkg>x11-misc/colord</pkg></flag>
-		<flag name="gnome-online-accounts">Enable configuration
-			panel for <pkg>net-libs/gnome-online-accounts</pkg>
-			accounts</flag>
-		<flag name="sharing">Install Sharing panel feature
-			packages</flag>
+		<flag name="gnome-online-accounts">Enable the configuration panel for <pkg>net-libs/gnome-online-accounts</pkg> accounts</flag>
+		<flag name="sharing">Install the packages for the Sharing panel</flag>
 		<flag name="vnc">Enable VNC server for GNOME (screen
 			sharing)</flag>
 	</use>

@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # Start the Unity session without the 'systemd --user' process #
-#  compiz, unity-panel-service and other components are launched by cinnamon-session #
-#  via XDG autostart files, indicator services via D-Bus activation #
+#  cinnamon-session launches compiz, unity-panel-service and other components #
+#  from XDG autostart files, and D-Bus activation starts the indicator services #
 
 # some old Qt programs still check this long-deprecated env var
 export GNOME_DESKTOP_SESSION_ID=this-is-deprecated

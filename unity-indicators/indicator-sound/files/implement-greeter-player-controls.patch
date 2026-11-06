@@ -1,12 +1,12 @@
-From 6f7345c340bfca598604bd916aaad7eb90d63d0e Mon Sep 17 00:00:00 2001
+From e1105dc2df5e616d4136de2eca90806880c703d9 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Sun, 25 Oct 2026 13:26:03 +0100
+Date: Fri, 06 Nov 2026 14:00:36 +0100
 Subject: [PATCH 1/1] Implement playback control properties of the greeter player
 
 MediaPlayerUser did not implement can-do-play, can-do-prev and
-can-do-next, the service running in the greeter warned about each of
-them when it built the phone greeter menu with the player of the user.
-The controls are sent through unity-greeter-session-broadcast, enable
+can-do-next, so the service running in the greeter warned about each of
+them when it built the phone greeter menu with the user's player. The
+controls are sent through unity-greeter-session-broadcast, so enable
 them only if it is running.
 
 Signed-off-by: c4pp4

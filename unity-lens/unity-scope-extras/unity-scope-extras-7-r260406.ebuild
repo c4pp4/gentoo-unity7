@@ -82,7 +82,7 @@ src_prepare() {
 		use ${i} || continue
 		eval "_name=${i}; _uver=\${_uver_${i}}; _urev=\${_urev_${i}}"
 		pushd "${S}/unity-scope-${_name}-${_uver}" >/dev/null || die
-			einfo "Applying the Ubuntu diff file for ${_name} scope"
+			einfo "Applying the Ubuntu diff file for the ${_name} scope"
 			eapply "${S}/unity-scope-${_name}_${_uver}-${_urev}.diff"
 			[[ -f ${FILESDIR}/${i}.patch ]] && eapply "${FILESDIR}/${i}.patch"
 
@@ -146,6 +146,6 @@ pkg_postinst() {
 
 	if use manpages; then
 		elog
-		elog "manpages scope needs to run 'mandb' command to create or update the manual page index caches."
+		elog "The manpages scope needs the 'mandb' command to create or update the manual page index caches."
 	fi
 }

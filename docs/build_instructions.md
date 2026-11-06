@@ -16,9 +16,9 @@ Follow the [Gentoo AMD64 Handbook⬀][handbook] for the base installation and co
    <br/>
    `gentoo-unity7:amd64/23.0/desktop/unity/openrc (exp)`
 
-4. Add the `ACCEPT_EHOOKS="yes"` variable into the `/etc/portage/make.conf` configuration file.
+4. Add the `ACCEPT_EHOOKS="yes"` variable to the `/etc/portage/make.conf` configuration file.
 
-   WARNING: Some overlay patches will be applied to packages from the Gentoo repository via the ehooks patching system. For more details, see [ehooks - Chapter I.][ehooks] Set the variable to confirm you agree with it.
+   WARNING: Some overlay patches will be applied to packages from the Gentoo repository via the ehooks patching system. For more details, see [ehooks - Chapter I.][ehooks] Set the variable to confirm that you agree.
 
 5. Set up the Gentoo Unity⁷ Desktop build environment:
 
@@ -42,11 +42,11 @@ NOTES:
 
   - systemd or OpenRC: [LightDM⬀][ldm], [NetworkManager⬀][nm], [CUPS⬀][cups], and [Bluetooth⬀][bt].
 
-  - systemd: [PipeWire⬀][pw] (as root, use `systemctl --global enable` rather than `systemd --user enable --now` so the units are enabled for every user, including the LightDM greeter).
+  - systemd: [PipeWire⬀][pw] (as root, use `systemctl --global enable` rather than `systemctl --user enable --now`, so that the units are enabled for every user, including the LightDM greeter).
 
   - OpenRC: [elogind⬀][elogind] and [D-Bus⬀][dbus] (PipeWire and WirePlumber are started by default, including the LightDM greeter).
 
-- In case of starting Unity7 with the `startx` command, use [our .xinitrc file][xirc] to ensure all needed services are started.
+- If you start Unity7 with the `startx` command, use [our .xinitrc file][xirc] to ensure that all needed services are started.
 
 - If you switch the default Python target, you **must** update `sys-apps/portage` before any other packages.
 

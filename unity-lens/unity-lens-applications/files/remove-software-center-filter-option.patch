@@ -1,12 +1,12 @@
-From 25eef743922170af1e0581d02a7901d2123ac238 Mon Sep 17 00:00:00 2001
+From d876b4b4ddf28982d6c0f969ae154ad82db35470 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Fri, 23 Oct 2026 23:07:22 +0200
+Date: Fri, 06 Nov 2026 14:00:36 +0100
 Subject: [PATCH 1/1] Remove Software center filter option
 
-Remove the Sources filter with the Software center option and the
-suggestions of the applications available in the software center, which
-is not available. Without the Sources filter, the local applications
-are always active.
+Remove the Sources filter with the Software center option, and the
+suggestions of applications available in the software center, which no
+longer exists. Without the Sources filter, the local applications are
+always active.
 
 Do not load the Software center index, which does not exist (errors
 at every start), and do not look up the package info of applications

@@ -1,7 +1,7 @@
-From bdaf64a7b8e01a91a6f90e58c86e32af92c5bdb0 Mon Sep 17 00:00:00 2001
+From c2ca7ed4604f008cf5bf91443adf9fa62f0185ae Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Tue, 1 Jul 2025 02:19:54 +0200
-Subject: [PATCH 1/1] fix notification icon (libnotify 0.8.6)
+Date: Fri, 06 Nov 2026 14:00:36 +0100
+Subject: [PATCH 1/1] Fix notification icon (libnotify 0.8.6)
 
 Since libnotify 0.8.5 the icon passed to the notification constructor is
 sent as the app icon and updates change only the icon name. Create the

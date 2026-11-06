@@ -1,15 +1,16 @@
-From 1fd33c46464f8a7be27c9356e6e5f10bf071f6fd Mon Sep 17 00:00:00 2001
+From b16c57b684765c3d14a9f9b429ec713ed833e4b1 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Wed, 21 Oct 2026 04:30:19 +0200
+Date: Fri, 06 Nov 2026 14:43:39 +0100
 Subject: [PATCH 1/1] Add SessionIsActive property and fix session handling
 
 systemd: add SessionIsActive property and improve session tracking
 
-Expose current session foreground state through a new SessionIsActive
-D-Bus property backed by systemd-logind session notifications.
+Expose the current session's foreground state through a new
+SessionIsActive D-Bus property backed by systemd-logind session
+notifications.
 
-The systemd backend now tracks session active state using
-sd_session_is_active() and updates via sd-login monitor events.
+The systemd backend now tracks the session's active state with
+sd_session_is_active() and updates it on sd-login monitor events.
 
 This also refactors session_id handling to use a single source of truth
 and improves fallback behavior when logind is unavailable.

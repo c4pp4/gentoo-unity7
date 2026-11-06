@@ -6,20 +6,13 @@
 	</maintainer>
 	<use>
 		<flag name="accessibility">Install accessibility packages</flag>
-		<flag name="apps">Install web browser, email client and office suite,
-			defaults to <pkg>www-client/firefox</pkg>, 
-			<pkg>mail-client/thunderbird</pkg>
-			and <pkg>app-office/libreoffice</pkg></flag>
-		<flag name="chat">Install instant messenger, defaults to
-			<pkg>net-im/pidgin</pkg></flag>
-		<flag name="classic-unity">Install classic Unity look
-			with Ambiance theme, ubuntu-font-family,
-			non-transparent panel with shadow,
-			and horizontal Dash</flag>
+		<flag name="apps">Install a web browser, an email client and an office suite (by default <pkg>www-client/firefox</pkg>, <pkg>mail-client/thunderbird</pkg> and <pkg>app-office/libreoffice</pkg>)</flag>
+		<flag name="chat">Install an instant messenger (by default <pkg>net-im/pidgin</pkg>)</flag>
+		<flag name="classic-unity">Install the classic Unity look: the Ambiance theme, ubuntu-font-family, a non-transparent panel with shadow and the horizontal Dash</flag>
 		<flag name="core">Install Unity core applications</flag>
 		<flag name="extra">Install Unity extra applications</flag>
 		<flag name="fonts">Install additional fonts</flag>
 		<flag name="games">Install games</flag>
-		<flag name="gnome">Install Gnome extra applications</flag>
+		<flag name="gnome">Install extra GNOME applications</flag>
 	</use>
 </pkgmetadata>
