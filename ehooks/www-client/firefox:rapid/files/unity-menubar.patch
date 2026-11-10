@@ -1,6 +1,6 @@
-From e5c7c330ccd57f0e32805149d2e3b19200a80661 Mon Sep 17 00:00:00 2001
+From 9d7c1d6938b2240c79c6057554c5ff6a805f3584 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Fri, 06 Nov 2026 14:43:39 +0100
+Date: Sat, 07 Nov 2026 18:02:19 +0100
 Subject: [PATCH 1/1] Custom Unity menubar
 
 Based on the patch from Ubuntu's bionic firefox package
@@ -64,7 +64,7 @@ Signed-off-by: c4pp4
  create mode 100644 xpcom/ds/NativeMenuAtoms.py
 
 diff --git a/browser/components/places/content/places.xhtml b/browser/components/places/content/places.xhtml
-index c74fd241a3..ad21e0e72d 100644
+index c74fd24..ad21e0e 100644
 --- a/browser/components/places/content/places.xhtml
 +++ b/browser/components/places/content/places.xhtml
 @@ -173,6 +173,7 @@
@@ -76,10 +76,10 @@ index c74fd241a3..ad21e0e72d 100644
            <menupopup id="organizeButtonPopup">
              <menuitem id="newbookmark"
 diff --git a/dom/xul/XULPopupElement.cpp b/dom/xul/XULPopupElement.cpp
-index 3417f49994..d786a4413c 100644
+index 8c1a769..742866c 100644
 --- a/dom/xul/XULPopupElement.cpp
 +++ b/dom/xul/XULPopupElement.cpp
-@@ -245,6 +245,10 @@ void XULPopupElement::GetState(nsString& aState) {
+@@ -259,6 +259,10 @@ void XULPopupElement::GetState(nsString& aState) {
    // set this here in case there's no frame for the popup
    aState.AssignLiteral("closed");
  
@@ -90,7 +90,7 @@ index 3417f49994..d786a4413c 100644
    if (nsXULPopupManager* pm = nsXULPopupManager::GetInstance()) {
      switch (pm->GetPopupState(this)) {
        case ePopupShown:
-@@ -267,6 +271,11 @@ void XULPopupElement::GetState(nsString& aState) {
+@@ -281,6 +285,11 @@ void XULPopupElement::GetState(nsString& aState) {
          break;
      }
    }
@@ -103,10 +103,10 @@ index 3417f49994..d786a4413c 100644
  
  nsINode* XULPopupElement::GetTriggerNode() const {
 diff --git a/dom/xul/moz.build b/dom/xul/moz.build
-index a9cefa9859..4636ebb470 100644
+index e67710a..e5a624f 100644
 --- a/dom/xul/moz.build
 +++ b/dom/xul/moz.build
-@@ -89,4 +89,9 @@ LOCAL_INCLUDES += [
+@@ -89,6 +89,11 @@ LOCAL_INCLUDES += [
  
  include("/ipc/chromium/chromium-config.mozbuild")
  
@@ -116,8 +116,10 @@ index a9cefa9859..4636ebb470 100644
 +    ]
 +
  FINAL_LIBRARY = "xul"
+ 
+ SOURCE_HEADERS += [
 diff --git a/layout/build/moz.build b/layout/build/moz.build
-index bf04989c24..869db473a7 100644
+index b49083b..eadc830 100644
 --- a/layout/build/moz.build
 +++ b/layout/build/moz.build
 @@ -65,6 +65,10 @@ elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "android":
@@ -132,7 +134,7 @@ index bf04989c24..869db473a7 100644
  XPCOM_MANIFESTS += [
      "components.conf",
 diff --git a/modules/libpref/init/all.js b/modules/libpref/init/all.js
-index c31bb3da8a..b307628f3d 100644
+index fe38d02..6c8a7b1 100644
 --- a/modules/libpref/init/all.js
 +++ b/modules/libpref/init/all.js
 @@ -172,6 +172,9 @@ pref("editor.htmleditor.inputevent.hack.no_dispatch_after_compositionend.addl",
@@ -146,7 +148,7 @@ index c31bb3da8a..b307628f3d 100644
  // See http://whatwg.org/specs/web-apps/current-work/#ping
  pref("browser.send_pings", false);
 diff --git a/toolkit/content/xul.css b/toolkit/content/xul.css
-index 689ba62d84..5e79365a14 100644
+index 689ba62..5e79365 100644
 --- a/toolkit/content/xul.css
 +++ b/toolkit/content/xul.css
 @@ -310,6 +310,13 @@ toolbox {
@@ -164,7 +166,7 @@ index 689ba62d84..5e79365a14 100644
    flex: 1000 1000;
  }
 diff --git a/widget/gtk/DBusMenu.h b/widget/gtk/DBusMenu.h
-index 1e260bae5a..d124b02a31 100644
+index 1e260ba..d124b02 100644
 --- a/widget/gtk/DBusMenu.h
 +++ b/widget/gtk/DBusMenu.h
 @@ -8,6 +8,8 @@
@@ -177,7 +179,7 @@ index 1e260bae5a..d124b02a31 100644
  
  namespace dom {
 diff --git a/widget/gtk/NativeMenuSupport.cpp b/widget/gtk/NativeMenuSupport.cpp
-index 4a660e550b..99745240b3 100644
+index 4a660e5..9974524 100644
 --- a/widget/gtk/NativeMenuSupport.cpp
 +++ b/widget/gtk/NativeMenuSupport.cpp
 @@ -9,6 +9,8 @@
@@ -211,7 +213,7 @@ index 4a660e550b..99745240b3 100644
  already_AddRefed<NativeMenu> NativeMenuSupport::CreateNativePopupMenu(
 diff --git a/widget/gtk/NativeMenuSupport.h b/widget/gtk/NativeMenuSupport.h
 new file mode 100644
-index 0000000000..0843d45185
+index 0000000..0843d45
 --- /dev/null
 +++ b/widget/gtk/NativeMenuSupport.h
 @@ -0,0 +1,31 @@
@@ -247,7 +249,7 @@ index 0000000000..0843d45185
 +
 +#endif  // mozilla_widget_NativeMenuSupport_h
 diff --git a/widget/gtk/components.conf b/widget/gtk/components.conf
-index b9fc44db01..3906e42bcf 100644
+index b9fc44d..3906e42 100644
 --- a/widget/gtk/components.conf
 +++ b/widget/gtk/components.conf
 @@ -142,4 +142,12 @@ Classes = [
@@ -264,10 +266,10 @@ index b9fc44db01..3906e42bcf 100644
 +    },
  ]
 diff --git a/widget/gtk/moz.build b/widget/gtk/moz.build
-index f7c714598e..ad10a82406 100644
+index a7dbfd4..abbe431 100644
 --- a/widget/gtk/moz.build
 +++ b/widget/gtk/moz.build
-@@ -111,6 +111,14 @@ UNIFIED_SOURCES += [
+@@ -114,6 +114,14 @@ UNIFIED_SOURCES += [
  
  SOURCES += [
      "MediaKeysEventSourceFactory.cpp",
@@ -282,7 +284,7 @@ index f7c714598e..ad10a82406 100644
      "nsNativeThemeGTK.cpp",  # conflicts with X11 headers
      "nsWindow.cpp",  # conflicts with X11 headers
  ]
-@@ -164,6 +172,7 @@ LOCAL_INCLUDES += [
+@@ -183,6 +191,7 @@ LOCAL_INCLUDES += [
      "/layout/base",
      "/layout/forms",
      "/layout/generic",
@@ -292,7 +294,7 @@ index f7c714598e..ad10a82406 100644
      "/third_party/cups/include",
 diff --git a/widget/gtk/nsMenu.cpp b/widget/gtk/nsMenu.cpp
 new file mode 100644
-index 0000000000..0cc506d244
+index 0000000..0cc506d
 --- /dev/null
 +++ b/widget/gtk/nsMenu.cpp
 @@ -0,0 +1,796 @@
@@ -1094,7 +1096,7 @@ index 0000000000..0cc506d244
 +
 diff --git a/widget/gtk/nsMenu.h b/widget/gtk/nsMenu.h
 new file mode 100644
-index 0000000000..3755f9c1c9
+index 0000000..3755f9c
 --- /dev/null
 +++ b/widget/gtk/nsMenu.h
 @@ -0,0 +1,123 @@
@@ -1223,7 +1225,7 @@ index 0000000000..3755f9c1c9
 +#endif /* __nsMenu_h__ */
 diff --git a/widget/gtk/nsMenuBar.cpp b/widget/gtk/nsMenuBar.cpp
 new file mode 100644
-index 0000000000..7d22ad11dd
+index 0000000..7d22ad1
 --- /dev/null
 +++ b/widget/gtk/nsMenuBar.cpp
 @@ -0,0 +1,549 @@
@@ -1778,7 +1780,7 @@ index 0000000000..7d22ad11dd
 +}
 diff --git a/widget/gtk/nsMenuBar.h b/widget/gtk/nsMenuBar.h
 new file mode 100644
-index 0000000000..7f4f8157d2
+index 0000000..7f4f815
 --- /dev/null
 +++ b/widget/gtk/nsMenuBar.h
 @@ -0,0 +1,111 @@
@@ -1895,7 +1897,7 @@ index 0000000000..7f4f8157d2
 +#endif /* __nsMenuBar_h__ */
 diff --git a/widget/gtk/nsMenuContainer.cpp b/widget/gtk/nsMenuContainer.cpp
 new file mode 100644
-index 0000000000..f8789bc794
+index 0000000..f8789bc
 --- /dev/null
 +++ b/widget/gtk/nsMenuContainer.cpp
 @@ -0,0 +1,171 @@
@@ -2072,7 +2074,7 @@ index 0000000000..f8789bc794
 +}
 diff --git a/widget/gtk/nsMenuContainer.h b/widget/gtk/nsMenuContainer.h
 new file mode 100644
-index 0000000000..b7e8fa8db4
+index 0000000..b7e8fa8
 --- /dev/null
 +++ b/widget/gtk/nsMenuContainer.h
 @@ -0,0 +1,70 @@
@@ -2148,7 +2150,7 @@ index 0000000000..b7e8fa8db4
 +#endif /* __nsMenuContainer_h__ */
 diff --git a/widget/gtk/nsMenuItem.cpp b/widget/gtk/nsMenuItem.cpp
 new file mode 100644
-index 0000000000..2c7e06e04b
+index 0000000..2c7e06e
 --- /dev/null
 +++ b/widget/gtk/nsMenuItem.cpp
 @@ -0,0 +1,767 @@
@@ -2921,7 +2923,7 @@ index 0000000000..2c7e06e04b
 +}
 diff --git a/widget/gtk/nsMenuItem.h b/widget/gtk/nsMenuItem.h
 new file mode 100644
-index 0000000000..15310697e5
+index 0000000..1531069
 --- /dev/null
 +++ b/widget/gtk/nsMenuItem.h
 @@ -0,0 +1,80 @@
@@ -3007,7 +3009,7 @@ index 0000000000..15310697e5
 +#endif /* __nsMenuItem_h__ */
 diff --git a/widget/gtk/nsMenuObject.cpp b/widget/gtk/nsMenuObject.cpp
 new file mode 100644
-index 0000000000..e7be4be65c
+index 0000000..e7be4be
 --- /dev/null
 +++ b/widget/gtk/nsMenuObject.cpp
 @@ -0,0 +1,661 @@
@@ -3674,7 +3676,7 @@ index 0000000000..e7be4be65c
 +}
 diff --git a/widget/gtk/nsMenuObject.h b/widget/gtk/nsMenuObject.h
 new file mode 100644
-index 0000000000..be3c145d53
+index 0000000..be3c145
 --- /dev/null
 +++ b/widget/gtk/nsMenuObject.h
 @@ -0,0 +1,169 @@
@@ -3849,7 +3851,7 @@ index 0000000000..be3c145d53
 +#endif /* __nsMenuObject_h__ */
 diff --git a/widget/gtk/nsMenuSeparator.cpp b/widget/gtk/nsMenuSeparator.cpp
 new file mode 100644
-index 0000000000..8b98309609
+index 0000000..8b98309
 --- /dev/null
 +++ b/widget/gtk/nsMenuSeparator.cpp
 @@ -0,0 +1,83 @@
@@ -3938,7 +3940,7 @@ index 0000000000..8b98309609
 +}
 diff --git a/widget/gtk/nsMenuSeparator.h b/widget/gtk/nsMenuSeparator.h
 new file mode 100644
-index 0000000000..b07ff915ad
+index 0000000..b07ff91
 --- /dev/null
 +++ b/widget/gtk/nsMenuSeparator.h
 @@ -0,0 +1,37 @@
@@ -3981,7 +3983,7 @@ index 0000000000..b07ff915ad
 +#endif /* __nsMenuSeparator_h__ */
 diff --git a/widget/gtk/nsNativeMenuDocListener.cpp b/widget/gtk/nsNativeMenuDocListener.cpp
 new file mode 100644
-index 0000000000..4966a162d6
+index 0000000..4966a16
 --- /dev/null
 +++ b/widget/gtk/nsNativeMenuDocListener.cpp
 @@ -0,0 +1,349 @@
@@ -4336,7 +4338,7 @@ index 0000000000..4966a162d6
 +}
 diff --git a/widget/gtk/nsNativeMenuDocListener.h b/widget/gtk/nsNativeMenuDocListener.h
 new file mode 100644
-index 0000000000..06decab659
+index 0000000..06decab
 --- /dev/null
 +++ b/widget/gtk/nsNativeMenuDocListener.h
 @@ -0,0 +1,152 @@
@@ -4494,7 +4496,7 @@ index 0000000000..06decab659
 +#endif /* __nsNativeMenuDocListener_h__ */
 diff --git a/widget/gtk/nsNativeMenuService.cpp b/widget/gtk/nsNativeMenuService.cpp
 new file mode 100644
-index 0000000000..b44db13163
+index 0000000..b44db13
 --- /dev/null
 +++ b/widget/gtk/nsNativeMenuService.cpp
 @@ -0,0 +1,478 @@
@@ -4978,7 +4980,7 @@ index 0000000000..b44db13163
 +}
 diff --git a/widget/gtk/nsNativeMenuService.h b/widget/gtk/nsNativeMenuService.h
 new file mode 100644
-index 0000000000..2e0d429edd
+index 0000000..2e0d429
 --- /dev/null
 +++ b/widget/gtk/nsNativeMenuService.h
 @@ -0,0 +1,85 @@
@@ -5068,10 +5070,10 @@ index 0000000000..2e0d429edd
 +
 +#endif /* __nsNativeMenuService_h__ */
 diff --git a/widget/gtk/nsWindow.cpp b/widget/gtk/nsWindow.cpp
-index 42d7d8a885..43e267b62c 100644
+index ada6f99..e29e929 100644
 --- a/widget/gtk/nsWindow.cpp
 +++ b/widget/gtk/nsWindow.cpp
-@@ -5403,6 +5403,10 @@ void nsWindow::HideWindowChrome(bool aShouldHide) {
+@@ -5418,6 +5418,10 @@ void nsWindow::HideWindowChrome(bool aShouldHide) {
    SetWindowDecoration(aShouldHide ? BorderStyle::None : mBorderStyle);
  }
  
@@ -5083,7 +5085,7 @@ index 42d7d8a885..43e267b62c 100644
                                bool aAlwaysRollup) {
    LOG("nsWindow::CheckForRollup() aAlwaysRollup %d", aAlwaysRollup);
 diff --git a/widget/gtk/nsWindow.h b/widget/gtk/nsWindow.h
-index 8613fdfd19..75bfef348c 100644
+index 7ed5ab3..88c42f2 100644
 --- a/widget/gtk/nsWindow.h
 +++ b/widget/gtk/nsWindow.h
 @@ -28,6 +28,8 @@
@@ -5095,7 +5097,7 @@ index 8613fdfd19..75bfef348c 100644
  #ifdef ACCESSIBILITY
  #  include "mozilla/a11y/LocalAccessible.h"
  #endif
-@@ -272,6 +274,8 @@ class nsWindow : public nsIWidget {
+@@ -283,6 +285,8 @@ class nsWindow : public nsIWidget {
    nsresult MakeFullScreen(bool aFullScreen) override;
    void HideWindowChrome(bool aShouldHide) override;
  
@@ -5104,7 +5106,7 @@ index 8613fdfd19..75bfef348c 100644
    /**
     * GetLastUserInputTime returns a timestamp for the most recent user input
     * event.  This is intended for pointer grab requests (including drags).
-@@ -866,6 +870,8 @@ class nsWindow : public nsIWidget {
+@@ -877,6 +881,8 @@ class nsWindow : public nsIWidget {
  
    static bool sTransparentMainWindow;
  
@@ -5114,7 +5116,7 @@ index 8613fdfd19..75bfef348c 100644
    RefPtr<mozilla::a11y::LocalAccessible> mRootAccessible;
  
 diff --git a/widget/moz.build b/widget/moz.build
-index 67a8082de9..c191ec836c 100644
+index 5aaa779..172a9c7 100644
 --- a/widget/moz.build
 +++ b/widget/moz.build
 @@ -171,6 +171,11 @@ EXPORTS += [
@@ -5131,7 +5133,7 @@ index 67a8082de9..c191ec836c 100644
      "ClipboardContentAnalysisChild.h",
 diff --git a/widget/nsINativeMenuService.h b/widget/nsINativeMenuService.h
 new file mode 100644
-index 0000000000..5a3d489c32
+index 0000000..5a3d489
 --- /dev/null
 +++ b/widget/nsINativeMenuService.h
 @@ -0,0 +1,36 @@
@@ -5172,7 +5174,7 @@ index 0000000000..5a3d489c32
 +
 +#endif  // nsINativeMenuService_h_
 diff --git a/widget/nsWidgetsCID.h b/widget/nsWidgetsCID.h
-index d2c8707d8d..b5ab7acce9 100644
+index d2c8707..b5ab7ac 100644
 --- a/widget/nsWidgetsCID.h
 +++ b/widget/nsWidgetsCID.h
 @@ -40,6 +40,14 @@
@@ -5192,7 +5194,7 @@ index d2c8707d8d..b5ab7acce9 100644
    {0xf6cd4f21, 0x53af, 0x11d2, {0x8d, 0xc4, 0x0, 0x60, 0x97, 0x3, 0xc1, 0x4e}}
 diff --git a/xpcom/ds/NativeMenuAtoms.py b/xpcom/ds/NativeMenuAtoms.py
 new file mode 100644
-index 0000000000..488c8f49c0
+index 0000000..488c8f4
 --- /dev/null
 +++ b/xpcom/ds/NativeMenuAtoms.py
 @@ -0,0 +1,9 @@
@@ -5206,7 +5208,7 @@ index 0000000000..488c8f49c0
 +    Atom("shellshowingmenubar", "shellshowingmenubar"),
 +]
 diff --git a/xpcom/ds/StaticAtoms.py b/xpcom/ds/StaticAtoms.py
-index 58e292aadf..6260c90b33 100644
+index 544de37..70dbcfe 100644
 --- a/xpcom/ds/StaticAtoms.py
 +++ b/xpcom/ds/StaticAtoms.py
 @@ -8,6 +8,7 @@ import sys
@@ -5217,7 +5219,7 @@ index 58e292aadf..6260c90b33 100644
  
  # Static atom definitions, used to generate various files below.
  #
-@@ -2667,7 +2668,7 @@ STATIC_ATOMS = [
+@@ -2666,7 +2667,7 @@ STATIC_ATOMS = [
      Atom("PseudoStyle_MozSvgText", ":-moz-svg-text"),
      Atom("PseudoStyle_WebkitScrollbar", ":-webkit-scrollbar"),
      # END ATOMS
@@ -5227,5 +5229,5 @@ index 58e292aadf..6260c90b33 100644
  
  
 -- 
-2.55.0
+2.56.0
 
