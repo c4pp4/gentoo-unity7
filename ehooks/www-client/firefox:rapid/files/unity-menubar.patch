@@ -1,6 +1,6 @@
-From 9d7c1d6938b2240c79c6057554c5ff6a805f3584 Mon Sep 17 00:00:00 2001
+From dc626c4e5088f57f25127c2b8d5e5e03b28fb926 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Sat, 07 Nov 2026 18:02:19 +0100
+Date: Wed, 11 Nov 2026 04:30:02 +0100
 Subject: [PATCH 1/1] Custom Unity menubar
 
 Based on the patch from Ubuntu's bionic firefox package
@@ -19,13 +19,13 @@ Signed-off-by: c4pp4
  widget/gtk/NativeMenuSupport.h                |  31 +
  widget/gtk/components.conf                    |   8 +
  widget/gtk/moz.build                          |   9 +
- widget/gtk/nsMenu.cpp                         | 796 ++++++++++++++++++
+ widget/gtk/nsMenu.cpp                         | 797 ++++++++++++++++++
  widget/gtk/nsMenu.h                           | 123 +++
- widget/gtk/nsMenuBar.cpp                      | 549 ++++++++++++
+ widget/gtk/nsMenuBar.cpp                      | 552 ++++++++++++
  widget/gtk/nsMenuBar.h                        | 111 +++
  widget/gtk/nsMenuContainer.cpp                | 171 ++++
  widget/gtk/nsMenuContainer.h                  |  70 ++
- widget/gtk/nsMenuItem.cpp                     | 767 +++++++++++++++++
+ widget/gtk/nsMenuItem.cpp                     | 769 +++++++++++++++++
  widget/gtk/nsMenuItem.h                       |  80 ++
  widget/gtk/nsMenuObject.cpp                   | 661 +++++++++++++++
  widget/gtk/nsMenuObject.h                     | 169 ++++
@@ -42,7 +42,7 @@ Signed-off-by: c4pp4
  widget/nsWidgetsCID.h                         |   8 +
  xpcom/ds/NativeMenuAtoms.py                   |   9 +
  xpcom/ds/StaticAtoms.py                       |   3 +-
- 34 files changed, 4845 insertions(+), 1 deletion(-)
+ 34 files changed, 4851 insertions(+), 1 deletion(-)
  create mode 100644 widget/gtk/NativeMenuSupport.h
  create mode 100644 widget/gtk/nsMenu.cpp
  create mode 100644 widget/gtk/nsMenu.h
@@ -297,7 +297,7 @@ new file mode 100644
 index 0000000..0cc506d
 --- /dev/null
 +++ b/widget/gtk/nsMenu.cpp
-@@ -0,0 +1,796 @@
+@@ -0,0 +1,797 @@
 +/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 +/* vim:expandtab:shiftwidth=4:tabstop=4:
 + */
@@ -441,7 +441,7 @@ index 0000000..0cc506d
 +    } else {
 +        mPopupContent->AsElement()->SetAttr(
 +            kNameSpaceID_None, nsGkAtoms::_moz_nativemenupopupstate,
-+            state, false);
++            state, false, dom::IsKnownNewAttr::No);
 +    }
 +}
 +
@@ -535,7 +535,8 @@ index 0000000..0cc506d
 +        DispatchMouseEvent(mPopupContent, eXULPopupShowing);
 +
 +        ContentNode()->AsElement()->SetAttr(kNameSpaceID_None, nsGkAtoms::open,
-+                                            u"true"_ns, true);
++                                            u"true"_ns, true,
++                                            dom::IsKnownNewAttr::No);
 +    }
 +
 +    if (!self) {
@@ -1228,7 +1229,7 @@ new file mode 100644
 index 0000000..7d22ad1
 --- /dev/null
 +++ b/widget/gtk/nsMenuBar.cpp
-@@ -0,0 +1,549 @@
+@@ -0,0 +1,552 @@
 +/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 +/* vim:expandtab:shiftwidth=4:tabstop=4:
 + */
@@ -1483,7 +1484,7 @@ index 0000000..7d22ad1
 +    ContentNode()->OwnerDoc()->GetRootElement()->SetAttr(
 +        kNameSpaceID_None, nsGkAtoms::shellshowingmenubar,
 +        aShowing ? u"true"_ns : u"false"_ns,
-+        true);
++        true, dom::IsKnownNewAttr::No);
 +}
 +
 +void
@@ -1491,7 +1492,8 @@ index 0000000..7d22ad1
 +{
 +    ContentNode()->AsElement()->SetAttr(kNameSpaceID_None,
 +                                        nsGkAtoms::openedwithkey,
-+                                        u"false"_ns, true);
++                                        u"false"_ns, true,
++                                        dom::IsKnownNewAttr::No);
 +}
 +
 +void
@@ -1569,7 +1571,8 @@ index 0000000..7d22ad1
 +
 +    ContentNode()->AsElement()->SetAttr(kNameSpaceID_None,
 +                                        nsGkAtoms::openedwithkey,
-+                                        u"true"_ns, true);
++                                        u"true"_ns, true,
++                                        dom::IsKnownNewAttr::No);
 +    static_cast<nsMenu *>(found)->OpenMenu();
 +
 +    aEvent->StopPropagation();
@@ -1755,7 +1758,8 @@ index 0000000..7d22ad1
 +    // Clear this. Not sure if we really need to though
 +    ContentNode()->AsElement()->SetAttr(kNameSpaceID_None,
 +                                        nsGkAtoms::openedwithkey,
-+                                        u"false"_ns, true);
++                                        u"false"_ns, true,
++                                        dom::IsKnownNewAttr::No);
 +
 +    DocListener()->Start();
 +    Build();
@@ -2153,7 +2157,7 @@ new file mode 100644
 index 0000000..2c7e06e
 --- /dev/null
 +++ b/widget/gtk/nsMenuItem.cpp
-@@ -0,0 +1,767 @@
+@@ -0,0 +1,769 @@
 +/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 +/* vim:expandtab:shiftwidth=4:tabstop=4:
 + */
@@ -2503,7 +2507,7 @@ index 0000000..2c7e06e
 +                                            mIsChecked ?
 +                                                u"false"_ns
 +                                                : u"true"_ns,
-+                                            true);
++                                            true, dom::IsKnownNewAttr::No);
 +    }
 +
 +    dom::Document *doc = ContentNode()->OwnerDoc();
@@ -2549,7 +2553,8 @@ index 0000000..2c7e06e
 +    nsAutoString value;
 +    if (aContent->AsElement()->GetAttr(kNameSpaceID_None, aAttribute, value)) {
 +        ContentNode()->AsElement()->SetAttr(kNameSpaceID_None, aAttribute,
-+                                            value, true);
++                                            value, true,
++                                            dom::IsKnownNewAttr::No);
 +    }
 +}
 +
@@ -2790,7 +2795,8 @@ index 0000000..2c7e06e
 +                                                 eCaseMatters)) {
 +        ContentNode()->AsElement()->SetAttr(kNameSpaceID_None,
 +                                            nsGkAtoms::disabled,
-+                                            u"true"_ns, true);
++                                            u"true"_ns, true,
++                                            dom::IsKnownNewAttr::No);
 +    } else {
 +        ContentNode()->AsElement()->UnsetAttr(kNameSpaceID_None,
 +                                              nsGkAtoms::disabled, true);
