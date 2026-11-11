@@ -2,28 +2,35 @@ fetch_debian() {
 	local \
 		archive=$2.debian.tar.xz \
 		blake=$1 \
+		cache="${PORTAGE_ACTUAL_DISTDIR:-${DISTDIR}}/ehooks" \
 		wlog="${T}/wget.log" \
 		ret=1
 
+	# Keep the archive in a subdirectory of the real DISTDIR, like git-r3.eclass #
+	# does, so that a reinstallation does not need Launchpad. eclean-dist #
+	# removes only regular files, so it keeps the subdirectory #
+	addwrite "${cache}"
+	mkdir -p "${cache}" || die
+
+	if [[ -s ${cache}/${archive} ]]; then
+		einfo "Using ${color_bold}${archive}${color_norm} from ${cache}"
+		ebegin "Checking BLAKE2 checksum"
+			b2sum --status -c <(echo "${blake}  ${cache}/${archive}")
+			ret=$?
+		eend ${ret}
+	fi
+	if [[ ${ret} -ne 0 ]]; then
+		ebegin "Downloading ${color_bold}${archive}${color_norm}"
+			wget -t 3 -T 60 -U "Portage (Gentoo, https://www.gentoo.org) distfile-fetch" -O "${T}/${archive}" -o "${wlog}" "https://launchpad.net/ubuntu/+archive/primary/+files/${archive}"
+		eend $?
+		[[ -s ${T}/${archive} ]] || { cat "${wlog}" >&2; die "ehooks: archive not fetched"; }
+		ebegin "Checking BLAKE2 checksum"
+			b2sum --status -c <(echo "${blake}  ${T}/${archive}") || die "ehooks: archive checksum did not match"
+		eend $?
+		mv "${T}/${archive}" "${cache}/" || die
+	fi
+
 	pushd "${S}" >/dev/null || die
-		if [[ -s ${EROOT}/tmp/${archive} ]]; then
-			einfo "Found ${color_bold}${archive}${color_norm}"
-			ebegin "Checking BLAKE2 checksum"
-				b2sum --status -c <(echo "${blake}  ${EROOT}/tmp/${archive}")
-				ret=$?
-			eend ${ret}
-		fi
-		if [[ ${ret} -ne 0 ]]; then
-			ebegin "Downloading ${color_bold}${archive}${color_norm}"
-				wget -t 3 -T 60 -U "Portage (Gentoo, https://www.gentoo.org) distfile-fetch" -O "${archive}" -o ${wlog} "https://launchpad.net/ubuntu/+archive/primary/+files/${archive}"
-			eend $?
-			[[ -s ${archive} ]] || { cat "${wlog}" >&2; die "ehooks: archive not fetched"; }
-			ebegin "Checking BLAKE2 checksum"
-				b2sum --status -c <(echo "${blake}  ${archive}") || die "ehooks: archive checksum did not match"
-			eend $?
-		else
-			cp ${EROOT}/tmp/${archive} ${S} || die
-		fi
-		unpack "${S}/${archive}"
+		unpack "${cache}/${archive}"
 	popd >/dev/null || die
 }
