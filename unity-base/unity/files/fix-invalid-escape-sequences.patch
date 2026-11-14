@@ -1,0 +1,43 @@
+From 62285a8a512356774ddf1066048f1f0a864fe936 Mon Sep 17 00:00:00 2001
+From: Lexi Ewald
+Date: Sat, 14 Nov 2026 12:31:44 +0100
+Subject: [PATCH 1/1] Fix invalid escape sequences in the unity script
+
+Python 3.12 and later warn about the "\ " escape sequence in the help
+texts of the --advanced-debug, --compiz-path, --debug and --replace
+options on every run of the unity script (SyntaxWarning: "\ " is an
+invalid escape sequence). Use raw strings, so that the help texts stay
+the same.
+---
+ tools/unity.cmake | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/tools/unity.cmake b/tools/unity.cmake
+index 8bc7e27..b01bb19 100755
+--- a/tools/unity.cmake
++++ b/tools/unity.cmake
+@@ -246,17 +246,17 @@ if __name__ == '__main__':
+     parser = OptionParser(version= "%prog @UNITY_VERSION@", usage=usage)
+ 
+     parser.add_option("--advanced-debug", action="store_true",
+-                      help="Run unity under debugging to help debugging an issue. /!\ Only if devs ask for it.")
++                      help=r"Run unity under debugging to help debugging an issue. /!\ Only if devs ask for it.")
+     parser.add_option("--compiz-path", action="store", dest="compiz_path",
+-                      help="Path to compiz. /!\ Only if devs ask for it.")
++                      help=r"Path to compiz. /!\ Only if devs ask for it.")
+     parser.add_option("--debug", action="store_true",
+-                      help="Run unity under gdb and print a backtrace on crash. /!\ Only if devs ask for it.")
++                      help=r"Run unity under gdb and print a backtrace on crash. /!\ Only if devs ask for it.")
+     parser.add_option("--distro", action="store_true",
+                       help="Remove local build if present with default values to return to the package value (this doesn't run unity and need root access)")
+     parser.add_option("--log", action="store",
+                       help="Store log under filename.")
+     parser.add_option("--replace", action="store_true",
+-                      help="Run unity /!\ This is for compatibility with other desktop interfaces and acts the same as running unity without --replace")
++                      help=r"Run unity /!\ This is for compatibility with other desktop interfaces and acts the same as running unity without --replace")
+     if is_systemd_session() and not is_unity_running_in_upstart():
+         parser.add_option("--ignore-systemd", action="store_true", dest="ignore_session_manager",
+                           help="Run unity without systemd support")
+-- 
+2.56.1
+

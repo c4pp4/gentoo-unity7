@@ -1,0 +1,8 @@
+ehooks() {
+	local \
+		blake=303f67b98e8f93bc6167ff0de2cc6a4eddc57def4b2bfdf97efaab591a9665c08771aed918cfd2a5ce847d3220b7e75daf73a69f2fe00ef6334126132b0226f3 \
+		uver=vte2.91_0.84.1-1
+
+	source "${EHOOKS_ROOT}"/templates/fetch_debian.template
+	fetch_debian "${blake}" "${uver}"
+}

@@ -331,7 +331,7 @@ update_mask_entries() {
 		mask_file="$1/profiles/gentoo-unity7.mask" \
 		unmask_link="/etc/portage/package.unmask/zzzz_ehooks-punmask.tmp" \
 		keywords_link="/etc/portage/package.accept_keywords/zzzz_ehooks-paccept_keywords.tmp" \
-		entry in_ehooks_section major_pkg mask_entry new_cpv new_pkg next_major old_pkg pkg slot tmp_keywords tmp_unmask
+		entry features in_ehooks_section major_pkg mask_entry new_cpv new_pkg next_major old_pkg pkg slot tmp_keywords tmp_unmask
 
 	local -a updates
 
@@ -406,8 +406,12 @@ update_mask_entries() {
 		old_pkg="${entry%|*}"; old_pkg="${old_pkg#>}"; slot=$(get_slot "${old_pkg}"); old_pkg="${old_pkg%:*}"
 		new_pkg="${entry#*|}"
 		echo " * Update to ${color_yellow}${new_pkg}${color_norm} (old pmask entry: ${color_bold}>${old_pkg}${color_norm})"
-		printf "%s" " * Test command 'EHOOKS_PATH=${repo_path}/ehooks ebuild \$(portageq get_repo_path / gentoo)/${new_pkg%-[0-9]*}/${new_pkg#*/}.ebuild clean prepare clean'${color_blink}...${color_norm}"
-		if EHOOKS_PATH="${repo_path}/ehooks" ebuild "${gentoo_repo}/${new_pkg%-[0-9]*}/${new_pkg#*/}".ebuild clean prepare clean 1>/dev/null; then
+		## Packages whose ehooks fetch a Debian archive need the network, as in gentoo-unity7.conf.env.
+		features=
+		grep -q "^${new_pkg%-[0-9]*}[[:space:]:]" "${repo_path}/profiles/gentoo-unity7.env" \
+			&& features=$(sed -n 's/^FEATURES="\(.*\)"$/\1/p' "${repo_path}/profiles/gentoo-unity7.conf.env")
+		printf "%s" " * Test command '${features:+FEATURES=\"${features}\" }EHOOKS_PATH=${repo_path}/ehooks ebuild \$(portageq get_repo_path / gentoo)/${new_pkg%-[0-9]*}/${new_pkg#*/}.ebuild clean prepare clean'${color_blink}...${color_norm}"
+		if FEATURES="${features}" EHOOKS_PATH="${repo_path}/ehooks" ebuild "${gentoo_repo}/${new_pkg%-[0-9]*}/${new_pkg#*/}".ebuild clean prepare clean 1>/dev/null; then
 			printf "\b\b\b%s\n" "... ${color_blue}[ ${color_green}passed ${color_blue}]${color_norm}"
 			## Mask the next major version of packages with the major version.
 			for major_pkg in "${major_version_packages[@]}"; do
