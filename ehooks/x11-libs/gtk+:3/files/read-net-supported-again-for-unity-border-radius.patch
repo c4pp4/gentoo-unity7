@@ -1,0 +1,107 @@
+From 3e13650d2c08eac98b466048cc1d7b20fbd959e4 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Sun, 15 Nov 2026 19:35:00 +0100
+Subject: [PATCH 1/1] Read _NET_SUPPORTED again for the Unity border radius
+
+unity-border-radius.patch enables the Unity border radius only when
+_NET_SUPPORTED lists _UNITY_GTK_BORDER_RADIUS. GDK fetches _NET_SUPPORTED
+only once for each window manager, but unityshell adds the atom to it
+only after Compiz has started. An application that checked it in between,
+such as nemo-desktop started at login, kept the cached list and showed
+menus with square corners until it was restarted.
+
+In Unity, read _NET_SUPPORTED from the root window again while GDK does
+not list the atom. Other desktops and applications started later, for
+which GDK already lists the atom, do not read it.
+
+Signed-off-by: c4pp4
+---
+ gtk/gtkwindow.c | 65 ++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 64 insertions(+), 1 deletion(-)
+
+diff --git a/gtk/gtkwindow.c b/gtk/gtkwindow.c
+index f77163a..75529c1 100644
+--- a/gtk/gtkwindow.c
++++ b/gtk/gtkwindow.c
+@@ -4211,6 +4211,65 @@ unity_border_radius_update_and_monitor (GtkWindow *window, GtkWidget *widget)
+   unity_border_radius_update (window);
+ }
+ 
++#ifdef GDK_WINDOWING_X11
++static gboolean
++in_unity_desktop (void)
++{
++  const gchar *desktop_name_list;
++  gchar **names;
++  gboolean in_list = FALSE;
++  gint i;
++
++  desktop_name_list = g_getenv ("XDG_CURRENT_DESKTOP");
++  if (!desktop_name_list)
++    return FALSE;
++
++  names = g_strsplit (desktop_name_list, ":", -1);
++  for (i = 0; names[i] && !in_list; i++)
++    in_list = g_strcmp0 (names[i], "Unity") == 0;
++  g_strfreev (names);
++
++  return in_list;
++}
++
++/* GDK fetches _NET_SUPPORTED only once for each window manager, but
++ * unityshell adds _UNITY_GTK_BORDER_RADIUS to it only after Compiz has
++ * started. An application started in between, such as nemo-desktop, would
++ * keep square corners until it is restarted. So in Unity, read the property
++ * again while GDK does not list the atom */
++static gboolean
++unity_border_radius_in_net_supported (GdkScreen *screen)
++{
++  GdkDisplay *display = gdk_screen_get_display (screen);
++  Atom unity_atom, atom_type, type;
++  Atom *atoms = NULL;
++  gint format;
++  gulong n_atoms = 0, bytes_after, i;
++  gboolean supported = FALSE;
++
++  unity_atom = gdk_x11_get_xatom_by_name_for_display (display, "_UNITY_GTK_BORDER_RADIUS");
++  atom_type = gdk_x11_get_xatom_by_name_for_display (display, "ATOM");
++
++  gdk_x11_display_error_trap_push (display);
++  XGetWindowProperty (GDK_DISPLAY_XDISPLAY (display),
++                      GDK_WINDOW_XID (gdk_screen_get_root_window (screen)),
++                      gdk_x11_get_xatom_by_name_for_display (display, "_NET_SUPPORTED"),
++                      0, G_MAXLONG, False, atom_type, &type, &format,
++                      &n_atoms, &bytes_after, (guchar **) &atoms);
++  gdk_x11_display_error_trap_pop_ignored (display);
++
++  if (atoms)
++    {
++      if (type == atom_type && format == 32)
++        for (i = 0; i < n_atoms && !supported; i++)
++          supported = atoms[i] == unity_atom;
++      XFree (atoms);
++    }
++
++  return supported;
++}
++#endif
++
+ static gboolean
+ unity_border_radius_is_supported (GtkWindow *window)
+ {
+@@ -4220,7 +4279,11 @@ unity_border_radius_is_supported (GtkWindow *window)
+   if (GDK_IS_X11_SCREEN (screen))
+     {
+       GdkAtom unity_atom = gdk_atom_intern_static_string ("_UNITY_GTK_BORDER_RADIUS");
+-      return gdk_x11_screen_supports_net_wm_hint (screen, unity_atom);
++
++      if (gdk_x11_screen_supports_net_wm_hint (screen, unity_atom))
++        return TRUE;
++
++      return in_unity_desktop () && unity_border_radius_in_net_supported (screen);
+     }
+ #endif
+ 
+-- 
+2.55.0
+

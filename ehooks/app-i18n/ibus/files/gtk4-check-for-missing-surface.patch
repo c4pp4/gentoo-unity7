@@ -1,0 +1,47 @@
+From f75d0b00b70d48bfc48ffb427af6f0d9bcbb3008 Mon Sep 17 00:00:00 2001
+From: Balló György <ballogyor@gmail.com>
+Date: Tue, 3 Nov 2026 20:51:42 +0000
+Subject: [PATCH] gtk4: Check for a missing surface before translating cursor
+ coordinates
+
+When a GTK4 window is closing, gtk_native_get_surface() may return
+NULL. Passing this NULL surface to GDK_SURFACE_XID() causes a
+segmentation fault.
+
+Check that the native widget and its surface exist before accessing
+the X11 surface. This prevents a crash when closing windows while
+using IBus on X11.
+
+Closes: https://github.com/ibus/ibus/issues/2975
+Origin: https://github.com/ibus/ibus/pull/2976
+
+[c4pp4: applied to client/gtk4; the release tarball has it as a copy of
+ client/gtk2, which the pull request changes]
+---
+ client/gtk4/ibusimcontext.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+--- a/client/gtk4/ibusimcontext.c
++++ b/client/gtk4/ibusimcontext.c
+@@ -1708,14 +1708,19 @@ _set_cursor_location_internal (IBusIMCon
+     }
+ 
+     native = gtk_widget_get_native (ibusimcontext->client_window);
++    if (!native)
++        return G_SOURCE_REMOVE;
++
+     /* Translates from the surface coordinates into the widget coordinates. */
+     gtk_native_get_surface_transform (native, &nx, &ny);
+ 
+ #ifdef HAVE_XIM
+     display = gtk_widget_get_display (ibusimcontext->client_window);
+     if (GDK_IS_X11_DISPLAY (display)) {
+-        GdkSurface *surface = gtk_native_get_surface
+-            (gtk_widget_get_native (ibusimcontext->client_window));
++        GdkSurface *surface = gtk_native_get_surface (native);
++        if (!surface)
++            return G_SOURCE_REMOVE;
++
+         Window child;
+         int scale_factor = gtk_widget_get_scale_factor
+             (ibusimcontext->client_window);

@@ -1,0 +1,9 @@
+ehooks() {
+	local f="${ED}"/usr/share/dbus-1/services/org.freedesktop.IBus.service
+
+	# Without --daemonize, ibus-daemon exits with its parent (PR_SET_PDEATHSIG, #
+	#  since 1.5.21), and the activation helper of dbus-daemon exits right after #
+	#  the start, so the D-Bus activated daemon quit at once #
+	sed -i "s:^Exec=\(.*/ibus-daemon\) :Exec=\1 --daemonize :" "${f}" || die
+	grep -q "^Exec=.*/ibus-daemon --daemonize " "${f}" || die
+}
