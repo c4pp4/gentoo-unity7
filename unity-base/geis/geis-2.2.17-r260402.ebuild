@@ -12,7 +12,7 @@ inherit python-single-r1 ubuntu-versionator
 
 DESCRIPTION="An implementation of the GEIS (Gesture Engine Interface and Support) interface"
 HOMEPAGE="https://launchpad.net/geis"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.diff.gz")"
 S="${S}${UVER}"
 
 LICENSE="GPL-3 LGPL-3"

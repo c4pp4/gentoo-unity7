@@ -10,7 +10,7 @@ inherit toolchain-funcs ubuntu-versionator
 
 DESCRIPTION="Library to disable GTK client side decorations"
 HOMEPAGE="https://codeberg.org/MorsMortium/gtk-nocsd"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.debian.tar.xz")"
 S="${WORKDIR}/${PN}"
 
 LICENSE="LGPL-2.1+ GPL-3+"

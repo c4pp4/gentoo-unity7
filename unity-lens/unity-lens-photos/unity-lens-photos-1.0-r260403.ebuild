@@ -13,7 +13,7 @@ inherit distutils-r1 ubuntu-versionator
 
 DESCRIPTION="Photo lens for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/unity-lens-photos"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.diff.gz")"
 S="${WORKDIR}/${P}"
 
 LICENSE="GPL-3"

@@ -11,7 +11,7 @@ inherit multilib-minimal ubuntu-versionator virtualx
 
 DESCRIPTION="A set of symbols and convenience functions that all indicators would like to use"
 HOMEPAGE="https://launchpad.net/libindicator"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.diff.gz")"
 S="${WORKDIR}"
 
 LICENSE="GPL-3"

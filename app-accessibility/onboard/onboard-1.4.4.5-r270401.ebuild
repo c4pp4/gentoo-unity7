@@ -14,7 +14,7 @@ inherit gnome2 distutils-r1 udev ubuntu-versionator
 
 DESCRIPTION="Simple on-screen Keyboard with macros and easy layout creation"
 HOMEPAGE="https://launchpad.net/onboard"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.debian.tar.xz")"
 
 LICENSE="CC-BY-4.0 GPL-3+ BSD"
 SLOT="0"

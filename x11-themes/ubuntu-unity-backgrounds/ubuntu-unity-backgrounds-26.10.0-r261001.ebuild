@@ -10,7 +10,7 @@ inherit ubuntu-versionator
 
 DESCRIPTION="Default backgrounds in Ubuntu Unity"
 HOMEPAGE="https://gitlab.com/ubuntu-unity"
-SRC_URI="${UURL}.tar.xz"
+SRC_URI="$(uuri "${UFILE}.tar.xz")"
 S="${WORKDIR}/${PN}"
 
 LICENSE="CC-BY-NC-SA-4.0"

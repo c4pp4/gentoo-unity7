@@ -11,7 +11,7 @@ inherit ubuntu-versionator
 
 DESCRIPTION="Client library to interact with zeitgeist"
 HOMEPAGE="https://launchpad.net/libzeitgeist/"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.debian.tar.xz")"
 
 LICENSE="GPL-3 LGPL-2.1"
 SLOT="0"

@@ -11,7 +11,7 @@ inherit multilib-minimal ubuntu-versionator vala
 
 DESCRIPTION="A library to allow applications to export a menu into the Unity Menu bar"
 HOMEPAGE="https://launchpad.net/libappindicator"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.diff.gz")"
 S="${WORKDIR}"
 
 LICENSE="LGPL-2.1 LGPL-3"

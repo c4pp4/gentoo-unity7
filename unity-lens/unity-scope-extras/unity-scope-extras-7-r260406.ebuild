@@ -56,14 +56,13 @@ setvar texdoc                   0.1+14.04.20140328      0ubuntu1 -      ""
 setvar virtualbox               0.1+13.10.20130723      0ubuntu4 -      ""
 ## Separate the columns with spaces only (no tabs) ##
 
-UURL="${UURL%/*}"; unset SRC_URI
+unset SRC_URI
 for i in ${packages[@]}; do
 	eval "_name=${i}; _uver=\${_uver_${i}}; _urev=\${_urev_${i}}; _use=\${_use_${i}}; _dep=\${_dep_${i}}"
 	[[ -n ${_dep} ]] && RDEPEND+=" ${_name}? ( ${_dep} )"
 	IUSE+="${_use/-}${_name} "
 	SRC_URI+="${_name}? (
-		${UURL}/unity-scope-${_name}_${_uver}.orig.tar.gz
-		${UURL}/unity-scope-${_name}_${_uver}-${_urev}.diff.gz ) "
+		$(uuri "unity-scope-${_name}_${_uver}.orig.tar.gz" "unity-scope-${_name}_${_uver}-${_urev}.diff.gz") ) "
 done
 
 PDEPEND="audacious? ( unity-lens/unity-lens-meta[music] )"

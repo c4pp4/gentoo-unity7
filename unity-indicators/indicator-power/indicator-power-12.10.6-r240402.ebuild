@@ -10,7 +10,7 @@ inherit gnome2 cmake ubuntu-versionator
 
 DESCRIPTION="Indicator showing power state used by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/indicator-power"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.diff.gz")"
 
 LICENSE="GPL-3"
 SLOT="0"

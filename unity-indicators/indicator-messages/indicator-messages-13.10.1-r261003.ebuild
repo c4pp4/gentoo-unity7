@@ -12,7 +12,7 @@ inherit gnome2 systemd ubuntu-versionator vala
 
 DESCRIPTION="Indicator collecting messages that need a response for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/indicator-messages"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.diff.gz")"
 S="${WORKDIR}"
 
 LICENSE="GPL-3"

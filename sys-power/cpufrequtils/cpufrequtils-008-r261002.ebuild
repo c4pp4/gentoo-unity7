@@ -10,8 +10,7 @@ inherit systemd toolchain-funcs ubuntu-versionator
 
 DESCRIPTION="Userspace utilities for the Linux kernel cpufreq subsystem"
 HOMEPAGE="https://www.kernel.org/pub/linux/utils/kernel/cpufreq/cpufrequtils.html"
-SRC_URI="${UURL}.orig.tar.bz2
-	${UURL}-${UREV}.debian.tar.xz"
+SRC_URI="$(uuri "${UFILE}.orig.tar.bz2" "${UFILE}-${UREV}.debian.tar.xz")"
 
 LICENSE="GPL-2"
 SLOT="0"

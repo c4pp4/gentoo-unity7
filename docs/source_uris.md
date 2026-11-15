@@ -6,6 +6,8 @@
   https://launchpad.net/ubuntu
   ```
 
+  When Launchpad fails, ebuilds and ehooks try the other sources in [profiles/thirdpartymirrors][tpm]: the independent Ubuntu archive mirrors, the Ubuntu archive and the old releases archive.
+
 - **dev-java/jayatana**
 
   ```
@@ -31,5 +33,6 @@
   ```
 
 [//]: # (LINKS)
-[eh]: ../ehooks/templates/fetch_debian.template#L24
-[ec]: ../eclass/ubuntu-versionator.eclass#L34
+[eh]: ../ehooks/templates/fetch_debian.template#L31
+[ec]: ../eclass/ubuntu-versionator.eclass#L59
+[tpm]: ../profiles/thirdpartymirrors

@@ -12,7 +12,7 @@ inherit gnome2 systemd ubuntu-versionator
 
 DESCRIPTION="Indicator showing active print jobs used by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/indicator-printers"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.diff.gz")"
 S="${S}${UVER}"
 
 LICENSE="GPL-3"

@@ -11,7 +11,7 @@ inherit vala ubuntu-versionator
 
 DESCRIPTION="Home scope that aggregates results from multiple scopes for Unity7"
 HOMEPAGE="https://launchpad.net/unity-scope-home"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.debian.tar.xz")"
 S="${WORKDIR}"
 
 LICENSE="GPL-3"

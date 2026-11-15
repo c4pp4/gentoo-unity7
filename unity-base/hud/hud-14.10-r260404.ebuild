@@ -14,7 +14,7 @@ inherit distutils-r1 cmake gnome2 systemd ubuntu-versionator vala
 
 DESCRIPTION="Backend for the Unity HUD"
 HOMEPAGE="https://launchpad.net/hud"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.diff.gz")"
 S="${S}${UVER}"
 
 LICENSE="GPL-3"

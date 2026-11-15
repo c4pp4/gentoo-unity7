@@ -11,7 +11,7 @@ inherit gnome2 python-any-r1 ubuntu-versionator
 
 DESCRIPTION="Monochrome icons for the Unity7 user interface (default icon theme)"
 HOMEPAGE="https://launchpad.net/ubuntu-themes"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.diff.gz")"
 
 LICENSE="GPL-3 CC-BY-SA-3.0"
 SLOT="0"

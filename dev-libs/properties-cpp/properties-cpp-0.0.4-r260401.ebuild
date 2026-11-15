@@ -10,8 +10,7 @@ inherit cmake ubuntu-versionator
 
 DESCRIPTION="Simple convenience library for handling properties and signals in C++11"
 HOMEPAGE="https://launchpad.net/properties-cpp"
-SRC_URI="${UURL}.orig.tar.bz2
-	${UURL}-${UREV}.debian.tar.xz"
+SRC_URI="$(uuri "${UFILE}.orig.tar.bz2" "${UFILE}-${UREV}.debian.tar.xz")"
 
 LICENSE="LGPL-3"
 SLOT="0"

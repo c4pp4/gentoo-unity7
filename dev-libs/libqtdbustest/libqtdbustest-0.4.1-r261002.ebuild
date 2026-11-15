@@ -11,8 +11,7 @@ inherit cmake python-any-r1 ubuntu-versionator
 
 DESCRIPTION="Library to facilitate testing DBus interactions in Qt applications"
 HOMEPAGE="https://launchpad.net/libqtdbustest"
-SRC_URI="${UURL}.orig.tar.bz2
-	${UURL}-${UREV}.debian.tar.xz"
+SRC_URI="$(uuri "${UFILE}.orig.tar.bz2" "${UFILE}-${UREV}.debian.tar.xz")"
 
 LICENSE="LGPL-3"
 SLOT="0"

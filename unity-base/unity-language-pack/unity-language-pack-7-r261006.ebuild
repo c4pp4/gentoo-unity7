@@ -153,7 +153,7 @@ setvar zu               14.04+20150804 14.04+20150804
 # Add a new line and launch 'gentoo-unity-ver -u' #
 #setvar xy               none none
 
-UURL="${UURL%/*}"; unset SRC_URI
+unset SRC_URI
 for flag in ${MY_L10N}; do
 	flag=${flag/-/_}
 	eval "tag=\${$flag[2]}"
@@ -163,13 +163,11 @@ for flag in ${MY_L10N}; do
 	[[ ${ver//[!0-9]} -lt 161000000000 ]] && compress="gz" || compress="xz"
 	flag=${flag/_/-}
 	if [[ ${flag} == "en" ]]; then
-		SRC_URI+="${UURL}/language-pack-${tag}-base_${ver}.tar.${compress}
-			${UURL}/language-pack-gnome-${tag}-base_${ver_gnome}.tar.${compress} "
+		SRC_URI+="$(uuri "language-pack-${tag}-base_${ver}.tar.${compress}" "language-pack-gnome-${tag}-base_${ver_gnome}.tar.${compress}") "
 	else
 		IUSE+=" l10n_${flag}"
 		SRC_URI+="l10n_${flag}? (
-			${UURL}/language-pack-${tag}-base_${ver}.tar.${compress}
-			${UURL}/language-pack-gnome-${tag}-base_${ver_gnome}.tar.${compress} ) "
+			$(uuri "language-pack-${tag}-base_${ver}.tar.${compress}" "language-pack-gnome-${tag}-base_${ver_gnome}.tar.${compress}") ) "
 	fi
 done
 

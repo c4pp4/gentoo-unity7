@@ -11,7 +11,7 @@ inherit gnome2 cmake python-any-r1 ubuntu-versionator
 
 DESCRIPTION="Date and Time Indicator used by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/indicator-datetime"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.diff.gz")"
 S="${S}${UVER}"
 
 LICENSE="GPL-3"

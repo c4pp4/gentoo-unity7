@@ -10,7 +10,7 @@ inherit desktop gnome2-utils systemd ubuntu-versionator
 
 DESCRIPTION="Session files and startup scripts for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/ubuntu/+source/unity-session"
-SRC_URI="${UURL}.tar.xz"
+SRC_URI="$(uuri "${UFILE}.tar.xz")"
 S="${WORKDIR}/${PN}"
 
 LICENSE="GPL-2"

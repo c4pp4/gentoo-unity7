@@ -11,7 +11,7 @@ inherit gnome2 systemd ubuntu-versionator udev
 
 DESCRIPTION="Unity Settings Daemon"
 HOMEPAGE="https://launchpad.net/unity-settings-daemon"
-SRC_URI="${UURL}.tar.gz"
+SRC_URI="$(uuri "${UFILE}.tar.gz")"
 S="${WORKDIR}/${PN}"
 
 LICENSE="GPL-2 LGPL-2.1"

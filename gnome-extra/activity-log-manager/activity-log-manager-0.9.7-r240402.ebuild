@@ -11,8 +11,7 @@ inherit gnome2 vala ubuntu-versionator
 
 DESCRIPTION="Blacklist configuration user interface for Zeitgeist"
 HOMEPAGE="https://launchpad.net/activity-log-manager"
-SRC_URI="${UURL}.orig.tar.xz
-	${UURL}-${UREV}.debian.tar.xz"
+SRC_URI="$(uuri "${UFILE}.orig.tar.xz" "${UFILE}-${UREV}.debian.tar.xz")"
 
 LICENSE="LGPL-2"
 SLOT="0"

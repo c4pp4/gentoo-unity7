@@ -11,7 +11,7 @@ inherit ubuntu-versionator
 
 DESCRIPTION="Gesture Recognition And Instantiation Library (GRAIL)"
 HOMEPAGE="https://launchpad.net/grail"
-SRC_URI="${UURL}.orig.tar.bz2"
+SRC_URI="$(uuri "${UFILE}.orig.tar.bz2")"
 
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"

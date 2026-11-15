@@ -11,7 +11,7 @@ inherit ubuntu-versionator
 
 DESCRIPTION="Touch Frame Library"
 HOMEPAGE="https://launchpad.net/frame"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.diff.gz")"
 S="${WORKDIR}"
 
 LICENSE="GPL-3 LGPL-3"

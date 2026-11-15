@@ -13,7 +13,7 @@ inherit desktop gnome2 distutils-r1 ubuntu-versionator
 
 DESCRIPTION="Configuration manager for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/unity-tweak-tool"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.debian.tar.xz")"
 
 LICENSE="GPL-3"
 SLOT="0"

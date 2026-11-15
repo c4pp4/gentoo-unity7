@@ -10,7 +10,7 @@ inherit ubuntu-versionator
 
 DESCRIPTION="Default sound theme for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/ubuntu-sounds"
-SRC_URI="${UURL}.tar.xz"
+SRC_URI="$(uuri "${UFILE}.tar.xz")"
 S="${S}${UVER}"
 
 LICENSE="CC-BY-SA-2.0 GPL-2+"

@@ -10,8 +10,7 @@ inherit cmake ubuntu-versionator
 
 DESCRIPTION="Parse and query the geonames database dump"
 HOMEPAGE="https://launchpad.net/geonames"
-SRC_URI="${UURL}.orig.tar.bz2
-	${UURL}-${UREV}.debian.tar.xz"
+SRC_URI="$(uuri "${UFILE}.orig.tar.bz2" "${UFILE}-${UREV}.debian.tar.xz")"
 
 LICENSE="CC-BY-3.0 GPL-2+ GPL-3"
 SLOT="0"

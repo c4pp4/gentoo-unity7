@@ -29,12 +29,40 @@ UBUNTU_EAUTORECONF=${UBUNTU_EAUTORECONF:-""}
 VALA_MIN_API_VERSION=0.56
 VALA_MAX_API_VERSION=0.56
 
-# Superseded source tarballs from non-LTS Ubuntu releases may no longer be
-# available on Ubuntu mirrors. Fetch them from the Launchpad archive instead.
-UURL="https://launchpad.net/ubuntu/+archive/primary/+files/${PN}_${PV}${UVER}"
+# @ECLASS-VARIABLE: UFILE
+# @DESCRIPTION:
+# The common start of the Ubuntu archive file names of the package.
+UFILE="${PN}_${PV}${UVER}"
+
+# @FUNCTION: uuri
+# @USAGE: [-s <source package>] <file>...
+# @DESCRIPTION:
+# Print the URIs of the given Ubuntu archive files. Portage tries the sources
+# of profiles/thirdpartymirrors in this order: Launchpad, which keeps every
+# file, the independent Ubuntu archive mirrors in random order, the Ubuntu
+# archive, which keeps the files of the supported releases, and the old
+# releases archive. The pool component of a file can change between versions, so both
+# main and universe are listed. Use -s when the source package name differs
+# from the start of the file name, as for a binary package.
+uuri() {
+	local src= f s pool
+
+	if [[ $1 == -s ]]; then
+		src=$2
+		shift 2
+	fi
+
+	for f in "$@"; do
+		s=${src:-${f%%_*}}
+		pool=${s:0:1}
+		[[ ${s} == lib* ]] && pool=${s:0:4}
+		echo mirror://gentoo-unity7-launchpad/"${f}" \
+			mirror://gentoo-unity7-{mirrors,archive,old-releases}/pool/{main,universe}/"${pool}/${s}/${f}"
+	done
+}
 
 # Default variables
-SRC_URI="${UURL}.orig.tar.gz"
+SRC_URI="$(uuri "${UFILE}.orig.tar.gz")"
 RESTRICT="mirror"
 
 # @FUNCTION: usub

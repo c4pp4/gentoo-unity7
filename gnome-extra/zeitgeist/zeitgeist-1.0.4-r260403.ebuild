@@ -12,8 +12,7 @@ inherit python-single-r1 xdg ubuntu-versionator vala
 
 DESCRIPTION="Service to log activities and present to other apps"
 HOMEPAGE="https://launchpad.net/zeitgeist/"
-SRC_URI="${UURL}.orig.tar.bz2
-	${UURL}-${UREV}.debian.tar.xz"
+SRC_URI="$(uuri "${UFILE}.orig.tar.bz2" "${UFILE}-${UREV}.debian.tar.xz")"
 S="${WORKDIR}/${PN}-v${PV}"
 
 LICENSE="GPL-2 LGPL-2.1"

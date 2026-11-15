@@ -10,7 +10,7 @@ inherit desktop gnome2 cmake ubuntu-versionator
 
 DESCRIPTION="Session management, status and user switching indicator for Unity7"
 HOMEPAGE="https://launchpad.net/indicator-session"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.diff.gz")"
 
 LICENSE="GPL-3"
 SLOT="0"

@@ -11,8 +11,7 @@ inherit gnome2 systemd ubuntu-versionator
 
 DESCRIPTION="An integrated VNC server for GNOME"
 HOMEPAGE="https://wiki.gnome.org/Projects/Vino"
-SRC_URI="${UURL}.orig.tar.xz
-	${UURL}-${UREV}.debian.tar.xz"
+SRC_URI="$(uuri "${UFILE}.orig.tar.xz" "${UFILE}-${UREV}.debian.tar.xz")"
 
 LICENSE="GPL-2+"
 SLOT="0"

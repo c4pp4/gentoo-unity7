@@ -11,7 +11,7 @@ inherit font gnome2-utils ubuntu-versionator
 
 DESCRIPTION="The Ubuntu variable font with adjustable weight and width axes"
 HOMEPAGE="https://design.ubuntu.com/font/"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.debian.tar.xz")"
 S="${S}${UVER}"
 
 LICENSE="UbuntuFontLicense-1.0"

@@ -13,7 +13,7 @@ inherit gnome2 distutils-r1 ubuntu-versionator
 
 DESCRIPTION="CPU frequency scaling indicator for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/indicator-cpufreq"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.debian.tar.xz")"
 
 LICENSE="GPL-3"
 SLOT="0"

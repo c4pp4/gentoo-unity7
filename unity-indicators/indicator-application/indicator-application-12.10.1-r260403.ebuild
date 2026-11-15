@@ -11,7 +11,7 @@ inherit systemd ubuntu-versionator
 
 DESCRIPTION="Application indicators used by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/indicator-application"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.diff.gz")"
 S="${WORKDIR}"
 
 LICENSE="GPL-3"

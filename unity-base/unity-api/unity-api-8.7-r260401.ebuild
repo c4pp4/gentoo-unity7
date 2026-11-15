@@ -10,7 +10,7 @@ inherit cmake ubuntu-versionator
 
 DESCRIPTION="API for Unity shell integration"
 HOMEPAGE="https://launchpad.net/unity-api"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.diff.gz")"
 
 LICENSE="LGPL-3"
 SLOT="0"

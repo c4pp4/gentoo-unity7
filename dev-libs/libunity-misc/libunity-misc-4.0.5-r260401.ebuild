@@ -11,7 +11,7 @@ inherit ubuntu-versionator
 
 DESCRIPTION="Miscellaneous modules for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/libunity-misc"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.diff.gz")"
 S="${S}${UVER}"
 
 LICENSE="GPL-2 LGPL-2 LGPL-3"

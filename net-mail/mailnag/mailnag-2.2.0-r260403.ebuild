@@ -13,7 +13,7 @@ inherit distutils-r1 xdg ubuntu-versionator
 
 DESCRIPTION="An extensible mail notification daemon"
 HOMEPAGE="https://github.com/pulb/mailnag"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.debian.tar.xz")"
 
 LICENSE="CC0-1.0 GPL-2+ PSF-2"
 SLOT="0"

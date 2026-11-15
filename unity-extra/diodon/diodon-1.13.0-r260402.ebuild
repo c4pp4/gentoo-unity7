@@ -10,7 +10,7 @@ inherit meson vala xdg ubuntu-versionator
 
 DESCRIPTION="GTK+ Clipboard manager"
 HOMEPAGE="https://launchpad.net/diodon"
-SRC_URI="${UURL}.orig.tar.xz"
+SRC_URI="$(uuri "${UFILE}.orig.tar.xz")"
 
 LICENSE="GPL-2"
 SLOT="0"

@@ -1,10 +1,13 @@
 fetch_debian() {
 	local \
-		archive=$2.debian.tar.xz \
+		archive=$2.debian.tar.${3:-xz} \
 		blake=$1 \
 		cache="${PORTAGE_ACTUAL_DISTDIR:-${DISTDIR}}/ehooks" \
 		wlog="${T}/wget.log" \
-		ret=1
+		ret=1 \
+		src=${2%%_*} \
+		mirror name pool url
+	local -a mirrors tries urls
 
 	# Keep the archive in a subdirectory of the real DISTDIR, like git-r3.eclass #
 	# does, so that a reinstallation does not need Launchpad. eclean-dist #
@@ -20,9 +23,31 @@ fetch_debian() {
 		eend ${ret}
 	fi
 	if [[ ${ret} -ne 0 ]]; then
+		# As in ubuntu-versionator.eclass, the sources of profiles/thirdpartymirrors: #
+		# Launchpad, which keeps every file, the independent Ubuntu archive mirrors #
+		# in random order, the Ubuntu archive and the old releases archive #
+		pool=${src:0:1}
+		[[ ${src} == lib* ]] && pool=${src:0:4}
+		for name in launchpad mirrors archive old-releases; do
+			read -ra mirrors < <(sed -n "s/^gentoo-unity7-${name}[[:space:]]\+//p" "${REPO_ROOT}"/profiles/thirdpartymirrors)
+			for mirror in $(printf "%s\n" "${mirrors[@]}" | shuf); do
+				if [[ ${name} == launchpad ]]; then
+					urls+=( "${mirror}/${archive}" )
+				else
+					urls+=( "${mirror}/pool/"{main,universe}"/${pool}/${src}/${archive}" )
+				fi
+			done
+		done
+
+		> "${wlog}"
 		ebegin "Downloading ${color_bold}${archive}${color_norm}"
-			wget -t 3 -T 60 -U "Portage (Gentoo, https://www.gentoo.org) distfile-fetch" -O "${T}/${archive}" -o "${wlog}" "https://launchpad.net/ubuntu/+archive/primary/+files/${archive}"
-		eend $?
+			for url in "${urls[@]}"; do
+				# A mirror without the file answers at once, Launchpad gets more time #
+				[[ ${url} == "${urls[0]}" ]] && tries=( -t 3 -T 60 ) || tries=( -t 1 -T 30 )
+				wget "${tries[@]}" -U "Portage (Gentoo, https://www.gentoo.org) distfile-fetch" -O "${T}/${archive}" -a "${wlog}" "${url}" && ret=0 && break
+				rm -f "${T}/${archive}"
+			done
+		eend ${ret}
 		[[ -s ${T}/${archive} ]] || { cat "${wlog}" >&2; die "ehooks: archive not fetched"; }
 		ebegin "Checking BLAKE2 checksum"
 			b2sum --status -c <(echo "${blake}  ${T}/${archive}") || die "ehooks: archive checksum did not match"

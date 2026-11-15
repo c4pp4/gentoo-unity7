@@ -10,7 +10,7 @@ inherit meson xdg ubuntu-versionator
 
 DESCRIPTION="Yaru theme from the Ubuntu Community"
 HOMEPAGE="https://discourse.ubuntu.com/c/desktop/theme-refresh"
-SRC_URI="${UURL}.tar.xz"
+SRC_URI="$(uuri "${UFILE}.tar.xz")"
 S="${WORKDIR}/${P}${UVER}"
 
 LICENSE="CC-BY-SA-4.0 GPL-2 GPL-3 GPL-3+ LGPL-2.1 LGPL-2.1+ LGPL-3 MIT"

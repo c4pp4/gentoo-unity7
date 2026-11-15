@@ -11,7 +11,7 @@ inherit gnome2 systemd ubuntu-versionator vala
 
 DESCRIPTION="System bluetooth indicator used by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/indicator-bluetooth"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.diff.gz")"
 S="${WORKDIR}"
 
 LICENSE="GPL-3"

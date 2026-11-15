@@ -15,7 +15,7 @@ inherit gnome2 distutils-r1 cmake pam systemd ubuntu-versionator
 
 DESCRIPTION="The Ubuntu Unity Desktop"
 HOMEPAGE="https://launchpad.net/unity"
-SRC_URI="${UURL}-${UREV}.tar.xz"
+SRC_URI="$(uuri "${UFILE}-${UREV}.tar.xz")"
 S="${WORKDIR}/${PN}"
 
 LICENSE="GPL-3 LGPL-3"

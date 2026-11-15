@@ -10,7 +10,7 @@ inherit desktop xdg ubuntu-versionator
 
 DESCRIPTION="Allows shutdown, logout, and reboot from dash"
 HOMEPAGE="https://wiki.ubuntu.com/Unity"
-SRC_URI="${UURL}.tar.xz"
+SRC_URI="$(uuri "${UFILE}.tar.xz")"
 S="${S}${UVER}"
 
 LICENSE="GPL-2+"

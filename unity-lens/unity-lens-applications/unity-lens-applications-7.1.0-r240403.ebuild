@@ -11,7 +11,7 @@ inherit gnome2 ubuntu-versionator vala
 
 DESCRIPTION="Application lens for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/unity-lens-applications"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.diff.gz")"
 S="${WORKDIR}"
 
 LICENSE="GPL-3"

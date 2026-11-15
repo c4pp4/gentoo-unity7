@@ -10,7 +10,7 @@ inherit cmake ubuntu-versionator
 
 DESCRIPTION="QML bindings for GSettings"
 HOMEPAGE="https://gitlab.com/ubports/development/core/gsettings-qt"
-SRC_URI="${UURL}.orig.tar.bz2"
+SRC_URI="$(uuri "${UFILE}.orig.tar.bz2")"
 S="${WORKDIR}/${PN}-v${PV}"
 
 LICENSE="GPL-3"

@@ -11,7 +11,7 @@ inherit multilib-minimal ubuntu-versionator vala
 
 DESCRIPTION="Widgets and other objects used for indicators by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/ido"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.diff.gz")"
 S="${WORKDIR}"
 
 LICENSE="LGPL-2.1 LGPL-3"

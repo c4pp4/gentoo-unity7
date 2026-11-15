@@ -11,7 +11,7 @@ inherit vala ubuntu-versionator
 
 DESCRIPTION="Music lens for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/unity-lens-music"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.diff.gz")"
 S="${S}${UVER}"
 
 LICENSE="GPL-3"

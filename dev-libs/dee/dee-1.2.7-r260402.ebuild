@@ -12,7 +12,7 @@ inherit python-single-r1 vala ubuntu-versionator
 
 DESCRIPTION="Objects for creating Model-View-Controller type programs across DBus"
 HOMEPAGE="https://launchpad.net/dee/"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.debian.tar.xz")"
 S="${WORKDIR}"
 
 LICENSE="GPL-3 LGPL-3"

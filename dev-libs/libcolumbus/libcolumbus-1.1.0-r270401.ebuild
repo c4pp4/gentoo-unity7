@@ -11,7 +11,7 @@ inherit cmake python-single-r1 ubuntu-versionator
 
 DESCRIPTION="Error tolerant matching engine used by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/libcolumbus"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.diff.gz")"
 S="${S}${UVER}"
 
 LICENSE="LGPL-3"

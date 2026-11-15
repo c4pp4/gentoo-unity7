@@ -11,7 +11,7 @@ inherit ubuntu-versionator gnome2 vala
 
 DESCRIPTION="LightDM greeter (login screen) for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/unity-greeter"
-SRC_URI="${UURL}-${UREV}.tar.xz"
+SRC_URI="$(uuri "${UFILE}-${UREV}.tar.xz")"
 S="${WORKDIR}/${PN}-24.10.1"
 
 LICENSE="GPL-3"

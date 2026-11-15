@@ -10,8 +10,7 @@ inherit cmake ubuntu-versionator
 
 DESCRIPTION="Extra CMake utility modules"
 HOMEPAGE="https://launchpad.net/cmake-extras"
-SRC_URI="${UURL}.orig.tar.bz2
-	${UURL}-${UREV}.debian.tar.xz"
+SRC_URI="$(uuri "${UFILE}.orig.tar.bz2" "${UFILE}-${UREV}.debian.tar.xz")"
 
 LICENSE="GPL-3"
 SLOT="0"

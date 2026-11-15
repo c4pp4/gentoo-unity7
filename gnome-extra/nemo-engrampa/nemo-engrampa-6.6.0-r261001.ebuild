@@ -11,7 +11,7 @@ inherit meson ubuntu-versionator
 
 DESCRIPTION="Nemo engrampa integration"
 HOMEPAGE="https://projects.linuxmint.com/cinnamon https://github.com/linuxmint/nemo-extensions"
-SRC_URI="${UURL/${PN}/${MY_PN}}.orig.tar.xz"
+SRC_URI="$(uuri "${UFILE/${PN}/${MY_PN}}.orig.tar.xz")"
 S="${WORKDIR}/${PN}"
 
 LICENSE="GPL-2"

@@ -11,7 +11,7 @@ inherit gnome2 savedconfig ubuntu-versionator
 
 DESCRIPTION="Canonical's on-screen-display notification agent"
 HOMEPAGE="https://launchpad.net/notify-osd"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.debian.tar.xz")"
 S="${WORKDIR}"
 
 LICENSE="LGPL-2+ GPL-3"

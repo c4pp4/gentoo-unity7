@@ -10,7 +10,7 @@ inherit ubuntu-versionator
 
 DESCRIPTION="Notification and ringtone sounds from Ubuntu Touch"
 HOMEPAGE="https://launchpad.net/ubuntu/+source/ubuntu-touch-sounds"
-SRC_URI="${UURL}.tar.gz"
+SRC_URI="$(uuri "${UFILE}.tar.gz")"
 S="${S}${UVER}"
 
 LICENSE="CC-BY-SA-3.0"

@@ -12,8 +12,7 @@ inherit gnome2 ubuntu-versionator
 
 DESCRIPTION="Indicator for monitoring hardware temperature used by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/psensor"
-SRC_URI="${UURL/${PN}/${MY_PN}}.orig.tar.gz
-	${UURL/${PN}/${MY_PN}}-${UREV}.debian.tar.xz"
+SRC_URI="$(uuri "${UFILE/${PN}/${MY_PN}}.orig.tar.gz" "${UFILE/${PN}/${MY_PN}}-${UREV}.debian.tar.xz")"
 S="${WORKDIR}/${MY_PN}-${PV}"
 
 LICENSE="GPL-2"

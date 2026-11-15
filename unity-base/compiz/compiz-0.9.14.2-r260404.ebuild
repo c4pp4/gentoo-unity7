@@ -11,7 +11,7 @@ inherit gnome2 cmake python-single-r1 ubuntu-versionator
 
 DESCRIPTION="OpenGL window and compositing manager patched for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/compiz"
-SRC_URI="${UURL}-${UREV}.tar.xz"
+SRC_URI="$(uuri "${UFILE}-${UREV}.tar.xz")"
 S="${S}${UVER}"
 
 LICENSE="GPL-2 LGPL-2.1 MIT"

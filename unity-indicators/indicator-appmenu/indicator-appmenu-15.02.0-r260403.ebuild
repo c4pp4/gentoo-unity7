@@ -12,7 +12,7 @@ inherit gnome2 ubuntu-versionator
 
 DESCRIPTION="Indicator for application menus used by the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/indicator-appmenu"
-SRC_URI="${UURL}-${UREV}.tar.gz"
+SRC_URI="$(uuri "${UFILE}-${UREV}.tar.gz")"
 S="${WORKDIR}/${PN}.git"
 
 LICENSE="GPL-3"

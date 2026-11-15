@@ -12,7 +12,7 @@ inherit gnome2-utils python-single-r1 vala ubuntu-versionator
 
 DESCRIPTION="Library for instrumenting and integrating with all aspects of the Unity shell"
 HOMEPAGE="https://launchpad.net/libunity"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.debian.tar.xz")"
 S="${WORKDIR}"
 
 LICENSE="GPL-3 LGPL-3"

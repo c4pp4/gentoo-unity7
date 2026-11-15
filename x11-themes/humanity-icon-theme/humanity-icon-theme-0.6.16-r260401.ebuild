@@ -10,7 +10,7 @@ inherit gnome2 ubuntu-versionator
 
 DESCRIPTION="A nice and well polished icon theme"
 HOMEPAGE="https://launchpad.net/human-icon-theme"
-SRC_URI="${UURL}.tar.xz"
+SRC_URI="$(uuri "${UFILE}.tar.xz")"
 S="${S}${UVER}"
 
 LICENSE="CC-BY-SA-3.0 GPL-2 GPL-3 LGPL-3+ MPL-1.1"

@@ -1,0 +1,4 @@
+gentoo-unity7-launchpad    https://launchpad.net/ubuntu/+archive/primary/+files
+gentoo-unity7-mirrors      https://ftp.halifax.rwth-aachen.de/ubuntu https://mirrors.nic.funet.fi/ubuntu https://ubuntu.mirror.garr.it/ubuntu https://mirror.internet.asn.au/pub/ubuntu/archive https://free.nchc.org.tw/ubuntu https://ftp.udx.icscoe.jp/Linux/ubuntu https://mirror.rnet.missouri.edu/ubuntu https://mirrors.arcuslayer.com/ubuntu
+gentoo-unity7-archive      https://archive.ubuntu.com/ubuntu
+gentoo-unity7-old-releases https://old-releases.ubuntu.com/ubuntu

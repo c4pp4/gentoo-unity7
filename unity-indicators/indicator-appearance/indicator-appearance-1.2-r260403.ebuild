@@ -12,7 +12,7 @@ inherit python-single-r1 xdg ubuntu-versionator
 
 DESCRIPTION="Appearance indicator for the Unity desktop"
 HOMEPAGE="https://unity.ubuntuunity.org"
-SRC_URI="${UURL/${PN}/${MY_PN}}.tar.xz"
+SRC_URI="$(uuri "${UFILE/${PN}/${MY_PN}}.tar.xz")"
 S="${WORKDIR}/${MY_PN}-${PV}${UVER}"
 
 LICENSE="GPL-2+"

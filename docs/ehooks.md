@@ -10,7 +10,7 @@
 
 - **Changes** are reported after each synchronization of the overlay (via a repo.postsync.d hook installed by **unity-base/gentoo-unity-env**). Rebuild affected packages using the **@ehooks-rebuild** package set: `emerge @ehooks-rebuild`.
 
-- Some [special ehooks][env] download a Debian archive to apply the Ubuntu patchset. Downloads are permitted via [network-sandbox-proxy][cenv]. The downloaded archive is verified with b2sum against its 512-bit BLAKE2 checksum and kept in the ehooks subdirectory of DISTDIR, so that a reinstallation does not download it again.
+- Some [special ehooks][env] download a Debian archive to apply the Ubuntu patchset. Downloads are permitted via [network-sandbox-proxy][cenv]. The archive is downloaded from the sources in [profiles/thirdpartymirrors][tpm], in this order: Launchpad, the independent Ubuntu archive mirrors, the Ubuntu archive and the old releases archive. It is verified with b2sum against its 512-bit BLAKE2 checksum and kept in the ehooks subdirectory of DISTDIR, so that a reinstallation does not download it again.
 
 - Set **ACCEPT_EHOOKS="yes"** in make.conf to accept the use of this patching system.
 
@@ -166,6 +166,7 @@
     ```
 
   - Update the 512-bit BLAKE2 checksum using `gentoo-unity-ver -b`.
+  - For an archive compressed with gzip (`.debian.tar.gz`), pass `gz` as the third argument: `fetch_debian "${blake}" "${uver}" gz`.
   - Create a `02-pre_src_prepare.ehooks` file to apply the patchset from the Debian archive:
 
     `ln -s ../../templates/patches.template 02-pre_src_prepare.ehooks`
@@ -179,4 +180,5 @@
 [ehooks]: ../ehooks
 [env]: ../profiles/gentoo-unity7.env
 [templates]: ../ehooks/templates
+[tpm]: ../profiles/thirdpartymirrors
 [warch]: https://web.archive.org/web/20191226202345/https://wiki.gentoo.org/wiki//etc/portage/patches#Enabling_.2Fetc.2Fportage.2Fpatches_for_all_ebuilds

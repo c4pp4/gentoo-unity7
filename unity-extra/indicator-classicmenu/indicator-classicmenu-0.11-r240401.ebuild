@@ -14,7 +14,7 @@ inherit distutils-r1 xdg ubuntu-versionator
 
 DESCRIPTION="Indicator showing the main menu from GNOME Classic"
 HOMEPAGE="https://launchpad.net/classicmenu-indicator"
-SRC_URI="${UURL/${PN}/${MY_PN}}.orig.tar.gz"
+SRC_URI="$(uuri "${UFILE/${PN}/${MY_PN}}.orig.tar.gz")"
 S="${WORKDIR}/${MY_PN}-${PV}"
 
 LICENSE="GPL-3"

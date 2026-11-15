@@ -11,7 +11,7 @@ inherit gnome2 ubuntu-versionator vala
 
 DESCRIPTION="Unity Desktop Configuration Tool"
 HOMEPAGE="https://wiki.ubuntu.com/Unity"
-SRC_URI="${UURL}-${UREV}.tar.gz"
+SRC_URI="$(uuri "${UFILE}-${UREV}.tar.gz")"
 S="${WORKDIR}/${P}${UVER}"
 
 LICENSE="GPL-2"

@@ -10,7 +10,7 @@ inherit multilib-minimal toolchain-funcs ubuntu-versionator
 
 DESCRIPTION="OpenGL Extension Wrangler MX"
 HOMEPAGE="https://glew.sourceforge.net/"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.debian.tar.xz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.debian.tar.xz")"
 S="${WORKDIR}/${PN%mx}-${PV}"
 
 LICENSE="BSD MIT"

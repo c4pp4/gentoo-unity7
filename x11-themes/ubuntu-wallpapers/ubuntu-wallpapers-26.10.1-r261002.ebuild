@@ -10,7 +10,7 @@ inherit ubuntu-versionator
 
 DESCRIPTION="Ubuntu wallpapers"
 HOMEPAGE="https://launchpad.net/ubuntu-wallpapers"
-SRC_URI="${UURL}${UREV:+-${UREV}}_all.deb"
+SRC_URI="$(uuri "${UFILE}${UREV:+-${UREV}}_all.deb")"
 S="${WORKDIR}"
 
 CODENAME="karmic lucid maverick natty oneiric precise quantal raring
@@ -19,7 +19,7 @@ disco eoan focal groovy hirsute impish jammy kinetic lunar mantic noble
 oracular plucky questing resolute +stonking"
 for c in ${CODENAME}; do
 	c="${c#+}"
-	SRC_URI+=" ${c}? ( ${UURL/_/-${c}_}${UREV:+-${UREV}}_all.deb )"
+	SRC_URI+=" ${c}? ( $(uuri -s "${PN}" "${UFILE/_/-${c}_}${UREV:+-${UREV}}_all.deb") )"
 done
 
 LICENSE="CC-BY-SA-3.0"

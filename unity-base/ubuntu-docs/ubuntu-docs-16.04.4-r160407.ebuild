@@ -11,7 +11,7 @@ inherit gnome2 ubuntu-versionator
 
 DESCRIPTION="Help files for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/ubuntu-docs"
-SRC_URI="${UURL}.tar.xz"
+SRC_URI="$(uuri "${UFILE}.tar.xz")"
 
 LICENSE="CC-BY-SA-3.0"
 SLOT="0"

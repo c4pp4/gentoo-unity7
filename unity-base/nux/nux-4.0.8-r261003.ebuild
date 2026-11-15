@@ -11,7 +11,7 @@ inherit ubuntu-versionator
 
 DESCRIPTION="Visual rendering toolkit for the Unity7 user interface"
 HOMEPAGE="https://launchpad.net/nux"
-SRC_URI="${SRC_URI} ${UURL}-${UREV}.diff.gz"
+SRC_URI="${SRC_URI} $(uuri "${UFILE}-${UREV}.diff.gz")"
 S="${WORKDIR}"
 
 LICENSE="GPL-3 LGPL-2.1 LGPL-3"
