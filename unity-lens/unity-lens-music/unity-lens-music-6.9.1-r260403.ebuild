@@ -54,4 +54,5 @@ PDEPEND="
 PATCHES=(
 	"${FILESDIR}"/Do-not-warn-about-missing-Rhythmbox-database.patch
 	"${FILESDIR}"/Remove-Banshee-support.patch
+	"${FILESDIR}"/Refresh-results-when-Rhythmbox-database-changes.patch
 )

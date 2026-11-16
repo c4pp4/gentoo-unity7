@@ -41,6 +41,7 @@ PATCHES=(
 	"${FILESDIR}"/Show-photo-in-default-file-manager.patch
 	"${FILESDIR}"/Fix-scope-crash.patch
 	"${FILESDIR}"/Fix-preview-crash.patch
+	"${FILESDIR}"/Refresh-results-when-Shotwell-database-changes.patch
 )
 
 src_unpack() {

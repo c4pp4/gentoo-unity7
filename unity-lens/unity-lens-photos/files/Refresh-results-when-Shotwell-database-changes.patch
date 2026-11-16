@@ -1,0 +1,50 @@
+From 5df49ef4507cebed27eaaf0da9bea1ae881d5f94 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Mon, 16 Nov 2026 14:05:51 +0100
+Subject: [PATCH 1/1] Refresh the results when the Shotwell database changes
+
+libunity returns the cached results of the last search until the scope
+invalidates them. The scope copies the Shotwell database again only
+during a search, and the Dash repeated the same search when the lens was
+opened again, so the photos imported in Shotwell appeared only after a
+new search or a new session. Monitor the database and invalidate the
+results of the lens and global searches when it changes.
+
+Signed-off-by: c4pp4
+---
+ src/unity_shotwell_daemon.py | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/src/unity_shotwell_daemon.py b/src/unity_shotwell_daemon.py
+index b652151..d2cfccd 100755
+--- a/src/unity_shotwell_daemon.py
++++ b/src/unity_shotwell_daemon.py
+@@ -125,6 +125,12 @@ class Daemon:
+         self.db = None
+         self.results = {}
+         self.cancel_running_search = False
++        # libunity returns the cached results of the last search until the
++        # results are invalidated, so invalidate them when Shotwell changes
++        # its DB. The next search copies the DB again (getDB)
++        shotwell_db = Gio.File.new_for_path(HOME_FOLDER + "/.local/share/shotwell/data/photo.db")
++        self.db_monitor = shotwell_db.monitor_file(Gio.FileMonitorFlags.NONE, None)
++        self.db_monitor.connect("changed", self.on_db_changed)
+ 
+     def callback(object, result, user_data):
+         object.preview_result_finish(result)
+@@ -144,6 +150,12 @@ class Daemon:
+             print ("    %s enabled : %s" % (source, self._enabled))
+ 
+ 
++    def on_db_changed(self, *_):
++        """Update results when Shotwell changes its DB"""
++        self._scope.queue_search_changed(Unity.SearchType.DEFAULT)
++        self._scope.queue_search_changed(Unity.SearchType.GLOBAL)
++
++
+     def on_lens_active(self, *_):
+         """ Update results when the lens is opened """
+ #        if self._scope.props.active:
+-- 
+2.56.1
+

@@ -1,0 +1,40 @@
+From 168cabff07c5ad63517b208466d6e5bfc78cc7c2 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Mon, 16 Nov 2026 14:05:51 +0100
+Subject: [PATCH 1/1] Refresh the results when the Rhythmbox database changes
+
+libunity returns the cached results of the last search until the scope
+invalidates them. The file monitor of rhythmdb.xml only marked the
+database for parsing at the next search, but the Dash repeated the same
+search when the lens was opened again, so the music imported in
+Rhythmbox appeared only after a new search or a new session. Invalidate
+the results of the lens and global searches when the database changes.
+
+Signed-off-by: c4pp4
+---
+ src/rhythmbox-scope.vala | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/src/rhythmbox-scope.vala b/src/rhythmbox-scope.vala
+index 1833372..795b456 100644
+--- a/src/rhythmbox-scope.vala
++++ b/src/rhythmbox-scope.vala
+@@ -269,7 +269,14 @@ namespace Unity.MusicLens {
+           try
+           {
+             rb_xml_monitor = xml_file.monitor (FileMonitorFlags.NONE);
+-            rb_xml_monitor.changed.connect (() => { db_ready = false; });
++            rb_xml_monitor.changed.connect (() =>
++            {
++              db_ready = false;
++              // libunity returns the cached results of the last search
++              // until the results are invalidated
++              scope.queue_search_changed (SearchType.DEFAULT);
++              scope.queue_search_changed (SearchType.GLOBAL);
++            });
+           }
+           catch (Error err)
+           {
+-- 
+2.56.1
+

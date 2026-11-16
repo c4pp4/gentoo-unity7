@@ -1,6 +1,6 @@
-From 74942745a45e17f577abd301e368efcf4157899d Mon Sep 17 00:00:00 2001
+From e271a7fcd121bdbf80e4227915cf1c6e82ba0f04 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Fri, 06 Nov 2026 14:00:36 +0100
+Date: Mon, 16 Nov 2026 14:05:51 +0100
 Subject: [PATCH 1/1] Use Nemo's thumbnail factory
 
 The scope generates thumbnails only with totem-video-thumbnailer, which
@@ -12,14 +12,19 @@ thumbnails in the shared thumbnail cache, so the scope and Nemo use
 each other's thumbnails. Failed thumbnails are recorded and not
 generated again.
 
+libunity returns the cached results of the last search until the scope
+invalidates them, so a generated thumbnail appeared only after the
+periodic refresh of the scope. Invalidate the results of the lens and
+global searches when a thumbnail has been generated.
+
 Signed-off-by: c4pp4
 ---
  configure.ac              |   2 +
  src/Makefile.am           |   3 +
  src/cinnamon-desktop.vapi |  21 +++++++
- src/scope.vala            |   2 +-
- src/thumbnailer.vala      | 117 ++++++++++++++++++++++----------------
- 5 files changed, 94 insertions(+), 51 deletions(-)
+ src/scope.vala            |  10 +++-
+ src/thumbnailer.vala      | 119 ++++++++++++++++++++++----------------
+ 5 files changed, 105 insertions(+), 50 deletions(-)
  create mode 100644 src/cinnamon-desktop.vapi
 
 diff --git a/configure.ac b/configure.ac
@@ -84,43 +89,53 @@ index 0000000..100d4ec
 +	}
 +}
 diff --git a/src/scope.vala b/src/scope.vala
-index 14f37e6..74db541 100644
+index 14f37e6..716c7c6 100644
 --- a/src/scope.vala
 +++ b/src/scope.vala
-@@ -60,7 +60,7 @@ namespace Unity.VideoLens
+@@ -60,7 +60,15 @@ namespace Unity.VideoLens
        }
  
        blacklist_tracker = new BlacklistTracker ();
 -      thumbnailer = new Thumbnailer (cache_directory);
 +      thumbnailer = new Thumbnailer ();
++      // libunity returns the cached results of the last search until the
++      // results are invalidated, so the generated thumbnail is shown at the
++      // next search
++      thumbnailer.thumbnail_ready.connect (() =>
++      {
++        queue_search_changed (Unity.SearchType.DEFAULT);
++        queue_search_changed (Unity.SearchType.GLOBAL);
++      });
        locate = new Locate (cache_directory, videos_folder);
  
        search_in_global = true;
 diff --git a/src/thumbnailer.vala b/src/thumbnailer.vala
-index 129332b..e51ed04 100644
+index 129332b..18e7629 100644
 --- a/src/thumbnailer.vala
 +++ b/src/thumbnailer.vala
-@@ -20,19 +20,34 @@
+@@ -20,19 +20,37 @@
  
  namespace Unity.VideoLens
  {
--  public class Thumbnailer
 +  private class ThumbnailRequest
-   {
--    private static const int MAX_THUMBNAILERS = 3;
++  {
 +    public string uri;
 +    public string mime_type;
 +    public time_t mtime;
 +  }
++
+   public class Thumbnailer
+   {
+-    private static const int MAX_THUMBNAILERS = 3;
++    private Gnome.DesktopThumbnailFactory factory;
++    private GLib.ThreadPool<ThumbnailRequest>? thumbnail_pool;
++    private Gee.HashSet<string> queued_uris;
  
 -    private string videos_folder;
 -    private string cache_directory;
 -    private Gee.LinkedList<GLib.Pid?> thumbnailer_pids;
-+  public class Thumbnailer
-+  {
-+    private Gnome.DesktopThumbnailFactory factory;
-+    private GLib.ThreadPool<ThumbnailRequest>? thumbnail_pool;
-+    private Gee.HashSet<string> queued_uris;
++    // emitted in the main thread when a thumbnail has been generated
++    public signal void thumbnail_ready ();
  
 -    public Thumbnailer (string cache_dir)
 +    public Thumbnailer ()
@@ -144,7 +159,7 @@ index 129332b..e51ed04 100644
      }
  
      public string get_icon (string video_file)
-@@ -40,76 +55,78 @@ namespace Unity.VideoLens
+@@ -40,76 +58,79 @@ namespace Unity.VideoLens
        /* This method checks several locations for a video thumbnail.
  
          1) <filename>.jpg file in the same folder (not activated for now)
@@ -259,6 +274,7 @@ index 129332b..e51ed04 100644
 -        }
 -      }
 +        queued_uris.remove (uri);
++        thumbnail_ready ();
 +        return false;
 +      });
      }
@@ -266,5 +282,5 @@ index 129332b..e51ed04 100644
  }
 \ No newline at end of file
 -- 
-2.55.0
+2.56.1
 
