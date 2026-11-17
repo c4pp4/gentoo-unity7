@@ -8,3 +8,4 @@ NoDisplay=true
 # as unity-panel-service doesn't register with the session manager and
 # cinnamon-session would wait 30 seconds for it in earlier phases.
 X-GNOME-AutoRestart=true
+X-GNOME-HiddenUnderSystemd=true

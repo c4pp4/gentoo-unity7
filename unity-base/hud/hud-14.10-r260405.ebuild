@@ -20,7 +20,7 @@ S="${S}${UVER}"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="doc systemd test"
+IUSE="doc test"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="!test? ( test )"
 
@@ -157,9 +157,9 @@ src_install() {
 	wrap_distutils ${FUNCNAME}
 	python_optimize
 
-	# Start window-stack-bridge via cinnamon-session without systemd #
-	if ! use systemd; then
-		insinto /etc/xdg/autostart
-		doins "${FILESDIR}"/window-stack-bridge.desktop
-	fi
+	# Start window-stack-bridge via cinnamon-session (XDG autostart) #
+	#  When cinnamon-session runs as a systemd service, it skips the file #
+	#  (X-GNOME-HiddenUnderSystemd) and the systemd user unit starts the bridge #
+	insinto /etc/xdg/autostart
+	doins "${FILESDIR}"/window-stack-bridge.desktop
 }

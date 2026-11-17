@@ -7,3 +7,4 @@ NoDisplay=true
 X-GNOME-Autostart-Phase=WindowManager
 X-GNOME-Autostart-Notify=true
 X-GNOME-AutoRestart=true
+X-GNOME-HiddenUnderSystemd=true

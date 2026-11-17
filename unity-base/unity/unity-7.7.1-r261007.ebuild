@@ -333,23 +333,23 @@ src_install() {
 	doexe "${FILESDIR}/70im-config"			# Configure input method (xim/ibus)
 	doexe "${FILESDIR}/99unity-session"	# Unity session environment setup and 'startx' launcher
 
-	if ! use systemd; then
-		# Launch Unity shell and panel service via cinnamon-session (XDG autostart) #
-		exeinto /usr/libexec
-		doexe "${FILESDIR}"/unity7-compiz-launcher
+	# Launch Unity shell and panel service via cinnamon-session (XDG autostart) #
+	#  When cinnamon-session runs as a systemd service, it skips these files #
+	#  (X-GNOME-HiddenUnderSystemd) and the systemd user units start them #
+	exeinto /usr/libexec
+	doexe "${FILESDIR}"/unity7-compiz-launcher
 
-		insinto /etc/xdg/autostart
-		doins "${FILESDIR}"/unity7-compiz.desktop
-		doins "${FILESDIR}"/unity-panel-service.desktop
+	insinto /etc/xdg/autostart
+	doins "${FILESDIR}"/unity7-compiz.desktop
+	doins "${FILESDIR}"/unity-panel-service.desktop
 
-		sed -i \
-			-e "s:@UNITY_LIBDIR@:/usr/$(get_libdir)/unity:g" \
-			"${ED}"/usr/libexec/unity7-compiz-launcher \
-			"${ED}"/etc/xdg/autostart/unity-panel-service.desktop || die
-		! grep -Fq "@UNITY_LIBDIR@" \
-			"${ED}"/usr/libexec/unity7-compiz-launcher \
-			"${ED}"/etc/xdg/autostart/unity-panel-service.desktop || die
-	fi
+	sed -i \
+		-e "s:@UNITY_LIBDIR@:/usr/$(get_libdir)/unity:g" \
+		"${ED}"/usr/libexec/unity7-compiz-launcher \
+		"${ED}"/etc/xdg/autostart/unity-panel-service.desktop || die
+	! grep -Fq "@UNITY_LIBDIR@" \
+		"${ED}"/usr/libexec/unity7-compiz-launcher \
+		"${ED}"/etc/xdg/autostart/unity-panel-service.desktop || die
 
 	# Create /etc/pam.d/unity #
 	pamd_mimic system-local-login ${PN} auth account session

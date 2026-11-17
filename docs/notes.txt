@@ -154,7 +154,8 @@ x11-themes/adwaita-icon-theme-legacy    # Inherit Adwaita icons before hicolor
                         - 'unity-settings-daemon.service' and 'window-stack-bridge.service' due to existence of symlinks
                           in '/usr/lib/systemd/user/unity-session.target.wants/'
                 - cinnamon-session runs as a systemd user service, so it skips the XDG autostart files marked
-                  'X-GNOME-HiddenUnderSystemd=true' ('unity-settings-daemon.desktop', 'indicator-application.desktop',
+                  'X-GNOME-HiddenUnderSystemd=true' ('unity-settings-daemon.desktop', 'unity7-compiz.desktop',
+                  'unity-panel-service.desktop', 'window-stack-bridge.desktop', 'indicator-application.desktop',
                   'indicator-messages.desktop' and 'indicator-printers.desktop'), which are started by their systemd user units instead
                 - All other Unity systemd service units are then started as being 'PartOf=graphical-session.target'
                 - Most importantly, unity7.service unit does the following:
