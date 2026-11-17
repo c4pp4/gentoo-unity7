@@ -1,6 +1,6 @@
-From 9131c6756a4a00b960d3018a177b2f7f7bd6b226 Mon Sep 17 00:00:00 2001
+From 03624dc819dc9eac2f83b35564c3b66360acc019 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Fri, 06 Nov 2026 14:00:36 +0100
+Date: Tue, 17 Nov 2026 16:19:47 +0100
 Subject: [PATCH 1/1] Integrate 'Language Support' panel
 
 Allow setting the language and formats for Unity and the login screen.
@@ -4622,7 +4622,7 @@ index 5e552ed..2f361c2 100644
 --- a/panels/region/gnome-region-panel-input.c
 +++ b/panels/region/gnome-region-panel-input.c
 @@ -80,6 +80,9 @@
- #define LEGACY_IBUS_SETUP_DIR "/usr/lib/ibus"
+ #define LEGACY_IBUS_SETUP_DIR "/usr/libexec"
  #define LEGACY_IBUS_SETUP_FMT "ibus-setup-%s"
  
 +#define LANGSELECTOR_PANEL  "langselector"

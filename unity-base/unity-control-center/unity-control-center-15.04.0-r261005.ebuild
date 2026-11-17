@@ -115,6 +115,7 @@ PATCHES=(
 	"${FILESDIR}"/02-optional-bt-colord-kerberos-wacom.patch
 	"${FILESDIR}"/appearance-ignore_screenshots_from_mate_screenshot.patch
 	"${FILESDIR}"/appearance-process_filename_dark_files.patch
+	"${FILESDIR}"/appearance-render_static_preview_once.patch
 	"${FILESDIR}"/network-fix-hotspot-button-state.patch
 	"${FILESDIR}"/sharing-fix_translation.patch
 	"${FILESDIR}"/shell-fix_theme_selection_and_hover.patch

@@ -1,0 +1,94 @@
+From dd587b47fcc5832ea035420f1c95eaa29a107230 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Tue, 17 Nov 2026 16:31:05 +0100
+Subject: [PATCH 1/1] Appearance: render the preview of a static background
+ only once
+
+The preview of the current background is rendered from the whole image
+whenever the preview area is drawn. While the list of wallpapers loads,
+the panel is drawn again and again, so a large image was decoded tens of
+times and the list took tens of seconds to fill.
+
+Keep the rendered preview of a background that does not change with
+time until the background or its settings change. A slideshow is still
+rendered on every draw, so that the preview shows its current slide.
+Return before the preview is rendered when its base image is missing,
+so that the rendered preview is not leaked.
+
+Signed-off-by: c4pp4
+---
+ panels/appearance/cc-appearance-panel.c | 30 +++++++++++++++++++++----
+ 1 file changed, 26 insertions(+), 4 deletions(-)
+
+diff --git a/panels/appearance/cc-appearance-panel.c b/panels/appearance/cc-appearance-panel.c
+index 1119ed4..beaf3f6 100644
+--- a/panels/appearance/cc-appearance-panel.c
++++ b/panels/appearance/cc-appearance-panel.c
+@@ -94,6 +94,8 @@ struct _CcAppearancePanelPrivate
+ 
+   GdkPixbuf *display_base;
+   GdkPixbuf *display_overlay;
++
++  GdkPixbuf *preview_pixbuf;
+ };
+ 
+ enum
+@@ -302,6 +304,8 @@ cc_appearance_panel_finalize (GObject *object)
+       g_object_unref (priv->current_background);
+       priv->current_background = NULL;
+     }
++
++  g_clear_object (&priv->preview_pixbuf);
+     
+   g_source_remove_by_user_data (object);
+ 
+@@ -662,6 +666,9 @@ update_preview (CcAppearancePanelPrivate *priv,
+   gchar *markup;
+   gboolean changes_with_time;
+ 
++  /* The background or its settings may have changed */
++  g_clear_object (&priv->preview_pixbuf);
++
+   if (item && priv->current_background)
+     {
+       g_object_unref (priv->current_background);
+@@ -1048,7 +1055,11 @@ preview_draw_cb (GtkWidget         *widget,
+ 
+   gtk_widget_get_allocation (widget, &allocation);
+ 
+-  if (priv->current_background)
++  if (!priv->display_base)
++    return FALSE;
++
++  if (priv->current_background &&
++      cc_appearance_item_changes_with_time (priv->current_background))
+     {
+       GIcon *icon;
+       icon = cc_appearance_item_get_frame_thumbnail (priv->current_background,
+@@ -1058,9 +1069,20 @@ preview_draw_cb (GtkWidget         *widget,
+                                                      -2, TRUE);
+       pixbuf = GDK_PIXBUF (icon);
+     }
+-
+-  if (!priv->display_base)
+-    return FALSE;
++  else if (priv->current_background)
++    {
++      /* Render a background that does not change with time only once. It
++       * decodes the whole image, and the preview is drawn again and again,
++       * for example while the list of wallpapers loads */
++      if (priv->preview_pixbuf == NULL)
++        priv->preview_pixbuf = GDK_PIXBUF (cc_appearance_item_get_frame_thumbnail (priv->current_background,
++                                                                                   priv->thumb_factory,
++                                                                                   preview_width,
++                                                                                   preview_height,
++                                                                                   -2, TRUE));
++      if (priv->preview_pixbuf)
++        pixbuf = g_object_ref (priv->preview_pixbuf);
++    }
+ 
+ 
+   preview = gdk_pixbuf_copy (priv->display_base);
+-- 
+2.56.1
+
