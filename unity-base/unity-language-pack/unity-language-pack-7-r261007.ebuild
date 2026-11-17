@@ -176,253 +176,19 @@ RESTRICT="test"
 BDEPEND="sys-devel/gettext"
 
 src_install() {
-	# sharing panel msgids
-	local -a sh_msgids=(
-		"No networks selected for sharing"
-		"service is disabled"
-		"service is enabled"
-		"service is active"
-		"Choose a Folder"
-		"File Sharing allows you to share your Public folder with others on your "
-		"When remote login is enabled, remote users can connect using the Secure "
-		"Screen sharing allows remote users to view or control your screen by "
-		"Copy"
-		"Sharing"
-		"_Computer Name"
-		"_File Sharing"
-		"_Screen Sharing"
-		"_Media Sharing"
-		"_Remote Login"
-		"Some services are disabled because of no network access."
-		"File Sharing"
-		"_Require Password"
-		"Remote Login"
-		"Screen Sharing"
-		"_Allow connections to control the screen"
-		"_Password:"
-		"_Show Password"
-		"Access Options"
-		"_New connections must ask for access"
-		"_Require a password"
-		"Media Sharing"
-		"Share music, photos and videos over the network."
-		"Folders"
-		"Control what you want to share with others"
-		"share;sharing;ssh;host;name;remote;desktop;media;audio;video;pictures;photos;"
-		"Networks"
-		"Enable or disable remote login"
-		"Authentication is required to enable or disable remote login"
-	)
-
-	# network panel msgids
-	local -a net_msgids=(
-		"802.1x _Security"
-		"Security"
-		"Preserve"
-		"Permanent"
-		"Random"
-		"Stable"
-		"The MAC address entered here will be used as hardware address for the "
-		"Profile %d"
-		"WPA3"
-		"Enhanced Open"
-		"WPA2"
-		"Enterprise"
-		"%d Mb/s (%1.1f GHz)"
-		"2.4 GHz / 5 GHz"
-		"2.4 GHz"
-		"5 GHz"
-		"None"
-		"Weak"
-		"Ok"
-		"Good"
-		"Excellent"
-		"Forget Connection"
-		"Remove Connection Profile"
-		"Remove VPN"
-		"Details"
-		"automatic"
-		"Identity"
-		"Delete Address"
-		"Delete Route"
-		"IPv4"
-		"IPv6"
-		"None"
-		"WEP 40/128-bit Key (Hex or ASCII)"
-		"WEP 128-bit Passphrase"
-		"LEAP"
-		"Dynamic WEP (802.1x)"
-		"WPA & WPA2 Personal"
-		"WPA & WPA2 Enterprise"
-		"WPA3 Personal"
-		"Signal Strength"
-		"Link speed"
-		"Supported Frequencies"
-		"Last Used"
-		"Connect _automatically"
-		"Make available to _other users"
-		"_Metered connection: has data limits or can incur charges"
-		"Software updates and other large downloads will not be started automatically."
-		"_Name"
-		"_MAC Address"
-		"M_TU"
-		"_Cloned Address"
-		"bytes"
-		"IPv_4 Method"
-		"Automatic (DHCP)"
-		"Link-Local Only"
-		"Disable"
-		"Shared to other computers"
-		"Addresses"
-		"Netmask"
-		"Gateway"
-		"Automatic DNS"
-		"Separate IP addresses with commas"
-		"Routes"
-		"Automatic Routes"
-		"Metric"
-		"Use this connection _only for resources on its network"
-		"IPv_6 Method"
-		"Automatic, DHCP only"
-		"Prefix"
-		"Unable to open connection editor"
-		"New Profile"
-		"Import from file…"
-		"Add VPN"
-		"S_ecurity"
-		"Cannot import VPN connection"
-		"The file “%s” could not be read or does not contain recognized VPN "
-		"Select file to import"
-		"A file named “%s” already exists."
-		"_Replace"
-		"Do you want to replace %s with the VPN connection you are saving?"
-		"Cannot export VPN connection"
-		"The VPN connection “%s” could not be exported to %s.\n"
-		"Export VPN connection"
-		"(Error: unable to load VPN connection editor)"
-		"_SSID"
-		"_BSSID"
-		"undefined error in 802.1X security (wpa-eap)"
-		"no file selected"
-		"unspecified error validating eap-method file"
-		"DER, PEM, or PKCS#12 private keys (*.der, *.pem, *.p12, *.key)"
-		"DER or PEM certificates (*.der, *.pem, *.crt, *.cer)"
-		"missing EAP-FAST PAC file"
-		"Choose a PAC file"
-		"PAC files (*.pac)"
-		"GTC"
-		"MSCHAPv2"
-		"Anonymous"
-		"Authenticated"
-		"Both"
-		"Anony_mous identity"
-		"PAC _file"
-		"_Inner authentication"
-		"Allow automatic PAC pro_visioning"
-		"missing EAP-LEAP username"
-		"missing EAP-LEAP password"
-		"Sho_w password"
-		"invalid EAP-PEAP CA certificate: %s"
-		"invalid EAP-PEAP CA certificate: no certificate specified"
-		"Choose a Certificate Authority certificate"
-		"MD5"
-		"Version 0"
-		"Version 1"
-		"C_A certificate"
-		"No CA certificate is _required"
-		"PEAP _version"
-		"missing EAP username"
-		"missing EAP password"
-		"missing EAP-TLS identity"
-		"invalid EAP-TLS CA certificate: %s"
-		"invalid EAP-TLS CA certificate: no certificate specified"
-		"invalid EAP-TLS private-key: %s"
-		"invalid EAP-TLS user-certificate: %s"
-		"Unencrypted private keys are insecure"
-		"The selected private key does not appear to be protected by a password. This "
-		"Choose your personal certificate"
-		"Choose your private key"
-		"I_dentity"
-		"_User certificate"
-		"Private _key"
-		"_Private key password"
-		"invalid EAP-TTLS CA certificate: %s"
-		"invalid EAP-TTLS CA certificate: no certificate specified"
-		"PAP"
-		"MSCHAP"
-		"MSCHAPv2 (no EAP)"
-		"CHAP"
-		"Unknown error validating 802.1X security"
-		"TLS"
-		"PWD"
-		"FAST"
-		"Tunneled TLS"
-		"Protected EAP (PEAP)"
-		"Au_thentication"
-		"missing leap-username"
-		"missing leap-password"
-		"Wi-Fi password is missing."
-		"_Type"
-		"missing wep-key"
-		"invalid wep-key: key with a length of %zu must contain only hex-digits"
-		"invalid wep-key: key with a length of %zu must contain only ascii characters"
-		"invalid wep-key: wrong key length %zu. A key must be either of length 5/13 "
-		"invalid wep-key: passphrase must be non-empty"
-		"invalid wep-key: passphrase must be shorter than 64 characters"
-		"1 (Default)"
-		"Open System"
-		"Shared Key"
-		"_Key"
-		"Sho_w key"
-		"WEP inde_x"
-		"invalid wpa-psk: invalid key-length %zu. Must be [8,63] bytes or 64 hex "
-		"invalid wpa-psk: cannot interpret key with 64 bytes as hex"
-	)
-
-	# langselector panel msgids
-	local -a ls1_msgids=(
-		"Login _Screen"
-		"_Language"
-		"_Formats"
-		"Login settings are used by all users when logging into the system"
-		"Your session needs to be restarted for changes to take effect"
-		"Restart Now"
-		"Formats"
-		"_Done"
-		"_Cancel"
-		"Preview"
-		"Dates"
-		"Times"
-		"Dates & Times"
-		"Numbers"
-		"Measurement"
-		"Paper"
-		"measurement format"
-		"More…"
-		"No languages found"
-		"No regions found"
-	)
-	local -a ls2_msgids=(
-		"Language Support"
-		"Configure multiple and native language support on your system"
-	)
-
 	local \
-		pofile msgid x \
+		pofile x \
 		u_po="unity.po" \
-		ul_po="unity.legacy" \
 		ucc_po="unity-control-center.po" \
-		uccl_po="unity-control-center.legacy" \
-		gccl_po="gnome-control-center-2.0.legacy" \
-		ls_po="language-selector.po" \
+		uccn_po="unity-control-center-network.legacy" \
+		uccs_po="unity-control-center-sharing.legacy" \
+		uccls_po="unity-control-center-langselector.legacy" \
 		is_po="indicator-session.po" \
-		uhl_po="unity-help.legacy" \
-		newline=$'\n'
+		uhl_po="unity-help.legacy"
 
 	# Remove all translations except those we need
 	find "${S}" -type f \
 		! -name 'indicator-*' \
-		! -name ${ls_po} \
 		! -name 'libdbusmenu.po' \
 		! -name 'ubuntu-help.po' \
 		! -name 'unity*' \
@@ -440,31 +206,6 @@ src_install() {
 		rm -r "${S}"/po 2>/dev/null
 	}
 
-	process_msgids() {
-		local src pofile
-
-		src="$1"; shift
-		pofile="$1"; shift
-		if [[ -e ${src} ]] && [[ -e ${pofile} ]]; then
-			for msgid in "$@"; do
-				if ! grep -Fqx -e "msgid \"${msgid}\"" -e "msgctxt \"${msgid}\"" "${pofile}"; then
-					msgid="$(M="\"${msgid}\"" awk 'BEGIN { m = ENVIRON["M"] } { line = $0; sub(/^(msgid|msgctxt)[ \t]+/, "", line) } line == m { p = 1 } p { print } /^$/ { p = 0 }' "${src}" 2>/dev/null)"
-					case ${msgid:0:1} in
-						m)
-							echo "${msgid}" >> "${pofile}"
-							;;
-						\")
-							_progress_indicator
-							echo "msgid \"\"${newline}${msgid}" >> "${pofile}"
-							;;
-					esac
-				fi
-			done
-			msguniq --use-first -o "${pofile}" "${pofile}" 2>/dev/null
-			rm "${src}" 2>/dev/null
-		fi
-	}
-
 	merge_translations() {
 		if [[ -f $1 ]]; then
 			msgcat --use-first -o "$2" "$2" "$1" 2>/dev/null
@@ -474,9 +215,9 @@ src_install() {
 
 	unpack_translations "activity-log-manager-translations-artful" "activity-log-manager.po"
 	unpack_translations "session-shortcuts-translations-artful" "session-shortcuts.po"
-	unpack_translations "unity-translations-kinetic" "${ul_po}"
-	unpack_translations "unity-control-center-translations-kinetic" "${uccl_po}"
-	unpack_translations "gnome-control-center-2.0-translations-jammy" "${gccl_po}"
+	unpack_translations "unity-control-center-network-translations-261117" "${uccn_po}"
+	unpack_translations "unity-control-center-sharing-translations-261117" "${uccs_po}"
+	unpack_translations "unity-control-center-langselector-translations-261117" "${uccls_po}"
 	unpack_translations "cinnamon-session-translations-151017" "unity-session-properties.po"
 	unpack_translations "indicator-appearance-translations-261017" "indicator-appearance.po"
 	unpack_translations "indicator-notifications-translations-261017" "indicator-notifications.po"
@@ -495,26 +236,16 @@ src_install() {
 	printf "%s  " "Processing translation files"
 	_progress_indicator
 
-	ls1_msgids+=("${sh_msgids[@]}" "${net_msgids[@]}")
-
 	for pofile in $( \
 		find "${S}" -type f \
 			-name "*.po" \
-			! -name "${ls_po}" \
 	); do
 		if [[ ${pofile##*/} == ${ucc_po} ]]; then
-			# Merge legacy translations
-			x="${pofile/${ucc_po}/${uccl_po}}"
-			merge_translations "${x}" "${pofile}"
-
-			# Add translations for langselector, sharing panel and network panel
+			# Merge translations for langselector panel, network panel and sharing panel
+			merge_translations "${pofile/${ucc_po}/${uccls_po}}" "${pofile}"
+			merge_translations "${pofile/${ucc_po}/${uccn_po}}" "${pofile}"
 			sed -i -e "/\"Sharing\"/,+1 d" "${pofile}" || die # remove old identical msgid
-			process_msgids "${pofile/${ucc_po}/${gccl_po}}" "${pofile}" "${ls1_msgids[@]}"
-
-			# Add translations for langselector panel
-			x=${pofile/${ucc_po}/${ls_po}}
-			x=${x/gnome-}
-			process_msgids "${x}" "${pofile}" "${ls2_msgids[@]}"
+			merge_translations "${pofile/${ucc_po}/${uccs_po}}" "${pofile}"
 		fi
 
 		# Add translations for Unity help desktop launcher
@@ -524,10 +255,6 @@ src_install() {
 
 		# Process translations for Unity
 		if [[ ${pofile##*/} == ${u_po} ]]; then
-			# Merge legacy translations
-			x="${pofile/${u_po}/${ul_po}}"
-			merge_translations "${x}" "${pofile}"
-
 			# Rename Ubuntu Desktop
 			sed -i -e "s/Ubuntu Desktop/Gentoo Unity⁷ Desktop/" -e "/Unity⁷/{n;s/Ubuntu/Gentoo Unity⁷/;}" "${pofile}" || die
 		fi
