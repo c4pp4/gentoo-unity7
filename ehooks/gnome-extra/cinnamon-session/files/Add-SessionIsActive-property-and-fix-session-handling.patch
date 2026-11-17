@@ -1,6 +1,6 @@
-From b16c57b684765c3d14a9f9b429ec713ed833e4b1 Mon Sep 17 00:00:00 2001
+From 2cd66ed5e9f1dfef0ad35e3bac5d184526d30a0b Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Fri, 06 Nov 2026 14:43:39 +0100
+Date: Tue, 17 Nov 2026 17:52:22 +0100
 Subject: [PATCH 1/1] Add SessionIsActive property and fix session handling
 
 systemd: add SessionIsActive property and improve session tracking
@@ -15,14 +15,19 @@ sd_session_is_active() and updates it on sd-login monitor events.
 This also refactors session_id handling to use a single source of truth
 and improves fallback behavior when logind is unavailable.
 
+When the session ID is found neither for the process nor in
+XDG_SESSION_ID, as for the systemd user service in Debian and Ubuntu,
+which do not pass XDG_SESSION_ID to systemd --user, use the display
+session of the user.
+
 Signed-off-by: c4pp4
 ---
  cinnamon-session/csm-manager.c                |  35 ++-
  cinnamon-session/csm-system.c                 |  26 ++
  cinnamon-session/csm-system.h                 |   2 +
- cinnamon-session/csm-systemd.c                | 291 +++++++++++++++---
+ cinnamon-session/csm-systemd.c                | 296 +++++++++++++++---
  cinnamon-session/org.gnome.SessionManager.xml |   9 +
- 5 files changed, 311 insertions(+), 52 deletions(-)
+ 5 files changed, 316 insertions(+), 52 deletions(-)
 
 diff --git a/cinnamon-session/csm-manager.c b/cinnamon-session/csm-manager.c
 index 6b7fc29..cf523f9 100644
@@ -173,7 +178,7 @@ index 7252124..273cd09 100644
                                          const gchar      *id,
                                          CsmInhibitorFlag  flags);
 diff --git a/cinnamon-session/csm-systemd.c b/cinnamon-session/csm-systemd.c
-index db3fe84..035a3d7 100644
+index db3fe84..97bed85 100644
 --- a/cinnamon-session/csm-systemd.c
 +++ b/cinnamon-session/csm-systemd.c
 @@ -55,12 +55,20 @@
@@ -366,7 +371,7 @@ index db3fe84..035a3d7 100644
  
          error = NULL;
  
-@@ -148,29 +287,48 @@ csm_systemd_init (CsmSystemd *manager)
+@@ -148,29 +287,53 @@ csm_systemd_init (CsmSystemd *manager)
                  g_object_unref (bus);
          }
  
@@ -378,6 +383,11 @@ index db3fe84..035a3d7 100644
 +                if (env_session && *env_session) {
 +                        manager->priv->session_id = strdup (env_session);
 +                        g_debug ("Falling back to XDG_SESSION_ID");
++                } else if (sd_uid_get_display (getuid (), &manager->priv->session_id) >= 0 &&
++                           manager->priv->session_id != NULL) {
++                        /* Running as a systemd user service without XDG_SESSION_ID
++                         * (Debian and Ubuntu do not pass it to systemd --user) */
++                        g_debug ("Falling back to the display session of the user");
 +                } else {
 +                        g_warning ("Could not get session id for session. Check that logind is "
 +                                   "properly installed and pam_systemd is getting used at login.");
@@ -433,7 +443,7 @@ index db3fe84..035a3d7 100644
  }
  
  static void
-@@ -201,6 +359,9 @@ csm_systemd_attempt_restart (CsmSystem *system)
+@@ -201,6 +364,9 @@ csm_systemd_attempt_restart (CsmSystem *system)
  
          CsmSystemd *manager = CSM_SYSTEMD (system);
  
@@ -443,7 +453,7 @@ index db3fe84..035a3d7 100644
          g_dbus_proxy_call (manager->priv->sd_proxy,
                             "Reboot",
                             g_variant_new ("(b)", TRUE),
-@@ -239,6 +400,9 @@ csm_systemd_attempt_stop (CsmSystem *system)
+@@ -239,6 +405,9 @@ csm_systemd_attempt_stop (CsmSystem *system)
  
          CsmSystemd *manager = CSM_SYSTEMD (system);
  
@@ -453,7 +463,7 @@ index db3fe84..035a3d7 100644
          g_dbus_proxy_call (manager->priv->sd_proxy,
                             "PowerOff",
                             g_variant_new ("(b)", TRUE),
-@@ -257,6 +421,10 @@ csm_systemd_set_session_idle (CsmSystem *system,
+@@ -257,6 +426,10 @@ csm_systemd_set_session_idle (CsmSystem *system,
          GDBusConnection *bus;
  
          g_debug ("Updating systemd idle status: %d", is_idle);
@@ -464,7 +474,7 @@ index db3fe84..035a3d7 100644
          bus = g_dbus_proxy_get_connection (manager->priv->sd_proxy);
          g_dbus_connection_call (bus,
                                  SD_NAME,
-@@ -264,7 +432,7 @@ csm_systemd_set_session_idle (CsmSystem *system,
+@@ -264,7 +437,7 @@ csm_systemd_set_session_idle (CsmSystem *system,
                                  SD_SESSION_INTERFACE,
                                  "SetIdleHint",
                                  g_variant_new ("(b)", is_idle),
@@ -473,7 +483,7 @@ index db3fe84..035a3d7 100644
                                  0,
                                  G_MAXINT,
                                  NULL, NULL, NULL);
-@@ -277,7 +445,10 @@ csm_systemd_can_switch_user (CsmSystem *system)
+@@ -277,7 +450,10 @@ csm_systemd_can_switch_user (CsmSystem *system)
          gchar *seat;
          gint ret;
  
@@ -485,7 +495,7 @@ index db3fe84..035a3d7 100644
          ret = sd_seat_can_multi_session (seat);
          free (seat);
  
-@@ -292,6 +463,9 @@ csm_systemd_can_restart (CsmSystem *system)
+@@ -292,6 +468,9 @@ csm_systemd_can_restart (CsmSystem *system)
          GVariant *res;
          gboolean can_restart;
  
@@ -495,7 +505,7 @@ index db3fe84..035a3d7 100644
          res = g_dbus_proxy_call_sync (manager->priv->sd_proxy,
                                        "CanReboot",
                                        NULL,
-@@ -324,6 +498,9 @@ csm_systemd_can_stop (CsmSystem *system)
+@@ -324,6 +503,9 @@ csm_systemd_can_stop (CsmSystem *system)
          GVariant *res;
          gboolean can_stop;
  
@@ -505,7 +515,7 @@ index db3fe84..035a3d7 100644
          res = g_dbus_proxy_call_sync (manager->priv->sd_proxy,
                                        "CanPowerOff",
                                        NULL,
-@@ -381,6 +558,9 @@ csm_systemd_can_hybrid_sleep (CsmSystem *system)
+@@ -381,6 +563,9 @@ csm_systemd_can_hybrid_sleep (CsmSystem *system)
          GVariant *res;
          gboolean can_hybrid_sleep;
  
@@ -515,7 +525,7 @@ index db3fe84..035a3d7 100644
          res = g_dbus_proxy_call_sync (manager->priv->sd_proxy,
                                        "CanHybridSleep",
                                        NULL,
-@@ -413,6 +593,9 @@ csm_systemd_can_suspend (CsmSystem *system)
+@@ -413,6 +598,9 @@ csm_systemd_can_suspend (CsmSystem *system)
          GVariant *res;
          gboolean can_suspend;
  
@@ -525,7 +535,7 @@ index db3fe84..035a3d7 100644
          res = g_dbus_proxy_call_sync (manager->priv->sd_proxy,
                                        "CanSuspend",
                                        NULL,
-@@ -445,6 +628,9 @@ csm_systemd_can_hibernate (CsmSystem *system)
+@@ -445,6 +633,9 @@ csm_systemd_can_hibernate (CsmSystem *system)
          GVariant *res;
          gboolean can_hibernate;
  
@@ -535,7 +545,7 @@ index db3fe84..035a3d7 100644
          res = g_dbus_proxy_call_sync (manager->priv->sd_proxy,
                                        "CanHibernate",
                                        NULL,
-@@ -531,6 +717,9 @@ csm_systemd_hybrid_sleep (CsmSystem *system)
+@@ -531,6 +722,9 @@ csm_systemd_hybrid_sleep (CsmSystem *system)
  {
          CsmSystemd *manager = CSM_SYSTEMD (system);
  
@@ -545,7 +555,7 @@ index db3fe84..035a3d7 100644
          g_dbus_proxy_call (manager->priv->sd_proxy,
                             "HybridSleep",
                             g_variant_new ("(b)", TRUE),
-@@ -544,7 +733,7 @@ csm_systemd_hybrid_sleep (CsmSystem *system)
+@@ -544,7 +738,7 @@ csm_systemd_hybrid_sleep (CsmSystem *system)
  static void
  csm_systemd_suspend (CsmSystem *system, gboolean suspend_then_hibernate)
  {
@@ -554,7 +564,7 @@ index db3fe84..035a3d7 100644
  	if (suspend_then_hibernate && csm_systemd_can_suspend (system) && csm_systemd_can_hibernate (system)) {
  		method = "SuspendThenHibernate";
  	}
-@@ -552,13 +741,16 @@ csm_systemd_suspend (CsmSystem *system, gboolean suspend_then_hibernate)
+@@ -552,13 +746,16 @@ csm_systemd_suspend (CsmSystem *system, gboolean suspend_then_hibernate)
  
          CsmSystemd *manager = CSM_SYSTEMD (system);
  
@@ -572,7 +582,7 @@ index db3fe84..035a3d7 100644
                             manager);
  }
  
-@@ -567,13 +759,16 @@ csm_systemd_hibernate (CsmSystem *system)
+@@ -567,13 +764,16 @@ csm_systemd_hibernate (CsmSystem *system)
  {
          CsmSystemd *manager = CSM_SYSTEMD (system);
  
@@ -590,7 +600,7 @@ index db3fe84..035a3d7 100644
                             manager);
  }
  
-@@ -621,6 +816,9 @@ csm_systemd_add_inhibitor (CsmSystem        *system,
+@@ -621,6 +821,9 @@ csm_systemd_add_inhibitor (CsmSystem        *system,
          if ((flag & CSM_INHIBITOR_FLAG_SUSPEND) == 0)
                  return;
  
@@ -600,7 +610,7 @@ index db3fe84..035a3d7 100644
          if (manager->priv->inhibitors == NULL) {
                  g_debug ("Adding system inhibitor");
                  g_dbus_proxy_call_with_unix_fd_list (manager->priv->sd_proxy,
-@@ -661,34 +859,34 @@ csm_systemd_remove_inhibitor (CsmSystem   *system,
+@@ -661,34 +864,34 @@ csm_systemd_remove_inhibitor (CsmSystem   *system,
  static gboolean
  csm_systemd_is_last_session_for_user (CsmSystem *system)
  {
@@ -645,7 +655,7 @@ index db3fe84..035a3d7 100644
                          continue;
  
                  if (g_strcmp0 (state, "closing") == 0) {
-@@ -699,16 +897,17 @@ csm_systemd_is_last_session_for_user (CsmSystem *system)
+@@ -699,16 +902,17 @@ csm_systemd_is_last_session_for_user (CsmSystem *system)
  
                  ret = sd_session_get_type (sessions[i], &type);
  
@@ -668,7 +678,7 @@ index db3fe84..035a3d7 100644
          }
  
          for (i = 0; sessions[i]; i++)
-@@ -723,19 +922,13 @@ csm_systemd_get_login_session_id (CsmSystem *system)
+@@ -723,19 +927,13 @@ csm_systemd_get_login_session_id (CsmSystem *system)
  {
          CsmSystemd *manager = CSM_SYSTEMD (system);
  
@@ -714,5 +724,5 @@ index 70ab848..de87642 100644
        <doc:doc>
          <doc:description>
 -- 
-2.53.0
+2.56.1
 
