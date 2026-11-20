@@ -1,0 +1,80 @@
+From 4f4fda14704909edabb97a7a07c7093de3c6fcc6 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Fri, 20 Nov 2026 13:13:10 +0100
+Subject: [PATCH 1/1] Network: handle unity-settings-daemon without the rfkill
+ plugin
+
+The panel reads the airplane mode properties of unity-settings-daemon's
+rfkill plugin from a D-Bus proxy's property cache. Without the plugin,
+no process owns the org.gnome.SettingsDaemon.Rfkill name, so the cache
+is empty. g_variant_get_boolean() then got NULL, and every time the
+panel opened, GLib logged critical warnings. In Gentoo,
+unity-settings-daemon has the plugin only with the rfkill USE flag.
+
+Read each property with a function that returns FALSE when the property
+is missing, so the airplane mode switch stays hidden. The function also
+frees the value, which the panel leaked before.
+
+Signed-off-by: c4pp4
+---
+ panels/network/cc-network-panel.c | 33 ++++++++++++++++++++-----------
+ 1 file changed, 22 insertions(+), 11 deletions(-)
+
+diff --git a/panels/network/cc-network-panel.c b/panels/network/cc-network-panel.c
+index 2ac9af1..b28bbcb 100644
+--- a/panels/network/cc-network-panel.c
++++ b/panels/network/cc-network-panel.c
+@@ -243,28 +243,39 @@ cc_network_panel_notify_enable_active_cb (GtkSwitch *sw,
+                            NULL, NULL);
+ }
+ 
++static gboolean
++get_rfkill_property (CcNetworkPanel *panel, const gchar *property_name)
++{
++        GVariant *result;
++        gboolean value;
++
++        /* The property is missing when unity-settings-daemon runs without
++         * its rfkill plugin */
++        result = g_dbus_proxy_get_cached_property (panel->priv->rfkill_proxy, property_name);
++        if (result == NULL)
++                return FALSE;
++
++        value = g_variant_get_boolean (result);
++        g_variant_unref (result);
++
++        return value;
++}
++
+ static void
+ sync_airplane_mode_switch (CcNetworkPanel *panel)
+ {
+-        GVariant *result;
+         gboolean enabled, should_show;
+         gboolean hw_enabled;
+ 
+-        result = g_dbus_proxy_get_cached_property (panel->priv->rfkill_proxy, "HasAirplaneMode");
+-        enabled = g_variant_get_boolean (result);
+-
+-        result = g_dbus_proxy_get_cached_property (panel->priv->rfkill_proxy, "ShouldShowAirplaneMode");
+-        should_show = g_variant_get_boolean (result);
++        enabled = get_rfkill_property (panel, "HasAirplaneMode");
++        should_show = get_rfkill_property (panel, "ShouldShowAirplaneMode");
+ 
+         gtk_widget_set_visible (GTK_WIDGET (panel->priv->kill_switch_header), enabled && should_show);
+         if (!enabled || !should_show)
+                 return;
+ 
+-        result = g_dbus_proxy_get_cached_property (panel->priv->rfkill_proxy, "AirplaneMode");
+-        enabled = g_variant_get_boolean (result);
+-
+-        result = g_dbus_proxy_get_cached_property (panel->priv->rfkill_proxy, "HardwareAirplaneMode");
+-        hw_enabled = !!g_variant_get_boolean (result);
++        enabled = get_rfkill_property (panel, "AirplaneMode");
++        hw_enabled = get_rfkill_property (panel, "HardwareAirplaneMode");
+ 
+ 	enabled |= hw_enabled;
+ 
+-- 
+2.56.1
+

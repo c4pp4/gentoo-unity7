@@ -117,6 +117,7 @@ PATCHES=(
 	"${FILESDIR}"/appearance-process_filename_dark_files.patch
 	"${FILESDIR}"/appearance-render_static_preview_once.patch
 	"${FILESDIR}"/network-fix-hotspot-button-state.patch
+	"${FILESDIR}"/network-handle-missing-rfkill-plugin.patch
 	"${FILESDIR}"/sharing-fix_translation.patch
 	"${FILESDIR}"/shell-fix_theme_selection_and_hover.patch
 	"${FILESDIR}"/use-cinnamon-schema-for-idle-delay.patch
