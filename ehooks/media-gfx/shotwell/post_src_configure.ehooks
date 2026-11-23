@@ -1,3 +1,0 @@
-ehooks() {
-	meson configure "${BUILD_DIR}" -Dunity_support=true || die
-}

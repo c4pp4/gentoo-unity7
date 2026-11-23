@@ -1,1 +1,20 @@
-../../templates/patches.template
+ehooks() {
+	# Undo two changes of libadwaita 1.9.2, as the Ubuntu patchset is for 1.9.1: #
+
+	# Load the stylesheet where the patchset expects it. The patchset loads it #
+	#  in update_stylesheet() and the upstream code would then replace #
+	#  the Yaru one with the default one #
+	sed -i \
+		-e "/^      self->provider = gtk_css_provider_new ();$/a \      gtk_css_provider_load_from_resource (self->provider,\n                                           \"/org/gnome/Adwaita/styles/gtk.css\");" \
+		-e "/^  if (self->provider) {$/,/^  }$/d" \
+		src/adw-style-manager.c || die
+	[[ $(grep -c "gtk_css_provider_load_from_resource" src/adw-style-manager.c) -eq 1 ]] || die
+
+	# Remove the condition that the patchset does not expect. It is always true, #
+	#  as there is no base.css #
+	sed -i \
+		-e "/^# For git checkouts/d" \
+		-e "/^if not fs.exists('base.css')$/,/^endif$/{/^if not fs/d;/^endif$/d;s/^  //}" \
+		src/stylesheet/meson.build || die
+	grep -Fqx "if sassc.found()" src/stylesheet/meson.build || die
+}
