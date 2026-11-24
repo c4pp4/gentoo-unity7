@@ -1,6 +1,6 @@
-From dc626c4e5088f57f25127c2b8d5e5e03b28fb926 Mon Sep 17 00:00:00 2001
+From 4e962a0e03949240b1ed3015d2032f88d8d1984a Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Wed, 11 Nov 2026 04:30:02 +0100
+Date: Tue, 24 Nov 2026 03:00:07 +0100
 Subject: [PATCH 1/1] Custom Unity menubar
 
 Based on the patch from Ubuntu's bionic firefox package
@@ -134,7 +134,7 @@ index b49083b..eadc830 100644
  XPCOM_MANIFESTS += [
      "components.conf",
 diff --git a/modules/libpref/init/all.js b/modules/libpref/init/all.js
-index fe38d02..6c8a7b1 100644
+index e4c8b49..017dcdf 100644
 --- a/modules/libpref/init/all.js
 +++ b/modules/libpref/init/all.js
 @@ -172,6 +172,9 @@ pref("editor.htmleditor.inputevent.hack.no_dispatch_after_compositionend.addl",
@@ -148,10 +148,10 @@ index fe38d02..6c8a7b1 100644
  // See http://whatwg.org/specs/web-apps/current-work/#ping
  pref("browser.send_pings", false);
 diff --git a/toolkit/content/xul.css b/toolkit/content/xul.css
-index 689ba62..5e79365 100644
+index 1ace602..e950d08 100644
 --- a/toolkit/content/xul.css
 +++ b/toolkit/content/xul.css
-@@ -310,6 +310,13 @@ toolbox {
+@@ -315,6 +315,13 @@ toolbox {
    }
  }
  
@@ -249,7 +249,7 @@ index 0000000..0843d45
 +
 +#endif  // mozilla_widget_NativeMenuSupport_h
 diff --git a/widget/gtk/components.conf b/widget/gtk/components.conf
-index b9fc44d..3906e42 100644
+index f393cf7..18c9bef 100644
 --- a/widget/gtk/components.conf
 +++ b/widget/gtk/components.conf
 @@ -142,4 +142,12 @@ Classes = [
@@ -266,7 +266,7 @@ index b9fc44d..3906e42 100644
 +    },
  ]
 diff --git a/widget/gtk/moz.build b/widget/gtk/moz.build
-index a7dbfd4..abbe431 100644
+index 375d8f9..45ab970 100644
 --- a/widget/gtk/moz.build
 +++ b/widget/gtk/moz.build
 @@ -114,6 +114,14 @@ UNIFIED_SOURCES += [
@@ -284,7 +284,7 @@ index a7dbfd4..abbe431 100644
      "nsNativeThemeGTK.cpp",  # conflicts with X11 headers
      "nsWindow.cpp",  # conflicts with X11 headers
  ]
-@@ -183,6 +191,7 @@ LOCAL_INCLUDES += [
+@@ -185,6 +193,7 @@ LOCAL_INCLUDES += [
      "/layout/base",
      "/layout/forms",
      "/layout/generic",
@@ -294,7 +294,7 @@ index a7dbfd4..abbe431 100644
      "/third_party/cups/include",
 diff --git a/widget/gtk/nsMenu.cpp b/widget/gtk/nsMenu.cpp
 new file mode 100644
-index 0000000..0cc506d
+index 0000000..9fea511
 --- /dev/null
 +++ b/widget/gtk/nsMenu.cpp
 @@ -0,0 +1,797 @@
@@ -1226,7 +1226,7 @@ index 0000000..3755f9c
 +#endif /* __nsMenu_h__ */
 diff --git a/widget/gtk/nsMenuBar.cpp b/widget/gtk/nsMenuBar.cpp
 new file mode 100644
-index 0000000..7d22ad1
+index 0000000..8ea2110
 --- /dev/null
 +++ b/widget/gtk/nsMenuBar.cpp
 @@ -0,0 +1,552 @@
@@ -2154,7 +2154,7 @@ index 0000000..b7e8fa8
 +#endif /* __nsMenuContainer_h__ */
 diff --git a/widget/gtk/nsMenuItem.cpp b/widget/gtk/nsMenuItem.cpp
 new file mode 100644
-index 0000000..2c7e06e
+index 0000000..27989fe
 --- /dev/null
 +++ b/widget/gtk/nsMenuItem.cpp
 @@ -0,0 +1,769 @@
@@ -3989,7 +3989,7 @@ index 0000000..b07ff91
 +#endif /* __nsMenuSeparator_h__ */
 diff --git a/widget/gtk/nsNativeMenuDocListener.cpp b/widget/gtk/nsNativeMenuDocListener.cpp
 new file mode 100644
-index 0000000..4966a16
+index 0000000..e0163be
 --- /dev/null
 +++ b/widget/gtk/nsNativeMenuDocListener.cpp
 @@ -0,0 +1,349 @@
@@ -4071,7 +4071,7 @@ index 0000000..4966a16
 +        return;
 +    }
 +
-+    MutationRecord *m = mPendingMutations.AppendElement(MakeUnique<MutationRecord>())->get();
++    MutationRecord *m = mPendingMutations.AppendElement(std::make_unique<MutationRecord>())->get();
 +    m->mType = MutationRecord::eAttributeChanged;
 +    m->mTarget = aElement;
 +    m->mAttribute = aAttribute;
@@ -4104,7 +4104,7 @@ index 0000000..4966a16
 +        return;
 +    }
 +
-+    MutationRecord *m = mPendingMutations.AppendElement(MakeUnique<MutationRecord>())->get();
++    MutationRecord *m = mPendingMutations.AppendElement(std::make_unique<MutationRecord>())->get();
 +    m->mType = MutationRecord::eContentInserted;
 +    m->mTarget = container;
 +    m->mChild = aChild;
@@ -4127,7 +4127,7 @@ index 0000000..4966a16
 +        return;
 +    }
 +
-+    MutationRecord *m = mPendingMutations.AppendElement(MakeUnique<MutationRecord>())->get();
++    MutationRecord *m = mPendingMutations.AppendElement(std::make_unique<MutationRecord>())->get();
 +    m->mType = MutationRecord::eContentRemoved;
 +    m->mTarget = container;
 +    m->mChild = aChild;
@@ -5076,10 +5076,10 @@ index 0000000..2e0d429
 +
 +#endif /* __nsNativeMenuService_h__ */
 diff --git a/widget/gtk/nsWindow.cpp b/widget/gtk/nsWindow.cpp
-index ada6f99..e29e929 100644
+index 8ebbadf..6820abd 100644
 --- a/widget/gtk/nsWindow.cpp
 +++ b/widget/gtk/nsWindow.cpp
-@@ -5418,6 +5418,10 @@ void nsWindow::HideWindowChrome(bool aShouldHide) {
+@@ -5429,6 +5429,10 @@ void nsWindow::HideWindowChrome(bool aShouldHide) {
    SetWindowDecoration(aShouldHide ? BorderStyle::None : mBorderStyle);
  }
  
@@ -5091,7 +5091,7 @@ index ada6f99..e29e929 100644
                                bool aAlwaysRollup) {
    LOG("nsWindow::CheckForRollup() aAlwaysRollup %d", aAlwaysRollup);
 diff --git a/widget/gtk/nsWindow.h b/widget/gtk/nsWindow.h
-index 7ed5ab3..88c42f2 100644
+index 5f6b5c1..461d942 100644
 --- a/widget/gtk/nsWindow.h
 +++ b/widget/gtk/nsWindow.h
 @@ -28,6 +28,8 @@
@@ -5103,7 +5103,7 @@ index 7ed5ab3..88c42f2 100644
  #ifdef ACCESSIBILITY
  #  include "mozilla/a11y/LocalAccessible.h"
  #endif
-@@ -283,6 +285,8 @@ class nsWindow : public nsIWidget {
+@@ -282,6 +284,8 @@ class nsWindow : public nsIWidget {
    nsresult MakeFullScreen(bool aFullScreen) override;
    void HideWindowChrome(bool aShouldHide) override;
  
@@ -5122,10 +5122,10 @@ index 7ed5ab3..88c42f2 100644
    RefPtr<mozilla::a11y::LocalAccessible> mRootAccessible;
  
 diff --git a/widget/moz.build b/widget/moz.build
-index 5aaa779..172a9c7 100644
+index 4e894de..1de6e98 100644
 --- a/widget/moz.build
 +++ b/widget/moz.build
-@@ -171,6 +171,11 @@ EXPORTS += [
+@@ -172,6 +172,11 @@ EXPORTS += [
      "PuppetWidget.h",
  ]
  
@@ -5214,7 +5214,7 @@ index 0000000..488c8f4
 +    Atom("shellshowingmenubar", "shellshowingmenubar"),
 +]
 diff --git a/xpcom/ds/StaticAtoms.py b/xpcom/ds/StaticAtoms.py
-index 544de37..70dbcfe 100644
+index b4db2d9..4874ece 100644
 --- a/xpcom/ds/StaticAtoms.py
 +++ b/xpcom/ds/StaticAtoms.py
 @@ -8,6 +8,7 @@ import sys
@@ -5225,7 +5225,7 @@ index 544de37..70dbcfe 100644
  
  # Static atom definitions, used to generate various files below.
  #
-@@ -2666,7 +2667,7 @@ STATIC_ATOMS = [
+@@ -2671,7 +2672,7 @@ STATIC_ATOMS = [
      Atom("PseudoStyle_MozSvgText", ":-moz-svg-text"),
      Atom("PseudoStyle_WebkitScrollbar", ":-webkit-scrollbar"),
      # END ATOMS
@@ -5235,5 +5235,5 @@ index 544de37..70dbcfe 100644
  
  
 -- 
-2.56.0
+2.56.1
 
