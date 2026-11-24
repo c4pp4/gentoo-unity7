@@ -13,7 +13,7 @@
 >gnome-extra/polkit-gnome-0.105-r2
 >gui-libs/libadwaita-1.9.4:1
 >mail-client/thunderbird-154:0/esr
->mail-client/thunderbird-161:0/stable
+>mail-client/thunderbird-162:0/stable
 >mate-extra/mate-utils-1.28.0-r1
 >media-gfx/eog-50.4:1
 >media-gfx/shotwell-33.2
@@ -24,7 +24,7 @@
 >sys-apps/accountsservice-26.27.3
 >sys-devel/gcc-17
 >www-client/firefox-154:esr
->www-client/firefox-161:rapid
+>www-client/firefox-162:rapid
 >x11-libs/gtk+-2.24.33-r4:2
 >x11-libs/gtk+-3.24.52:3
 >x11-libs/vte-0.84.1:2.91
