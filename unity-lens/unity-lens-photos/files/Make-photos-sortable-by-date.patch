@@ -1,0 +1,35 @@
+From 50345fede7b0ac28979b4006f1bf60aa2d8895d2 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Tue, 24 Nov 2026 00:13:24 +0100
+Subject: [PATCH 1/1] Make the photos sortable by date
+
+The photos master scope sorts the photos by their comments, which start
+with the time. It compares them as text, so the photos taken before
+September 2001, whose time has fewer digits, were sorted as the newest
+ones. Photos taken before 1970 have a negative time.
+
+Write the time with a fixed width and shift it, so that it is positive.
+
+Signed-off-by: c4pp4
+---
+ src/unity_shotwell_daemon.py | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/unity_shotwell_daemon.py b/src/unity_shotwell_daemon.py
+index 23d7e88..6b94449 100755
+--- a/src/unity_shotwell_daemon.py
++++ b/src/unity_shotwell_daemon.py
+@@ -431,7 +431,9 @@ class Daemon:
+                         item_list.append(title)
+                         item_list.append(uri)
+                         item_list.append(icon_hint)
+-                        item_list.append(str(timestamp)+"_ulp-date_"+date)
++                        # The master scope sorts the comments as text. Write the
++                        # time with a fixed width and without a minus sign
++                        item_list.append("%012d_ulp-date_%s" % ((timestamp or 0) + 10**11, date))
+                         item_list.append(pid)
+                         data_list.append(item_list)
+                         i += 1
+-- 
+2.56.1
+

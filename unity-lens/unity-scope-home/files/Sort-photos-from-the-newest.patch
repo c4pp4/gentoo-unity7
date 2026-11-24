@@ -1,0 +1,37 @@
+From 959d92079c4fa0e508412610e8bb48b547ee1df8 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Tue, 24 Nov 2026 00:14:27 +0100
+Subject: [PATCH 1/1] Sort photos from the newest
+
+The photos in the Recent and My photos categories are sorted by their
+comments, which start with the time. The default order is ascending, so
+the oldest photos were displayed first.
+
+Signed-off-by: c4pp4
+---
+ data/master-scopes/photos.scope.in.in | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/data/master-scopes/photos.scope.in.in b/data/master-scopes/photos.scope.in.in
+index 13c7711..76d25f7 100644
+--- a/data/master-scopes/photos.scope.in.in
++++ b/data/master-scopes/photos.scope.in.in
+@@ -18,13 +18,13 @@ X-Ubuntu-Gettext-Domain=unity-scope-home
+ _Name=Recent
+ Icon=@prefix@/share/icons/unity-icon-theme/places/svg/group-recent.svg
+ DedupField=uri
+-SortField=comment
++SortField=comment::desc
+ 
+ [Category mine]
+ _Name=My photos
+ Icon=@prefix@/share/icons/unity-icon-theme/places/svg/group-photos.svg
+ DedupField=uri
+-SortField=comment
++SortField=comment::desc
+ 
+ [Category friends]
+ _Name=Friends
+-- 
+2.56.1
+

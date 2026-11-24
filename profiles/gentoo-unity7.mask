@@ -16,6 +16,7 @@
 >mail-client/thunderbird-161:0/stable
 >mate-extra/mate-utils-1.28.0-r1
 >media-gfx/eog-50.4:1
+>media-gfx/shotwell-33.2
 >media-plugins/audacious-plugins-4.6.1
 >media-sound/audacious-4.6.1
 >media-sound/rhythmbox-3.4.9-r2

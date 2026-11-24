@@ -1,0 +1,35 @@
+From 80a67c5b7f8b46dbc576e63ff959a0b360fcf66b Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Tue, 24 Nov 2026 00:10:43 +0100
+Subject: [PATCH 1/1] Redraw the title bar when the menus change
+
+When an application changes its menu bar at runtime, the menus in the
+window's title bar are replaced, but only the area of the new menus is
+redrawn. If the new menu bar is narrower and the menus are always
+displayed, the rest of the previous menus stays in the title bar. This
+happens with Shotwell 33, which has a different menu bar for each page.
+
+Redraw the area of the previous menus, too.
+
+Signed-off-by: c4pp4
+---
+ decorations/DecorationsSlidingLayout.cpp | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/decorations/DecorationsSlidingLayout.cpp b/decorations/DecorationsSlidingLayout.cpp
+index d53338d..8286f3c 100644
+--- a/decorations/DecorationsSlidingLayout.cpp
++++ b/decorations/DecorationsSlidingLayout.cpp
+@@ -75,6 +75,9 @@ void SlidingLayout::SetInputItem(Item::Ptr const& input)
+   if (input_item_ == input)
+     return;
+ 
++  // Redraw the area of the previous item, the new one can be smaller
++  Damage();
++
+   if (input_item_)
+     input_item_->SetParent(nullptr);
+ 
+-- 
+2.56.1
+

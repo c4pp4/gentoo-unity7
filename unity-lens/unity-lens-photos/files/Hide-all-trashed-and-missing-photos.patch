@@ -1,0 +1,31 @@
+From 8909c2a8231482dd4f60fcdf1c3222d33d2d0aef Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Tue, 24 Nov 2026 00:13:24 +0100
+Subject: [PATCH 1/1] Hide all trashed and missing photos
+
+The scope compares the flags of a photo with the values of a trashed and
+of a missing photo, but the flags are a bit field. Photos with another
+flag, such as flagged photos in the trash, were still displayed.
+
+Signed-off-by: c4pp4
+---
+ src/unity_shotwell_daemon.py | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/unity_shotwell_daemon.py b/src/unity_shotwell_daemon.py
+index 1e7e371..3aba46e 100755
+--- a/src/unity_shotwell_daemon.py
++++ b/src/unity_shotwell_daemon.py
+@@ -399,7 +399,8 @@ class Daemon:
+                 photos = []
+             i = 0
+             for photo in photos:
+-                if photo[16] != 4 and photo[16] != 8 and not self.cancel_running_search:
++                # The flags are a bit field, 4 is a trashed photo, 8 a missing one
++                if not (photo[16] or 0) & (4 | 8) and not self.cancel_running_search:
+                     pid = photo[0]
+                     uri = photo[1]
+                     event_id = photo[10]
+-- 
+2.56.1
+

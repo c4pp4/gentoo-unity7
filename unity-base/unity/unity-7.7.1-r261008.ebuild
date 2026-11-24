@@ -113,6 +113,7 @@ PATCHES=(
 	"${FILESDIR}"/lockscreen-spawn-panel-service-without-systemd.patch
 	"${FILESDIR}"/prevent-compiz-segfault-by-guarding-pthread_join.patch
 	"${FILESDIR}"/prevent-duplicate-reboot-shutdown-dialog.patch
+	"${FILESDIR}"/redraw-title-bar-when-menus-change.patch
 	"${FILESDIR}"/remove-all-code-related-to-online-search.patch
 	"${FILESDIR}"/revert-unwanted-ubuntu-unity-changes.patch
 	"${FILESDIR}"/set-desktop-name.patch

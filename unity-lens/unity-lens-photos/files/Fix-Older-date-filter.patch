@@ -1,0 +1,29 @@
+From 41966ee8b5fd7caac439b38f14fb07e01a13c4d4 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Tue, 24 Nov 2026 00:13:24 +0100
+Subject: [PATCH 1/1] Fix the Older date filter
+
+Shotwell 0.32 and later store NULL instead of 0 as the exposure time of
+photos without one, so the Older filter did not find them.
+
+Signed-off-by: c4pp4
+---
+ src/unity_shotwell_daemon.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/unity_shotwell_daemon.py b/src/unity_shotwell_daemon.py
+index 3aba46e..23d7e88 100755
+--- a/src/unity_shotwell_daemon.py
++++ b/src/unity_shotwell_daemon.py
+@@ -495,7 +495,7 @@ class Daemon:
+                 date = 180*86400
+                 now = int(time.time())
+                 date = now - date
+-                sql = 'select * from PhotoTable where exposure_time < '+str(date)+' and exposure_time != 0 or timestamp < '+str(date)+' and exposure_time = 0 order by timestamp desc, exposure_time desc'
++                sql = 'select * from PhotoTable where exposure_time < '+str(date)+' and exposure_time != 0 or timestamp < '+str(date)+' and ifnull(exposure_time, 0) = 0 order by timestamp desc, exposure_time desc'
+         else:
+             sql='select * from PhotoTable order by timestamp desc, exposure_time desc'
+         cursor = db.cursor()
+-- 
+2.56.1
+

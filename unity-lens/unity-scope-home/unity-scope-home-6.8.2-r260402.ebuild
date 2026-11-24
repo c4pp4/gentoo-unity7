@@ -40,4 +40,7 @@ BDEPEND="
 	$(vala_depend)
 "
 
-PATCHES=( "${FILESDIR}"/Remove-Software-center-and-1kB-filter-option-and-fix-100kB.patch )
+PATCHES=(
+	"${FILESDIR}"/Remove-Software-center-and-1kB-filter-option-and-fix-100kB.patch
+	"${FILESDIR}"/Sort-photos-from-the-newest.patch
+)

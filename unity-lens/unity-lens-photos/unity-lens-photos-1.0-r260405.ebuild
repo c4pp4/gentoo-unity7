@@ -42,6 +42,9 @@ PATCHES=(
 	"${FILESDIR}"/Fix-scope-crash.patch
 	"${FILESDIR}"/Fix-preview-crash.patch
 	"${FILESDIR}"/Refresh-results-when-Shotwell-database-changes.patch
+	"${FILESDIR}"/Hide-all-trashed-and-missing-photos.patch
+	"${FILESDIR}"/Fix-Older-date-filter.patch
+	"${FILESDIR}"/Make-photos-sortable-by-date.patch
 )
 
 src_unpack() {
