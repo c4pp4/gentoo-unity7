@@ -68,6 +68,7 @@ media-video/totem                       # Add traditional menu bar (https://bugz
 net-im/pidgin                           # Add chat section into messaging menu (Available, Away, Busy, Invisible, Offline)
 net-im/telegram-desktop                 # Add ubuntu-mono-dark tray icons
 net-im/telegram-desktop-bin             # Add ubuntu-mono-dark tray icons
+net-p2p/transmission                    # Add global menu support, add appindicator support for GTK 4, remove StartupWMClass that does not match the X11 window class
 sys-apps/accountsservice                # Requires patching for SetInputSources as needed by unity-indicators/indicator-keyboard and u-c-c text entry settings
                                         #  Ubuntu patchset:
                                         #  0001-formats-locale-property.patch

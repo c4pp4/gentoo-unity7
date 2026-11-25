@@ -1,0 +1,386 @@
+From e1055cb89615458b55782a4f740892a5de99bf08 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Tue, 24 Nov 2026 23:43:28 +0100
+Subject: [PATCH 1/1] Add appindicator support for GTK 4
+
+The GTK 4 client has no tray icon, because the appindicator libraries
+need GTK 3. libayatana-appindicator-glib does not need GTK, but exports
+the menu to org.gtk.Menus and org.gtk.Actions instead of
+com.canonical.dbusmenu, and the Unity panel does not support them.
+
+Implement the StatusNotifierItem interface and export the menu using
+libdbusmenu-glib, which does not need GTK either. The existing
+WITH_APPINDICATOR option enables it. The menu uses the actions that
+add-global-menu-support.patch adds to the window.
+
+gtkmm removes a hidden window from the application, so its actions and
+the global menu do not work when the window is shown again. Keep the
+window in the application. This needs gtkmm 4.22.
+
+When Transmission starts minimized, remember that the window is hidden.
+Otherwise the first click on Show Transmission does nothing.
+
+https://github.com/transmission/transmission/issues/7364
+
+Signed-off-by: c4pp4
+---
+ CMakeLists.txt        |   2 +
+ gtk/Application.cc    |   1 +
+ gtk/SystemTrayIcon.cc | 254 ++++++++++++++++++++++++++++++++++++++++--
+ 3 files changed, 247 insertions(+), 10 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 51056f6..4879ddb 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -355,6 +355,8 @@ if(ENABLE_GTK)
+         tr_get_required_flag(WITH_APPINDICATOR APPINDICATOR_IS_REQUIRED)
+         find_package(APPINDICATOR ${APPINDICATOR_IS_REQUIRED})
+         tr_fixup_auto_option(WITH_APPINDICATOR APPINDICATOR_FOUND APPINDICATOR_IS_REQUIRED)
++    elseif(ENABLE_GTK AND WITH_APPINDICATOR)
++        pkg_check_modules(APPINDICATOR REQUIRED dbusmenu-glib-0.4)
+     else()
+         set(WITH_APPINDICATOR OFF)
+     endif()
+diff --git a/gtk/Application.cc b/gtk/Application.cc
+index f375209..523070b 100644
+--- a/gtk/Application.cc
++++ b/gtk/Application.cc
+@@ -777,6 +777,7 @@ void Application::Impl::app_setup()
+     {
+         gtr_window_set_skip_taskbar_hint(*wind_, icon_ != nullptr);
+         gtr_action_set_toggled("toggle-main-window", false);
++        is_iconified_ = true;
+     }
+ }
+ 
+diff --git a/gtk/SystemTrayIcon.cc b/gtk/SystemTrayIcon.cc
+index 5140e7b..e1c8564 100644
+--- a/gtk/SystemTrayIcon.cc
++++ b/gtk/SystemTrayIcon.cc
+@@ -28,19 +28,31 @@
+ #if !defined(HAVE_APPINDICATOR)
+ #include <gtkmm/statusicon.h>
+ #endif
++#else
++#include <gdkmm/display.h>
++#include <giomm/menu.h>
++#include <gtkmm/icontheme.h>
+ #endif
+ 
++#include <cstring>
+ #include <string>
++#include <string_view>
+ 
+ #ifdef HAVE_APPINDICATOR
+-#ifdef APPINDICATOR_IS_AYATANA
++#if GTKMM_CHECK_VERSION(4, 0, 0)
++#include <gio/gio.h>
++#include <libdbusmenu-glib/dbusmenu-glib.h>
++#include <unistd.h>
++#elif defined(APPINDICATOR_IS_AYATANA)
+ #include <libayatana-appindicator/app-indicator.h>
+ #else
+ #include <libappindicator/app-indicator.h>
+ #endif
+ #endif
+ 
+-#ifdef HAVE_APPINDICATOR
++#if defined(HAVE_APPINDICATOR) && GTKMM_CHECK_VERSION(4, 0, 0)
++#define TR_SYS_TRAY_IMPL_STATUS_NOTIFIER_ITEM
++#elif defined(HAVE_APPINDICATOR)
+ #define TR_SYS_TRAY_IMPL_APPINDICATOR
+ #elif !GTKMM_CHECK_VERSION(4, 0, 0)
+ #define TR_SYS_TRAY_IMPL_STATUS_ICON
+@@ -56,10 +68,10 @@ namespace
+ 
+ #if !defined(TR_SYS_TRAY_IMPL_NONE)
+ char const* const TrayIconName = "transmission-tray-icon";
+-char const* const AppIconName = "transmission";
++char const* const AppIconName = IF_GTKMM4("transmission-gtk", "transmission");
+ #endif
+ 
+-#if defined(TR_SYS_TRAY_IMPL_APPINDICATOR)
++#if defined(HAVE_APPINDICATOR)
+ char const* const AppName = "transmission-gtk";
+ #endif
+ 
+@@ -86,18 +98,43 @@ private:
+ private:
+     Glib::RefPtr<Session> const core_;
+ 
+-#if !defined(TR_SYS_TRAY_IMPL_NONE)
++#if !GTKMM_CHECK_VERSION(4, 0, 0)
+     Gtk::Menu* menu_;
+ #endif
+ 
+-#if defined(TR_SYS_TRAY_IMPL_APPINDICATOR)
++#if defined(TR_SYS_TRAY_IMPL_STATUS_NOTIFIER_ITEM)
++    GDBusConnection* connection_ = nullptr;
++    DbusmenuServer* menu_server_ = nullptr;
++    std::string name_;
++    guint item_id_ = 0;
++    guint name_id_ = 0;
++    guint watcher_id_ = 0;
++#elif defined(TR_SYS_TRAY_IMPL_APPINDICATOR)
+     AppIndicator* indicator_;
+ #elif defined(TR_SYS_TRAY_IMPL_STATUS_ICON)
+     Glib::RefPtr<Gtk::StatusIcon> icon_;
+ #endif
+ };
+ 
+-#if defined(TR_SYS_TRAY_IMPL_APPINDICATOR)
++#if defined(TR_SYS_TRAY_IMPL_STATUS_NOTIFIER_ITEM)
++
++SystemTrayIcon::Impl::~Impl()
++{
++    if (connection_ != nullptr)
++    {
++        g_bus_unwatch_name(watcher_id_);
++        g_bus_unown_name(name_id_);
++        g_dbus_connection_unregister_object(connection_, item_id_);
++        g_object_unref(menu_server_);
++        g_object_unref(connection_);
++    }
++}
++
++void SystemTrayIcon::Impl::refresh()
++{
++}
++
++#elif defined(TR_SYS_TRAY_IMPL_APPINDICATOR)
+ 
+ SystemTrayIcon::Impl::~Impl()
+ {
+@@ -136,7 +173,7 @@ SystemTrayIcon::Impl::~Impl() = default;
+ namespace
+ {
+ 
+-#if !defined(TR_SYS_TRAY_IMPL_NONE)
++#if !GTKMM_CHECK_VERSION(4, 0, 0)
+ 
+ Glib::ustring getIconName()
+ {
+@@ -147,6 +184,153 @@ Glib::ustring getIconName()
+     return icon && !icon.get_filename().empty() ? TrayIconName : AppIconName;
+ }
+ 
++#elif defined(TR_SYS_TRAY_IMPL_STATUS_NOTIFIER_ITEM)
++
++char const* const ItemPath = "/StatusNotifierItem";
++char const* const MenuPath = "/StatusNotifierItem/Menu";
++char const* const WatcherName = "org.kde.StatusNotifierWatcher";
++
++char const* const ItemXml = R"(
++<node>
++  <interface name="org.kde.StatusNotifierItem">
++    <property name="Category" type="s" access="read"/>
++    <property name="IconName" type="s" access="read"/>
++    <property name="Id" type="s" access="read"/>
++    <property name="Menu" type="o" access="read"/>
++    <property name="Status" type="s" access="read"/>
++    <property name="Title" type="s" access="read"/>
++  </interface>
++</node>
++)";
++
++Glib::ustring getIconName()
++{
++    // if the icon theme has the tray's icon, use it.
++    // otherwise, use the installed application icon.
++
++    auto const icon_theme = Gtk::IconTheme::get_for_display(Gdk::Display::get_default());
++    return icon_theme->has_icon(TrayIconName) ? TrayIconName : AppIconName;
++}
++
++GVariant* item_get_property(
++    GDBusConnection* /*connection*/,
++    char const* /*sender*/,
++    char const* /*object_path*/,
++    char const* /*interface_name*/,
++    char const* property_name,
++    GError** /*error*/,
++    gpointer /*user_data*/)
++{
++    auto const name = std::string_view{ property_name };
++
++    if (name == "Category"sv)
++    {
++        return g_variant_new_string("SystemServices");
++    }
++
++    if (name == "IconName"sv)
++    {
++        return g_variant_new_string(getIconName().c_str());
++    }
++
++    if (name == "Id"sv)
++    {
++        return g_variant_new_string(AppName);
++    }
++
++    if (name == "Menu"sv)
++    {
++        return g_variant_new_object_path(MenuPath);
++    }
++
++    if (name == "Status"sv)
++    {
++        return g_variant_new_string("Active");
++    }
++
++    return g_variant_new_string(g_get_application_name()); // "Title"
++}
++
++GDBusInterfaceVTable const ItemVTable = { nullptr, &item_get_property, nullptr, {} };
++
++void register_item(GDBusConnection* connection, char const* /*name*/, char const* /*name_owner*/, gpointer item_name)
++{
++    g_dbus_connection_call(
++        connection,
++        WatcherName,
++        "/StatusNotifierWatcher",
++        WatcherName,
++        "RegisterStatusNotifierItem",
++        g_variant_new("(s)", static_cast<char const*>(item_name)),
++        nullptr,
++        G_DBUS_CALL_FLAGS_NONE,
++        -1,
++        nullptr,
++        nullptr,
++        nullptr);
++}
++
++void menu_item_activated(DbusmenuMenuitem* /*item*/, guint /*timestamp*/, GAction* action)
++{
++    g_action_activate(action, nullptr);
++}
++
++void update_menu_item(GAction* action, GParamSpec* /*pspec*/, DbusmenuMenuitem* item)
++{
++    dbusmenu_menuitem_property_set_bool(item, DBUSMENU_MENUITEM_PROP_ENABLED, g_action_get_enabled(action));
++
++    if (auto* const state = g_action_get_state(action); state != nullptr)
++    {
++        dbusmenu_menuitem_property_set(item, DBUSMENU_MENUITEM_PROP_TOGGLE_TYPE, DBUSMENU_MENUITEM_TOGGLE_CHECK);
++        dbusmenu_menuitem_property_set_int(
++            item,
++            DBUSMENU_MENUITEM_PROP_TOGGLE_STATE,
++            g_variant_get_boolean(state) ? DBUSMENU_MENUITEM_TOGGLE_STATE_CHECKED : DBUSMENU_MENUITEM_TOGGLE_STATE_UNCHECKED);
++        g_variant_unref(state);
++    }
++}
++
++void add_menu_items(DbusmenuMenuitem* menu, GMenuModel* model, GActionMap* actions)
++{
++    for (int i = 0; i < g_menu_model_get_n_items(model); ++i)
++    {
++        auto* const item = dbusmenu_menuitem_new();
++
++        if (auto* const section = g_menu_model_get_item_link(model, i, G_MENU_LINK_SECTION); section != nullptr)
++        {
++            if (i > 0)
++            {
++                dbusmenu_menuitem_property_set(item, DBUSMENU_MENUITEM_PROP_TYPE, DBUSMENU_CLIENT_TYPES_SEPARATOR);
++                dbusmenu_menuitem_child_append(menu, item);
++            }
++
++            add_menu_items(menu, section, actions);
++            g_object_unref(section);
++        }
++        else
++        {
++            char* label = nullptr;
++            char* action_name = nullptr;
++            g_menu_model_get_item_attribute(model, i, G_MENU_ATTRIBUTE_LABEL, "s", &label);
++            g_menu_model_get_item_attribute(model, i, G_MENU_ATTRIBUTE_ACTION, "s", &action_name);
++
++            auto* const action = g_action_map_lookup_action(actions, action_name + std::strlen("win."));
++            g_signal_connect_object(action, "notify::enabled", G_CALLBACK(update_menu_item), item, {});
++            g_signal_connect_object(action, "notify::state", G_CALLBACK(update_menu_item), item, {});
++            update_menu_item(action, nullptr, item);
++
++            dbusmenu_menuitem_property_set(item, DBUSMENU_MENUITEM_PROP_LABEL, label);
++            g_signal_connect(item, DBUSMENU_MENUITEM_SIGNAL_ITEM_ACTIVATED, G_CALLBACK(menu_item_activated), action);
++            dbusmenu_menuitem_child_append(menu, item);
++
++            g_free(action_name);
++            g_free(label);
++        }
++
++        g_object_unref(item);
++    }
++}
++
+ #endif
+ 
+ } // namespace
+@@ -182,13 +366,63 @@ std::unique_ptr<SystemTrayIcon> SystemTrayIcon::create(Gtk::Window& main_window,
+ SystemTrayIcon::Impl::Impl([[maybe_unused]] Gtk::Window& main_window, Glib::RefPtr<Session> const& core)
+     : core_(core)
+ {
+-#if !defined(TR_SYS_TRAY_IMPL_NONE)
++#if !GTKMM_CHECK_VERSION(4, 0, 0)
+     auto const icon_name = getIconName();
+     menu_ = Gtk::make_managed<Gtk::Menu>(gtr_action_get_object<Gio::Menu>("icon-popup"));
+     menu_->attach_to_widget(main_window);
+ #endif
+ 
+-#if defined(TR_SYS_TRAY_IMPL_APPINDICATOR)
++#if defined(TR_SYS_TRAY_IMPL_STATUS_NOTIFIER_ITEM)
++#if GTKMM_CHECK_VERSION(4, 22, 0)
++    // Keep the hidden window in the application, otherwise its actions stop working
++    Gtk::Window::set_remove_on_hide(false);
++#endif
++
++    connection_ = g_bus_get_sync(G_BUS_TYPE_SESSION, nullptr, nullptr);
++
++    if (connection_ == nullptr)
++    {
++        return;
++    }
++
++    auto* const menu = dbusmenu_menuitem_new();
++    add_menu_items(
++        menu,
++        G_MENU_MODEL(gtr_action_get_object<Gio::Menu>("icon-popup")->gobj()),
++        G_ACTION_MAP(main_window.gobj()));
++    menu_server_ = dbusmenu_server_new(MenuPath);
++    dbusmenu_server_set_root(menu_server_, menu);
++    g_object_unref(menu);
++
++    auto* const node = g_dbus_node_info_new_for_xml(ItemXml, nullptr);
++    item_id_ = g_dbus_connection_register_object(
++        connection_,
++        ItemPath,
++        node->interfaces[0],
++        &ItemVTable,
++        nullptr,
++        nullptr,
++        nullptr);
++    g_dbus_node_info_unref(node);
++
++    name_ = fmt::format("org.kde.StatusNotifierItem-{}-1", getpid());
++    name_id_ = g_bus_own_name_on_connection(
++        connection_,
++        name_.c_str(),
++        G_BUS_NAME_OWNER_FLAGS_NONE,
++        nullptr,
++        nullptr,
++        nullptr,
++        nullptr);
++    watcher_id_ = g_bus_watch_name_on_connection(
++        connection_,
++        WatcherName,
++        G_BUS_NAME_WATCHER_FLAGS_NONE,
++        &register_item,
++        nullptr,
++        name_.data(),
++        nullptr);
++#elif defined(TR_SYS_TRAY_IMPL_APPINDICATOR)
+     indicator_ = app_indicator_new(AppName, icon_name.c_str(), APP_INDICATOR_CATEGORY_SYSTEM_SERVICES);
+     app_indicator_set_status(indicator_, APP_INDICATOR_STATUS_ACTIVE);
+     app_indicator_set_menu(indicator_, Glib::unwrap(menu_));
+-- 
+2.56.1
+

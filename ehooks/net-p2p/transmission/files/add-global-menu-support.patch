@@ -1,0 +1,39 @@
+From f97d5f47c4debe7599358125ff32b53dcf45347c Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Tue, 24 Nov 2026 23:43:28 +0100
+Subject: [PATCH 1/1] Add global menu support
+
+Transmission exports its menu bar, but not the actions, so all items of
+the global menu are disabled. The actions are in a group inserted into
+the window, and GTK exports only the actions of the window itself.
+
+Add the actions to the window, too.
+
+https://github.com/transmission/transmission/issues/5332
+
+Signed-off-by: c4pp4
+---
+ gtk/Application.cc | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/gtk/Application.cc b/gtk/Application.cc
+index 523070b..57991b3 100644
+--- a/gtk/Application.cc
++++ b/gtk/Application.cc
+@@ -630,6 +630,13 @@ void Application::Impl::on_startup()
+     /* create main window now to be a parent to any error dialogs */
+     wind_ = MainWindow::create(app_, actions, core_);
+     wind_->set_show_menubar(true);
++
++    // Only actions added to the window itself are exported for the global menu
++    for (auto const& name : actions->list_actions())
++    {
++        wind_->add_action(actions->lookup_action(name));
++    }
++
+ #if GTKMM_CHECK_VERSION(4, 0, 0)
+     wind_->property_maximized().signal_changed().connect(sigc::mem_fun(*this, &Impl::on_main_window_size_allocated));
+     wind_->property_default_width().signal_changed().connect(sigc::mem_fun(*this, &Impl::on_main_window_size_allocated));
+-- 
+2.56.1
+

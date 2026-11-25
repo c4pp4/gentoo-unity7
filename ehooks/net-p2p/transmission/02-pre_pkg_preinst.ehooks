@@ -1,0 +1,10 @@
+ehooks() {
+	local desktop="${ED}"/usr/share/applications/transmission-gtk.desktop
+
+	# Match the X11 window class (StartupWMClass is the Wayland app ID since 4.1.4) #
+	if [[ -e ${desktop} ]]; then
+		sed -i \
+			-e "/^StartupWMClass=/d" \
+			"${desktop}" || die
+	fi
+}
