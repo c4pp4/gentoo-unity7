@@ -1,6 +1,6 @@
-From 11461400afe9509c909fd84c51989aea9b390339 Mon Sep 17 00:00:00 2001
+From 36ce479efdd264674b6e1393fd675915608465cd Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Fri, 06 Nov 2026 14:00:36 +0100
+Date: Wed, 25 Nov 2026 09:46:06 +0100
 Subject: [PATCH 1/1] Fix bookmarks with current Firefox
 
 Firefox 55 moved the favicons from places.sqlite to favicons.sqlite, so
@@ -10,18 +10,21 @@ bookmarks without favicons (the thumbnails are used as icons anyway).
 Look up firefox or firefox-bin in PATH instead of the fixed
 /usr/bin/firefox path.
 
-Return no results without ~/.mozilla/firefox/; the search failed on
+Look for the profiles where Firefox keeps them: in ~/.mozilla/firefox/
+if ~/.mozilla exists, or else in $XDG_CONFIG_HOME/mozilla/firefox/, and
+for their thumbnails in $XDG_CACHE_HOME/mozilla/firefox/. Return no
+results without the profile directory; the search failed on
 os.listdir() until Firefox was run for the first time.
 
 Require the Unity version before the import; otherwise PyGI warns.
 
 Signed-off-by: c4pp4
 ---
- src/unity_firefoxbookmarks_daemon.py | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ src/unity_firefoxbookmarks_daemon.py | 26 +++++++++++++++++---------
+ 1 file changed, 17 insertions(+), 9 deletions(-)
 
 diff --git a/src/unity_firefoxbookmarks_daemon.py b/src/unity_firefoxbookmarks_daemon.py
-index 44c6ae8..1d43cee 100644
+index 44c6ae8..6e9b79e 100644
 --- a/src/unity_firefoxbookmarks_daemon.py
 +++ b/src/unity_firefoxbookmarks_daemon.py
 @@ -14,6 +14,8 @@
@@ -33,7 +36,7 @@ index 44c6ae8..1d43cee 100644
  from gi.repository import GLib, Gio
  from gi.repository import Unity
  import gettext
-@@ -39,14 +41,12 @@ PROVIDER_ICON = SVG_DIR + 'group-browserbookmarks.svg'
+@@ -39,14 +41,16 @@ PROVIDER_ICON = SVG_DIR + 'group-browserbookmarks.svg'
  DEFAULT_RESULT_ICON = SVG_DIR + 'group-browserbookmarks.svg'
  DEFAULT_RESULT_MIMETYPE = 'text/html'
  DEFAULT_RESULT_TYPE = Unity.ResultType.DEFAULT
@@ -42,6 +45,10 @@ index 44c6ae8..1d43cee 100644
  BOOKMARKS_PATH = os.getenv("HOME") + "/.mozilla/firefox/"
 -BOOKMARKS_QUERY = '''SELECT moz_bookmarks.title, moz_places.url, moz_favicons.url, '%s', '%s'
 -                     FROM moz_bookmarks, moz_places, moz_favicons
++# Without ~/.mozilla, Firefox keeps the profiles in $XDG_CONFIG_HOME; the
++# thumbnails are in $XDG_CACHE_HOME in both cases
++XDG_BOOKMARKS_PATH = (os.getenv("XDG_CONFIG_HOME") or os.getenv("HOME") + "/.config") + "/mozilla/firefox/"
++CACHE_PATH = (os.getenv("XDG_CACHE_HOME") or os.getenv("HOME") + "/.cache") + "/mozilla/firefox/"
 +BOOKMARKS_QUERY = '''SELECT moz_bookmarks.title, moz_places.url, '%s', '%s'
 +                     FROM moz_bookmarks, moz_places
                       WHERE moz_places.id = moz_bookmarks.fk
@@ -51,12 +58,14 @@ index 44c6ae8..1d43cee 100644
                           AND moz_bookmarks.type = 1
                           AND (moz_bookmarks.title LIKE '%%%s%%' OR moz_places.url LIKE '%%%s%%')
                       ORDER BY moz_bookmarks.lastModified;'''
-@@ -98,13 +98,16 @@ def search(search, filters):
+@@ -98,14 +102,18 @@ def search(search, filters):
      Search for help documents matching the search string
      '''
      results = []
 -    bookmarks = get_bookmarks_from_firefox(BOOKMARKS_PATH, search)
-+    path = BOOKMARKS_PATH
++    path, cache = BOOKMARKS_PATH, CACHE_PATH
++    if not os.path.exists(os.getenv("HOME") + "/.mozilla"):
++        path = XDG_BOOKMARKS_PATH
 +    if not os.path.isdir(path):
 +        return results
 +    bookmarks = get_bookmarks_from_firefox(path, search)
@@ -66,11 +75,12 @@ index 44c6ae8..1d43cee 100644
          if not bookmark[1].find("place:") == -1:
              continue
 -        path = bookmark[4].replace('places.sqlite', 'thumbnails/')
-+        path = bookmark[3].replace('places.sqlite', 'thumbnails/')
-         path = path.replace('.mozilla/', '.cache/mozilla/') 
+-        path = path.replace('.mozilla/', '.cache/mozilla/') 
++        path = cache + os.path.basename(os.path.dirname(bookmark[3])) + '/thumbnails/'
          icon = '%s%s.png' % (path, hashlib.md5(bookmark[1].encode()).hexdigest())
          if not os.path.exists(icon):
-@@ -113,7 +116,7 @@ def search(search, filters):
+             icon = None
+@@ -113,7 +121,7 @@ def search(search, filters):
                          'icon': icon,
                          'category': 0,
                          'title': bookmark[0],
@@ -80,5 +90,5 @@ index 44c6ae8..1d43cee 100644
  
  
 -- 
-2.56.0
+2.56.1
 
