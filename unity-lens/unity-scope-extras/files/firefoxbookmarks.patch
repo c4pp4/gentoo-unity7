@@ -1,6 +1,6 @@
-From 36ce479efdd264674b6e1393fd675915608465cd Mon Sep 17 00:00:00 2001
+From 195a6a32b9a1c4f4595ecbb899eed19c03a16250 Mon Sep 17 00:00:00 2001
 From: c4pp4
-Date: Wed, 25 Nov 2026 09:46:06 +0100
+Date: Wed, 25 Nov 2026 15:32:31 +0100
 Subject: [PATCH 1/1] Fix bookmarks with current Firefox
 
 Firefox 55 moved the favicons from places.sqlite to favicons.sqlite, so
@@ -24,7 +24,7 @@ Signed-off-by: c4pp4
  1 file changed, 17 insertions(+), 9 deletions(-)
 
 diff --git a/src/unity_firefoxbookmarks_daemon.py b/src/unity_firefoxbookmarks_daemon.py
-index 44c6ae8..6e9b79e 100644
+index 44c6ae8..98c9661 100644
 --- a/src/unity_firefoxbookmarks_daemon.py
 +++ b/src/unity_firefoxbookmarks_daemon.py
 @@ -14,6 +14,8 @@
@@ -64,7 +64,7 @@ index 44c6ae8..6e9b79e 100644
      results = []
 -    bookmarks = get_bookmarks_from_firefox(BOOKMARKS_PATH, search)
 +    path, cache = BOOKMARKS_PATH, CACHE_PATH
-+    if not os.path.exists(os.getenv("HOME") + "/.mozilla"):
++    if not os.path.isdir(path) and not os.path.exists(os.getenv("HOME") + "/.mozilla"):
 +        path = XDG_BOOKMARKS_PATH
 +    if not os.path.isdir(path):
 +        return results
