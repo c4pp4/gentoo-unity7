@@ -25,6 +25,8 @@ DEPEND="
 "
 BDEPEND="virtual/pkgconfig"
 
+PATCHES=( "${FILESDIR}"/keep-the-corner-radius-of-menu-windows.patch )
+
 src_compile() {
 	emake \
 		CC="$(tc-getCC)" \

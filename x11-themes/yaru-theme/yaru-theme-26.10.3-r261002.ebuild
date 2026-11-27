@@ -29,7 +29,10 @@ BDEPEND="
 	dev-lang/sassc
 "
 
-PATCHES=( "${FILESDIR}"/Remove-light-edges-in-menu-corners.patch )
+PATCHES=(
+	"${FILESDIR}"/Remove-light-edges-in-menu-corners.patch
+	"${FILESDIR}"/Round-the-Unity-shadow-of-menus.patch
+)
 
 src_prepare() {
 	if use unity; then

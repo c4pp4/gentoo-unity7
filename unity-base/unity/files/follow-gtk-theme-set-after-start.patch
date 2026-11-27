@@ -1,0 +1,68 @@
+From f8747951a1931ca3fc96dea6ae6e680eaf2339ae Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Fri, 27 Nov 2026 22:57:36 +0100
+Subject: [PATCH 1/1] Follow the GTK theme also when it is set after the start
+
+unity-settings-daemon publishes the GTK theme through XSETTINGS, but
+systemd does not wait for it before it starts Unity. When unityshell
+starts first, GTK uses the theme from /etc/gtk-3.0/settings.ini and
+Unity keeps it for the whole session:
+
+- UnityScreen replaces the events that GDK selected on the root window
+  with PropertyChangeMask, so GDK misses the MANAGER message of the
+  XSETTINGS manager and never reads the theme.
+- The decoration style reads its style properties from a style context
+  without a widget. GTK 3.11 and later does not invalidate such a
+  context when the theme changes, so the values of the previous theme
+  stay cached.
+
+With Yaru, inactive windows and menus then get the visible default
+shadow instead of the transparent shadow of the theme.
+
+Add PropertyChangeMask to the events of GDK, and invalidate the style
+context when the theme changes.
+
+Signed-off-by: c4pp4
+---
+ plugins/unityshell/src/unityshell.cpp | 6 +++++-
+ unity-shared/DecorationStyle.cpp      | 6 ++++--
+ 2 files changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/plugins/unityshell/src/unityshell.cpp b/plugins/unityshell/src/unityshell.cpp
+index 6fd9720..48079e1 100644
+--- a/plugins/unityshell/src/unityshell.cpp
++++ b/plugins/unityshell/src/unityshell.cpp
+@@ -466,7 +466,11 @@ UnityScreen::UnityScreen(CompScreen* screen)
+      });
+ 
+     Display* display = gdk_x11_display_get_xdisplay(gdk_display_get_default());;
+-    XSelectInput(display, GDK_ROOT_WINDOW(), PropertyChangeMask);
++    // Keep the events that GDK selected on the root window, it needs
++    // StructureNotifyMask to notice an XSETTINGS manager that starts later
++    XWindowAttributes root_attrs;
++    XGetWindowAttributes(display, GDK_ROOT_WINDOW(), &root_attrs);
++    XSelectInput(display, GDK_ROOT_WINDOW(), root_attrs.your_event_mask | PropertyChangeMask);
+     LOG_INFO(logger) << "UnityScreen constructed: " << timer.ElapsedSeconds() << "s";
+ 
+     UScreen::GetDefault()->resuming.connect([this] {
+diff --git a/unity-shared/DecorationStyle.cpp b/unity-shared/DecorationStyle.cpp
+index 7cfe5e0..f2f46c6 100644
+--- a/unity-shared/DecorationStyle.cpp
++++ b/unity-shared/DecorationStyle.cpp
+@@ -175,9 +175,11 @@ struct Style::Impl
+     UpdateThemedValues();
+ 
+     connections_.Add(theme_settings->theme.changed.connect([this] (std::string const& theme) {
+-#if !GTK_CHECK_VERSION(3, 11, 0)
++      // GTK invalidates only the style contexts of widgets, this one
++      // would keep the style properties of the previous theme
++      G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+       gtk_style_context_invalidate(ctx_);
+-#endif
++      G_GNUC_END_IGNORE_DEPRECATIONS
+       UpdateThemedValues();
+       parent_->theme.EmitChanged(theme);
+       LOG_INFO(logger) << "unity theme changed to " << parent_->theme();
+-- 
+2.56.1
+

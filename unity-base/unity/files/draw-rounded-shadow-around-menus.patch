@@ -1,0 +1,229 @@
+From 713f32440b0750a54bf1df499df4ad7db6052e42 Mon Sep 17 00:00:00 2001
+From: c4pp4
+Date: Fri, 27 Nov 2026 22:57:36 +0100
+Subject: [PATCH 1/1] Draw a rounded shadow around menus
+
+A menu is never the active window, so Unity gives it the shadow of
+inactive windows, which Yaru makes transparent. And Unity draws the
+shadow of a rectangle, so with a visible inactive shadow, the rounded
+corners of a menu showed the background between the menu and the
+square shadow.
+
+Give menus that publish the radius of their corners in
+_UNITY_GTK_BORDER_RADIUS the shadow of the active window, in the shape
+of the menu with these corners, and paint it also under the transparent
+corners of the menu.
+
+Signed-off-by: c4pp4
+---
+ decorations/DecoratedWindow.cpp | 98 ++++++++++++++++++++++++++++++++-
+ decorations/DecorationsPriv.h   |  9 +++
+ 2 files changed, 106 insertions(+), 1 deletion(-)
+
+diff --git a/decorations/DecoratedWindow.cpp b/decorations/DecoratedWindow.cpp
+index 21f192c..75cf28f 100644
+--- a/decorations/DecoratedWindow.cpp
++++ b/decorations/DecoratedWindow.cpp
+@@ -17,6 +17,8 @@
+  * Authored by: Marco Trevisan <marco.trevisan@canonical.com>
+  */
+ 
++#include <algorithm>
++#include <cmath>
+ #include <core/atoms.h>
+ #include <X11/Xatom.h>
+ 
+@@ -38,6 +40,9 @@ namespace decoration
+ namespace
+ {
+ const int SHADOW_BLUR_MARGIN_FACTOR = 2;
++// GTK menus, also of combo boxes, publish the radius of their corners
++const unsigned MENU_WINDOW_TYPES = CompWindowTypeDropdownMenuMask | CompWindowTypePopupMenuMask |
++                                   CompWindowTypeMenuMask | CompWindowTypeComboMask;
+ }
+ 
+ Window::Impl::Impl(Window* parent, CompWindow* win)
+@@ -497,6 +502,8 @@ void Window::Impl::UpdateClientDecorationsState()
+       client_borders_.left = std::max(corners[TOP_LEFT], corners[BOTTOM_LEFT]);
+       client_borders_.right = std::max(corners[TOP_RIGHT], corners[BOTTOM_RIGHT]);
+       client_borders_.bottom = std::max(corners[BOTTOM_LEFT], corners[BOTTOM_RIGHT]);
++      for (unsigned i = 0; i < client_corners_.size() && i < corners.size(); ++i)
++        client_corners_[i] = std::max<long>(0, corners[i]);
+       client_decorated_ = true;
+       return;
+     }
+@@ -505,6 +512,7 @@ void Window::Impl::UpdateClientDecorationsState()
+   if (client_decorated_)
+   {
+     client_borders_ = CompWindowExtents();
++    client_corners_.fill(0);
+     client_decorated_ = false;
+   }
+ }
+@@ -530,6 +538,11 @@ bool Window::Impl::ShouldBeDecorated() const
+   return (win_->frame() || win_->hasUnmapReference()) && FullyDecorated();
+ }
+ 
++bool Window::Impl::IsClientDecoratedMenu() const
++{
++  return client_decorated_ && (win_->type() & MENU_WINDOW_TYPES);
++}
++
+ GLTexture* Window::Impl::ShadowTexture() const
+ {
+   if (shaped_shadow_pixmap_)
+@@ -611,6 +624,10 @@ void Window::Impl::ComputeShadowQuads()
+   {
+     ComputeShapedShadowQuad();
+   }
++  else if (IsClientDecoratedMenu())
++  {
++    ComputeMenuShadowQuad();
++  }
+   else
+   {
+     shaped_shadow_pixmap_.reset();
+@@ -792,6 +809,85 @@ void Window::Impl::ComputeShapedShadowQuad()
+   }
+ }
+ 
++cu::PixmapTexture::Ptr Window::Impl::BuildMenuShadowTexture(nux::Size const& size, unsigned radius, nux::Color const& color)
++{
++  enum Corner { TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT };
++  nux::CairoGraphics img(CAIRO_FORMAT_ARGB32, size.width, size.height);
++  auto* img_ctx = img.GetInternalContext();
++  double margin = radius * SHADOW_BLUR_MARGIN_FACTOR;
++  double width = size.width - margin * 2;
++  double height = size.height - margin * 2;
++  std::array<double, 4> r;
++
++  for (unsigned i = 0; i < r.size(); ++i)
++    r[i] = std::min<double>(client_corners_[i], std::min(width, height) / 2);
++
++  // The shape of the menu, with the corners that GTK published
++  cairo_new_sub_path(img_ctx);
++  cairo_arc(img_ctx, margin + width - r[TOP_RIGHT], margin + r[TOP_RIGHT], r[TOP_RIGHT], -M_PI / 2, 0);
++  cairo_arc(img_ctx, margin + width - r[BOTTOM_RIGHT], margin + height - r[BOTTOM_RIGHT], r[BOTTOM_RIGHT], 0, M_PI / 2);
++  cairo_arc(img_ctx, margin + r[BOTTOM_LEFT], margin + height - r[BOTTOM_LEFT], r[BOTTOM_LEFT], M_PI / 2, M_PI);
++  cairo_arc(img_ctx, margin + r[TOP_LEFT], margin + r[TOP_LEFT], r[TOP_LEFT], M_PI, M_PI * 3 / 2);
++  cairo_close_path(img_ctx);
++  cairo_set_source_rgba(img_ctx, color.red, color.green, color.blue, color.alpha);
++  cairo_fill(img_ctx);
++
++  img.BlurSurface(radius);
++
++  cu::CairoContext shadow_ctx(size.width, size.height);
++  cairo_set_source_surface(shadow_ctx, img.GetSurface(), 0, 0);
++  cairo_paint(shadow_ctx);
++
++  return shadow_ctx;
++}
++
++void Window::Impl::ComputeMenuShadowQuad()
++{
++  // A menu is never the active window, but it is in use while it is open
++  nux::Color const& color = manager_->active_shadow_color();
++  unsigned radius = manager_->active_shadow_radius();
++  auto const& border = win_->borderRect();
++  auto const& shadow_offset = manager_->shadow_offset();
++  int margin = radius * SHADOW_BLUR_MARGIN_FACTOR;
++  nux::Size size(border.width() + margin * 2, border.height() + margin * 2);
++  bool rebuilt = false;
++
++  if (!shaped_shadow_pixmap_ || size != menu_shadow_size_ || radius != menu_shadow_radius_ ||
++      color != menu_shadow_color_ || client_corners_ != menu_shadow_corners_)
++  {
++    shaped_shadow_pixmap_ = BuildMenuShadowTexture(size, radius, color);
++    menu_shadow_size_ = size;
++    menu_shadow_radius_ = radius;
++    menu_shadow_color_ = color;
++    menu_shadow_corners_ = client_corners_;
++    rebuilt = true;
++  }
++
++  const auto* texture = shaped_shadow_pixmap_->texture();
++
++  if (!texture || !texture->width() || !texture->height())
++    return;
++
++  auto* quad = &shadow_quads_[Quads::Pos(0)];
++  quad->box.setGeometry(border.x() + shadow_offset.x - margin, border.y() + shadow_offset.y - margin, size.width, size.height);
++  quad->matrix = texture->matrix();
++  quad->matrix.x0 = -COMP_TEX_COORD_X(quad->matrix, quad->box.x1());
++  quad->matrix.y0 = -COMP_TEX_COORD_Y(quad->matrix, quad->box.y1());
++
++  if (rebuilt || quad->box != last_shadow_rect_)
++  {
++    // Paint the shadow also under the transparent corners of the menu
++    int corner = *std::max_element(client_corners_.begin(), client_corners_.end());
++    corner = std::min({corner, border.width() / 2, border.height() / 2});
++    CompRegion covered(border.x() + corner, border.y(), border.width() - corner * 2, border.height());
++    covered += CompRect(border.x(), border.y() + corner, border.width(), border.height() - corner * 2);
++    quad->region = CompRegion(quad->box) - covered;
++
++    last_shadow_rect_ = quad->box;
++    win_->updateWindowOutputExtents();
++  }
++}
++
+ void Window::Impl::Paint(GLMatrix const& transformation,
+                          GLWindowPaintAttrib const& attrib,
+                          CompRegion const& region, unsigned mask)
+@@ -832,7 +928,7 @@ void Window::Impl::Draw(GLMatrix const& transformation,
+ 
+   glwin_->vertexBuffer()->begin();
+ 
+-  unsigned int num_quads = ShapedShadowDecorated() ? 1 : shadow_quads_.size();
++  unsigned int num_quads = (ShapedShadowDecorated() || IsClientDecoratedMenu()) ? 1 : shadow_quads_.size();
+   for (unsigned int i = 0; i < num_quads; ++i)
+   {
+     auto& quad = shadow_quads_[Quads::Pos(i)];
+diff --git a/decorations/DecorationsPriv.h b/decorations/DecorationsPriv.h
+index c8c5a39..d0190e4 100644
+--- a/decorations/DecorationsPriv.h
++++ b/decorations/DecorationsPriv.h
+@@ -20,6 +20,7 @@
+ #ifndef UNITY_DECORATION_MANAGER_PRIV
+ #define UNITY_DECORATION_MANAGER_PRIV
+ 
++#include <array>
+ #include <unordered_map>
+ #include <NuxCore/NuxCore.h>
+ #include <NuxCore/Rect.h>
+@@ -121,6 +122,7 @@ private:
+   void SyncXShapeWithFrameRegion();
+   void SyncMenusGeometries() const;
+   bool ShouldBeDecorated() const;
++  bool IsClientDecoratedMenu() const;
+   GLTexture* ShadowTexture() const;
+   GLTexture* SharedShadowTexture() const;
+   unsigned ShadowRadius() const;
+@@ -129,11 +131,13 @@ private:
+   void ComputeShadowQuads();
+   void ComputeGenericShadowQuads();
+   void ComputeShapedShadowQuad();
++  void ComputeMenuShadowQuad();
+   void UpdateDecorationTextures();
+   void UpdateWindowEdgesGeo();
+   void UpdateForceQuitDialogPosition();
+   void RenderDecorationTexture(Side, nux::Geometry const&);
+   cu::PixmapTexture::Ptr BuildShapedShadowTexture(nux::Size const&, unsigned radius, nux::Color const&, Shape const&);
++  cu::PixmapTexture::Ptr BuildMenuShadowTexture(nux::Size const&, unsigned radius, nux::Color const&);
+   void Paint(GLMatrix const&, GLWindowPaintAttrib const&, CompRegion const&, unsigned mask);
+   void Draw(GLMatrix const&, GLWindowPaintAttrib const&, CompRegion const&, unsigned mask);
+ 
+@@ -158,6 +162,11 @@ private:
+   nux::Geometry frame_geo_;
+   CompRegion frame_region_;
+   CompWindowExtents client_borders_;
++  std::array<unsigned, 4> client_corners_ = {};
++  nux::Size menu_shadow_size_;
++  unsigned menu_shadow_radius_ = 0;
++  nux::Color menu_shadow_color_;
++  std::array<unsigned, 4> menu_shadow_corners_ = {};
+   connection::Wrapper theme_changed_;
+   connection::Wrapper dpi_changed_;
+   connection::Wrapper grab_mouse_changed_;
+-- 
+2.56.1
+
